@@ -1,5 +1,5 @@
 ## Pull Request Guidelines
-- Target branch: `develop`
+- Target branch: `Develop`
 - Do not create PRs directly to `main`.
 
 ## 작업 내용 (What)
