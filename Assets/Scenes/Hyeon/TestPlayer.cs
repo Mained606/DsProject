@@ -1,35 +1,26 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class TestPlayer : MonoBehaviour
 {
     private float moveSpeed = 5.0f;
 
-    private void OnEnable()
+    public PlayerInput playerInput;
+    private Vector2 moveInput;
+    private InputAction moveAction => playerInput.actions["Move"];
+
+    private void Start()
     {
+        playerInput = GetComponent<PlayerInput>();
         TestManager.Input.keyaction += OnKeyboard;
     }
     void OnKeyboard()
     {
-        if (Input.GetKey(KeyCode.W))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.forward), 0.2f);
-            transform.position += Vector3.forward * Time.deltaTime * moveSpeed;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.left), 0.2f);
-            transform.position += Vector3.left * Time.deltaTime * moveSpeed;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.back), 0.2f);
-            transform.position += Vector3.back * Time.deltaTime * moveSpeed;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Vector3.right), 0.2f);
-            transform.position += Vector3.right * Time.deltaTime * moveSpeed;
-        }
+        moveInput = moveAction.ReadValue<Vector2>();
+        Vector3 newPosition = new Vector3(moveInput.x, 0f, moveInput.y);
+        Vector3 direction = ((newPosition + transform.position) - transform.position).normalized;
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
+        transform.position += newPosition * Time.deltaTime * moveSpeed;
     }
 
     private void OnDisable()
