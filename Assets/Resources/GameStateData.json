@@ -1,0 +1,88 @@
+{
+  "States": [
+    {
+      "StateName": "Dialogue",
+      "TransitionCondition": "NPCInteraction",
+      "SystemLogics": [
+        {
+          "SystemName": "DialogueManager",
+          "Logic": "StartDialogue"
+        },
+        {
+          "SystemName": "UIManager",
+          "Logic": "ShowDialogueUI"
+        },
+        {
+          "SystemName": "DialogueManager",
+          "Logic": "PlayDialogueSound"
+        }
+      ]
+    },
+    {
+      "StateName": "Dialogue",
+      "TransitionCondition": "QuestComplete",
+      "SystemLogics": [
+        {
+          "SystemName": "DialogueManager",
+          "Logic": "ShowQuestCompleteUI"
+        }
+      ]
+    },
+    {
+      "StateName": "Combat",
+      "TransitionCondition": "EnemyEncounter",
+      "SystemLogics": [
+        {
+          "SystemName": "CombatManager",
+          "Logic": "StartCombat"
+        },
+        {
+          "SystemName": "PlayerManager",
+          "Logic": "InitializePlayer"
+        },
+        {
+          "SystemName": "EnemyManager",
+          "Logic": "InitializeEnemies"
+        }
+      ]
+    },
+    {
+      "StateName": "Combat",
+      "TransitionCondition": "Player",
+      "SystemLogics": [
+        {
+          "SystemName": "CombatManager",
+          "Logic": "HandlePlayer"
+        },
+        {
+          "SystemName": "UIManager",
+          "Logic": "ShowCombatUI"
+        }
+      ]
+    },
+    {
+      "StateName": "Exploration",
+      "TransitionCondition": "AreaEnter",
+      "SystemLogics": [
+        {
+          "SystemName": "DialogueManager",
+          "Logic": "TriggerAreaEvent"
+        },
+        {
+          "SystemName": "DialogueManager",
+          "Logic": "CheckDialogueEvent"
+        }
+      ]
+    },
+    {
+      "StateName": "Inventory",
+      "TransitionCondition": "InventoryToggle",
+      "SystemLogics": [
+        {
+          "SystemName": "UIManager",
+          "Logic": "ToggleInventory"
+        }
+      ]
+    }
+  ]
+}
