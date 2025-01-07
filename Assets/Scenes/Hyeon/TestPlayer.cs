@@ -9,14 +9,33 @@ public class TestPlayer : MonoBehaviour
     private Vector2 moveInput;
     private InputAction moveAction => playerInput.actions["Move"];
 
+    [SerializeField] private Transform cameraTransform;
+
     private void Start()
     {
         playerInput = GetComponent<PlayerInput>();
-        TestManager.Input.keyaction += OnKeyboard;
+        TestManager.Input.keyaction += OnMove;
     }
-    void OnKeyboard()
+    void OnMove()
     {
         moveInput = moveAction.ReadValue<Vector2>();
+
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 moveDirection = (right * moveInput.x + forward * moveInput.y).normalized;
+
+        if(moveDirection.sqrMagnitude > 0.01f)
+        {
+            //Quaternion
+        }
+
         Vector3 newPosition = new Vector3(moveInput.x, 0f, moveInput.y);
         Vector3 direction = ((newPosition + transform.position) - transform.position).normalized;
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
@@ -25,6 +44,6 @@ public class TestPlayer : MonoBehaviour
 
     private void OnDisable()
     {
-        TestManager.Input.keyaction -= OnKeyboard;
+        TestManager.Input.keyaction -= OnMove;
     }
 }
