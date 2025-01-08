@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace HJ
 {
@@ -16,34 +15,87 @@ namespace HJ
         [SerializeField] private int maxCapacity = 60;
 
         //아이템 리스트
-        public List<Item> items;
+        public List<Item> items = new List<Item>();
 
         //인벤토리 UI
         #endregion
 
         private void Start()
         {
-            items = new List<Item>();
-
             CurrentCapacity = initialCapacity;      //초기 수용한도 설정
         }
 
         /// <summary>
-        /// 아이템 여러개 소지 가능한지 여부
+        /// 인벤토리에 아이템 추가
         /// </summary>
-        private bool IsCanStack(Item item)
+        public bool AddItem(Item item, int quantity = 1)
         {
-            return item.isCanStack && item.currentQuantity < item.maxCapacity;
+            //이미 소지한 아이템인지 확인
+            if (IsAlreadyPossess(item))
+            {
+                if (IsCanStack(item))
+                {
+                    IncreaseItemQuantity(item, quantity);
+                    return true;
+                }
+                return false;
+            }
+
+            //새 아이템 추가
+            if (items.Count < CurrentCapacity)
+            {
+                AddNewItem(item,quantity);
+                return true;
+            }
+
+            return false; //인벤토리가 가득 찬 경우
         }
+
+        /// <summary>
+        /// 인벤토리에서 아이템 제거
+        /// </summary>
+        public void RemoveItem(int index, int quantity = 1)
+        {
+            if (index < 0 || index >= items.Count) return;
+
+            Item targetItem = items[index];
+
+            if (targetItem.isCanStack && targetItem.currentQuantity > quantity)
+            {
+                targetItem.currentQuantity -= quantity;
+            }
+            else
+            {
+                items.RemoveAt(index);
+            }
+        }
+
+        /// <summary>
+        /// 인벤토리 크기 확장
+        /// </summary>
+        public void ExpandInventory(int expandSize)
+        {
+            CurrentCapacity = Mathf.Min(CurrentCapacity + expandSize, maxCapacity);
+        }
+
+        /// <summary>
+        /// 인벤토리의 특정 아이템 정보 가져오기
+        /// </summary>
+        public Item GetItem(int index)
+        {
+            return index >= 0 && index < items.Count ? items[index] : null;
+        }
+
+
 
         /// <summary>
         /// 이미 소지한 아이템인지 확인
         /// </summary>
-        private bool IsAlreadyPosses(Item item)
+        private bool IsAlreadyPossess(Item item)
         {
-            foreach(Item possesItem in items)
+            foreach (Item possessItem in items)
             {
-                if(item.itemId == possesItem.itemId)
+                if (item.itemId == possessItem.itemId)
                 {
                     return true;
                 }
@@ -53,68 +105,36 @@ namespace HJ
         }
 
         /// <summary>
-        /// 인벤토리 아이템 셋팅
+        /// 아이템 추가할 수 있는지 확인
         /// </summary>
-        public void SetItem(Item item, int quantity = 1)
+        private bool IsCanStack(Item item)
         {
-            //인벤토리 수용량보다 적은지 확인
-            if(items.Count < CurrentCapacity)
-            {
-                //이미 보유하고 있고 여러개 소지할 수 있는 아이템이면 수량만 추가
-                if(IsAlreadyPosses(item) && IsCanStack(item))
-                {
-                    Debug.Log("이미 소지한 아이템 습득");
+            return item.isCanStack && item.currentQuantity < item.maxCapacity;
+        }
 
-                    Item existingItem = items.FirstOrDefault(i => i.itemId == item.itemId);
-                    if (existingItem != null)
-                    {
-                        existingItem.currentQuantity += quantity;
-                    }
-                }
-                else
+        /// <summary>
+        /// 기존 아이템 수량 증가
+        /// </summary>
+        private void IncreaseItemQuantity(Item item, int quantity = 1)
+        {
+            foreach (Item existingItem in items)
+            {
+                if (existingItem.itemId == item.itemId && IsCanStack(existingItem))
                 {
-                    Debug.Log("새로운 아이템 습득");
-                    items.Add(item);
-                    item.currentQuantity++;
+                    Debug.Log("기존 아이템 수량 추가");
+                    existingItem.currentQuantity += quantity;
                 }
             }
         }
 
         /// <summary>
-        /// 아이템 제거? 버리기?
+        /// 새로운 아이템 추가
         /// </summary>
-        public void RemoveItem(int index, int quantity = 1)
+        private void AddNewItem(Item item, int quantity = 1)
         {
-            if (items.Count > 0)
-            {
-                if (items[index].isCanStack && items[index].currentQuantity > 1)
-                {
-                    items[index].currentQuantity -= quantity;
-                }
-                else
-                {
-                    items.RemoveAt(index);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 아이템 정보 가져오기
-        /// </summary>
-        public Item GetItem(int index)
-        {
-            return items.Count > 0 ? items[index] : null;
-        }
-
-        /// <summary>
-        /// 인벤토리 크기 확장
-        /// </summary>
-        public void ExpandInventory(int expandSize)
-        {
-            if(CurrentCapacity + expandSize <= maxCapacity)
-            {
-                CurrentCapacity += expandSize;
-            }
+            Debug.Log("새로운 아이템 추가");
+            item.currentQuantity = Mathf.Min(quantity, item.maxCapacity);
+            items.Add(item);
         }
     }
 }

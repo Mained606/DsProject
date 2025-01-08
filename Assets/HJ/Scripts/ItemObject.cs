@@ -40,7 +40,6 @@ namespace HJ
 
         /// <summary>
         /// 아이템 줍기
-        /// 아이템 최대 소지갯수를 초과했을때 더 이상 수집하지 못하도록 수정
         /// </summary>
         public void GetItem()
         {
@@ -49,8 +48,14 @@ namespace HJ
 
             if (IsNearPlayer())
             {
-                inventory.SetItem(itemData);
-                Destroy(gameObject);
+                if(inventory.AddItem(itemData))
+                {
+                    Destroy(gameObject);
+                }
+                else
+                {
+                    Debug.Log("아이템 획득할 수 없음");
+                }
             }
         }
     }
