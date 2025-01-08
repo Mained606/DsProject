@@ -1,31 +1,56 @@
-//using UnityEngine;
-//using UnityEngine.InputSystem;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
-//public class TestPlayer : MonoBehaviour
-//{
-//    private float moveSpeed = 5.0f;
+public class TestPlayer : TestCharacterManager
+{
+    private float moveSpeed = 5.0f;
 
-//    public PlayerInput playerInput;
-//    private Vector2 moveInput;
-//    private InputAction moveAction => playerInput.actions["Move"];
+    private Vector2 moveInput;
+    private Transform cameraTransform;
 
-//    private void Start()
-//    {
-//        playerInput = GetComponent<PlayerInput>();
-//        TestGameManager.Input.keyaction += OnMove;
-//    }
-//    void OnMove()
-//    {
-//        moveInput = moveAction.ReadValue<Vector2>();
+    private void Start()
+    {
+        cameraTransform = Camera.main.transform;
 
-//        Vector3 newPosition = new Vector3(moveInput.x, 0f, moveInput.y);
-//        Vector3 direction = ((newPosition + transform.position) - transform.position).normalized;
-//        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
-//        transform.position += newPosition * Time.deltaTime * moveSpeed;
-//    }
+        TestGameManager.Instance.GetManager<TestInputManager>("InputManager").OnMoveInput += HandleMoveInput;
+    }
 
-//    private void OnDisable()
-//    {
-//        TestManager.Input.keyaction -= OnMove;
-//    }
-//}
+    private void Update()
+    {
+        OnMove();
+    }
+
+    private new void OnDisable()
+    {
+        TestGameManager.Instance.GetManager<TestInputManager>("InputManager").OnMoveInput -= HandleMoveInput;
+    }
+
+    private void HandleMoveInput(Vector2 input)
+    {
+        moveInput = input;
+    }
+
+    private void OnMove()
+    {
+        if (moveInput != Vector2.zero)
+        {
+            Vector3 forward = cameraTransform.forward;
+            Vector3 right = cameraTransform.right;
+
+            forward.y = 0f;
+            right.y = 0f;
+            forward.Normalize();
+            right.Normalize();
+
+            Vector3 direction = (forward * moveInput.y + right * moveInput.x).normalized;
+
+            transform.position += direction * moveSpeed * Time.deltaTime;
+
+            if (direction != Vector3.zero)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
+            }
+        }
+    }
+}

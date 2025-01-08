@@ -1,21 +1,39 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class TestCharacterManager : MonoBehaviour
+public class TestCharacterManager : TestBaseManager
 {
-    public TestCharacterStats playerStats { get; private set; }
+    [SerializeField]
+    private TestCharacterStats characterStats;
 
-    private void Awake()
-    {
-        playerStats = new TestCharacterStats();
-    }
+    public TestCharacterStats CharacterStats => characterStats;
+
     private void Start()
     {
-        TestGameManager.Instance.RegisterManager(this);
+        stateActions = new Dictionary<GameState, Action>
+        {
+            { GameState.Menu, CharacterPause },
+            { GameState.Pause, CharacterPause },
+            { GameState.Exploration, CharacterPlay },
+            { GameState.Combat, CharacterOnCambatMode }
+        };
+
+        //TestGameManager.Instance.RegisterManager(this);
     }
 
-    public TestCharacterStats GetPlayerStats()
+    public void CharacterPause()
     {
-        return playerStats;
+        Debug.Log("CharacterPause");
     }
 
+    public void CharacterPlay()
+    {
+        Debug.Log("CharacterPlay");
+    }
+
+    public void CharacterOnCambatMode()
+    {
+        Debug.Log("CharacterOnCambatMode");
+    }
 }

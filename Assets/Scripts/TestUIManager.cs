@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestUIManager : MonoBehaviour
+public class TestUIManager : TestBaseManager
 {
-    private Dictionary<GameState, Action> stateActions;
+    //private Dictionary<GameState, Action> stateActions;
 
     private void Start()
     {
@@ -14,32 +14,13 @@ public class TestUIManager : MonoBehaviour
             { GameState.Pause, ShowPauseUI },
             { GameState.Exploration, HideAllUI }
         };
-    }
-    private void OnEnable()
-    {
-        TestGameStateMachine.OnGameStateChanged += HandleGameStateChanged;
-    }
 
-    private void OnDisable()
-    {
-        TestGameStateMachine.OnGameStateChanged -= HandleGameStateChanged;
-    }
-
-    private void HandleGameStateChanged(GameState newState)
-    {
-        if(stateActions.TryGetValue(newState, out var action))
-        {
-            action?.Invoke();
-        }
-        else
-        {
-            Debug.Log($"UIManager의 상태 {newState}에 대한 처리가 존재하지 않음");
-        }
+        //TestGameManager.Instance.RegisterManager(this);
     }
 
     private void ShowMenuUI()
     {
-        Debug.Log($"ShowMenuUI {TestGameManager.Instance.CharacterManager.playerStats.characterHP}");
+        Debug.Log($"ShowMenuUI {TestGameManager.Instance.GetManager<TestCharacterManager>("CharacterManager").CharacterStats.characterHP}");
     }
 
     private void ShowPauseUI()
