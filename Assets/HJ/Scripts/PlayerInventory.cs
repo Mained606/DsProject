@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HJ
 {
@@ -27,61 +28,73 @@ namespace HJ
             CurrentCapacity = initialCapacity;      //초기 수용한도 설정
         }
 
-        ////아이템 수용 범위 검사
-        //private bool IsValidIndex(int index)
-        //{
-        //    return index >= 0 && index <= CurrentCapacity;
-        //}
+        /// <summary>
+        /// 아이템 여러개 소지 가능한지 여부
+        /// </summary>
+        private bool IsCanStack(Item item)
+        {
+            return item.isCanStack && item.currentQuantity < item.maxCapacity;
+        }
 
-        ////비어있는 슬롯 앞에서부터 찾기 (잘못된 인덱스는 -1)
-        //private int FindEmptySlot()
-        //{
-        //    for(int i = 0; i < CurrentCapacity; i++)
-        //    {
-        //        if (items[i] == null)
-        //        {
-        //            Debug.Log($"{i}번째 슬롯이 비어있음");
-        //            return i;
-        //        }
-        //    }
+        /// <summary>
+        /// 이미 소지한 아이템인지 확인
+        /// </summary>
+        private bool IsAlreadyPosses(Item item)
+        {
+            foreach(Item possesItem in items)
+            {
+                if(item.itemId == possesItem.itemId)
+                {
+                    return true;
+                }
+            }
 
-        //    Debug.Log("빈 슬롯 없음");
-        //    return -1;
-        //}
-
-        ///// <summary>
-        ///// 해당 슬롯의 아이템 여부 확인
-        ///// 인벤토리 내에서 아이템 옮길 때, 버릴 때 등 활용 예정
-        ///// </summary>
-        //public bool HasItem(int index)
-        //{
-        //   return IsValidIndex(index) && items[index] != null;
-        //}
-
-
-
+            return false;
+        }
 
         /// <summary>
         /// 인벤토리 아이템 셋팅
-        /// 아이템 습득시 활용
         /// </summary>
-        public void SetItem(Item item)
+        public void SetItem(Item item, int quantity = 1)
         {
-            //int emptySlot = FindEmptySlot();
-            if (items.Count < CurrentCapacity)
+            //인벤토리 수용량보다 적은지 확인
+            if(items.Count < CurrentCapacity)
             {
-                items.Add(item);
+                //이미 보유하고 있고 여러개 소지할 수 있는 아이템이면 수량만 추가
+                if(IsAlreadyPosses(item) && IsCanStack(item))
+                {
+                    Debug.Log("이미 소지한 아이템 습득");
+
+                    Item existingItem = items.FirstOrDefault(i => i.itemId == item.itemId);
+                    if (existingItem != null)
+                    {
+                        existingItem.currentQuantity += quantity;
+                    }
+                }
+                else
+                {
+                    Debug.Log("새로운 아이템 습득");
+                    items.Add(item);
+                    item.currentQuantity++;
+                }
             }
         }
 
         /// <summary>
         /// 아이템 제거? 버리기?
         /// </summary>
-        public void RemoveItem(int index)
+        public void RemoveItem(int index, int quantity = 1)
         {
             if (items.Count > 0)
             {
-                items.RemoveAt(index);
+                if (items[index].isCanStack && items[index].currentQuantity > 1)
+                {
+                    items[index].currentQuantity -= quantity;
+                }
+                else
+                {
+                    items.RemoveAt(index);
+                }
             }
         }
 
