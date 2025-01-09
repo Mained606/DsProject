@@ -16,6 +16,7 @@ namespace HJ
         public int currentQuantity = 0;     //현재 수량
         public int value;                   //가치
         public ItemType itemType;           //아이템 타입
+        public ItemGrade itemGrade;         //아이템 등급
         public string itemPrefabName;       //아이템 프리팹 이름
 
         [NonSerialized]
@@ -50,5 +51,13 @@ namespace HJ
         Consumable,
         Quest,
         Etc
+    }
+
+    //아이템 등급
+    public enum ItemGrade
+    {
+        Normal,
+        Rare,
+        Legend
     }
 }
