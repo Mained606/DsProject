@@ -7,6 +7,7 @@ public class TestInputManager : TestBaseManager
 {
     public event Action<Vector2> OnMoveInput;
     public event Action OnJumpInput;
+    public event Action OnAttackInput;
 
     private InputSystem_Actions inputActions;
 
@@ -18,10 +19,12 @@ public class TestInputManager : TestBaseManager
         inputActions.Player.Move.canceled += ctx => OnMoveInput?.Invoke(Vector2.zero);
 
         inputActions.Player.Jump.performed += ctx => OnJumpInput?.Invoke();
+
+        inputActions.Player.Attack.performed += ctx => OnAttackInput?.Invoke();
     }
 
-    private void OnEnable() => inputActions.Player.Enable();
-    private void OnDisable() => inputActions.Player.Disable();
+    private new void OnEnable() => inputActions.Player.Enable();
+    private new void OnDisable() => inputActions.Player.Disable();
 
     //private void Update()
     //{

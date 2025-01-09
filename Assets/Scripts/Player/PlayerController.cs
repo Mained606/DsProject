@@ -3,15 +3,16 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : TestCharacterManager
 {
+    private TestInputManager inputManager;
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
     private float moveSpeed;
 
     private Vector2 moveInput;
     private Transform cameraTransform;
 
-    private float jumpHeight = 3.0f;
+    private float jumpHeight = 1.0f;
     private Vector3 moveDirection;
-    private float verticalVelocity;
+    private Vector3 verticalVelocity;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private bool isGrounded;
 
@@ -22,9 +23,10 @@ public class PlayerController : TestCharacterManager
     {
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
+        inputManager = TestGameManager.Instance.GetManager<TestInputManager>("InputManager");
 
-        TestGameManager.Instance.GetManager<TestInputManager>("InputManager").OnMoveInput += HandleMoveInput;
-        TestGameManager.Instance.GetManager<TestInputManager>("InputManager").OnJumpInput += HandleJumpInput;
+        inputManager.OnMoveInput += HandleMoveInput;
+        inputManager.OnJumpInput += HandleJumpInput;
         Initialize();
     }
 
@@ -32,6 +34,7 @@ public class PlayerController : TestCharacterManager
     {
         isGrounded = characterController.isGrounded;
         HandleGravity();
+        ControlMovement();
 
         Debug.Log($"Player State : {CurrentState}");
         switch (CurrentState)
@@ -39,7 +42,7 @@ public class PlayerController : TestCharacterManager
             case PlayerState.PlayerIdle:
                 break;
             case PlayerState.PlayerWalk:
-                OnMove();
+                //OnMove();
                 break;
             case PlayerState.PlayerSprint:
                 break;
@@ -61,8 +64,8 @@ public class PlayerController : TestCharacterManager
 
     private new void OnDisable()
     {
-        TestGameManager.Instance.GetManager<TestInputManager>("InputManager").OnMoveInput -= HandleMoveInput;
-        TestGameManager.Instance.GetManager<TestInputManager>("InputManager").OnJumpInput -= HandleJumpInput;
+        inputManager.OnMoveInput -= HandleMoveInput;
+        inputManager.OnJumpInput -= HandleJumpInput;
     }
 
     private void Initialize()
@@ -91,8 +94,7 @@ public class PlayerController : TestCharacterManager
         Debug.Log("HandleJumpInput");
         if (isGrounded)
         {
-            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            Debug.Log($"verticalVelocity: {verticalVelocity}");
+            verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
     }
 
@@ -100,18 +102,18 @@ public class PlayerController : TestCharacterManager
     {
         if (!isGrounded)
         {
-            verticalVelocity += gravity * Time.deltaTime;
+            verticalVelocity.y += gravity * Time.deltaTime;
         }
         else
         {
-            if(verticalVelocity < 0)
+            if(verticalVelocity.y < 0)
             {
-                verticalVelocity = -0.5f;
+                verticalVelocity.y = -0.5f;
             }
         }
     }
 
-    private void OnMove()
+    private void ControlMovement()
     {
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
@@ -124,7 +126,7 @@ public class PlayerController : TestCharacterManager
         Vector3 direction = (forward * moveInput.y + right * moveInput.x).normalized;
 
         moveDirection = direction;
-        moveDirection.y = verticalVelocity;
+        moveDirection.y = verticalVelocity.y;
 
         characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
 
