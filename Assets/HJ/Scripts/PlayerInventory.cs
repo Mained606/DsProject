@@ -30,21 +30,31 @@ namespace HJ
         /// </summary>
         public bool AddItem(Item item, int quantity = 1)
         {
-            //이미 소지한 아이템인지 확인
-            if (IsAlreadyPossess(item))
-            {
-                if (IsCanStack(item))
-                {
-                    IncreaseItemQuantity(item, quantity);
-                    return true;
-                }
+            if (quantity > item.maxCapacity)
                 return false;
+
+            //이미 소지한 아이템인지 확인 및 수량 증가
+            Item existingItem = items.Find(c => c.itemId == item.itemId);
+            if (existingItem != null && item.isCanStack)
+            {
+                if (existingItem.currentQuantity >= existingItem.maxCapacity)
+                {
+                    Debug.Log("기존 아이템 수량 초과");
+
+                    return false;
+                }
+
+                Debug.Log("기존 아이템 수량 추가");
+                existingItem.currentQuantity = Mathf.Min(existingItem.currentQuantity + quantity, existingItem.maxCapacity);
+                return true;
             }
 
             //새 아이템 추가
             if (items.Count < CurrentCapacity)
             {
-                AddNewItem(item,quantity);
+                Debug.Log("새로운 아이템 추가");
+                item.currentQuantity = quantity;
+                items.Add(item);
                 return true;
             }
 
@@ -54,20 +64,20 @@ namespace HJ
         /// <summary>
         /// 인벤토리에서 아이템 제거
         /// </summary>
-        public void RemoveItem(int index, int quantity = 1)
+        public void RemoveItem(Item item, int quantity = 1)
         {
-            if (index < 0 || index >= items.Count) return;
+            Item existingItem = items.Find(c => c.itemId == item.itemId);
+            if (existingItem == null)
+                return;
 
-            Item targetItem = items[index];
+            if(existingItem.isCanStack && existingItem.currentQuantity > quantity)
+            {
+                int currentAmount = existingItem.currentQuantity;
+                item.currentQuantity = Mathf.Max(0, currentAmount - quantity);
+                return;
+            }
 
-            if (targetItem.isCanStack && targetItem.currentQuantity > quantity)
-            {
-                targetItem.currentQuantity -= quantity;
-            }
-            else
-            {
-                items.RemoveAt(index);
-            }
+            items.Remove(existingItem);
         }
 
         /// <summary>
@@ -89,52 +99,51 @@ namespace HJ
 
 
         /// <summary>
-        /// 이미 소지한 아이템인지 확인
+        /// 아이템 ID로 아이템 찾기
         /// </summary>
-        private bool IsAlreadyPossess(Item item)
-        {
-            foreach (Item possessItem in items)
-            {
-                if (item.itemId == possessItem.itemId)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// 아이템 추가할 수 있는지 확인
-        /// </summary>
-        private bool IsCanStack(Item item)
-        {
-            return item.isCanStack && item.currentQuantity < item.maxCapacity;
-        }
+        //private Item FindItemById(int itemId)
+        //{
+        //    foreach (Item possessItem in items)
+        //    {
+        //        if (possessItem.itemId == itemId)
+        //        {
+        //            return possessItem;
+        //        }
+        //    }
+        //    return null;
+        //}
 
         /// <summary>
         /// 기존 아이템 수량 증가
         /// </summary>
-        private void IncreaseItemQuantity(Item item, int quantity = 1)
-        {
-            foreach (Item existingItem in items)
-            {
-                if (existingItem.itemId == item.itemId && IsCanStack(existingItem))
-                {
-                    Debug.Log("기존 아이템 수량 추가");
-                    existingItem.currentQuantity += quantity;
-                }
-            }
-        }
+        //private bool IncreaseItemQuantity(Item existingItem, int quantity = 1)
+        //{
+        //    if (existingItem.isCanStack && existingItem.currentQuantity < existingItem.maxCapacity)
+        //    {
+        //        Debug.Log("기존 아이템 수량 추가");
+
+        //        //추가 가능한 최대 수량 계산
+        //        int availableSpace = existingItem.maxCapacity - existingItem.currentQuantity;
+        //        int amountToAdd = Mathf.Min(availableSpace, quantity);
+
+        //        existingItem.currentQuantity += amountToAdd;
+
+        //        return true;
+        //    }
+        //    return false;
+        //}
 
         /// <summary>
         /// 새로운 아이템 추가
         /// </summary>
-        private void AddNewItem(Item item, int quantity = 1)
-        {
-            Debug.Log("새로운 아이템 추가");
-            item.currentQuantity = Mathf.Min(quantity, item.maxCapacity);
-            items.Add(item);
-        }
+        //private bool AddNewItem(Item item, int quantity = 1)
+        //{
+        //    Debug.Log("새로운 아이템 추가");
+            
+        //    item.currentQuantity = Mathf.Min(quantity, item.maxCapacity);
+        //    items.Add(item);
+
+        //    return true;
+        //}
     }
 }

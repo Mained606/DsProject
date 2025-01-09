@@ -43,9 +43,6 @@ namespace HJ
         /// </summary>
         public void GetItem()
         {
-            if (inventory.items.Count >= inventory.CurrentCapacity)
-                return;
-
             if (IsNearPlayer())
             {
                 if(inventory.AddItem(itemData))

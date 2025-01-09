@@ -6,6 +6,7 @@ namespace HJ
     {
         #region Variables
         private PlayerInventory inventory;
+        private Item item;
         #endregion
 
         private void Start()
@@ -17,19 +18,23 @@ namespace HJ
         {
             if(Input.GetKey(KeyCode.K))
             {
-                DropItem(0);
+                DropItem(item);
             }
         }
 
         /// <summary>
         /// 아이템 드랍
         /// </summary>
-        private void DropItem(int index)
+        private void DropItem(Item item, int quantity = 1)
         {
             if(inventory.items.Count > 0)
             {
-                Instantiate(inventory.items[index].itemPrefab, transform.position, Quaternion.identity);
-                inventory.RemoveItem(index);
+                Item existingItem = inventory.items.Find(i => i.itemId == item.itemId);
+
+                if(existingItem != null)
+                {
+                    Instantiate(item.itemPrefab, transform.position, Quaternion.identity);
+                }                
             }
         }
     }
