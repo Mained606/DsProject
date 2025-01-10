@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TestNpc : TestCharacterManager
+public class TestNpc
 {
 
 }
