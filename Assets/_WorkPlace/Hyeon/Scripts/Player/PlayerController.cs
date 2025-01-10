@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
-public class PlayerController : TestCharacterManager
+public class PlayerController : MonoBehaviour
 {
-    private TestInputManager inputManager;
+    private TestCharacterStats characterStats;
+
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
     private float moveSpeed;
 
@@ -21,20 +23,20 @@ public class PlayerController : TestCharacterManager
 
     private void Start()
     {
+        characterStats = new TestCharacterStats();
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
-        inputManager = TestGameManager.Instance.GetManager<TestInputManager>("InputManager");
 
-        inputManager.OnMoveInput += HandleMoveInput;
-        inputManager.OnJumpInput += HandleJumpInput;
         Initialize();
     }
 
     private void Update()
     {
         isGrounded = characterController.isGrounded;
+        
         HandleGravity();
         ControlMovement();
+        OnJump();
 
         Debug.Log($"Player State : {CurrentState}");
         switch (CurrentState)
@@ -42,7 +44,6 @@ public class PlayerController : TestCharacterManager
             case PlayerState.PlayerIdle:
                 break;
             case PlayerState.PlayerWalk:
-                //OnMove();
                 break;
             case PlayerState.PlayerSprint:
                 break;
@@ -57,42 +58,23 @@ public class PlayerController : TestCharacterManager
 
     private void SetState(PlayerState newState)
     {
-        if(CurrentState == newState) return;
+        if (CurrentState == newState) return;
 
         CurrentState = newState;
     }
 
-    private new void OnDisable()
-    {
-        inputManager.OnMoveInput -= HandleMoveInput;
-        inputManager.OnJumpInput -= HandleJumpInput;
-    }
-
     private void Initialize()
     {
-        if(CharacterStats != null)
+        if(characterStats != null)
         {
-            moveSpeed = CharacterStats.characterMoveSpeed;
+            moveSpeed = characterStats.characterMoveSpeed;
         }
     }
 
-    private void HandleMoveInput(Vector2 input)
+    private void OnJump()
     {
-        moveInput = input;
-        if (input != Vector2.zero)
-        {
-            SetState(PlayerState.PlayerWalk);
-        }
-        else
-        {
-            SetState(PlayerState.PlayerIdle);
-        }
-    }
-
-    private void HandleJumpInput()
-    {
-        Debug.Log("HandleJumpInput");
-        if (isGrounded)
+        Debug.Log("OnJump");
+        if (InputManager.InputActions.actions["Jump"].triggered && isGrounded)
         {
             verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
@@ -115,6 +97,7 @@ public class PlayerController : TestCharacterManager
 
     private void ControlMovement()
     {
+        Vector2 moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
 

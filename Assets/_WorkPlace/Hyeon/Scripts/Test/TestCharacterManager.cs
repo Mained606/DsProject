@@ -2,24 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestCharacterManager : TestBaseManager
+public class TestCharacterManager : BaseManager<TestCharacterManager>
 {
-    [SerializeField]
-    private TestCharacterStats characterStats;
-
-    public TestCharacterStats CharacterStats => characterStats;
-
-    private void Start()
+    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-        stateActions = new Dictionary<GameState, Action>
-        {
-            { GameState.Menu, CharacterPause },
-            { GameState.Pause, CharacterPause },
-            { GameState.Exploration, CharacterPlay },
-            { GameState.Combat, CharacterOnCambatMode }
-        };
 
-        //TestGameManager.Instance.RegisterManager(this);
     }
 
     public void CharacterPause()

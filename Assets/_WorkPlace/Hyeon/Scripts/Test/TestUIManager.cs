@@ -2,25 +2,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestUIManager : TestBaseManager
+public class TestUIManager : BaseManager<TestUIManager>
 {
-    //private Dictionary<GameState, Action> stateActions;
-
-    private void Start()
+    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-        stateActions = new Dictionary<GameState, Action>
-        {
-            { GameState.Menu, ShowMenuUI },
-            { GameState.Pause, ShowPauseUI },
-            { GameState.Exploration, HideAllUI }
-        };
 
-        //TestGameManager.Instance.RegisterManager(this);
     }
-
     private void ShowMenuUI()
     {
-        Debug.Log($"ShowMenuUI {TestGameManager.Instance.GetManager<TestCharacterManager>("CharacterManager").CharacterStats.characterHP}");
+        Debug.Log($"ShowMenuUI");
     }
 
     private void ShowPauseUI()

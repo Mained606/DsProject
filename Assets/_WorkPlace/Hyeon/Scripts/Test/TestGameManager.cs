@@ -18,7 +18,6 @@ public class TestGameManager : MonoBehaviour
         {
             Instance = this;
             //DontDestroyOnLoad(this.gameObject);
-            InitializeManagers();
         }
         else
         {
@@ -47,12 +46,6 @@ public class TestGameManager : MonoBehaviour
         }
     }
 
-    private void InitializeManagers()
-    {
-        RegisterManager<TestInputManager>("InputManager");
-        RegisterManager<TestUIManager>("UIManager");
-        RegisterManager<TestCharacterManager>("CharacterManager");
-    }
 
     // 매니저 등록 메서드
     private void RegisterManager<T>(string managerName) where T : TestBaseManager

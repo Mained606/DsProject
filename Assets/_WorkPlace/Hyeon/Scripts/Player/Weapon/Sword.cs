@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class Sword : MonoBehaviour
 {
-    private TestInputManager inputManager;
     private float swordDamage = 10f;
     private Animator animator;
 
@@ -22,23 +21,20 @@ public class Sword : MonoBehaviour
     {
         animator = GetComponentInParent<Animator>();
         swordCollider = GetComponentInParent<Collider>();
-        inputManager = TestGameManager.Instance.GetManager<TestInputManager>("InputManager");
-
-        inputManager.OnAttackInput += HandleAttackInput;
     }
 
-    private void OnDisable()
+    private void Update()
     {
-        inputManager.OnAttackInput -= HandleAttackInput;
+        HandleAttackInput();
     }
 
     private void HandleAttackInput()
     {
-        if (CanReceiveInput)
+        if (InputManager.InputActions.actions["Attack"].triggered && CanReceiveInput)
         {
             inputReceived = true;
 
-            if(currentComboIndex == 0 || animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5f)
+            if (currentComboIndex == 0 || animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5f)
             {
                 PerformComboAttack();
             }

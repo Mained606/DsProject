@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class TestInputManager : BaseManager<TestInputManager>
+public class InputManager : BaseManager<InputManager>
 {
     public static PlayerInput InputActions;
     protected override void Awake()
@@ -17,3 +17,4 @@ public class TestInputManager : BaseManager<TestInputManager>
 
     }
 }
+

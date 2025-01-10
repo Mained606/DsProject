@@ -12,18 +12,11 @@ public class TestPlayer : TestCharacterManager
     private void Start()
     {
         cameraTransform = Camera.main.transform;
-
-        TestGameManager.Instance.GetManager<TestInputManager>("InputManager").OnMoveInput += HandleMoveInput;
     }
 
     private void Update()
     {
         OnMove();
-    }
-
-    private new void OnDisable()
-    {
-        TestGameManager.Instance.GetManager<TestInputManager>("InputManager").OnMoveInput -= HandleMoveInput;
     }
 
     private void HandleMoveInput(Vector2 input)

@@ -21,6 +21,6 @@ public class TestManager : MonoBehaviour
 
     private void Update()
     {
-        inputManager.OnUpdate();
+        //inputManager.OnUpdate();
     }
 }
