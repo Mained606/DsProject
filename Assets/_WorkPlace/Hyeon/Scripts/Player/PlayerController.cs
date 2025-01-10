@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -28,6 +29,7 @@ public class PlayerController : MonoBehaviour
     private CharacterController characterController;
     private Animator PlayerAnimator;
 
+   
 
     private void Start()
     {
@@ -35,6 +37,7 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
         PlayerAnimator = GetComponentInChildren<Animator>();
+        
 
         ValueInitialize();
     }
@@ -196,6 +199,18 @@ public class PlayerController : MonoBehaviour
 
         isDodging = false;
         isInvincible = false;
+    }
+
+    
+
+    private void Attack()
+    {
+
+    }
+
+    private void Skill_1()
+    {
+
     }
 
     private void IdleMotion()
