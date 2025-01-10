@@ -6,7 +6,7 @@ namespace HJ
     {
         #region Variables
         private PlayerInventory inventory;
-        private Item item;
+        //public Item item = new Item();
         #endregion
 
         private void Start()
@@ -18,7 +18,7 @@ namespace HJ
         {
             if(Input.GetKey(KeyCode.K))
             {
-                DropItem(item);
+                //DropItem(item);
             }
         }
 
@@ -27,15 +27,7 @@ namespace HJ
         /// </summary>
         private void DropItem(Item item, int quantity = 1)
         {
-            if(inventory.items.Count > 0)
-            {
-                Item existingItem = inventory.items.Find(i => i.itemId == item.itemId);
-
-                if(existingItem != null)
-                {
-                    Instantiate(item.itemPrefab, transform.position, Quaternion.identity);
-                }                
-            }
+            Instantiate(item.itemPrefab, transform.position, Quaternion.identity);         
         }
     }
 }
