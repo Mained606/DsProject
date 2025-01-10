@@ -1,24 +1,32 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    private TestCharacterStats characterStats;
+    [SerializeField] private TestCharacterStats characterStats;
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
-    private float moveSpeed;
+    [SerializeField] private float walkSpeed;
+    [SerializeField] private float sprintSpeed;
+    [SerializeField] private float dodgeDist = 3f;
+    [SerializeField] private float dodgeDuration = 0.3f;
 
     private Vector2 moveInput;
     private Transform cameraTransform;
 
-    private float jumpHeight = 1.0f;
+    [SerializeField] private float jumpHeight = 0.5f;
     private Vector3 moveDirection;
     private Vector3 verticalVelocity;
-    [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private bool isGrounded;
+    private float gravity = -9.81f;
+    private bool isGrounded;
+    private bool isSprinting;
+    [SerializeField] private bool isDodging = false;
+    [SerializeField] private bool isInvincible = false;
 
     private CharacterController characterController;
+    private Animator PlayerAnimator;
 
 
     private void Start()
@@ -26,26 +34,31 @@ public class PlayerController : MonoBehaviour
         characterStats = new TestCharacterStats();
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
+        PlayerAnimator = GetComponentInChildren<Animator>();
 
-        Initialize();
+        ValueInitialize();
     }
 
     private void Update()
     {
         isGrounded = characterController.isGrounded;
+        isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
+        PlayerAnimator.SetBool("Grounded", isGrounded);
         
         HandleGravity();
-        ControlMovement();
-        OnJump();
+        if (!isDodging)
+        {
+            ControlMovement();
+            OnJump();
+            OnDodge();
+        }
 
         Debug.Log($"Player State : {CurrentState}");
         switch (CurrentState)
         {
             case PlayerState.PlayerIdle:
                 break;
-            case PlayerState.PlayerWalk:
-                break;
-            case PlayerState.PlayerSprint:
+            case PlayerState.PlayerMove:
                 break;
             case PlayerState.PlayerAttack:
                 break;
@@ -63,23 +76,17 @@ public class PlayerController : MonoBehaviour
         CurrentState = newState;
     }
 
-    private void Initialize()
+    // PlayerStats 초기화
+    private void ValueInitialize()
     {
         if(characterStats != null)
         {
-            moveSpeed = characterStats.characterMoveSpeed;
+            walkSpeed = characterStats.characterWalkSpeed;
+            sprintSpeed = characterStats.characterSprintSpeed;
         }
     }
 
-    private void OnJump()
-    {
-        Debug.Log("OnJump");
-        if (InputManager.InputActions.actions["Jump"].triggered && isGrounded)
-        {
-            verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
-    }
-
+    // 상시 중력 적용
     private void HandleGravity()
     {
         if (!isGrounded)
@@ -88,16 +95,26 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if(verticalVelocity.y < 0)
+            PlayerAnimator.SetBool("Jump", false);
+            if (verticalVelocity.y < 0)
             {
                 verticalVelocity.y = -0.5f;
             }
         }
     }
 
-    private void ControlMovement()
+    private void StateCheck()
     {
-        Vector2 moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
+        if(isGrounded && moveInput == Vector2.zero)
+        {
+            SetState(PlayerState.PlayerIdle);
+        }
+    }
+
+    // 카메라 회전 기준으로 정면 변경
+    private Vector3 GetDirection(Vector2 _moveInput)
+    {
+        Vector2 moveInput = _moveInput;
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
 
@@ -106,16 +123,83 @@ public class PlayerController : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        Vector3 direction = (forward * moveInput.y + right * moveInput.x).normalized;
+        return (forward * moveInput.y + right * moveInput.x).normalized;
+    }
+
+    // 캐릭터 이동
+    private void ControlMovement()
+    {
+        moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
+        float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+
+        if (moveInput == Vector2.zero)
+        {
+            PlayerAnimator.SetFloat("MotionSpeed", 0);
+            PlayerAnimator.SetFloat("Speed", 0);
+
+        }
+        else
+        {
+            PlayerAnimator.SetFloat("MotionSpeed", 1);
+            PlayerAnimator.SetFloat("Speed", currentSpeed);
+        }
+
+        Vector3 direction = GetDirection(moveInput);
 
         moveDirection = direction;
         moveDirection.y = verticalVelocity.y;
 
-        characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
+        characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
 
         if (direction != Vector3.zero)
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
         }
+    }
+
+    // 캐릭터 점프
+    private void OnJump()
+    {
+        if (InputManager.InputActions.actions["Jump"].triggered && isGrounded)
+        {
+            PlayerAnimator.SetBool("Jump", true);
+            
+            verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+    }
+
+    // 캐릭터 구르기
+    private void OnDodge()
+    {
+        if (InputManager.InputActions.actions["Dodge"].triggered && moveInput != Vector2.zero)
+        { 
+            StartCoroutine(Dodging());
+        }
+    }
+
+    // 굴리기(무적)
+    private IEnumerator Dodging()
+    {
+        Debug.Log("Dodging");
+        isDodging = true;
+        isInvincible = true;
+
+        Vector3 dodgeDirection = GetDirection(moveInput);
+        float elapsedTime = 0f;
+
+        while(elapsedTime < dodgeDuration)
+        {
+            characterController.Move(dodgeDirection *(dodgeDist / dodgeDuration) * Time.deltaTime);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        isDodging = false;
+        isInvincible = false;
+    }
+
+    private void IdleMotion()
+    {
+
     }
 }
