@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private TestCharacterStats characterStats;
+    public PlayerCombat playerCombat;
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
     [SerializeField] private float walkSpeed;
@@ -15,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dodgeDuration = 0.3f;
 
     private Vector2 moveInput;
-    private Transform cameraTransform;
+    public Transform cameraTransform;
 
     [SerializeField] private float jumpHeight = 0.5f;
     private Vector3 moveDirection;
@@ -25,6 +26,7 @@ public class PlayerController : MonoBehaviour
     private bool isSprinting;
     [SerializeField] private bool isDodging = false;
     [SerializeField] private bool isInvincible = false;
+    public bool CanMove;
 
     private CharacterController characterController;
     private Animator PlayerAnimator;
@@ -37,6 +39,7 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
         PlayerAnimator = GetComponentInChildren<Animator>();
+        CanMove = true;
         
 
         ValueInitialize();
@@ -132,6 +135,8 @@ public class PlayerController : MonoBehaviour
     // 캐릭터 이동
     private void ControlMovement()
     {
+        if (!CanMove) return;
+
         moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
@@ -147,8 +152,13 @@ public class PlayerController : MonoBehaviour
             PlayerAnimator.SetFloat("Speed", currentSpeed);
         }
 
+        Quaternion modifyRotation = playerCombat.ModifyRotation();
         Vector3 direction = GetDirection(moveInput);
-
+        //if (modifyRotation != null)
+        //{
+        //    direction = GetDirection(moveInput) * modifyRotation.x * modifyRotation.z;
+        //}
+        
         moveDirection = direction;
         moveDirection.y = verticalVelocity.y;
 
@@ -156,13 +166,21 @@ public class PlayerController : MonoBehaviour
 
         if (direction != Vector3.zero)
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
+            Vector3 forward = transform.forward;
+            float angle = Vector3.SignedAngle(forward, direction, Vector3.up);
+
+            if(Mathf.Abs(angle) > 0.1f)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
+            }
         }
     }
 
     // 캐릭터 점프
     private void OnJump()
     {
+        if (!CanMove) return;
+
         if (InputManager.InputActions.actions["Jump"].triggered && isGrounded)
         {
             PlayerAnimator.SetBool("Jump", true);
@@ -175,7 +193,8 @@ public class PlayerController : MonoBehaviour
     private void OnDodge()
     {
         if (InputManager.InputActions.actions["Dodge"].triggered && moveInput != Vector2.zero)
-        { 
+        {
+            CanMove = false;
             StartCoroutine(Dodging());
         }
     }
@@ -197,6 +216,7 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
+        CanMove = true;
         isDodging = false;
         isInvincible = false;
     }
