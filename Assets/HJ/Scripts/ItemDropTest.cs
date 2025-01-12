@@ -27,7 +27,7 @@ namespace HJ
         /// </summary>
         private void DropItem(Item item, int quantity = 1)
         {
-            Instantiate(item.itemPrefab, transform.position, Quaternion.identity);         
+            //Instantiate(item.itemPrefab, transform.position, Quaternion.identity);         
         }
     }
 }

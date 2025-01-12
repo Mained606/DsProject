@@ -14,7 +14,6 @@ namespace HJ
 
         private void Start ()
         {
-            player = TestManager.Instance.player;
             inventory = player.GetComponent<PlayerInventory>();
         }
 
@@ -45,7 +44,7 @@ namespace HJ
         {
             if (IsNearPlayer())
             {
-                if(inventory.AddItem(itemData))
+                if (inventory.AddItem(itemData))
                 {
                     Destroy(gameObject);
                 }
