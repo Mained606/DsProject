@@ -13,6 +13,7 @@ public class QuestTable
     public int quest_exp; // 클리어 시 경험치
     public RewardItemData[] quest_reward; // 클리어 시 아이템
 }
+
 [System.Serializable]
 public class RequireDataWrapper
 {
