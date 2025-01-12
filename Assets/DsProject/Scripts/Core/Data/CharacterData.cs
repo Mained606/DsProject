@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using TMPro;
 
+// StatModifier 클래스 정의: 각 캐릭터 스탯에 대한 멀티플라이어 설정
 [Serializable]
 public class StatModifier
 {
@@ -15,9 +16,13 @@ public class StatModifier
     public float magicDefenseMultiplier = 2f;      // 마법 방어력 계산 비율
 }
 
+// CharacterData 클래스 정의: 캐릭터의 스탯, 레벨, 경험치 등을 관리
 [Serializable]
 public class CharacterData
 {
+    public string characterName;  // 캐릭터 이름
+    public CharacterType characterType;  // 캐릭터 타입 추가
+    
     // 기본 스텟 (정수형)
     public int strength;     // 힘
     public int agility;      // 민첩
@@ -32,29 +37,35 @@ public class CharacterData
     public float stamina;     // 최대 스태미나
     public float staminaCurrent; // 현재 스태미나
     public float staminaRecoveryRate; // 스태미나 회복 속도
-
+    
+    // 레벨과 경험치 관련 변수 추가
+    public int level;             // 레벨
+    public int currentExperience; // 현재 경험치
+    public int experienceToLevelUp; // 레벨업에 필요한 경험치
+    
     // 계산된 값 (정수형)
     public int maxHp;        // 최대 HP
     public int currentHp;    // 현재 HP
-
     public int physicalDefense;  // 물리 방어력
     public int magicDefense;     // 마법 방어력
     public int physicalDamage;   // 물리 공격력
     public int magicDamage;      // 마법 공격력
     public float criticalChance; // 크리티컬 확률 (float)
-
     public int baseDamage;       // 기본 물리 공격력 (정수형)
-
+    
     // StatModifier 설정 (각 캐릭터마다 별도로 설정)
     public StatModifier statModifier;
     
+    // 스탯 Min & Max 관련 상수 - 추후 상수만 정리한 클래스 추가 필요
     private const int maxStats = 999;
     private const int minStats = 0;
     
-    // CharacterData 생성 시 자동 계산
-    public CharacterData(int strength, int agility, int vitality, int intelligence, StatModifier statModifier, 
+    // 생성자: 캐릭터 초기화 및 자동 계산
+    public CharacterData(string name, CharacterType type, int strength, int agility, int vitality, int intelligence, StatModifier statModifier, 
         float speed, float attackSpeed, float stamina, float staminaRecoveryRate)
     {
+        this.characterName = name;
+        this.characterType = type;  // 타입 저장
         this.strength = strength;
         this.agility = agility;
         this.vitality = vitality;
@@ -66,7 +77,12 @@ public class CharacterData
         this.staminaCurrent = stamina; // 초기 스태미나는 최대 스태미나와 동일
         this.staminaRecoveryRate = staminaRecoveryRate;
 
+        this.level = 1; // 초기 레벨은 1
+        this.currentExperience = 0; // 초기 경험치는 0
+        experienceToLevelUp = CalculateExperienceToLevelUp(); // 첫 번째 레벨업에 필요한 경험치 설정
+
         // 스텟 값에 따라 자동 계산
+        IncreaseStatsBasedOnLevel();
         UpdateDerivedStats();  // 모든 파생 스탯을 한 번에 계산
     }
 
@@ -82,6 +98,78 @@ public class CharacterData
         baseDamage = physicalDamage + strength;  // 물리 공격력 + 힘
     }
     
+    // 경험치를 얻었을 때 호출되는 함수
+    public void GainExperience(int amount)
+    {
+        if (amount < 0) amount = 0; // 경험치가 음수일 경우 0으로 처리
+
+        currentExperience += amount;
+
+        // 경험치가 레벨업에 도달했으면 레벨업 처리
+        if (currentExperience >= experienceToLevelUp)
+        {
+            LevelUp();
+        }
+    }
+
+    // 레벨업 처리 함수
+    private void LevelUp()
+    {
+        level++;  // 레벨 증가
+        currentExperience = 0;  // 경험치 초기화
+        experienceToLevelUp = CalculateExperienceToLevelUp();  // 새로운 레벨에 맞는 경험치 계산
+
+        // 레벨업 시 능력치 증가 및 자동 계산
+        IncreaseStatsBasedOnLevel();
+        UpdateDerivedStats();  // 레벨업 후 파생 스탯 다시 계산
+
+        // 레벨업 시 로그 출력 (디버깅용)
+        Debug.Log($"레벨업! 현재 레벨: {level}");
+    }
+    
+    // 경험치 계산 함수
+    private int CalculateExperienceToLevelUp()
+    {
+        // 레벨 9 -> 10, 19 -> 20, 29 -> 30 구간에서 경험치를 완화
+        if ((level) % 10 == 9)  // 레벨 9, 19, 29, 39, ...
+        {
+            return Mathf.RoundToInt(level * 80f);  // 완화된 구간: 경험치 요구량 80%로 설정
+        }
+        else
+        {
+            return Mathf.RoundToInt(level * 100f);  // 그 외 구간은 기본적으로 100씩 증가
+        }
+    }
+    
+    // 능력치 증가 처리 함수 (레벨에 따른 규칙을 설정)
+    private void IncreaseStatsBasedOnLevel()
+    {
+        // 레벨에 따라 능력치를 동적으로 증가
+        vitality += GetStatIncrease("vitality");
+        strength += GetStatIncrease("strength");
+        agility += GetStatIncrease("agility");
+        intelligence += GetStatIncrease("intelligence");
+    }
+    
+    // 각 스탯에 대해 증가량을 계산하는 함수
+    private int GetStatIncrease(string statType)
+    {
+        // 레벨에 따른 스탯 증가 값 설정 (예시)
+        switch (statType)
+        {
+            case "vitality":
+                return level <= 10 ? 5 : 3;  // 레벨 10 이하일 때는 5 증가, 그 이상은 3 증가
+            case "strength":
+                return level <= 10 ? 2 : 1;  // 레벨 10 이하일 때는 2 증가, 그 이상은 1 증가
+            case "agility":
+                return 1;  // 민첩은 항상 1 증가
+            case "intelligence":
+                return 1;  // 지능도 항상 1 증가
+            default:
+                return 1;  // 기본값
+        }
+    }
+    
     // 크리티컬 데미지 계산
     public int CalculateCriticalDamage()
     {
@@ -91,32 +179,27 @@ public class CharacterData
     // 크리티컬 여부를 판단하여 데미지 반환
     public int CalculateDamage(bool isCritical)
     {
-        if (isCritical)
-        {
-            return CalculateCriticalDamage();
-        }
-        return baseDamage;  // 크리티컬이 아니면 기본 데미지
+        return isCritical ? CalculateCriticalDamage() : baseDamage;  // 크리티컬이면 크리티컬 데미지 반환, 아니면 기본 데미지
     }
 
-    // 스텟 증가 함수들 (각각 한 번만 호출하고, 자동 계산)
+    // 스텟 증가 함수들
     public void IncreaseStat(string statType, int amount)
     {
-        // 음수 값이면 함수 종료
         if (amount < minStats) return;
-        
+
         switch (statType)
         {
             case "strength":
-                strength = Mathf.Min(strength + amount,  maxStats);
+                strength = Mathf.Min(strength + amount, maxStats);
                 break;
             case "vitality":
-                vitality = Mathf.Min(vitality + amount,  maxStats);
+                vitality = Mathf.Min(vitality + amount, maxStats);
                 break;
             case "agility":
-                agility = Mathf.Min(agility + amount,  maxStats);
+                agility = Mathf.Min(agility + amount, maxStats);
                 break;
             case "intelligence":
-                intelligence = Mathf.Min(intelligence + amount,  maxStats);
+                intelligence = Mathf.Min(intelligence + amount, maxStats);
                 break;
         }
 
@@ -124,12 +207,11 @@ public class CharacterData
         UpdateDerivedStats();
     }
     
-    // 스텟 감소 함수들 (각각 한 번만 호출하고, 자동 계산)
+    // 스텟 감소 함수들
     public void DecreaseStat(string statType, int amount)
     {
-        // 음수 값이면 함수 종료
         if (amount > maxStats) return;
-        
+
         switch (statType)
         {
             case "strength":
@@ -184,7 +266,6 @@ public class CharacterData
         staminaCurrent -= amount;
         staminaCurrent = Mathf.Max(0, staminaCurrent);  // 스태미나는 0 이하로 떨어지지 않음
     }
-    
     
     // ToString()을 오버라이드하여 TMP로 출력할 수 있는 형식으로 정보 제공
     public string ToStringForTMPro()
