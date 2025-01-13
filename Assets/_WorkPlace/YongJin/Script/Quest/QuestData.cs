@@ -12,8 +12,14 @@ public class QuestTable
     public int quest_gold; // 클리어 시 골드
     public int quest_exp; // 클리어 시 경험치
     public List<RewardItemData> quest_reward; // 클리어 시 아이템
-    public List<string> quest_diologue; // 퀘스트 진행 대사
+    public float quest_interectRange;
+    public QuestInterectType quest_interectType;
+ 
+    
 }
+
+
+
 [System.Serializable]
 public class RequireData
 {
@@ -32,12 +38,7 @@ public class RewardItemData
     public int itemId; // 아이템 아이디
     public int itemQuantity; // 아이템 개수
 }
-[System.Serializable]
-public class QuestDiologue
-{
-    public int context; // 대사 대상 아이디 1 : Player, 나머지 Npc
-    public string dialogue; // 대사
-}
+
 
 [System.Serializable]
 public class RequireDataWrapper
@@ -51,12 +52,25 @@ public class RewardDataWrapper
 {
     public RewardItemData[] RewardItemDatas; // Use an array to wrap the list
 }
-[System.Serializable]
-public class QuestDiologueWrapper
+
+
+public class QuestStringTable
 {
-    public QuestDiologue[] QuestDiologueData; // Use an array to wrap the list
+    public int questString_index;
+    public string questString_title;//퀘제목 데이터
+    public string questString_desc;//설명 데이터
+    public QuestDialogue[] questString_diologue; // 퀘스트 대사 주체 및 대사 설정
 }
-
-
+[System.Serializable]
+public class QuestDialogue
+{
+    public int context; // 대사 대상 아이디 1 : Player, 나머지 Npc
+    public string dialogue; // 대사
+}
+[System.Serializable]
+public class QuestDialogueWrapper
+{
+    public QuestDialogue[] QuestDialogueData; // Use an array to wrap the list
+}
 
 

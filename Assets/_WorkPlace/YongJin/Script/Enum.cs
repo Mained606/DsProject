@@ -23,5 +23,10 @@ public enum NPCState
     Partner,       // 플레이어의 동료
     Enemy          // 적대 상태
 } 
+public enum QuestInterectType
+{
+    PassiveInterect,
+    ActiveInterect,
+}
 
 

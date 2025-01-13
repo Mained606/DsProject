@@ -5,46 +5,92 @@ using System.Collections.Generic;
 
 public class QuestManager : BaseManager<QuestManager>
 {
-    private string googleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHXZuSvLw5TT-985Q3AN_Z28JRTikJr6uiAoJBAlWxKcic0ROz-5wRpNRBAxEPVw/pub?gid=1391226435&single=true&output=csv";
-    
-    
-    public List<QuestTable> currentQuests{get; private set;} = new List<QuestTable>();
-    public List<QuestTable> prevQuests{get; private set;} = new List<QuestTable>();
 
-    public static QuestManager instance;
+    #region Varient
+    public bool isCompletedLoads;
+    private int completedLoads = 0;
+    private const int TOTAL_LOADED = 2;
+    private string QuestTableUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHXZuSvLw5TT-985Q3AN_Z28JRTikJr6uiAoJBAlWxKcic0ROz-5wRpNRBAxEPVw/pub?gid=1391226435&single=true&output=csv";
+    private string QuestStringTableUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRAtTzgMnM5T6Lecvm3TvZlkoZQ8ksdrSRoFDqCY_CRNwnwfIC-ORnfsUjQTJ2bw/pub?gid=1391226435&single=true&output=csv";
+    
+    
+    public List<QuestTable> questData{get; private set;} = new List<QuestTable>();
+    public List<QuestStringTable> questStringData{get; private set;} = new List<QuestStringTable>();
+    public List<QuestTable> prevQuests{get; private set;} = new List<QuestTable>();
+    #endregion
+
     #region Init
     protected override void Awake()
     {
         base.Awake();
-        StartCoroutine(LoadGoogleSheet());  
+        StartCoroutine(LoadQuestTableSheet());  
+        StartCoroutine(LoadQuestStringSheet());  
     }
+    
+    private IEnumerator LoadQuestTableSheet()
+    {
+        yield return FetchGoogleSheet(QuestTableUrl, ParseQuestTableCSV);
+        CheckDataLoadCompletion();
+    }
+
+    private IEnumerator LoadQuestStringSheet()
+    {
+        yield return FetchGoogleSheet(QuestStringTableUrl, ParseQuestStringTableCSV);
+        CheckDataLoadCompletion();
+    }
+    private void CheckDataLoadCompletion()
+    {
+        completedLoads++;
+        if (completedLoads >= TOTAL_LOADED)
+        {
+            Debug.Log("모든 퀘스트 데이터 이니셜라이즈 성공");
+            isCompletedLoads = true;
+        }
+    }
+    private IEnumerator FetchGoogleSheet(string url, System.Action<string> onSuccess)
+    {
+        int retries = 3;
+        while (retries > 0)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(url);
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                onSuccess?.Invoke(request.downloadHandler.text);
+                yield break;
+            }
+            else
+            {
+                Debug.LogError($"스프라이트 시트 로드 실패 {url}: {request.error}");
+                retries--;
+                if (retries > 0)
+                {
+                    Debug.Log("Retrying...");
+                    yield return new WaitForSeconds(1f);
+                }
+                else
+                {
+                    Debug.LogError("로드 실패");
+                }
+            }
+        }
+    }
+
+
+
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
         switch (newState)
         {
         
             default:
-                Debug.Log("QuestManager: 특별한 UI 작업 없음.");
+                Debug.Log("QuestManager: 특별한 작업 없음.");
                 break;
         }
     }
-    IEnumerator LoadGoogleSheet()
-    {
-        UnityWebRequest request = UnityWebRequest.Get(googleSheetUrl);
-        yield return request.SendWebRequest();
 
-        if (request.result == UnityWebRequest.Result.Success)
-        {
-            string csvData = request.downloadHandler.text;
-            ParseCSV(csvData);
-        }
-        else
-        {
-            Debug.LogError($"Failed to load Google Sheet: {request.error}");
-        }
-    }
-
-    private void ParseCSV(string csvData)
+    private void ParseQuestTableCSV(string csvData)
     {
         string[] rows = csvData.Split('\n');
         for (int i = 1; i < rows.Length; i++) // Skip header row
@@ -63,28 +109,65 @@ public class QuestManager : BaseManager<QuestManager>
                 quest_gold = int.Parse(cells[7]),
                 quest_reward = ParseReward(cells[8]),
             };
-
             
-            currentQuests.Add(quest);
+            questData.Add(quest);
+        }
+    }
+    private void ParseQuestStringTableCSV(string csvData)
+    {
+        string[] rows = csvData.Split('\n');
+        for (int i = 1; i < rows.Length; i++) // Skip header row
+        {
+            string[] cells = rows[i].Split(',');
+            if (cells.Length < 3) continue; // Skip malformed rows
+            QuestStringTable quest = new QuestStringTable
+            {
+                questString_index = int.Parse(cells[0]),
+                questString_title = cells[1],
+                questString_desc = cells[2],
+                questString_diologue = ParseQuestDialogue(cells[3]),
+                
+            };
+            questStringData.Add(quest);
         }
     }
     
     private List<RequireData> ParseQuestRequirements(string json)
     {
-        string fixedJson = FixSlashesInJSON(json);
-        string cleanedJson = CleanJSON(fixedJson);
-        string wrappedJson = $"{{\"RequireDatas\":{cleanedJson}}}";
+        string wrappedJson = CleanAndWrapJSON(json, "RequireDatas");
+        if (string.IsNullOrEmpty(wrappedJson)) return null;
         RequireDataWrapper wrapper = JsonUtility.FromJson<RequireDataWrapper>(wrappedJson);
         return new List<RequireData>(wrapper.RequireDatas);
     }
+    private QuestDialogue[] ParseQuestDialogue(string json)
+    {    
+        string wrappedJson = CleanAndWrapJSON(json, "QuestDialogueData");
+        if (string.IsNullOrEmpty(wrappedJson)) return null;
+        QuestDialogueWrapper dialogueWrapper = JsonUtility.FromJson<QuestDialogueWrapper>(wrappedJson);
+        return dialogueWrapper.QuestDialogueData;
+    }
     private List<RewardItemData> ParseReward(string json)
     {
-        string fixedJson = FixSlashesInJSON(json);
-        string cleanedJson = CleanJSON(fixedJson);
-        string wrappedJson = $"{{\"RewardItemDatas\":{cleanedJson}}}";
-        Debug.Log(wrappedJson);
+        string wrappedJson = CleanAndWrapJSON(json, "RewardItemDatas");
+        if (string.IsNullOrEmpty(wrappedJson)) return new List<RewardItemData>();
         RewardDataWrapper rewardWrapper = JsonUtility.FromJson<RewardDataWrapper>(wrappedJson);
         return new List<RewardItemData>(rewardWrapper.RewardItemDatas);
+    }
+    
+
+    private string CleanAndWrapJSON(string json, string wrapperKey)
+    {
+        try
+        {
+            string fixedJson = FixSlashesInJSON(json);
+            string cleanedJson = CleanJSON(fixedJson);
+            return $"{{\"{wrapperKey}\":{cleanedJson}}}";
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"제이손 클리어 애러: {json} - 애러 메시지: {ex.Message}");
+            return string.Empty;
+        }
     }
     private string FixSlashesInJSON(string rawJson) => rawJson.Replace("/", ",");
    
@@ -102,13 +185,16 @@ public class QuestManager : BaseManager<QuestManager>
 
     #region Function
 
-    public QuestTable GetQuestIdToQuestTable(int id) => currentQuests.Find(x => x.quest_index == id);
+    public QuestTable GetQuestIdToQuestTable(int id) => questData.Find(x => x.quest_index == id);
     public QuestTable FindPrevQuest(int id) => prevQuests.Find(x => x.quest_index == id);
+    public QuestStringTable GetQuestStringData(int id) => questStringData.Find(x => x.questString_index == id);
     public void SuccessQuest(int clearedQuestId)
     {
-        currentQuests.Remove(GetQuestIdToQuestTable(clearedQuestId));
+        questData.Remove(GetQuestIdToQuestTable(clearedQuestId));
         prevQuests.Add(GetQuestIdToQuestTable(clearedQuestId));
     }
+    
+    
     #endregion
     
 }

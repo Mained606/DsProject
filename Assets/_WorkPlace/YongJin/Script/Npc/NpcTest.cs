@@ -9,11 +9,13 @@ public class NpcTest : MonoBehaviour,IPointerEnterHandler, IPointerExitHandler
 {
     
     public List<int> hasQuestIdList;
+    public int[] hasQuestIdList2;
+
     
     
     private void Start() 
     {
-        
+            
     }
 
     private void Update()
