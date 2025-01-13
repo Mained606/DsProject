@@ -1,7 +1,7 @@
 {
-  "name": "new-project",
+  "name": "Ds Project",
   "version": "0.1.0",
-  "description": "A new project using @primer/css",
+  "description": "Ds Project using @primer/css",
   "dependencies": {
     "@primer/css": "17.0.1"
   },
