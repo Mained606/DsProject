@@ -60,13 +60,8 @@ public class PlayerCombat : MonoBehaviour
         if (InputManager.InputActions.actions["Attack"].triggered && CanReceiveInput)
         {
             inputReceived = true;
-            //controller.CanMove = false;
 
-            //if (currentComboIndex == 0 || PlayerAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5f)
-            //{
-                
-                PerformComboAttack();
-            //}
+            PerformComboAttack();
         }
     }
 
@@ -78,10 +73,6 @@ public class PlayerCombat : MonoBehaviour
             //Debug.Log("Closest Monster: " + closestMonster.name);
             LookEnemy();
         }
-        //if (closestMonster != null)
-        //{
-        //    LookEnemy();
-        //}
         
         if (inputReceived && currentComboIndex < MaxComboCount)
         {

@@ -52,6 +52,8 @@ public class PlayerController : MonoBehaviour
         isGrounded = characterController.isGrounded;
         isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
         PlayerAnimator.SetBool("Grounded", isGrounded);
+
+        avoidKeyInput();
         
         HandleGravity();
         if (!isDodging)
@@ -236,7 +238,34 @@ public class PlayerController : MonoBehaviour
                 InputManager.InputActions.actions["Move"].Disable();
                 break;
         }
+
+        switch (CanAttack)
+        {
+            case true:
+                InputManager.InputActions.actions["Attack"].Enable();
+                break;
+            case false:
+                InputManager.InputActions.actions["Attack"].Disable();
+                break;
+        }
+
+        switch (CanUseSkill)
+        {
+            case true:
+                InputManager.InputActions.actions["Skill_1"].Enable();
+                InputManager.InputActions.actions["Skill_2"].Enable();
+                InputManager.InputActions.actions["Skill_3"].Enable();
+                break;
+            case false:
+                InputManager.InputActions.actions["Skill_1"].Disable();
+                InputManager.InputActions.actions["Skill_2"].Disable();
+                InputManager.InputActions.actions["Skill_3"].Disable();
+                break;
+        }
     }
+
+    // 장비 장착에 따른 스탯 변화
+
 
     private void IdleMotion()
     {
