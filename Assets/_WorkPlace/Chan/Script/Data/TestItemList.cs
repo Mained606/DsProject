@@ -1,5 +1,4 @@
 using UnityEngine;
-using HJ;
 using System.Collections.Generic;
 
 public class TestItemList : MonoBehaviour
@@ -23,7 +22,7 @@ public class TestItemList : MonoBehaviour
             weaponType = WeaponType.Melee,
             attackPower = 15,
             durability = 100,
-            itemPrefab = null // 임시로 null 설정
+            itemImage = null // 임시로 null 설정
         };
         sword.Initialize();
         items.Add(sword);
@@ -40,7 +39,7 @@ public class TestItemList : MonoBehaviour
             equipmentSlot = EquipmentSlot.Head,
             defensePower = 10,
             durability = 100,
-            itemPrefab = null
+            itemImage = null
         };
         helmet.Initialize();
         items.Add(helmet);
@@ -55,7 +54,7 @@ public class TestItemList : MonoBehaviour
             value = 25,
             consumableType = ConsumableType.HealthPotion,
             effectAmount = 50,
-            itemPrefab = null
+            itemImage = null
         };
         healthPotion.Initialize();
         items.Add(healthPotion);
@@ -68,11 +67,12 @@ public class TestItemList : MonoBehaviour
             itemDescription = "능력치를 강화하는 반지",
             itemType = ItemType.Accessory,
             value = 150,
-            itemPrefab = null
+            
+            itemImage = null
         };
         ring.Initialize();
-        ring.statModifiers.Add("Strength", 5);
-        ring.statModifiers.Add("Agility", 3);
+        //ring.statModifiers.Add("Strength", 5);
+        //ring.statModifiers.Add("Agility", 3);
         items.Add(ring);
 
         // 퀘스트 아이템
@@ -84,7 +84,7 @@ public class TestItemList : MonoBehaviour
             itemType = ItemType.QuestItem,
             value = 0,
             questId = "QST_001",
-            itemPrefab = null
+            itemImage = null
         };
         questItem.Initialize();
         items.Add(questItem);

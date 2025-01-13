@@ -6,6 +6,7 @@ public class UIManager : BaseManager<UIManager>
     
  private Dictionary<string,MonoBehaviour> UImodules = new Dictionary<string, MonoBehaviour>();
 
+
     // 여기에 각 ui 추가 
     #region Plus Modules
 
@@ -14,7 +15,9 @@ public class UIManager : BaseManager<UIManager>
     public StatusUI statusUI { get; private set; }
     public QuestUI questUI { get; private set; }
     public OptionUI optionUI { get; private set; }
-    public DialogUI dialogUI { get; private set; }
+    public DialogUI DialogUI => _dialogUI;
+
+    [SerializeField] private DialogUI _dialogUI;
 
     #endregion
 
@@ -35,7 +38,7 @@ public class UIManager : BaseManager<UIManager>
         statusUI = GetComponent<StatusUI>();
         questUI = GetComponent<QuestUI>();
         optionUI = GetComponent<OptionUI>();
-        dialogUI = GetComponent<DialogUI>();
+        //dialogUI = GetComponent<DialogUI>();
    }
     private void RegisterUIManager()
     {
@@ -66,4 +69,5 @@ public class UIManager : BaseManager<UIManager>
     }
 */
     #endregion
+
 }
