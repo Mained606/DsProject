@@ -129,4 +129,10 @@ public class DialogUI : MonoBehaviour
         isTyping = false;
         isWaiting = true; // 대기상태로 전환
     }
+
+    public void Exit()
+    {
+        gameObject.SetActive(false);
+    }
+    
 }
