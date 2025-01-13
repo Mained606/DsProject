@@ -7,6 +7,7 @@ public class TestCharacterStats
     public float characterMP;
     public float characterST;
 
-    public float characterMoveSpeed = 5f;
+    public float characterWalkSpeed = 2f;
+    public float characterSprintSpeed = 4f;
 
 }
