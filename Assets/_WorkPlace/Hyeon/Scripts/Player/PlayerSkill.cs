@@ -5,12 +5,17 @@ using UnityEngine.InputSystem;
 public class PlayerSkill : MonoBehaviour
 {
     public Animator skillAnimator;
-    public PlayerController controller;
+    private PlayerController controller;
 
     private static readonly int[] SkillStateHash = {
         Animator.StringToHash("Base Layer.Skill_1"),
         Animator.StringToHash("Base Layer.Skill_2")
     };
+
+    private void Start()
+    {
+        controller = GetComponent<PlayerController>();
+    }
 
     private void Update()
     {

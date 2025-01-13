@@ -8156,6 +8156,8 @@ GameObject:
   - component: {fileID: 3749553289701753187}
   - component: {fileID: 1098804586676782611}
   - component: {fileID: 6211557189889423590}
+  - component: {fileID: 1205624006367007641}
+  - component: {fileID: 5927614572331674076}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -8198,7 +8200,7 @@ MonoBehaviour:
     characterST: 0
     characterWalkSpeed: 2
     characterSprintSpeed: 4
-  playerCombat: {fileID: 872578339000574332}
+  playerCombat: {fileID: 0}
   walkSpeed: 0
   sprintSpeed: 0
   dodgeDist: 3
@@ -8258,6 +8260,41 @@ CapsuleCollider:
   m_Height: 1.4
   m_Direction: 1
   m_Center: {x: 0, y: 0.7, z: 0}
+--- !u!114 &1205624006367007641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6123863050184164686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f852472c8e52d04288021cc49b40f7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 3749553289701753187}
+  sword: {fileID: 7512448847557753692}
+  swordDamage: 10
+  attackPerceptionRange: 1.3
+  PlayerAnimator: {fileID: 5264475562808799088}
+  comboWindow: 0.9
+  comboResetTimer: 1
+  inputReceived: 0
+  targetRotation: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5927614572331674076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6123863050184164686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37c089ad62a1e6147ba1e37c5f27b7a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillAnimator: {fileID: 5264475562808799088}
+  controller: {fileID: 3749553289701753187}
 --- !u!1 &6176708764453778850
 GameObject:
   m_ObjectHideFlags: 0
@@ -8920,8 +8957,6 @@ GameObject:
   - component: {fileID: 1923360659147011416}
   - component: {fileID: 5264475562808799088}
   - component: {fileID: 6548642448036744301}
-  - component: {fileID: 872578339000574332}
-  - component: {fileID: 2303739270106678303}
   m_Layer: 0
   m_Name: pico_chan_chr_pico_00
   m_TagString: Untagged
@@ -8960,7 +8995,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 40db3173a05ae3242b1c182a09b0a183, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
@@ -8981,41 +9016,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11814904f36cc38479ef227ce0253fe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &872578339000574332
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6949841579525280964}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f852472c8e52d04288021cc49b40f7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 3749553289701753187}
-  sword: {fileID: 7512448847557753692}
-  swordDamage: 10
-  attackPerceptionRange: 1.3
-  PlayerAnimator: {fileID: 5264475562808799088}
-  comboWindow: 0.9
-  comboResetTimer: 1
-  inputReceived: 0
-  targetRotation: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &2303739270106678303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6949841579525280964}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37c089ad62a1e6147ba1e37c5f27b7a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skillAnimator: {fileID: 5264475562808799088}
-  controller: {fileID: 3749553289701753187}
 --- !u!1 &6961892644257715340
 GameObject:
   m_ObjectHideFlags: 0

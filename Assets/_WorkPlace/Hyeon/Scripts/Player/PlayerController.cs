@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private bool isSprinting;
     [SerializeField] private bool isDodging = false;
-    [SerializeField] private bool isInvincible = false;
+    //[SerializeField] private bool isInvincible = false;
     public bool CanMove;
     public bool CanAttack;
     public bool CanUseSkill;
@@ -61,7 +61,7 @@ public class PlayerController : MonoBehaviour
             OnDodge();
         }
 
-        Debug.Log($"Player State : {CurrentState}");
+        //Debug.Log($"Player State : {CurrentState}");
         switch (CurrentState)
         {
             case PlayerState.PlayerIdle:
@@ -140,6 +140,7 @@ public class PlayerController : MonoBehaviour
         if (!CanMove) return;
 
         moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
+
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
         if (moveInput == Vector2.zero)
@@ -150,16 +151,13 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+
+
             PlayerAnimator.SetFloat("MotionSpeed", 1);
             PlayerAnimator.SetFloat("Speed", currentSpeed);
         }
 
-        Quaternion modifyRotation = playerCombat.ModifyRotation();
         Vector3 direction = GetDirection(moveInput);
-        //if (modifyRotation != null)
-        //{
-        //    direction = GetDirection(moveInput) * modifyRotation.x * modifyRotation.z;
-        //}
         
         moveDirection = direction;
         moveDirection.y = verticalVelocity.y;
@@ -168,11 +166,16 @@ public class PlayerController : MonoBehaviour
 
         if (direction != Vector3.zero)
         {
+            if(transform.rotation.eulerAngles.y != cameraTransform.rotation.eulerAngles.y)
+            {
+
+            }
             Vector3 forward = transform.forward;
             float angle = Vector3.SignedAngle(forward, direction, Vector3.up);
 
             if(Mathf.Abs(angle) > 0.1f)
             {
+
                 transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
             }
         }
@@ -204,9 +207,8 @@ public class PlayerController : MonoBehaviour
     // 굴리기(무적)
     private IEnumerator Dodging()
     {
-        Debug.Log("Dodging");
         isDodging = true;
-        isInvincible = true;
+        //isInvincible = true;
 
         Vector3 dodgeDirection = GetDirection(moveInput);
         float elapsedTime = 0f;
@@ -220,7 +222,7 @@ public class PlayerController : MonoBehaviour
 
         CanMove = true;
         isDodging = false;
-        isInvincible = false;
+        //isInvincible = false;
     }
 
     private void avoidKeyInput()

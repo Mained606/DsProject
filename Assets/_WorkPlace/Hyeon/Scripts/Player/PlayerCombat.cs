@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class PlayerCombat : MonoBehaviour
 {
-    public PlayerController controller;
+    private PlayerController controller;
     public GameObject sword;
     private Collider swordCollider;
-    [SerializeField] private float swordDamage = 10f;
+    //[SerializeField] private float swordDamage = 10f;
     [SerializeField] private float attackPerceptionRange = 5f;
 
     public Animator PlayerAnimator;
@@ -22,10 +22,6 @@ public class PlayerCombat : MonoBehaviour
         Animator.StringToHash("OneHand_Up_Attack_2_InPlace"),
         Animator.StringToHash("OneHand_Up_Attack_3_InPlace")
     };
-    [SerializeField] private float comboWindow = 0.9f;
-    [SerializeField] private float comboResetTimer = 1.0f;
-    private float lastAttackTime = 0;
-    private bool canChainCombo = false;
 
     public bool CanReceiveInput { get; set; } = true;
 
@@ -34,6 +30,7 @@ public class PlayerCombat : MonoBehaviour
     public int MaxComboCount { get; set; } = 3;
 
     public Quaternion targetRotation;
+    public Collider SwordCollider => swordCollider;
 
     public HashSet<GameObject> DamagedTargets { get; set; } = new HashSet<GameObject>();
     private static readonly int[] AttackStateHash = {
@@ -44,6 +41,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void Start()
     {
+        controller = GetComponent<PlayerController>();
         swordCollider = sword.GetComponent<Collider>();
 
         swordCollider.enabled = false;
@@ -51,14 +49,10 @@ public class PlayerCombat : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log($"Current CanMove : {controller.CanMove}");
-        closestMonster = GetClosestMonster();
-        if (closestMonster != null)
-        {
-            Debug.Log("Closest Monster: " + closestMonster.name);
-        }
+        //Debug.Log($"Current CanMove : {controller.CanMove}");
+
         HandleAttackInput();
-        //AttackFinishedCheck();
+        AttackFinishedCheck();
     }
 
     private void HandleAttackInput()
@@ -78,10 +72,16 @@ public class PlayerCombat : MonoBehaviour
 
     private void PerformComboAttack()
     {
-        if(closestMonster != null)
+        closestMonster = GetClosestMonster();
+        if (closestMonster != null)
         {
+            //Debug.Log("Closest Monster: " + closestMonster.name);
             LookEnemy();
         }
+        //if (closestMonster != null)
+        //{
+        //    LookEnemy();
+        //}
         
         if (inputReceived && currentComboIndex < MaxComboCount)
         {
@@ -98,28 +98,8 @@ public class PlayerCombat : MonoBehaviour
         if (!DamagedTargets.Contains(other.gameObject))
         {
             DamagedTargets.Add(other.gameObject);
-            Debug.Log($"Damaged: {other.name}, Damage: {swordDamage}");
+            //Debug.Log($"Damaged: {other.name}, Damage: {swordDamage}");
         }
-    }
-    private void EnableCollider()
-    {
-        swordCollider.enabled = true;
-    }
-
-    private void DisableCollider()
-    {
-        swordCollider.enabled = false;
-    }
-
-    private void EnableComboInput()
-    {
-        CanReceiveInput = true;
-    }
-
-    private void StartCombo()
-    {
-        CanReceiveInput = false;
-        DamagedTargets.Clear();
     }
 
     private void AttackFinishedCheck()
@@ -132,7 +112,7 @@ public class PlayerCombat : MonoBehaviour
 
             if(normalizedTime >= 0.95f)
             {
-                //controller.CanMove = true;
+                controller.CanMove = true;
             }
         }
     }
@@ -163,8 +143,7 @@ public class PlayerCombat : MonoBehaviour
         Vector3 dir = (closestMonster.position - transform.position).normalized;
         dir.y = 0f;
         targetRotation = Quaternion.LookRotation(dir);
-
-        transform.rotation = targetRotation;
+        controller.transform.rotation = targetRotation;
     }
 
     public Quaternion ModifyRotation()
