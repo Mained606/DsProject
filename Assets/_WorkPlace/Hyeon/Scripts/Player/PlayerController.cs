@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private TestCharacterStats characterStats;
+    private CharacterData characterData;
     public PlayerCombat playerCombat;
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
@@ -42,6 +43,8 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         PlayerAnimator = GetComponentInChildren<Animator>();
         CanMove = true;
+        CanAttack = true;
+        CanUseSkill = true;
         
 
         ValueInitialize();
@@ -52,6 +55,11 @@ public class PlayerController : MonoBehaviour
         isGrounded = characterController.isGrounded;
         isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
         PlayerAnimator.SetBool("Grounded", isGrounded);
+
+        if (InputManager.InputActions.actions["Interact"].triggered)
+        {
+            Debug.Log("Interact");
+        }
 
         avoidKeyInput();
         
@@ -252,14 +260,14 @@ public class PlayerController : MonoBehaviour
         switch (CanUseSkill)
         {
             case true:
-                InputManager.InputActions.actions["Skill_1"].Enable();
-                InputManager.InputActions.actions["Skill_2"].Enable();
-                InputManager.InputActions.actions["Skill_3"].Enable();
+                InputManager.InputActions.actions["PlayerSkill_1"].Enable();
+                InputManager.InputActions.actions["PlayerSkill_2"].Enable();
+                InputManager.InputActions.actions["PlayerSkill_3"].Enable();
                 break;
             case false:
-                InputManager.InputActions.actions["Skill_1"].Disable();
-                InputManager.InputActions.actions["Skill_2"].Disable();
-                InputManager.InputActions.actions["Skill_3"].Disable();
+                InputManager.InputActions.actions["PlayerSkill_1"].Disable();
+                InputManager.InputActions.actions["PlayerSkill_2"].Disable();
+                InputManager.InputActions.actions["PlayerSkill_3"].Disable();
                 break;
         }
     }

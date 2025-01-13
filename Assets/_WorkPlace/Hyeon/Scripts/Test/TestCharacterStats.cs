@@ -1,13 +1,20 @@
+using System.Xml.Linq;
+using UnityEditor.Playables;
 using UnityEngine;
 
 [System.Serializable]
 public class TestCharacterStats
 {
-    public float characterHP = 10f;
-    public float characterMP;
-    public float characterST;
+    public CharacterData playerCharacterData;
 
-    public float characterWalkSpeed = 2f;
-    public float characterSprintSpeed = 4f;
-
+    public float characterWalkSpeed;
+    public float characterSprintSpeed;
+    public TestCharacterStats ()
+    {
+        playerCharacterData = new CharacterData(
+            "Player", CharacterType.Player, 10, 10, 10, 10,
+        3f, 1f, 100f, 5f);
+        this.characterSprintSpeed = 4f;
+        this.characterWalkSpeed = 2f;
+    }
 }

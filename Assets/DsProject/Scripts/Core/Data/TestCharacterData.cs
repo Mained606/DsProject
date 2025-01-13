@@ -1,6 +1,46 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+
+// 캐릭터의 상위 타입을 정의
+public enum CharacterType
+{
+    Player,   // 플레이어
+    Monster,  // 일반 몬스터
+    Boss,     // 보스
+    Animal    // 동물 (특정 생태계 NPC 또는 몬스터)
+}
+
+// 동물(NPC 또는 비전투 생물)의 세부 유형을 정의
+public enum AnimalType
+{
+    Rabbit,
+    Deer,
+    Boar,
+    Dog
+}
+
+// 일반 몬스터의 세부 유형을 정의
+public enum MonsterType
+{
+    Mushroom,
+    MooGlet,
+    Slime,
+    Bear,
+    ZombieGorilla,
+    Devil,
+    Golem,
+    Bulldog,
+    MophanSub1,
+    MophanSub2
+}
+
+// 보스의 세부 유형을 정의
+public enum BossType
+{
+    Mophan      // 중간 보스: 모파안
+}
 
 // StatModifier 클래스 정의: 각 캐릭터 스탯에 대한 멀티플라이어 설정
 [Serializable]
@@ -10,7 +50,7 @@ public class StatModifier
     public float vitalityMultiplier = 10f;    // 체력에 대한 HP 증가 비율
     public float agilityMultiplier = 0.01f;  // 민첩성에 대한 크리티컬 확률 비율
     public float intelligenceMultiplier = 3f; // 지능에 대한 마법 공격력 비율
-
+    
     // 방어력 계산 비율 (동적 설정)
     public float physicalDefenseMultiplier = 1f;  // 물리 방어력 계산 비율
     public float magicDefenseMultiplier = 2f;      // 마법 방어력 계산 비율
@@ -22,13 +62,13 @@ public class CharacterData
 {
     public string characterName;  // 캐릭터 이름
     public CharacterType characterType;  // 캐릭터 타입 추가
-
+    
     // 기본 스텟 (정수형)
     public int strength;     // 힘
     public int agility;      // 민첩
     public int vitality;     // 체력
     public int intelligence; // 지능
-
+    
     // 이동 관련 스텟
     public float speed;      // 스피드 (이동 속도)
     public float attackSpeed; // 어택 스피드 (초당 공격 횟수)
@@ -37,12 +77,17 @@ public class CharacterData
     public float stamina;     // 최대 스태미나
     public float staminaCurrent; // 현재 스태미나
     public float staminaRecoveryRate; // 스태미나 회복 속도
-
+    
     // 레벨과 경험치 관련 변수 추가
     public int level;             // 레벨
     public int currentExperience; // 현재 경험치
     public int experienceToLevelUp; // 레벨업에 필요한 경험치
-
+    
+    // 보상 관련 변수
+    public List<string> dropItems;  // 드롭 아이템 리스트
+    public int experienceReward;    // 경험치 보상
+    public int goldReward;        // 골드 보상
+    
     // 계산된 값 (정수형)
     public int maxHp;        // 최대 HP
     public int currentHp;    // 현재 HP
@@ -52,16 +97,16 @@ public class CharacterData
     public int magicDamage;      // 마법 공격력
     public float criticalChance; // 크리티컬 확률 (float)
     public int baseDamage;       // 기본 물리 공격력 (정수형)
-
+    
     // StatModifier 설정 (각 캐릭터마다 별도로 설정)
     public StatModifier statModifier;
-
+    
     // 스탯 Min & Max 관련 상수 - 추후 상수만 정리한 클래스 추가 필요
     private const int maxStats = 999;
     private const int minStats = 0;
-
+    
     // 생성자: 캐릭터 초기화 및 자동 계산
-    public CharacterData(string name, CharacterType type, int strength, int agility, int vitality, int intelligence, StatModifier statModifier,
+    public CharacterData(string name, CharacterType type, int strength, int agility, int vitality, int intelligence,  
         float speed, float attackSpeed, float stamina, float staminaRecoveryRate)
     {
         this.characterName = name;
@@ -80,10 +125,13 @@ public class CharacterData
         this.level = 1; // 초기 레벨은 1
         this.currentExperience = 0; // 초기 경험치는 0
         experienceToLevelUp = CalculateExperienceToLevelUp(); // 첫 번째 레벨업에 필요한 경험치 설정
+        this.dropItems = new List<string>();
+        this.experienceReward = 0;
+        this.goldReward = 0;
 
         // 스텟 값에 따라 자동 계산
         IncreaseStatsBasedOnLevel();
-        UpdateDerivedStats();  // 모든 파생 스탯을 한 번에 계산
+        //UpdateDerivedStats();  // 모든 파생 스탯을 한 번에 계산
     }
 
     // 파생 스탯 계산 (중복을 줄이기 위해 한 번에 계산)
@@ -97,7 +145,7 @@ public class CharacterData
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f);  // 민첩성에 따른 크리티컬 확률
         baseDamage = physicalDamage + strength;  // 물리 공격력 + 힘
     }
-
+    
     // 경험치를 얻었을 때 호출되는 함수
     public void GainExperience(int amount)
     {
@@ -126,7 +174,7 @@ public class CharacterData
         // 레벨업 시 로그 출력 (디버깅용)
         Debug.Log($"레벨업! 현재 레벨: {level}");
     }
-
+    
     // 경험치 계산 함수
     private int CalculateExperienceToLevelUp()
     {
@@ -140,7 +188,7 @@ public class CharacterData
             return Mathf.RoundToInt(level * 100f);  // 그 외 구간은 기본적으로 100씩 증가
         }
     }
-
+    
     // 능력치 증가 처리 함수 (레벨에 따른 규칙을 설정)
     private void IncreaseStatsBasedOnLevel()
     {
@@ -150,7 +198,7 @@ public class CharacterData
         agility += GetStatIncrease("agility");
         intelligence += GetStatIncrease("intelligence");
     }
-
+    
     // 각 스탯에 대해 증가량을 계산하는 함수
     private int GetStatIncrease(string statType)
     {
@@ -169,7 +217,7 @@ public class CharacterData
                 return 1;  // 기본값
         }
     }
-
+    
     // 크리티컬 데미지 계산
     public int CalculateCriticalDamage()
     {
@@ -206,7 +254,7 @@ public class CharacterData
         // 증가 후 자동으로 파생 스탯 계산
         UpdateDerivedStats();
     }
-
+    
     // 스텟 감소 함수들
     public void DecreaseStat(string statType, int amount)
     {
@@ -231,7 +279,7 @@ public class CharacterData
         // 감소 후 자동으로 파생 스탯 계산
         UpdateDerivedStats();
     }
-
+    
     // 피해를 입었을 때
     public void TakeDamage(int damage)
     {
@@ -259,14 +307,14 @@ public class CharacterData
         staminaCurrent += recoveryAmount;
         staminaCurrent = Mathf.Min(staminaCurrent, stamina); // 스태미나는 최대치를 초과하지 않도록 설정
     }
-
+    
     // 스태미나 소모 (스킬 사용, 이동 등)
     public void UseStamina(int amount)
     {
         staminaCurrent -= amount;
         staminaCurrent = Mathf.Max(0, staminaCurrent);  // 스태미나는 0 이하로 떨어지지 않음
     }
-
+    
     // ToString()을 오버라이드하여 TMP로 출력할 수 있는 형식으로 정보 제공
     public string ToStringForTMPro()
     {

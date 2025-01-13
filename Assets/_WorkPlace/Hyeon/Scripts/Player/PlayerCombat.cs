@@ -59,6 +59,7 @@ public class PlayerCombat : MonoBehaviour
     {
         if (InputManager.InputActions.actions["Attack"].triggered && CanReceiveInput)
         {
+            Debug.Log("Attack");
             inputReceived = true;
 
             PerformComboAttack();
