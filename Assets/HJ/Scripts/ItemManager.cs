@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using static UnityEditor.Timeline.Actions.MenuPriority;
 
 public class ItemManager : BaseManager<ItemManager>
 {
@@ -8,18 +7,9 @@ public class ItemManager : BaseManager<ItemManager>
     public Transform player;                    //플레이어
     public ItemDatabase itemDatabase;           //아이템 데이터베이스
 
-    private PlayerInventory playerInventory;    //인벤토리
-
     public GameObject itemDropBox;              //itemdropBox 프리팹
-    //[SerializeField] private float detectionDistance = 1f;      //플레이어 감지 거리
     #endregion
 
-    protected override void Start()
-    {
-        base.Start();
-
-        playerInventory = player.GetComponent<PlayerInventory>();
-    }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
@@ -37,6 +27,14 @@ public class ItemManager : BaseManager<ItemManager>
     }
 
     /// <summary>
+    /// 아이템 사용
+    /// </summary>
+    public void UseItem(Item item, int quantity = 1)
+    {
+        InventoryManager.Instance.RemoveItem(item, quantity);
+    }
+
+    /// <summary>
     /// 아이템 박스 생성
     /// </summary>
     public void SpawnItemBox(Vector3 spawnPosition, List<int> dropItemIds)
@@ -51,22 +49,19 @@ public class ItemManager : BaseManager<ItemManager>
     }
 
     /// <summary>
+    /// 아이템 드랍
+    /// </summary>
+    public void DropItem(Item item, int quantity = 1)
+    {
+        //인벤토리에서 해당 아이템 삭제
+        InventoryManager.Instance.RemoveItem(item, quantity);
+    }
+
+    /// <summary>
     /// 인벤토리에 아이템 배치
     /// </summary>
     public void AddItemToInventory(Item item)
     {
-        playerInventory.AddItem(item);
+        InventoryManager.Instance.AddItem(item);
     }
-
-    #region PrivateMathod
-    /// <summary>
-    /// 플레이어가 근처에 있는지 감지
-    /// </summary>
-    //private bool IsNearPlayer()
-    //{
-    //    float disatance = Vector3.Distance(transform.position, player.position);
-
-    //    return disatance <= detectionDistance;
-    //}
-    #endregion
 }

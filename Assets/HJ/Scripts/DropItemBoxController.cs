@@ -5,6 +5,14 @@ public class DropItemBoxController : MonoBehaviour
 {
     [SerializeField] private List<Item> dropItmes = new List<Item>();    //드랍되는 아이템 리스트
 
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.F))
+        {
+            OpenBox();
+        }
+    }
+
     /// <summary>
     /// 아이템 리스트 박스에 설정하기
     /// </summary>
@@ -17,7 +25,7 @@ public class DropItemBoxController : MonoBehaviour
             Item item = ItemManager.Instance.FindItemById(id);
             if (item != null)
             {
-                //아이템 드랍 확률
+                //아이템 랜덤 드랍
                 if(Random.value <= item.itemDropChance)
                 {
                     item.Initialize();      //드랍할 아이템 초기화
@@ -29,16 +37,14 @@ public class DropItemBoxController : MonoBehaviour
 
     /// <summary>
     /// 박스 열기
-    /// UI 관련 로직 추가 예정
     /// </summary>
     public void OpenBox()
     {
-        //UI
-
-        //박스가 비워지면 삭제하기
-        if(dropItmes == null)
+        Debug.Log("박스열기");
+        dropItmes.ForEach(item =>
         {
-            Destroy(gameObject);
-        }
+            ItemManager.Instance.AddItemToInventory(item);
+        });
+        Destroy(gameObject);
     }
 }

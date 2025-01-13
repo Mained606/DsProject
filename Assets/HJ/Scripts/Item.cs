@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 
 //아이템 항목
@@ -18,7 +17,13 @@ public class Item
     public int value;                   //가치
     public bool isDiscardable;          //버릴 수 있는 아이템인지 여부
     public float itemDropChance = 1.0f; //아이템 드랍 확률
-    public Image itemImage;             //아이템 이미지
+    public Sprite itemImage;            //아이템 이미지
+
+    [Header("장착용 아이템 공통 속성")]
+    public float strength;              //힘
+    public float vitality;              //활력
+    public float agility;               //민첩
+    public float intelligence;          //지능
 
     [Header("무기/방어구 속성")]
     //무기 속성
@@ -33,9 +38,6 @@ public class Item
     [Header("소모품 속성")]
     public ConsumableType consumableType;   //소모품 타입
     public int effectAmount;                //효과량
-
-    [Header("장신구 속성")]
-    public AccessoryTypeData statModifiers;   //능력치 변화
 
     [Header("퀘스트아이템 속성")]
     public string questId;                  //퀘스트 ID
@@ -65,24 +67,12 @@ public class Item
                 maxCapacity = 99;       //소모품 기본 최대 소지 갯수
                 isCanStack = true;      //여러개 소지 가능
                 break;
-            //장신구
-            case ItemType.Accessory:
-                statModifiers = new AccessoryTypeData();
-                break;
             //퀘스트 아이템
             case ItemType.QuestItem:
                 isDiscardable = false; //퀘스트 아이템은 버릴 수 없음
                 break;
         }
     }
-}
-
-//악세서리 데이터(수정 가능성 있음)
-[Serializable]
-public class AccessoryTypeData
-{
-    public string jewelryType;
-    public int statAmount;
 }
 
 #region ItemEnum

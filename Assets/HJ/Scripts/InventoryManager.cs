@@ -2,26 +2,37 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-public class PlayerInventory : MonoBehaviour
+public class InventoryManager : BaseManager<InventoryManager>
 {
     #region Variables
-        //아이템 수용한도
-        public int CurrentCapacity { get; set; }
+    //아이템 수용한도
+    public int CurrentCapacity { get; set; }
 
-        //아이템 초기 수용한도
-        [SerializeField] private int initialCapacity = 10;
-        //최대 수용한도
-        [SerializeField] private int maxCapacity = 60;
+    //아이템 초기 수용한도
+    [SerializeField] private int initialCapacity = 10;
+    //최대 수용한도
+    [SerializeField] private int maxCapacity = 60;
 
-        //아이템 리스트
-        public List<Item> items = new List<Item>();
+    //아이템 리스트
+    public List<Item> items = new List<Item>();
 
-        //인벤토리 UI
-        #endregion
+    //인벤토리 UI
+    #endregion
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
+
         CurrentCapacity = initialCapacity;      //초기 수용한도 설정
+
+        //테스트용
+        //AddItem(ItemManager.Instance.FindItemById(1001));
+        //AddItem(ItemManager.Instance.FindItemById(2001));
+    }
+
+    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
+    {
+
     }
 
     /// <summary>
@@ -94,4 +105,6 @@ public class PlayerInventory : MonoBehaviour
     {
         return index >= 0 && index < items.Count ? items[index] : null;
     }
+
+    
 }
