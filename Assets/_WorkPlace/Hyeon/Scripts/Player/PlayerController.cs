@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour
     public Transform cameraTransform;
 
     [SerializeField] private float jumpHeight = 0.5f;
+    private float lastGroundHeight;
+    [SerializeField] private float fallDamageThreshold = 5f;
+    [SerializeField] private float fallDamageMultiplier = 5f;
     private Vector3 moveDirection;
     private Vector3 verticalVelocity;
     private float gravity = -9.81f;
@@ -27,6 +30,7 @@ public class PlayerController : MonoBehaviour
     private bool isSprinting;
     [SerializeField] private bool isDodging = false;
     //[SerializeField] private bool isInvincible = false;
+    public bool isFreefall;
     public bool CanMove;
     public bool CanAttack;
     public bool CanUseSkill;
@@ -109,16 +113,44 @@ public class PlayerController : MonoBehaviour
     {
         if (!isGrounded)
         {
+            if(verticalVelocity.y <= fallDamageThreshold && !isFreefall)
+            {
+                isFreefall = true;
+                CanAttack = false; CanUseSkill = false;
+                lastGroundHeight = transform.position.y;
+                PlayerAnimator.SetBool("Freefall", true);
+            }
             verticalVelocity.y += gravity * Time.deltaTime;
         }
         else
         {
+            if (isFreefall)
+            {
+                float fallDistance = lastGroundHeight - transform.position.y;
+
+                if(fallDistance > fallDamageThreshold)
+                {
+                    ApplyFallDamage(fallDistance);
+                }
+
+                isFreefall = false;
+                CanAttack = true; CanUseSkill = true;
+                PlayerAnimator.SetBool("Freefall", false);
+            }
+
             PlayerAnimator.SetBool("Jump", false);
             if (verticalVelocity.y < 0)
             {
                 verticalVelocity.y = -0.5f;
             }
         }
+    }
+
+    private void ApplyFallDamage(float fallDistance)
+    {
+        float damage = (fallDistance - fallDamageThreshold) * fallDamageMultiplier;
+        damage = Mathf.Max(0, damage);
+        Debug.Log($"낙하 데미지: {damage}");
     }
 
     private void StateCheck()
