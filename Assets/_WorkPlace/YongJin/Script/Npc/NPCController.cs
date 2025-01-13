@@ -32,10 +32,26 @@ public class NPCController : MonoBehaviour
         }
     }
 
-    void Interact()
+    public void Interact()
     {
-        Debug.Log("인터렉트됨");
-        // Add your interaction logic here
+        /* if (!npcData.isInteractable)
+        {
+            Debug.Log($"{npcData.name}은(는) 상호작용이 불가능합니다.");
+            return;
+        }
+
+        switch (npcData.npcType)
+        {
+            case NPCType.상점:
+                OpenShop();
+                break;
+            case NPCType.퀘스트:
+                GiveQuest();
+                break;
+            default:
+                HandleState();
+                break;
+        } */
     }
 
     private void OnDrawGizmosSelected()
