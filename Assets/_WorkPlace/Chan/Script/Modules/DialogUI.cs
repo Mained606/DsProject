@@ -2,10 +2,15 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEditor.Rendering.PostProcessing;
+using UnityEngine.UI;
 
 public class DialogUI : MonoBehaviour
 {
-    [SerializeField]private TextMeshProUGUI name;   // 이름 출력칸
+    [SerializeField] private GameObject ChoicePrefab;
+    [SerializeField] private Transform baseParent;
+
+    [SerializeField]private TextMeshProUGUI dialogueName;   // 이름 출력칸
     [SerializeField]private TextMeshProUGUI dialogueText; // 대사 출력칸
     private float typingSpeed = 0.05f; // 텍스트 출력 딜레이
 
@@ -14,6 +19,8 @@ public class DialogUI : MonoBehaviour
 
     private List<string> dialogueList = new List<string>(); // JSON에서 불러온 대사 리스트
     private int currentDialogueIndex = 0; // 현재 출력중인 대사 인덱스 
+
+    private bool choice;
 
     //   private Queue<string> dialogueQueue = new Queue<string>(); // 대사 큐 리스트 
 
@@ -32,10 +39,15 @@ public class DialogUI : MonoBehaviour
 
     void Update()
     {
-       if(isWaiting && Input.GetMouseButtonDown(0))
+       if((isTyping || isWaiting) && Input.GetMouseButtonDown(0))
        {
-            UIManager.Instance.DialogUI.ShowNext(dialogueList);
+          ShowNext(dialogueList);
        }
+
+        if ((isTyping || isWaiting) && Input.GetKeyDown(KeyCode.Escape))
+        {
+            SkipDialogue();
+        }
     }
 
     public void ShowNext(List<string> dialoglist)
@@ -49,16 +61,48 @@ public class DialogUI : MonoBehaviour
         if(currentDialogueIndex >= dialoglist.Count)
         {
             dialogueText.text = "";
-            Debug.Log("이제 대사 없엉");
+            ShowChoices();
             return;
         }
+        else
+        {
+            string nextDialogue = dialoglist[currentDialogueIndex];
+            StartCoroutine(TypeDialogue(nextDialogue));
+            currentDialogueIndex++;
+        }
+    }
 
-        string nextDialogue = dialoglist[currentDialogueIndex];
-        StartCoroutine(TypeDialogue(nextDialogue));
+    private void ShowChoices()
+    {
+        if (choice) return;
+
+        // 첫 번째 버튼
+        GameObject questButton = Instantiate(ChoicePrefab, baseParent);
+        questButton.GetComponentInChildren<TextMeshProUGUI>().text = "QUEST";
+
+        // 두 번째 버튼
+        GameObject storeButton = Instantiate(ChoicePrefab, baseParent);
+        storeButton.GetComponentInChildren<TextMeshProUGUI>().text = "STORE";
+
+        choice  =true;
+    }
+    private void SkipDialogue()
+    {
+        StopAllCoroutines();
+        currentDialogueIndex = dialogueList.Count - 1;
+        dialogueText.text = dialogueList[currentDialogueIndex];
+
+        // 다음에 ShowNext가 불려도 범위를 벗어나도록 인덱스 증가
+        currentDialogueIndex++;
+
+        isTyping = false;
+        isWaiting = true;
+        ShowChoices();
     }
 
     private IEnumerator TypeDialogue(string dialgue)
     {
+
         isTyping = true;
         isWaiting = false;
         dialogueText.text = "";
@@ -73,15 +117,16 @@ public class DialogUI : MonoBehaviour
         isTyping = false;
         isWaiting = true; // 대기상태로 전환
     }
+
     private void CompleteTyping(List<string> dialoglist)
     {
-        
         StopAllCoroutines(); // 타이핑 효과 중단
 
         if(currentDialogueIndex <= dialoglist.Count)
-        dialogueText.text = dialoglist[currentDialogueIndex - 1]; // 현재 대사를 완전 출력
-
+        {
+            dialogueText.text = dialoglist[currentDialogueIndex - 1]; // 현재 대사를 완전 출력
+        }
         isTyping = false;
-        isWaiting = true;
+        isWaiting = true; // 대기상태로 전환
     }
 }
