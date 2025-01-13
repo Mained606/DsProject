@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -43,6 +44,11 @@ public class CharacterData
     public int currentExperience; // 현재 경험치
     public int experienceToLevelUp; // 레벨업에 필요한 경험치
     
+    // 보상 관련 변수
+    public List<string> dropItems;  // 드롭 아이템 리스트
+    public int experienceReward;    // 경험치 보상
+    public int goldReward;        // 골드 보상
+    
     // 계산된 값 (정수형)
     public int maxHp;        // 최대 HP
     public int currentHp;    // 현재 HP
@@ -80,6 +86,9 @@ public class CharacterData
         this.level = 1; // 초기 레벨은 1
         this.currentExperience = 0; // 초기 경험치는 0
         experienceToLevelUp = CalculateExperienceToLevelUp(); // 첫 번째 레벨업에 필요한 경험치 설정
+        this.dropItems = new List<string>();
+        this.experienceReward = 0;
+        this.goldReward = 0;
 
         // 스텟 값에 따라 자동 계산
         IncreaseStatsBasedOnLevel();
