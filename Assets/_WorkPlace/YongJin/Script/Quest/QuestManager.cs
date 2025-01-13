@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class QuestManager : BaseManager<QuestManager>
 {
@@ -12,11 +13,17 @@ public class QuestManager : BaseManager<QuestManager>
     private const int TOTAL_LOADED = 2;
     private string QuestTableUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHXZuSvLw5TT-985Q3AN_Z28JRTikJr6uiAoJBAlWxKcic0ROz-5wRpNRBAxEPVw/pub?gid=1391226435&single=true&output=csv";
     private string QuestStringTableUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRAtTzgMnM5T6Lecvm3TvZlkoZQ8ksdrSRoFDqCY_CRNwnwfIC-ORnfsUjQTJ2bw/pub?gid=1391226435&single=true&output=csv";
+
+    public int nextQuestId = 100000;
     
     
     public List<QuestTable> questData{get; private set;} = new List<QuestTable>();
     public List<QuestStringTable> questStringData{get; private set;} = new List<QuestStringTable>();
-    public List<QuestTable> prevQuests{get; private set;} = new List<QuestTable>();
+
+    public List<QuestTable> currnetQuests;
+    public List<QuestTable> prevQuests;
+    public event EventHandler OnInitQuestManager;
+    //{get; private set;} = new List<QuestTable>();
     #endregion
 
     #region Init
@@ -45,6 +52,7 @@ public class QuestManager : BaseManager<QuestManager>
         {
             Debug.Log("모든 퀘스트 데이터 이니셜라이즈 성공");
             isCompletedLoads = true;
+            OnInitQuestManager?.Invoke(this, EventArgs.Empty);
         }
     }
     private IEnumerator FetchGoogleSheet(string url, System.Action<string> onSuccess)
@@ -186,11 +194,12 @@ public class QuestManager : BaseManager<QuestManager>
     #region Function
 
     public QuestTable GetQuestIdToQuestTable(int id) => questData.Find(x => x.quest_index == id);
-    public QuestTable FindPrevQuest(int id) => prevQuests.Find(x => x.quest_index == id);
+    //public QuestTable FindPrevQuest(int id) => prevQuests.Find(x => x.quest_index == id);
     public QuestStringTable GetQuestStringData(int id) => questStringData.Find(x => x.questString_index == id);
+    
     public void SuccessQuest(int clearedQuestId)
     {
-        questData.Remove(GetQuestIdToQuestTable(clearedQuestId));
+        currnetQuests.Remove(GetQuestIdToQuestTable(clearedQuestId));
         prevQuests.Add(GetQuestIdToQuestTable(clearedQuestId));
     }
     
