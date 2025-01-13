@@ -27,6 +27,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isDodging = false;
     [SerializeField] private bool isInvincible = false;
     public bool CanMove;
+    public bool CanAttack;
+    public bool CanUseSkill;
 
     private CharacterController characterController;
     private Animator PlayerAnimator;
@@ -221,16 +223,17 @@ public class PlayerController : MonoBehaviour
         isInvincible = false;
     }
 
-    
-
-    private void Attack()
+    private void avoidKeyInput()
     {
-
-    }
-
-    private void Skill_1()
-    {
-
+        switch (CanMove)
+        {
+            case true:
+                InputManager.InputActions.actions["Move"].Enable();
+                break;
+            case false:
+                InputManager.InputActions.actions["Move"].Disable();
+                break;
+        }
     }
 
     private void IdleMotion()

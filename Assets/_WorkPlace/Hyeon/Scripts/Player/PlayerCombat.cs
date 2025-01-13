@@ -51,20 +51,14 @@ public class PlayerCombat : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log($"Current CanMove : {controller.CanMove}");
         closestMonster = GetClosestMonster();
         if (closestMonster != null)
         {
             Debug.Log("Closest Monster: " + closestMonster.name);
         }
         HandleAttackInput();
-        AttackFinishedCheck();
-        //if (InputManager.InputActions.actions["Attack"].triggered)
-        //{
-        //    PerformAttack();
-        //}
-        //HandleComboReset();
-        //MonitorAnimationProgress();
-
+        //AttackFinishedCheck();
     }
 
     private void HandleAttackInput()
@@ -72,12 +66,13 @@ public class PlayerCombat : MonoBehaviour
         if (InputManager.InputActions.actions["Attack"].triggered && CanReceiveInput)
         {
             inputReceived = true;
+            //controller.CanMove = false;
 
-            if (currentComboIndex == 0 || PlayerAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5f)
-            {
+            //if (currentComboIndex == 0 || PlayerAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5f)
+            //{
                 
                 PerformComboAttack();
-            }
+            //}
         }
     }
 
@@ -87,7 +82,7 @@ public class PlayerCombat : MonoBehaviour
         {
             LookEnemy();
         }
-        controller.CanMove = false;
+        
         if (inputReceived && currentComboIndex < MaxComboCount)
         {
             inputReceived = false;
@@ -135,9 +130,9 @@ public class PlayerCombat : MonoBehaviour
 
             float normalizedTime = stateInfo.normalizedTime;
 
-            if(normalizedTime >= 0.9f)
+            if(normalizedTime >= 0.95f)
             {
-                controller.CanMove = true;
+                //controller.CanMove = true;
             }
         }
     }
@@ -177,56 +172,6 @@ public class PlayerCombat : MonoBehaviour
         return Quaternion.Inverse(targetRotation);
     }
 
-    //public void PerformAttack()
-    //{
-    //    if(Time.time - lastAttackTime > comboResetTimer)
-    //    {
-    //        currentComboIndex = 0;
-    //    }
-
-    //    if(canChainCombo || currentComboIndex == 0)
-    //    {
-    //        PlayerAnimator.Play(ComboHashes[currentComboIndex]);
-    //        currentComboIndex = (currentComboIndex + 1) % ComboHashes.Length;
-    //        canChainCombo = false;
-    //        lastAttackTime = Time.time;
-    //    }
-    //}
-
-    //private void MonitorAnimationProgress()
-    //{
-    //    AnimatorStateInfo stateInfo = PlayerAnimator.GetCurrentAnimatorStateInfo(0);
-
-    //    if (stateInfo.IsName("OneHand_Up_Attack_1_InPlace") ||
-    //        stateInfo.IsName("OneHand_Up_Attack_2_InPlace") ||
-    //        stateInfo.IsName("OneHand_Up_Attack_3_InPlace"))
-    //    {
-    //        float normalizedTime = stateInfo.normalizedTime % 1;
-
-    //        if(normalizedTime >= 0.2f && normalizedTime <= 0.6f)
-    //        {
-    //            swordCollider.enabled = true;
-    //        }
-    //        else
-    //        {
-    //            swordCollider.enabled = false;
-    //        }
-
-    //        if(normalizedTime >= comboWindow)
-    //        {
-    //            canChainCombo = true;
-    //        }
-    //    }
-    //}
-
-    //private void HandleComboReset()
-    //{
-    //    if(Time.time - lastAttackTime > comboResetTimer)
-    //    {
-    //        currentComboIndex = 0;
-    //        canChainCombo = false;
-    //    }
-    //}
 
     private void OnDrawGizmosSelected()
     {
