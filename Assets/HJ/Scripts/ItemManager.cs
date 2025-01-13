@@ -37,15 +37,11 @@ public class ItemManager : BaseManager<ItemManager>
     /// <summary>
     /// 아이템 박스 생성
     /// </summary>
-    public void SpawnItemBox(Vector3 spawnPosition, List<int> dropItemIds)
+    public GameObject SpawnItemBox(Vector3 spawnPosition)
     {
         GameObject itemBox = Instantiate(itemDropBox, spawnPosition, Quaternion.identity);
 
-        DropItemBoxController dropItemBoxController = itemBox.GetComponent<DropItemBoxController>();
-        if (dropItemBoxController)
-        {
-            dropItemBoxController.SetItems(dropItemIds);
-        }
+        return itemBox;
     }
 
     /// <summary>

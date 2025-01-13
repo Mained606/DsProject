@@ -3,48 +3,42 @@ using System.Collections.Generic;
 
 public class DropItemBoxController : MonoBehaviour
 {
-    [SerializeField] private List<Item> dropItmes = new List<Item>();    //드랍되는 아이템 리스트
+    private Transform player;   //플레이어
+    [SerializeField] private float detectionDistance = 2f;  //플레이어 감지 거리
 
-    private void Update()
+    private void Start()
     {
-        if (Input.GetKey(KeyCode.F))
-        {
-            OpenBox();
-        }
+        player = ItemManager.Instance.player;
     }
 
-    /// <summary>
-    /// 아이템 리스트 박스에 설정하기
-    /// </summary>
-    public void SetItems(List<int> items)
+    public void OpenBox(List<int> items)
     {
-        List<int> itemIds = items;
+        if (!IsNearPlayer())
+            return;
 
-        itemIds.ForEach(id =>
+        Debug.Log("박스열기");
+
+        //아이템 데이터 리스트에서 드랍 확률 체크 후 인벤토리에 추가
+        items.ForEach(id =>
         {
             Item item = ItemManager.Instance.FindItemById(id);
-            if (item != null)
+            //아이템 랜덤 생성
+            if (item != null && Random.value <= item.itemDropChance)
             {
-                //아이템 랜덤 드랍
-                if(Random.value <= item.itemDropChance)
-                {
-                    item.Initialize();      //드랍할 아이템 초기화
-                    dropItmes.Add(item);    //드랍할 아이템 추가
-                }
+                item.Initialize(); //드랍할 아이템 초기화
+                ItemManager.Instance.AddItemToInventory(item);  //인벤토리에 아이템 추가
             }
         });
+
+        Destroy(gameObject); //박스 삭제
     }
 
     /// <summary>
-    /// 박스 열기
+    /// 플레이어가 근처에 있는지 감지
     /// </summary>
-    public void OpenBox()
+    private bool IsNearPlayer()
     {
-        Debug.Log("박스열기");
-        dropItmes.ForEach(item =>
-        {
-            ItemManager.Instance.AddItemToInventory(item);
-        });
-        Destroy(gameObject);
+        float disatance = Vector3.Distance(transform.position, player.position);
+        return disatance <= detectionDistance;
     }
 }
