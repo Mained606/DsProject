@@ -31,7 +31,7 @@ public class NpcTest : MonoBehaviour
     }
     private void Update()
     {
-        
+        ReceiveQuest();
         
     }
     private void Init()
@@ -44,26 +44,30 @@ public class NpcTest : MonoBehaviour
     }
     public void ReceiveQuest()
     {
-        foreach(var questData in giveQuestList)
+        if(InputManager.InputActions.actions["Interect"].triggered)
         {
-            if(QuestManager.Instance.currnetQuests.Contains(questData))
+            foreach(var questData in giveQuestList)
             {
-                
-                Debug.Log("이미 퀘스트 진행 중임");
-                return;
+                if(QuestManager.Instance.currnetQuests.Contains(questData))
+                {
+                    
+                    Debug.Log("이미 퀘스트 진행 중임");
+                    return;
+                }
             }
+            if(hasQuestList.Contains(QuestManager.Instance.GetQuestIdToQuestTable(QuestManager.Instance.nextQuestId)))
+            {
+                var data = hasQuestList.Find(x=> x.quest_index == QuestManager.Instance.nextQuestId);
+                giveQuestList.Add(data);
+                QuestManager.Instance.currnetQuests.Add(data);
+            }
+            else
+            {
+                Debug.Log("퀘스트 조건 X");
+                return;
+            }   
         }
-        if(hasQuestList.Contains(QuestManager.Instance.GetQuestIdToQuestTable(QuestManager.Instance.nextQuestId)))
-        {
-            var data = hasQuestList.Find(x=> x.quest_index == QuestManager.Instance.nextQuestId);
-            giveQuestList.Add(data);
-            QuestManager.Instance.currnetQuests.Add(data);
-        }
-        else
-        {
-            Debug.Log("퀘스트 조건 X");
-            return;
-        }        
+             
         
     }
     public void ClearQuestCheck()
