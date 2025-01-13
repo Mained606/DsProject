@@ -101,7 +101,14 @@ public class CharacterManager : BaseManager<CharacterManager>
         );
         
         // 드롭 아이템과 경험치 보상 복사
-        newCharacter.dropItems = new List<string>(template.dropItems);
+        if (template.dropItems != null && template.dropItems.Count > 0)
+        {
+            newCharacter.dropItems = new List<Item>(template.dropItems);
+        }
+        else
+        {
+            newCharacter.dropItems = GenerateItems(5);
+        }
         newCharacter.experienceReward = template.experienceReward;
         newCharacter.goldReward = template.goldReward;
 
@@ -110,6 +117,18 @@ public class CharacterManager : BaseManager<CharacterManager>
         Debug.Log($"캐릭터 '{newCharacter.characterName}'클론 생성 완료.");
 
         return newCharacter;
+    }
+    
+    public List<Item> GenerateItems(int amount)
+    {
+        List<Item> returnItem = new List<Item>();
+        for (int i = 0; i < amount; i++)
+        {
+            Item item = ItemManager.Instance.FindItemById(
+                Random.Range(0, ItemManager.Instance.itemDatabase.items.Count));
+            returnItem.Add(item);
+        }
+        return returnItem;
     }
 
     // 플레이어 초기화
@@ -156,13 +175,18 @@ public class CharacterManager : BaseManager<CharacterManager>
             playerCharacter.GainExperience(monster.experienceReward);
             Debug.Log($"{monster.characterName} 처치! 경험치 +{monster.experienceReward}");
         }
+        
+        GameObject itemBox = ItemManager.Instance.SpawnItemBox(transform.position);
+        
+        // dropItemBoxController = itemBox.GetComponent<DropItemBoxController>();
 
         // 드롭 아이템 처리
-        foreach (string item in monster.dropItems)
-        {
-            Debug.Log($"드롭된 아이템: {item}");
-            // 실제 게임에서는 아이템 매니저를 호출해 인벤토리에 추가
-        }
+        // foreach (Item item in monster.dropItems)
+        // {
+        //     Debug.Log($"드롭된 아이템: {item}");
+        //     // 실제 게임에서는 아이템 매니저를 호출해 인벤토리에 추가
+        //     
+        // }
         
         // 골드 보상 처리
         int goldEarned = monster.goldReward;

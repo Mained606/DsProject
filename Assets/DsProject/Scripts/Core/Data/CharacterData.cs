@@ -46,7 +46,7 @@ public class CharacterData
     public int experienceToLevelUp; // 레벨업에 필요한 경험치
     
     // 보상 관련 변수
-    public List<string> dropItems;  // 드롭 아이템 리스트
+    public List<Item> dropItems;  // 드롭 아이템 리스트
     public int experienceReward;    // 경험치 보상
     public int goldReward;        // 골드 보상
     
@@ -90,7 +90,7 @@ public class CharacterData
         this.currentExperience = 0; // 초기 경험치는 0
         experienceToLevelUp = CalculateExperienceToLevelUp(); // 첫 번째 레벨업에 필요한 경험치 설정
         // 희정님 쪽에서 리스트 받아와서 그중에 랜덤으로 들어가게 하나..? 추가되는 부분이 필요함
-        this.dropItems = new List<string>();
+        this.dropItems = new List<Item>();
         this.experienceReward = 0;
         this.goldReward = 0;
 
