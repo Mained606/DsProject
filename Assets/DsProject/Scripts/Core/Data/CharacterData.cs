@@ -23,6 +23,7 @@ public class CharacterData
 {
     public string characterName;  // 캐릭터 이름
     public CharacterType characterType;  // 캐릭터 타입 추가
+    public GameObject prefab; // 몬스터 프리팹
     
     // 기본 스텟 (정수형)
     public int strength;     // 힘
@@ -67,11 +68,13 @@ public class CharacterData
     private const int minStats = 0;
     
     // 생성자: 캐릭터 초기화 및 자동 계산
-    public CharacterData(string name, CharacterType type, int strength, int agility, int vitality, int intelligence, StatModifier statModifier, 
+    public CharacterData(string name, CharacterType type, GameObject prefab, 
+        int strength, int agility, int vitality, int intelligence, StatModifier statModifier, 
         float speed, float attackSpeed, float stamina, float staminaRecoveryRate)
     {
         this.characterName = name;
         this.characterType = type;  // 타입 저장
+        this.prefab = prefab; // 프리팹 설정
         this.strength = strength;
         this.agility = agility;
         this.vitality = vitality;
@@ -86,6 +89,7 @@ public class CharacterData
         this.level = 1; // 초기 레벨은 1
         this.currentExperience = 0; // 초기 경험치는 0
         experienceToLevelUp = CalculateExperienceToLevelUp(); // 첫 번째 레벨업에 필요한 경험치 설정
+        // 희정님 쪽에서 리스트 받아와서 그중에 랜덤으로 들어가게 하나..? 추가되는 부분이 필요함
         this.dropItems = new List<string>();
         this.experienceReward = 0;
         this.goldReward = 0;
@@ -114,8 +118,8 @@ public class CharacterData
 
         currentExperience += amount;
 
-        // 경험치가 레벨업에 도달했으면 레벨업 처리
-        if (currentExperience >= experienceToLevelUp)
+        // 경험치가 레벨업에 도달했으면 반복적으로 레벨업 처리
+        while (currentExperience >= experienceToLevelUp)
         {
             LevelUp();
         }
@@ -125,15 +129,15 @@ public class CharacterData
     private void LevelUp()
     {
         level++;  // 레벨 증가
-        currentExperience = 0;  // 경험치 초기화
+        currentExperience -= experienceToLevelUp;  // 잔여 경험치 유지
         experienceToLevelUp = CalculateExperienceToLevelUp();  // 새로운 레벨에 맞는 경험치 계산
 
-        // 레벨업 시 능력치 증가 및 자동 계산
+        // 레벨업 시 능력치 증가 및 파생 스탯 계산
         IncreaseStatsBasedOnLevel();
-        UpdateDerivedStats();  // 레벨업 후 파생 스탯 다시 계산
+        UpdateDerivedStats();
 
         // 레벨업 시 로그 출력 (디버깅용)
-        Debug.Log($"레벨업! 현재 레벨: {level}");
+        Debug.Log($"레벨업! 현재 레벨: {level}, 남은 경험치: {currentExperience}");
     }
     
     // 경험치 계산 함수
@@ -291,4 +295,13 @@ public class CharacterData
                $"<color=gray>Base Damage:</color> {baseDamage}\n" +
                $"<color=lime>Stamina:</color> {staminaCurrent}/{stamina}";
     }
+    // 디버그용 코드 이후 삭제 필요 ============================
+#if UNITY_EDITOR
+    public void OnValidate()
+    {
+        // 모든 파생 스탯을 업데이트
+        UpdateDerivedStats();
+    }
+#endif
+    // 디버그용 코드 이후 삭제 필요 ============================
 }

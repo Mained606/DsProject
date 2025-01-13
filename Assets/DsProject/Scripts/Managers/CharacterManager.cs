@@ -88,6 +88,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         CharacterData newCharacter = new CharacterData(
             characterName ?? template.characterName,
             template.characterType,
+            template.prefab,
             template.strength,
             template.agility,
             template.vitality,
@@ -98,10 +99,11 @@ public class CharacterManager : BaseManager<CharacterManager>
             template.stamina,
             template.staminaRecoveryRate
         );
-
+        
         // 드롭 아이템과 경험치 보상 복사
         newCharacter.dropItems = new List<string>(template.dropItems);
         newCharacter.experienceReward = template.experienceReward;
+        newCharacter.goldReward = template.goldReward;
 
         // 리스트에 새 캐릭터 추가
         characterList.Add(newCharacter);
