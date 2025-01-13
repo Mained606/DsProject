@@ -54,7 +54,7 @@ public class Sword : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!swordCollider.enabled) return;
+        //if (!swordCollider.enabled) return;
         if (!DamagedTargets.Contains(other.gameObject))
         {
             DamagedTargets.Add(other.gameObject);
