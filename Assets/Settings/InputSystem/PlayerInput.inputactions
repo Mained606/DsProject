@@ -51,15 +51,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "CameraSwitch",
-                    "type": "Button",
-                    "id": "3c2712d7-4a1d-447f-bc4e-7281651bf211",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Crouch",
                     "type": "Button",
                     "id": "27c5f898-bc57-4ee1-8800-db469aca5fe3",
@@ -99,6 +90,105 @@
                     "name": "Sprint",
                     "type": "Button",
                     "id": "641cd816-40e6-41b4-8c3d-04687c349290",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Dodge",
+                    "type": "Button",
+                    "id": "316b60fa-601c-40c9-8b93-429a7bffa46b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Inventory",
+                    "type": "Button",
+                    "id": "3ec15f1f-e976-490b-8095-5ca61b5b0790",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Quest",
+                    "type": "Button",
+                    "id": "b6b9ff68-7bda-4f04-b1d8-d5969c3bd1a0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SkillUI",
+                    "type": "Button",
+                    "id": "fcd6c151-53cb-4b93-b791-b55288073f92",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "StatusUI",
+                    "type": "Button",
+                    "id": "f805268c-8425-485a-bf6c-5bb9d0c88fbc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "OptionUI",
+                    "type": "Button",
+                    "id": "1c1bc8bd-c6a4-4404-b67a-e7fbd4803a3e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Menu/Skip",
+                    "type": "Button",
+                    "id": "17113a5c-4fea-4727-8dc8-e3cfb3b9aeda",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PlayerSkill_1",
+                    "type": "Button",
+                    "id": "e613a1fc-bef3-4e7b-9189-9ebd3745ecf4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PlayerSkill_2",
+                    "type": "Button",
+                    "id": "8d688f14-28b2-4d20-a9ee-1703875a1400",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PlayerSkill_3",
+                    "type": "Button",
+                    "id": "681ac40d-92d1-4ef2-93ab-f19cfa7f7bd1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PlayerSkill_4",
+                    "type": "Button",
+                    "id": "4c2f575b-74d4-423c-a14c-e92e7adfa652",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -532,17 +622,6 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Interact",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "84f57f15-f907-46b4-a595-fb90249a1e47",
-                    "path": "<Keyboard>/v",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "CameraSwitch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

@@ -6,8 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private TestCharacterStats characterStats;
-    public PlayerCombat playerCombat;
+    public PlayerData playerData;
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
     [SerializeField] private float walkSpeed;
@@ -19,6 +18,9 @@ public class PlayerController : MonoBehaviour
     public Transform cameraTransform;
 
     [SerializeField] private float jumpHeight = 0.5f;
+    private float lastGroundHeight;
+    [SerializeField] private float fallDamageThreshold = 5f;
+    [SerializeField] private float fallDamageMultiplier = 5f;
     private Vector3 moveDirection;
     private Vector3 verticalVelocity;
     private float gravity = -9.81f;
@@ -26,24 +28,31 @@ public class PlayerController : MonoBehaviour
     private bool isSprinting;
     [SerializeField] private bool isDodging = false;
     //[SerializeField] private bool isInvincible = false;
+    public bool isFreefall;
     public bool CanMove;
     public bool CanAttack;
     public bool CanUseSkill;
 
     private CharacterController characterController;
-    private Animator PlayerAnimator;
+    public Animator PlayerAnimator;
 
-   
+    
+    private void OnEnable()
+    {
+        GameManager.playerTransform = this.transform;
+    }
+
 
     private void Start()
     {
-        characterStats = new TestCharacterStats();
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
-        PlayerAnimator = GetComponentInChildren<Animator>();
         CanMove = true;
-        
+        CanAttack = true;
+        CanUseSkill = true;
+        playerData = CharacterManager.PlayerCharacterData;
 
+        //RegistSkill();
         ValueInitialize();
     }
 
@@ -52,6 +61,13 @@ public class PlayerController : MonoBehaviour
         isGrounded = characterController.isGrounded;
         isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
         PlayerAnimator.SetBool("Grounded", isGrounded);
+
+        if (InputManager.InputActions.actions["Interact"].triggered)
+        {
+            Debug.Log("Interact");
+        }
+
+        avoidKeyInput();
         
         HandleGravity();
         if (!isDodging)
@@ -59,6 +75,7 @@ public class PlayerController : MonoBehaviour
             ControlMovement();
             OnJump();
             OnDodge();
+            OnParry();
         }
 
         //Debug.Log($"Player State : {CurrentState}");
@@ -87,10 +104,10 @@ public class PlayerController : MonoBehaviour
     // PlayerStats 초기화
     private void ValueInitialize()
     {
-        if(characterStats != null)
+        if(playerData != null)
         {
-            walkSpeed = characterStats.characterWalkSpeed;
-            sprintSpeed = characterStats.characterSprintSpeed;
+            walkSpeed = playerData.speed;
+            sprintSpeed = playerData.speed * 2f;
         }
     }
 
@@ -99,16 +116,44 @@ public class PlayerController : MonoBehaviour
     {
         if (!isGrounded)
         {
+            if(verticalVelocity.y <= fallDamageThreshold && !isFreefall)
+            {
+                isFreefall = true;
+                CanAttack = false; CanUseSkill = false;
+                lastGroundHeight = transform.position.y;
+                PlayerAnimator.SetBool("Freefall", true);
+            }
             verticalVelocity.y += gravity * Time.deltaTime;
         }
         else
         {
+            if (isFreefall)
+            {
+                float fallDistance = lastGroundHeight - transform.position.y;
+
+                if(fallDistance > fallDamageThreshold)
+                {
+                    ApplyFallDamage(fallDistance);
+                }
+
+                isFreefall = false;
+                CanAttack = true; CanUseSkill = true;
+                PlayerAnimator.SetBool("Freefall", false);
+            }
+
             PlayerAnimator.SetBool("Jump", false);
             if (verticalVelocity.y < 0)
             {
                 verticalVelocity.y = -0.5f;
             }
         }
+    }
+
+    private void ApplyFallDamage(float fallDistance)
+    {
+        float damage = (fallDistance - fallDamageThreshold) * fallDamageMultiplier;
+        damage = Mathf.Max(0, damage);
+        Debug.Log($"낙하 데미지: {damage}");
     }
 
     private void StateCheck()
@@ -236,7 +281,60 @@ public class PlayerController : MonoBehaviour
                 InputManager.InputActions.actions["Move"].Disable();
                 break;
         }
+
+        switch (CanAttack)
+        {
+            case true:
+                InputManager.InputActions.actions["Attack"].Enable();
+                break;
+            case false:
+                InputManager.InputActions.actions["Attack"].Disable();
+                break;
+        }
+
+        switch (CanUseSkill)
+        {
+            case true:
+                InputManager.InputActions.actions["PlayerSkill_1"].Enable();
+                InputManager.InputActions.actions["PlayerSkill_2"].Enable();
+                InputManager.InputActions.actions["PlayerSkill_3"].Enable();
+                break;
+            case false:
+                InputManager.InputActions.actions["PlayerSkill_1"].Disable();
+                InputManager.InputActions.actions["PlayerSkill_2"].Disable();
+                InputManager.InputActions.actions["PlayerSkill_3"].Disable();
+                break;
+        }
     }
+
+    // 패링
+    private void OnParry()
+    {
+        if (InputManager.InputActions.actions["Parry"].triggered)
+        {
+            PlayerAnimator.SetTrigger("Parry");
+        }
+        AnimatorStateInfo stateInfo = PlayerAnimator.GetCurrentAnimatorStateInfo(0);
+        AnimatorClipInfo[] clipInfo = PlayerAnimator.GetCurrentAnimatorClipInfo(0);
+        if (clipInfo.Length > 0)
+        {
+            AnimationClip currentClip = clipInfo[0].clip;
+            if (currentClip.name == "Parry")
+            {
+                float normalizedTime = stateInfo.normalizedTime;
+                if (normalizedTime < 0.2f)
+                {
+                    // TODO
+                    Debug.Log("can parry");
+                }
+            }
+
+        }
+        
+    }
+
+    // 장비 장착에 따른 스탯 변화
+
 
     private void IdleMotion()
     {
