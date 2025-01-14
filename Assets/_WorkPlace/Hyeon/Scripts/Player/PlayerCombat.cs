@@ -9,7 +9,6 @@ public class PlayerCombat : MonoBehaviour
     private PlayerData playerData;
     public GameObject sword;
     private Collider swordCollider;
-    [SerializeField] private int swordDamage = 10;
     [SerializeField] private float attackPerceptionRange = 5f;
     [SerializeField] private float skillPerceptionRange = 5f;
 

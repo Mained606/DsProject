@@ -7,8 +7,6 @@ public class Sword : MonoBehaviour
 
     private Collider swordCollider;
 
-    private int currentComboIndex = 0;
-
     public bool CanReceiveInput { get; set; } = true;
     public bool inputReceived = false;
 

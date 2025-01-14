@@ -8218,6 +8218,7 @@ MonoBehaviour:
     criticalChance: 0
     baseDamage: 0
     skills: []
+    gold: 0
   walkSpeed: 0
   sprintSpeed: 0
   dodgeDist: 3
@@ -8293,7 +8294,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sword: {fileID: 7512448847557753692}
-  swordDamage: 10
   attackPerceptionRange: 1.3
   skillPerceptionRange: 5
   playerAnimator: {fileID: 5264475562808799088}
@@ -8960,7 +8960,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1923360659147011416}
   - component: {fileID: 5264475562808799088}
-  - component: {fileID: 6548642448036744301}
+  - component: {fileID: 5109036584787559721}
   m_Layer: 0
   m_Name: pico_chan_chr_pico_00
   m_TagString: Untagged
@@ -9008,7 +9008,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &6548642448036744301
+--- !u!114 &5109036584787559721
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9017,9 +9017,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 6949841579525280964}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11814904f36cc38479ef227ce0253fe1, type: 3}
+  m_Script: {fileID: 11500000, guid: 37c089ad62a1e6147ba1e37c5f27b7a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  skillAnimator: {fileID: 5264475562808799088}
 --- !u!1 &6961892644257715340
 GameObject:
   m_ObjectHideFlags: 0
