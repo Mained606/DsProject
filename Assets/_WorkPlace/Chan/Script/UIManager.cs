@@ -6,24 +6,33 @@ public class UIManager : BaseManager<UIManager>
     
  private Dictionary<string,MonoBehaviour> UImodules = new Dictionary<string, MonoBehaviour>();
 
-
     // 여기에 각 ui 추가 
     #region Plus Modules
 
     // hud
-    public HudUI hudUI { get; private set; }
+    public HudUI hudUI => _hudUI;
+    [SerializeField] private HudUI _hudUI;
 
     // pop
-    public InventoryUI inventoryUI { get; private set; }
+    public InventoryUI inventoryUI => _inventoryUI;
+    [SerializeField]private InventoryUI _inventoryUI;
+
     public SkillUI skillUI { get; private set; }
-    public StatusUI statusUI { get; private set; }
-    public QuestUI questUI { get; private set; }
+
+    public StatusUI statusUI => _statusUI;
+    [SerializeField]private StatusUI _statusUI;
+
+    public QuestUI questUI => _questUI;
+    [SerializeField]private QuestUI _questUI;
+
     public OptionUI optionUI { get; private set; }
 
     public DialogUI DialogUI => _dialogUI;
     [SerializeField] private DialogUI _dialogUI;
 
     #endregion
+
+   
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
@@ -45,6 +54,10 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.Quest:
                 ShowQuestUI();
                 break;
+
+            case GameSystemState.Status:
+                ShowStatusUI();
+                break;
             default:
                 Debug.Log($"Unhandled GameSystemState: {newState}");
                 break;
@@ -55,7 +68,7 @@ public class UIManager : BaseManager<UIManager>
 
     private void ShowHUDUI()
     {
-        hudUI.gameObject.SetActive(true);
+       hudUI.gameObject.SetActive(true);
     }
     private void ShowInventoryUI()
     {
@@ -65,13 +78,16 @@ public class UIManager : BaseManager<UIManager>
     {
         questUI.gameObject.SetActive(true); // 퀘스트창 활성화
     }
-
+    private void ShowStatusUI()
+    {
+        statusUI.gameObject.SetActive(true); // 스탯창 활성화 
+    }
     private void HideAllUI()
     {
-        hudUI?.gameObject.SetActive(false);
+        hudUI.gameObject.SetActive(false);
 
-        inventoryUI?.gameObject.SetActive(false); // 인벤토리 비활성화
-        questUI?.gameObject.SetActive(false);    // 퀘스트 UI 비활성화
+        inventoryUI.gameObject.SetActive(false); // 인벤토리 비활성화
+        questUI.gameObject.SetActive(false);    // 퀘스트 UI 비활성화
 
 
         skillUI?.gameObject.SetActive(false);
@@ -86,14 +102,14 @@ public class UIManager : BaseManager<UIManager>
 
         RegisterUIManager();
 
-        hudUI = GetComponentInChildren<HudUI>(true);
-        inventoryUI = GetComponentInChildren<InventoryUI>(true);
+      //  hudUI = GetComponentInChildren<HudUI>(true);
+      //  inventoryUI = GetComponentInChildren<InventoryUI>(true);
         skillUI = GetComponentInChildren<SkillUI>();
-        statusUI = GetComponentInChildren<StatusUI>();
-        questUI = GetComponentInChildren<QuestUI>(true);
+     //   statusUI = GetComponentInChildren<StatusUI>();
+      //  questUI = GetComponentInChildren<QuestUI>(true);
         optionUI = GetComponentInChildren<OptionUI>();
         //dialogUI = GetComponent<DialogUI>();
-   }
+    }
     private void RegisterUIManager()
     {
         MonoBehaviour[] modules = GetComponentsInChildren<MonoBehaviour>(true);

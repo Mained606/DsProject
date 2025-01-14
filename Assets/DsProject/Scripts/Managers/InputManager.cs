@@ -28,6 +28,10 @@ public class InputManager : BaseManager<InputManager>
         {
             ToggleInventoryState2();
         }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            ToggleInventoryState3();
+        }
     }
     
     private void ToggleInventoryState()
@@ -52,6 +56,19 @@ public class InputManager : BaseManager<InputManager>
             GameStateMachine.Instance.ChangeState(GameSystemState.Quest, null);
         }
         else if (currentState == GameSystemState.Quest)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu, null);
+        }
+    }
+    private void ToggleInventoryState3()
+    {
+        var currentState = GameStateMachine.Instance.CurrentState;
+
+        if (currentState != GameSystemState.Status)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Status, null);
+        }
+        else if (currentState == GameSystemState.Status)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu, null);
         }

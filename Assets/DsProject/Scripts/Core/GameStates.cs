@@ -14,5 +14,6 @@ public enum GameSystemState
     Cutscene,         // 컷씬 연출
     Pause,           // 일시정지
     GameOver,        // 게임 종료
-    Quest            // 퀘스트 화면
+    Quest,            // 퀘스트 화면
+    Status              //  스탯 화면 
 }
