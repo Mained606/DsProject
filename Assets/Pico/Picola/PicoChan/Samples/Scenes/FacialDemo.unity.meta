@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0f856d70f66fc4b4bbb014062bb478a8
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 220038
+  packageName: PicoChan
+  packageVersion: 1.1.0
+  assetPath: Assets/Picola/PicoChan/Samples/Scenes/FacialDemo.unity
+  uploadId: 697236

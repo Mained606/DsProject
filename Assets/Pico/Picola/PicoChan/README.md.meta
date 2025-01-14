@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 1ff4510a001ae504b966419054cea8d3
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 220038
+  packageName: PicoChan
+  packageVersion: 1.1.0
+  assetPath: Assets/Picola/PicoChan/README.md
+  uploadId: 697236
