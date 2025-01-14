@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     
     public static event Action OnAllManagersReadyEvent;
 
+    public static Transform playerTransform;
+
     private void Awake()
     {
         if (Instance == null)

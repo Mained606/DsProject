@@ -8157,7 +8157,6 @@ GameObject:
   - component: {fileID: 1098804586676782611}
   - component: {fileID: 6211557189889423590}
   - component: {fileID: 1205624006367007641}
-  - component: {fileID: 5927614572331674076}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -8194,24 +8193,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec4cfc05a2172f74b865b821d9b2d2d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterStats:
-    characterHP: 10
-    characterMP: 0
-    characterST: 0
-    characterWalkSpeed: 2
-    characterSprintSpeed: 4
-  playerCombat: {fileID: 0}
+  playerData:
+    characterName: 
+    characterType: 0
+    prefab: {fileID: 0}
+    strength: 0
+    agility: 0
+    vitality: 0
+    intelligence: 0
+    speed: 0
+    attackSpeed: 0
+    stamina: 0
+    staminaCurrent: 0
+    staminaRecoveryRate: 0
+    level: 0
+    currentExperience: 0
+    experienceToLevelUp: 0
+    maxHp: 0
+    currentHp: 0
+    physicalDefense: 0
+    magicDefense: 0
+    physicalDamage: 0
+    magicDamage: 0
+    criticalChance: 0
+    baseDamage: 0
+    skills: []
   walkSpeed: 0
   sprintSpeed: 0
   dodgeDist: 3
   dodgeDuration: 0.3
   cameraTransform: {fileID: 0}
   jumpHeight: 0.5
+  fallDamageThreshold: 5
+  fallDamageMultiplier: 5
   isDodging: 0
-  isInvincible: 0
+  isFreefall: 0
   CanMove: 0
   CanAttack: 0
   CanUseSkill: 0
+  PlayerAnimator: {fileID: 5264475562808799088}
 --- !u!143 &1098804586676782611
 CharacterController:
   m_ObjectHideFlags: 0
@@ -8272,29 +8292,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f852472c8e52d04288021cc49b40f7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 3749553289701753187}
   sword: {fileID: 7512448847557753692}
   swordDamage: 10
   attackPerceptionRange: 1.3
-  PlayerAnimator: {fileID: 5264475562808799088}
-  comboWindow: 0.9
-  comboResetTimer: 1
+  skillPerceptionRange: 5
+  playerAnimator: {fileID: 5264475562808799088}
   inputReceived: 0
   targetRotation: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &5927614572331674076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6123863050184164686}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37c089ad62a1e6147ba1e37c5f27b7a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skillAnimator: {fileID: 5264475562808799088}
-  controller: {fileID: 3749553289701753187}
 --- !u!1 &6176708764453778850
 GameObject:
   m_ObjectHideFlags: 0
@@ -9431,7 +9435,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7512448847557753692}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 

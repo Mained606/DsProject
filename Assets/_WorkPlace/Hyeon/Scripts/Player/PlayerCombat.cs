@@ -6,22 +6,17 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     private PlayerController controller;
+    private PlayerData playerData;
     public GameObject sword;
     private Collider swordCollider;
-    //[SerializeField] private float swordDamage = 10f;
+    [SerializeField] private int swordDamage = 10;
     [SerializeField] private float attackPerceptionRange = 5f;
+    [SerializeField] private float skillPerceptionRange = 5f;
 
-    public Animator PlayerAnimator;
+    public Animator playerAnimator;
     private Transform closestMonster;
 
     private int currentComboIndex = 0;
-
-    private static readonly int[] ComboHashes =
-    {
-        Animator.StringToHash("OneHand_Up_Attack_1_InPlace"),
-        Animator.StringToHash("OneHand_Up_Attack_2_InPlace"),
-        Animator.StringToHash("OneHand_Up_Attack_3_InPlace")
-    };
 
     public bool CanReceiveInput { get; set; } = true;
 
@@ -39,10 +34,16 @@ public class PlayerCombat : MonoBehaviour
         Animator.StringToHash("Base Layer.ComboAttack.Attack_3")
     };
 
+    private static readonly int[] SkillStateHash = {
+        Animator.StringToHash("Base Layer.Skill_1"),
+        Animator.StringToHash("Base Layer.Skill_2")
+    };
+
     private void Start()
     {
         controller = GetComponent<PlayerController>();
         swordCollider = sword.GetComponent<Collider>();
+        playerData = controller.playerData;
 
         swordCollider.enabled = false;
     }
@@ -52,7 +53,9 @@ public class PlayerCombat : MonoBehaviour
         //Debug.Log($"Current CanMove : {controller.CanMove}");
 
         HandleAttackInput();
+        HandleSkillInput();
         AttackFinishedCheck();
+        SkillFinishedCheck();
     }
 
     private void HandleAttackInput()
@@ -68,7 +71,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void PerformComboAttack()
     {
-        closestMonster = GetClosestMonster();
+        closestMonster = GetClosestMonster(attackPerceptionRange);
         if (closestMonster != null)
         {
             //Debug.Log("Closest Monster: " + closestMonster.name);
@@ -80,23 +83,34 @@ public class PlayerCombat : MonoBehaviour
             inputReceived = false;
             CanReceiveInput = false;
 
-            PlayerAnimator.SetTrigger("NextCombo");
+            playerAnimator.SetTrigger("NextCombo");
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void HandleSkillInput()
     {
-        if (!swordCollider.enabled) return;
-        if (!DamagedTargets.Contains(other.gameObject))
+        GameObject closestMonster = null;
+        if(GetClosestMonster(skillPerceptionRange) != null)
         {
-            DamagedTargets.Add(other.gameObject);
-            //Debug.Log($"Damaged: {other.name}, Damage: {swordDamage}");
+            closestMonster = GetClosestMonster(skillPerceptionRange).gameObject;
+        }
+        if (InputManager.InputActions.actions["PlayerSkill_1"].triggered)
+        {
+            SkillManager.Instance.ActivateSkill("Fire", closestMonster);
+        }
+        if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
+        {
+            SkillManager.Instance.ActivateSkill("Water", closestMonster);
+        }
+        if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
+        {
+            SkillManager.Instance.ActivateSkill("eee", closestMonster);
         }
     }
 
     private void AttackFinishedCheck()
     {
-        AnimatorStateInfo stateInfo = PlayerAnimator.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
         if(AttackStateHash.Contains(stateInfo.fullPathHash))
         {
 
@@ -109,9 +123,26 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    private Transform GetClosestMonster()
+    // 스킬 애니메이션이 끝났는지 검사
+    private void SkillFinishedCheck()
     {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, attackPerceptionRange);
+        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+        if (SkillStateHash.Contains(stateInfo.fullPathHash))
+        {
+            float normalizedTime = stateInfo.normalizedTime;
+
+            if (normalizedTime >= 0.95f)
+            {
+                controller.CanMove = true;
+                InputManager.InputActions.actions["Attack"].Enable();   // 막았던 평타 키 활성화
+                Debug.Log("CanMove True");
+            }
+        }
+    }
+
+    private Transform GetClosestMonster(float perceptionRange)
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, perceptionRange);
         Transform closestTransform = null;
         float closestDistance = Mathf.Infinity;
 

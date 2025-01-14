@@ -11,10 +11,10 @@ public class TestCharacterStats
     public float characterSprintSpeed;
     public TestCharacterStats ()
     {
-        playerCharacterData = new CharacterData(
-            "Player", CharacterType.Player, 10, 10, 10, 10,
-        3f, 1f, 100f, 5f);
-        this.characterSprintSpeed = 4f;
-        this.characterWalkSpeed = 2f;
+        //playerCharacterData = new CharacterData(
+        //    "Player", CharacterType.Player, 10, 10, 10, 10,
+        //3f, 1f, 100f, 5f);
+        //this.characterSprintSpeed = 4f;
+        //this.characterWalkSpeed = 2f;
     }
 }

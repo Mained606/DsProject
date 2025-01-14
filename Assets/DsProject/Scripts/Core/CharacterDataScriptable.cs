@@ -4,5 +4,6 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "CharacterList", menuName = "Ds Project/Character List")]
 public class CharacterList : ScriptableObject
 {
-    public List<CharacterData> characters = new List<CharacterData>();
+    public List<PlayerData> players = new List<PlayerData>();
+    public List<MonsterData> monsters = new List<MonsterData>();
 }

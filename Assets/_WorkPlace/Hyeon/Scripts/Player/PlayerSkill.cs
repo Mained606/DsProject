@@ -19,21 +19,25 @@ public class PlayerSkill : MonoBehaviour
 
     private void Update()
     {
-        if (InputManager.InputActions.actions["PlayerSkill_1"].triggered)
-        {
-            Skill_1();
-        }
-        if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
-        {
-            Skill_2();
-        }
-        if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
-        {
-            Skill_3();
-        }
+        UseSkill();
         SkillFinishedCheck();
     }
 
+    private void UseSkill()
+    {
+        if (InputManager.InputActions.actions["PlayerSkill_1"].triggered)
+        {
+            SkillManager.Instance.ActivateSkill("Fire", this.gameObject);
+        }
+        if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
+        {
+            SkillManager.Instance.ActivateSkill("Water", this.gameObject);
+        }
+        if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
+        {
+            SkillManager.Instance.ActivateSkill("eee", this.gameObject);
+        }
+    }
     private void Skill_1()
     {
         controller.CanMove = false;

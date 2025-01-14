@@ -32,6 +32,6 @@ public class empty : MonoBehaviour
     private void StartCombo()
     {
         transform.GetComponentInParent<PlayerCombat>().CanReceiveInput = false;
-        transform.GetComponentInParent<PlayerCombat>().DamagedTargets.Clear();
+        transform.GetComponentInChildren<Sword>().DamagedTargets.Clear();
     }
 }

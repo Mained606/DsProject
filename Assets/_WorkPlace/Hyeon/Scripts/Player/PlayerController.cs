@@ -6,9 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private TestCharacterStats characterStats;
-    private CharacterData characterData;
-    public PlayerCombat playerCombat;
+    public PlayerData playerData;
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
     [SerializeField] private float walkSpeed;
@@ -36,21 +34,25 @@ public class PlayerController : MonoBehaviour
     public bool CanUseSkill;
 
     private CharacterController characterController;
-    private Animator PlayerAnimator;
+    public Animator PlayerAnimator;
 
-   
+    
+    private void OnEnable()
+    {
+        GameManager.playerTransform = this.transform;
+    }
+
 
     private void Start()
     {
-        characterStats = new TestCharacterStats();
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
-        PlayerAnimator = GetComponentInChildren<Animator>();
         CanMove = true;
         CanAttack = true;
         CanUseSkill = true;
-        
+        playerData = CharacterManager.PlayerCharacterData;
 
+        //RegistSkill();
         ValueInitialize();
     }
 
@@ -73,6 +75,7 @@ public class PlayerController : MonoBehaviour
             ControlMovement();
             OnJump();
             OnDodge();
+            OnParry();
         }
 
         //Debug.Log($"Player State : {CurrentState}");
@@ -101,10 +104,10 @@ public class PlayerController : MonoBehaviour
     // PlayerStats 초기화
     private void ValueInitialize()
     {
-        if(characterStats != null)
+        if(playerData != null)
         {
-            walkSpeed = characterStats.characterWalkSpeed;
-            sprintSpeed = characterStats.characterSprintSpeed;
+            walkSpeed = playerData.speed;
+            sprintSpeed = playerData.speed * 2f;
         }
     }
 
@@ -302,6 +305,32 @@ public class PlayerController : MonoBehaviour
                 InputManager.InputActions.actions["PlayerSkill_3"].Disable();
                 break;
         }
+    }
+
+    // 패링
+    private void OnParry()
+    {
+        if (InputManager.InputActions.actions["Parry"].triggered)
+        {
+            PlayerAnimator.SetTrigger("Parry");
+        }
+        AnimatorStateInfo stateInfo = PlayerAnimator.GetCurrentAnimatorStateInfo(0);
+        AnimatorClipInfo[] clipInfo = PlayerAnimator.GetCurrentAnimatorClipInfo(0);
+        if (clipInfo.Length > 0)
+        {
+            AnimationClip currentClip = clipInfo[0].clip;
+            if (currentClip.name == "Parry")
+            {
+                float normalizedTime = stateInfo.normalizedTime;
+                if (normalizedTime < 0.2f)
+                {
+                    // TODO
+                    Debug.Log("can parry");
+                }
+            }
+
+        }
+        
     }
 
     // 장비 장착에 따른 스탯 변화
