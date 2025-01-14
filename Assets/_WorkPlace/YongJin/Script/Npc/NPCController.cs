@@ -25,7 +25,7 @@ public class NPCController : MonoBehaviour
             float distance = Vector3.Distance(playerTransform.position, transform.position);
             isPlayerInRange = distance <= interactionRange;
             Debug.Log(isPlayerInRange);
-            if (isPlayerInRange && InputManager.InputActions.actions["Jump"].triggered)
+            if (isPlayerInRange && InputManager.InputActions.actions["Interact"].triggered)
             {
                 Interact();
             }
@@ -34,6 +34,7 @@ public class NPCController : MonoBehaviour
 
     public void Interact()
     {
+        Debug.Log("d");
         /* if (!npcData.isInteractable)
         {
             Debug.Log($"{npcData.name}은(는) 상호작용이 불가능합니다.");
