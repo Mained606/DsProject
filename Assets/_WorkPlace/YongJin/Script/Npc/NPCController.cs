@@ -11,6 +11,8 @@ public class NPCController : MonoBehaviour
     
     public NPCTable contextNPC;
     private NPCStringTable NPCStringTable;
+
+
     private List<QuestTable> hasQuestList = new List<QuestTable>();
     private List<QuestTable> giveQuestList = new List<QuestTable>();
     public List<int> hasQuestIdList = new List<int>();
@@ -81,7 +83,6 @@ public class NPCController : MonoBehaviour
     {
         if(NpcId > 0)
         {
-            
             contextNPC = NPCManager.Instance.GetNPCIdToNPCTable(NpcId);            
             NPCStringTable = NPCManager.Instance.GetNPCStringData(contextNPC.NPC_stringIdx);
             NPCName = NPCStringTable.NPCString_name;
@@ -89,7 +90,6 @@ public class NPCController : MonoBehaviour
             contextNPC.NPC_isInteractable = true;
             hasQuestIdList = contextNPC.NPC_questIds;
             QuestInit();
-            
         }
         else
         {
@@ -111,10 +111,8 @@ public class NPCController : MonoBehaviour
                 case NPCState.Common :
                     UIManagerTest.Instance.DialogUI.StartDialogue(this, NPCStringTable.NPCString_dialogue);
                     break;
-
                 case NPCState.MainQuestGiver :
                     UIManagerTest.Instance.DialogUI.StartDialogue(QuestManager.Instance.GetQuestStringData(QuestManager.Instance.nextMainQuestId).questString_diologue);
-                    
                     break;
                 case NPCState.SubQuestGiver :
                     break;
@@ -122,6 +120,43 @@ public class NPCController : MonoBehaviour
                     break;
             }
         }
+    }
+    public bool SameQuestCheck()
+    {
+        if(giveQuestList.Count != 0)
+        {
+            foreach(var questData in giveQuestList)
+            {
+                if(QuestManager.Instance.currnetQuests.Contains(questData))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+        
+        
+    }
+    public void GiveQuest()
+    {
+        
+        if(!SameQuestCheck()) return;
+        if(hasQuestList.Contains(QuestManager.Instance.GetQuestIdToQuestTable(QuestManager.Instance.nextMainQuestId)))
+        {
+            var data = hasQuestList.Find(x => x.quest_index == QuestManager.Instance.nextMainQuestId);
+            giveQuestList.Add(data);
+            QuestManager.Instance.currnetQuests.Add(data);
+        }
+        else
+        {
+            Debug.Log("퀘스트 조건 X");
+            return;
+        }   
+        
     }
     public void ChangeState(NPCState NextNPCState)
     {
@@ -132,7 +167,6 @@ public class NPCController : MonoBehaviour
         }
         contextNPC.NPC_currentState = NextNPCState;
         Debug.Log($"스테이터스 체인지{contextNPC.NPC_currentState}=>{NextNPCState}");
-        Interact();
     }
     public void ReceveQuest()
     {

@@ -18,9 +18,8 @@ public class QuestManager : BaseManager<QuestManager>
     
     public List<QuestTable> questData{get; private set;} = new List<QuestTable>();
     public List<QuestStringTable> questStringData{get; private set;} = new List<QuestStringTable>();
-
-    public List<QuestTable> currnetQuests;
-    public List<QuestTable> prevQuests;
+    public List<QuestTable> currnetQuests = new List<QuestTable>();
+    public List<QuestTable> prevQuests = new List<QuestTable>();
     public event EventHandler OnInitQuestManager;
     //{get; private set;} = new List<QuestTable>();
     #endregion

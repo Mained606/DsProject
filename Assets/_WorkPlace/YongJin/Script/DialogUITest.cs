@@ -15,14 +15,16 @@ public class DialogUITest : MonoBehaviour
 
 
     private List<string> dialogueList = new List<string>(); // JSON에서 불러온 대사 리스트
-    private int currentDialogueIndex = 0; // 현재 출력중인 대사 인덱스 
+    private int currentNPCDesaIndex = 0; // 현재 출력중인 일반 대사 인덱스 
+    private int currentQuestDesaIndex = 0; // 현재 출력중인 일반 대사 인덱스 
     
     private Coroutine typingCoroutine;
     private NPCController NPCData;
 
+    #region Npc일반대사
     public void StartDialogue(NPCController contextNPC, List<string> dialogueList)
     {
-        if(currentDialogueIndex == 0)
+        if(currentNPCDesaIndex == 0)
         {
             DialogueStart();            
         }
@@ -30,57 +32,22 @@ public class DialogUITest : MonoBehaviour
         NPCData = contextNPC;
         dialogueName.text = NPCManager.Instance.GetNPCStringData(contextNPC.contextNPC.NPC_stringIdx).NPCString_name;
         this.dialogueList = dialogueList;
-        if(currentDialogueIndex >= dialogueList.Count)
+        if(currentNPCDesaIndex >= dialogueList.Count)
         {
-            ButtonActive();
+            NpcButtonActive();
             return;
-        } 
-
+        }
         if(typingCoroutine == null)
         {
-            string typingDialogyeData = dialogueList[currentDialogueIndex];
-            typingCoroutine = StartCoroutine(TypeDialogue(typingDialogyeData));
+            string typingDialogyeData = dialogueList[currentNPCDesaIndex];
+            typingCoroutine = StartCoroutine(TypeNpcDialogue(typingDialogyeData));
         }
         else
         {
-            SkipDialogue();
+            SkipNpcDialogue();
         }
     }
-    public void StartDialogue(List<QuestDialogue> questDialogue)//퀘스트 데이터
-    {
-        if(currentDialogueIndex == 0)
-        {
-            DialogueStart();
-            foreach(var questDesa in questDialogue)
-            {
-                dialogueList.Add(questDesa.dialogue);
-            }           
-        }
-
-        if(questDialogue[currentDialogueIndex].context == 1)
-            dialogueName.text = "시안";
-        else
-            dialogueName.text = NPCData.NPCName;
-        dialogueList = new List<string>();
-        
-        if(currentDialogueIndex >= dialogueList.Count)
-        {
-            ButtonActive();
-            return;
-        } 
-
-        if(typingCoroutine == null)
-        {
-            string typingDialogyeData = dialogueList[currentDialogueIndex];
-            typingCoroutine = StartCoroutine(TypeDialogue(typingDialogyeData));
-        }
-        else
-        {
-            SkipDialogue();
-        }
-    }
-
-    private IEnumerator TypeDialogue(string dialgue)
+    private IEnumerator TypeNpcDialogue(string dialgue)
     {
         dialogueText.text = "";
         
@@ -91,45 +58,103 @@ public class DialogUITest : MonoBehaviour
         }
         
         yield return new WaitForSeconds(1f);
-        SkipDialogue();
+        SkipNpcDialogue();
 
     }
-    private void SkipDialogue()
+    private void SkipNpcDialogue()
     {
         if(typingCoroutine != null) StopCoroutine(typingCoroutine);            
-        dialogueText.text = dialogueList[currentDialogueIndex];
-        currentDialogueIndex++;
-         
+        dialogueText.text = dialogueList[currentNPCDesaIndex];
+        currentNPCDesaIndex++;
         typingCoroutine = null;
-        /* if(AutoDialogue)
-        {
-            if(currentDialogueIndex >= dialogueList.Count)
-            {
-                Debug.Log("스킵 끝");
-            }
-            else
-            {
-                string typingDialogyeData = dialogueList[currentDialogueIndex];
-                typingCoroutine = StartCoroutine(TypeDialogue(typingDialogyeData));
-            }
-        } */
     }
+
+    #endregion
+    
+    #region 퀘스트 대사
+    public void StartDialogue(List<QuestDialogue> questDialogue)//퀘스트 데이터
+    {
+        
+        if(currentQuestDesaIndex == 0)
+        {
+            DialogueStart();
+            dialogueList = new List<string>();
+            foreach(var questDesa in questDialogue)
+            {
+                dialogueList.Add(questDesa.dialogue);
+            }           
+        }
+        if(currentQuestDesaIndex >= dialogueList.Count)
+        {
+            Debug.Log("Quest대사 끝");
+            QuestButtonActive();
+            return;
+        }
+
+        if(questDialogue[currentQuestDesaIndex].context == 1)
+            dialogueName.text = "시안";
+        else
+            dialogueName.text = NPCData.NPCName;
+        
+        
+        if(currentQuestDesaIndex >= dialogueList.Count)
+        {
+            NpcButtonActive();
+            return;
+        } 
+
+        if(typingCoroutine == null)
+        {
+            string typingDialogyeData = dialogueList[currentQuestDesaIndex];
+            typingCoroutine = StartCoroutine(TypeQuestDialogue(typingDialogyeData));
+        }
+        else
+        {
+            SkipQuestDialogue();
+        }
+    }
+
+    
+    private IEnumerator TypeQuestDialogue(string dialgue)
+    {
+        dialogueText.text = "";
+        
+        foreach(char i in dialgue.ToCharArray())
+        {
+            dialogueText.text += i;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+        
+        yield return new WaitForSeconds(1f);
+        SkipQuestDialogue();
+
+    }
+    
+    private void SkipQuestDialogue()
+    {
+        if(typingCoroutine != null) StopCoroutine(typingCoroutine);            
+        dialogueText.text = dialogueList[currentQuestDesaIndex];
+        currentQuestDesaIndex++;
+        typingCoroutine = null;
+    }
+
+
+    #endregion
+
+
+
+
+    
     
     public void DialogueStart()
     {
         gameObject.SetActive(true);
         ClearChoiceButton();
     }
-    public void DialogueExit()
-    {
-        
-
-        gameObject.SetActive(false);
-        ClearChoiceButton();
-    }
+    
 
 
-    private void ButtonActive()
+    private void NpcButtonActive()
     {
         Debug.Log(NPCData.contextNPC.NPC_isMainQuestGiver);
         if(NPCData.contextNPC.NPC_isMainQuestGiver)
@@ -144,13 +169,25 @@ public class DialogUITest : MonoBehaviour
         }        
         baseParent.GetChild(3).gameObject.SetActive(true); // 나가기 버튼
     }
+    private void QuestButtonActive()
+    {
+        baseParent.GetChild(4).gameObject.SetActive(true); // 수락 버튼
+        baseParent.GetChild(5).gameObject.SetActive(true); // 나가기 버튼
+    }
 
 
     public void ClickMainQuest()
     {
-        NPCData.ChangeState(NPCState.MainQuestGiver);
-        
-        ClearChoiceButton();
+        if(NPCData.SameQuestCheck())
+        {
+            NPCData.ChangeState(NPCState.MainQuestGiver);
+            UIManagerTest.Instance.DialogUI.StartDialogue(QuestManager.Instance.GetQuestStringData(QuestManager.Instance.nextMainQuestId).questString_diologue);
+            ClearChoiceButton();
+        }
+        else
+        {
+            DialogueExit();
+        }
     }
     public void ClickSubQuest()
     {
@@ -164,6 +201,16 @@ public class DialogUITest : MonoBehaviour
     {
         DialogueExit();
     }
+    public void ClickAccept()
+    {
+        NPCData.GiveQuest();
+        DialogueExit();
+
+    }
+    public void ClickRefuse()
+    {
+        DialogueExit();
+    }
     private void ClearChoiceButton()
     {
         for(int i = 0; i < baseParent.childCount; i++)
@@ -171,6 +218,14 @@ public class DialogUITest : MonoBehaviour
             baseParent.GetChild(i).gameObject.SetActive(false);
         }
         
+    }
+    public void DialogueExit()
+    {
+        NPCData.ChangeState(NPCState.Common);
+        gameObject.SetActive(false);
+        ClearChoiceButton();
+        currentNPCDesaIndex = 0;
+        currentQuestDesaIndex = 0;
     }
 
 
