@@ -7,26 +7,26 @@ public class TestMonster : MonoBehaviour
     private DropItemBoxController dropItemBoxController;
 
 
-    private void Start()
-    {
-        Die(true);
-    }
+    // private void Start()
+    // {
+    //     Die(true);
+    // }
 
     private void Update()
     {
         if (InputManager.InputActions.actions["Interact"].IsPressed())
         {
             if (dropItemBoxController)
-                dropItemBoxController.OpenBox(dropItemIds, false);
+                dropItemBoxController.OpenBox(dropItemIds);
         }
     }
 
 
-    private void Die(bool flag)
-    {
-        GameObject itemBox = ItemManager.Instance.SpawnItemBox(transform.position);
-        itemBox.GetComponent<DropItemBoxController>().isRandomDrop = flag;
-   
-        dropItemBoxController = itemBox.GetComponent<DropItemBoxController>();
-    }
+    // private void Die(bool flag)
+    // {
+    //     GameObject itemBox = ItemManager.Instance.SpawnItemBox(transform.position);
+    //     itemBox.GetComponent<DropItemBoxController>().isRandomDrop = flag;
+    //
+    //     dropItemBoxController = itemBox.GetComponent<DropItemBoxController>();
+    // }
 }

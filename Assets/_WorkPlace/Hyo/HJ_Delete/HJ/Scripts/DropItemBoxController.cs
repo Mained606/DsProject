@@ -4,14 +4,23 @@ using System.Collections.Generic;
 public class DropItemBoxController : MonoBehaviour
 {
     private Transform player;   //플레이어
+    public List<int> dropItemIds = new List<int>();
     [SerializeField] private float detectionDistance = 2f;  //플레이어 감지 거리
-    public bool isRandomDrop = false;
+    public bool isRandomDrop = true;
     private void Start()
     {
         player = ItemManager.Instance.player;
     }
+    
+    private void Update()
+    {
+        if (InputManager.InputActions.actions["Interact"].IsPressed())
+        {
+                OpenBox(dropItemIds);
+        }
+    }
 
-    public void OpenBox(List<int> items, bool isRandomDrop)
+    public void OpenBox(List<int> items)
     {
         if (!IsNearPlayer())
             return;
@@ -35,8 +44,9 @@ public class DropItemBoxController : MonoBehaviour
         }
         else
         {
+            dropItemIds = items;
             // 추가 필요 고정 아이템
-            Debug.Log("고정아이템 : " + items.Count);
+            Debug.Log("고정아이템 : " + items.Count + "아이템 아이디" + items[0]);
         }
 
         Destroy(gameObject); //박스 삭제
