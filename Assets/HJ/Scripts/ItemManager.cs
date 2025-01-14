@@ -8,8 +8,8 @@ public class ItemManager : BaseManager<ItemManager>
     public ItemDatabase itemDatabase;           //아이템 데이터베이스
 
     public GameObject itemDropBox;              //itemdropBox 프리팹
-    //[SerializeField] private float detectionDistance = 1f;      //플레이어 감지 거리
     #endregion
+
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
@@ -37,15 +37,11 @@ public class ItemManager : BaseManager<ItemManager>
     /// <summary>
     /// 아이템 박스 생성
     /// </summary>
-    public void SpawnItemBox(Vector3 spawnPosition, List<int> dropItemIds)
+    public GameObject SpawnItemBox(Vector3 spawnPosition)
     {
         GameObject itemBox = Instantiate(itemDropBox, spawnPosition, Quaternion.identity);
 
-        DropItemBoxController dropItemBoxController = itemBox.GetComponent<DropItemBoxController>();
-        if (dropItemBoxController)
-        {
-            dropItemBoxController.SetItems(dropItemIds);
-        }
+        return itemBox;
     }
 
     /// <summary>
@@ -64,16 +60,4 @@ public class ItemManager : BaseManager<ItemManager>
     {
         InventoryManager.Instance.AddItem(item);
     }
-
-    #region PrivateMathod
-    /// <summary>
-    /// 플레이어가 근처에 있는지 감지
-    /// </summary>
-    //private bool IsNearPlayer()
-    //{
-    //    float disatance = Vector3.Distance(transform.position, player.position);
-
-    //    return disatance <= detectionDistance;
-    //}
-    #endregion
 }

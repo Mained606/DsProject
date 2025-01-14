@@ -3,54 +3,42 @@ using System.Collections.Generic;
 
 public class DropItemBoxController : MonoBehaviour
 {
-    [SerializeField] private List<Item> dropItmes = new List<Item>();    //드랍되는 아이템 리스트
+    private Transform player;   //플레이어
+    [SerializeField] private float detectionDistance = 2f;  //플레이어 감지 거리
 
-
-    /// <summary>
-    /// 아이템 리스트 박스에 설정하기
-    /// </summary>
-    public void SetItems(List<int> items)
+    private void Start()
     {
-        List<int> itemIds = items;
+        player = ItemManager.Instance.player;
+    }
 
-        itemIds.ForEach(id =>
+    public void OpenBox(List<int> items)
+    {
+        if (!IsNearPlayer())
+            return;
+
+        Debug.Log("박스열기");
+
+        //아이템 데이터 리스트에서 드랍 확률 체크 후 인벤토리에 추가
+        items.ForEach(id =>
         {
             Item item = ItemManager.Instance.FindItemById(id);
-            if (item != null)
+            //아이템 랜덤 생성
+            if (item != null && Random.value <= item.itemDropChance)
             {
-                //아이템 랜덤 드랍
-                if(Random.value <= item.itemDropChance)
-                {
-                    item.Initialize();      //드랍할 아이템 초기화
-                    dropItmes.Add(item);    //드랍할 아이템 추가
-                }
+                item.Initialize(); //드랍할 아이템 초기화
+                ItemManager.Instance.AddItemToInventory(item);  //인벤토리에 아이템 추가
             }
         });
+
+        Destroy(gameObject); //박스 삭제
     }
 
     /// <summary>
-    /// 박스 열기
+    /// 플레이어가 근처에 있는지 감지
     /// </summary>
-    public bool OpenBox()
+    private bool IsNearPlayer()
     {
-        dropItmes.ForEach(item =>
-        {
-            
-        });
-
-
-        return true;
-    }
-
-    /// <summary>
-    /// 상자 삭제
-    /// </summary>
-    private void DestroyBox()
-    {
-        //상자가 열린적이 있고 상자의 아이템이 모두 비워져 있으면
-        if (OpenBox() && dropItmes == null)
-        {
-            Destroy(gameObject);
-        }
+        float disatance = Vector3.Distance(transform.position, player.position);
+        return disatance <= detectionDistance;
     }
 }
