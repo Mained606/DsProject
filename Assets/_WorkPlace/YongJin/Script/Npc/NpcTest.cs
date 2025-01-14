@@ -8,7 +8,8 @@ using UnityEngine.EventSystems;
 public class NpcTest : MonoBehaviour
 {
     
-    
+    [SerializeField] private int NpcId;
+    private NPCTable ContextNPC;
     public List<int> hasQuestIdList = new List<int>();
     private List<QuestTable> hasQuestList = new List<QuestTable>();
     private List<QuestTable> giveQuestList = new List<QuestTable>();
@@ -17,29 +18,39 @@ public class NpcTest : MonoBehaviour
     
     private void Start() 
     {
-        QuestManager.Instance.OnInitQuestManager += OnInitQuestManager_QuestManager;    
+        QuestManager.Instance.OnInitQuestManager += OnInitQuestManager_QuestManager;
+        NPCManager.Instance.OnInitNpcManager += OnInitNpcManager_NPCManager;
     }
     
     private void OnDisable() 
     {
-        QuestManager.Instance.OnInitQuestManager -= OnInitQuestManager_QuestManager;    
+        QuestManager.Instance.OnInitQuestManager -= OnInitQuestManager_QuestManager;
+        NPCManager.Instance.OnInitNpcManager -= OnInitNpcManager_NPCManager; 
     }
     private void OnInitQuestManager_QuestManager(object sender, EventArgs e)
     {
-        Init();
+        QuestInit();
         
+    }
+    private void OnInitNpcManager_NPCManager(object sender, EventArgs e)
+    {
+        NPCInit();
     }
     private void Update()
     {
         ReceiveQuest();
         
     }
-    private void Init()
+    private void QuestInit()
     {
         foreach(var questId in hasQuestIdList)
         {
             hasQuestList.Add(QuestManager.Instance.GetQuestIdToQuestTable(questId));
         }
+        
+    }
+    private void NPCInit()
+    {
         
     }
     public void ReceiveQuest()
@@ -55,9 +66,9 @@ public class NpcTest : MonoBehaviour
                     return;
                 }
             }
-            if(hasQuestList.Contains(QuestManager.Instance.GetQuestIdToQuestTable(QuestManager.Instance.nextQuestId)))
+            if(hasQuestList.Contains(QuestManager.Instance.GetQuestIdToQuestTable(QuestManager.Instance.nextMainQuestId)))
             {
-                var data = hasQuestList.Find(x=> x.quest_index == QuestManager.Instance.nextQuestId);
+                var data = hasQuestList.Find(x => x.quest_index == QuestManager.Instance.nextMainQuestId);
                 giveQuestList.Add(data);
                 QuestManager.Instance.currnetQuests.Add(data);
             }
@@ -80,7 +91,7 @@ public class NpcTest : MonoBehaviour
                 //현재 진행중인 퀘스트와 NPC가 준 퀘스트를 비교 및 조건 완료 확인이 있다는 가정하에 진행 Player
                 giveQuestList.Remove(data);
                 QuestManager.Instance.SuccessQuest(data.quest_index);
-                QuestManager.Instance.nextQuestId++;
+                QuestManager.Instance.nextMainQuestId++;
                 Debug.Log("퀘스트 클리어");
                 break;
             }
@@ -94,7 +105,7 @@ public class NpcTest : MonoBehaviour
     
 
     
-    
+   
 
     
     

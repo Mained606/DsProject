@@ -59,7 +59,7 @@ public class QuestStringTable
     public int questString_index;
     public string questString_title;//퀘제목 데이터
     public string questString_desc;//설명 데이터
-    public QuestDialogue[] questString_diologue; // 퀘스트 대사 주체 및 대사 설정
+    public List<QuestDialogue> questString_diologue; // 퀘스트 대사 주체 및 대사 설정
 }
 [System.Serializable]
 public class QuestDialogue

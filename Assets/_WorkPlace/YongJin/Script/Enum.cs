@@ -20,13 +20,23 @@ public enum NPCType
 public enum NPCState
 {
     Common,       // 기본 상태
-    Partner,       // 플레이어의 동료
+    
+    MainQuestGiver,
+    SubQuestGiver,
+    
     Enemy          // 적대 상태
 } 
 public enum QuestInterectType
 {
     PassiveInterect,
     ActiveInterect,
+}
+public enum ChoiceButtonType
+{
+    MainQuest, 
+    SubQuest, 
+    Shop, 
+    Exit,
 }
 
 

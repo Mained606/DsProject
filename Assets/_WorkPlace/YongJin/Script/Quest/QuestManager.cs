@@ -8,13 +8,12 @@ public class QuestManager : BaseManager<QuestManager>
 {
 
     #region Varient
-    public bool isCompletedLoads;
     private int completedLoads = 0;
     private const int TOTAL_LOADED = 2;
     private string QuestTableUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHXZuSvLw5TT-985Q3AN_Z28JRTikJr6uiAoJBAlWxKcic0ROz-5wRpNRBAxEPVw/pub?gid=1391226435&single=true&output=csv";
     private string QuestStringTableUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRAtTzgMnM5T6Lecvm3TvZlkoZQ8ksdrSRoFDqCY_CRNwnwfIC-ORnfsUjQTJ2bw/pub?gid=1391226435&single=true&output=csv";
 
-    public int nextQuestId = 100000;
+    public int nextMainQuestId = 100000;
     
     
     public List<QuestTable> questData{get; private set;} = new List<QuestTable>();
@@ -31,7 +30,8 @@ public class QuestManager : BaseManager<QuestManager>
     {
         base.Awake();
         StartCoroutine(LoadQuestTableSheet());  
-        StartCoroutine(LoadQuestStringSheet());  
+        StartCoroutine(LoadQuestStringSheet());
+        Debug.Log(Instance);
     }
     
     private IEnumerator LoadQuestTableSheet()
@@ -51,10 +51,11 @@ public class QuestManager : BaseManager<QuestManager>
         if (completedLoads >= TOTAL_LOADED)
         {
             Debug.Log("모든 퀘스트 데이터 이니셜라이즈 성공");
-            isCompletedLoads = true;
             OnInitQuestManager?.Invoke(this, EventArgs.Empty);
+            
         }
     }
+   
     private IEnumerator FetchGoogleSheet(string url, System.Action<string> onSuccess)
     {
         int retries = 3;
@@ -147,12 +148,12 @@ public class QuestManager : BaseManager<QuestManager>
         RequireDataWrapper wrapper = JsonUtility.FromJson<RequireDataWrapper>(wrappedJson);
         return new List<RequireData>(wrapper.RequireDatas);
     }
-    private QuestDialogue[] ParseQuestDialogue(string json)
+    private List<QuestDialogue> ParseQuestDialogue(string json)
     {    
         string wrappedJson = CleanAndWrapJSON(json, "QuestDialogueData");
         if (string.IsNullOrEmpty(wrappedJson)) return null;
         QuestDialogueWrapper dialogueWrapper = JsonUtility.FromJson<QuestDialogueWrapper>(wrappedJson);
-        return dialogueWrapper.QuestDialogueData;
+        return new List<QuestDialogue>(dialogueWrapper.QuestDialogueData);
     }
     private List<RewardItemData> ParseReward(string json)
     {

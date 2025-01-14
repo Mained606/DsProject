@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 
+[System.Serializable]
 public class NPCTable
 {
     public int NPC_index; // NPC 인덱스
@@ -9,7 +11,7 @@ public class NPCTable
     public NPCType NPC_type; // NPC 타입
     public NPCState NPC_currentState = NPCState.Common; // NPC 현재 상태
     public List<int> NPC_questIds; // 제공 퀘스트용으로 사용하고 리스트로 대체해도 됨.
-    public bool NPC_isQuestGiver; // 퀘스트 제공 여부
+    public bool NPC_isMainQuestGiver; // 퀘스트 제공 여부
     public bool NPC_isInteractable; // 상호작용 가능 여부
     public bool NPC_isShop; // 상점 여부
     
@@ -39,9 +41,23 @@ public class NPCTable
     //public string NPC_description; // NPC 설명
     //public string[] dialogue; // 대화 내용
 }
+[System.Serializable]
+public class NPCQuestIdsWrapper
+{
+    public int[] NPCQuestIdDatas; // Use an array to wrap the list
+}
+[System.Serializable]
 public class NPCStringTable
 {
-
+    public int NPCString_index;
+    public string NPCString_name;
+    public string NPCString_desc;
+    public List<string> NPCString_dialogue;
+}
+[System.Serializable]
+public class NPCStringDialogueWrapper
+{
+    public string[] NPCStringDialogueDatas; // Use an array to wrap the list
 }
 
 
