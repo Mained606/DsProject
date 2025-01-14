@@ -3,8 +3,7 @@ using UnityEngine;
 public enum PlayerState
 {
     PlayerIdle,
-    PlayerWalk,
-    PlayerSprint,
+    PlayerMove,
     PlayerAttack,
     PlayerHit,
     PlayerDeath

@@ -1,0 +1,160 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+
+public class PlayerCombat : MonoBehaviour
+{
+    private PlayerController controller;
+    public GameObject sword;
+    private Collider swordCollider;
+    //[SerializeField] private float swordDamage = 10f;
+    [SerializeField] private float attackPerceptionRange = 5f;
+
+    public Animator PlayerAnimator;
+    private Transform closestMonster;
+
+    private int currentComboIndex = 0;
+
+    private static readonly int[] ComboHashes =
+    {
+        Animator.StringToHash("OneHand_Up_Attack_1_InPlace"),
+        Animator.StringToHash("OneHand_Up_Attack_2_InPlace"),
+        Animator.StringToHash("OneHand_Up_Attack_3_InPlace")
+    };
+
+    public bool CanReceiveInput { get; set; } = true;
+
+    public bool inputReceived = false;
+
+    public int MaxComboCount { get; set; } = 3;
+
+    public Quaternion targetRotation;
+    public Collider SwordCollider => swordCollider;
+
+    public HashSet<GameObject> DamagedTargets { get; set; } = new HashSet<GameObject>();
+    private static readonly int[] AttackStateHash = {
+        Animator.StringToHash("Base Layer.ComboAttack.Attack_1"),
+        Animator.StringToHash("Base Layer.ComboAttack.Attack_2"),
+        Animator.StringToHash("Base Layer.ComboAttack.Attack_3")
+    };
+
+    private void Start()
+    {
+        controller = GetComponent<PlayerController>();
+        swordCollider = sword.GetComponent<Collider>();
+
+        swordCollider.enabled = false;
+    }
+
+    private void Update()
+    {
+        //Debug.Log($"Current CanMove : {controller.CanMove}");
+
+        HandleAttackInput();
+        AttackFinishedCheck();
+    }
+
+    private void HandleAttackInput()
+    {
+        if (InputManager.InputActions.actions["Attack"].triggered && CanReceiveInput)
+        {
+            inputReceived = true;
+            //controller.CanMove = false;
+
+            //if (currentComboIndex == 0 || PlayerAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5f)
+            //{
+                
+                PerformComboAttack();
+            //}
+        }
+    }
+
+    private void PerformComboAttack()
+    {
+        closestMonster = GetClosestMonster();
+        if (closestMonster != null)
+        {
+            //Debug.Log("Closest Monster: " + closestMonster.name);
+            LookEnemy();
+        }
+        //if (closestMonster != null)
+        //{
+        //    LookEnemy();
+        //}
+        
+        if (inputReceived && currentComboIndex < MaxComboCount)
+        {
+            inputReceived = false;
+            CanReceiveInput = false;
+
+            PlayerAnimator.SetTrigger("NextCombo");
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!swordCollider.enabled) return;
+        if (!DamagedTargets.Contains(other.gameObject))
+        {
+            DamagedTargets.Add(other.gameObject);
+            //Debug.Log($"Damaged: {other.name}, Damage: {swordDamage}");
+        }
+    }
+
+    private void AttackFinishedCheck()
+    {
+        AnimatorStateInfo stateInfo = PlayerAnimator.GetCurrentAnimatorStateInfo(0);
+        if(AttackStateHash.Contains(stateInfo.fullPathHash))
+        {
+
+            float normalizedTime = stateInfo.normalizedTime;
+
+            if(normalizedTime >= 0.95f)
+            {
+                controller.CanMove = true;
+            }
+        }
+    }
+
+    private Transform GetClosestMonster()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, attackPerceptionRange);
+        Transform closestTransform = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach(Collider collider in colliders)
+        {
+            if (collider.CompareTag("Monster"))
+            {
+                float distance = Vector3.Distance(transform.position, collider.transform.position);
+                if(distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestTransform = collider.transform;
+                }
+            }
+        }
+        return closestTransform;
+    }
+
+    private void LookEnemy()
+    {
+        Vector3 dir = (closestMonster.position - transform.position).normalized;
+        dir.y = 0f;
+        targetRotation = Quaternion.LookRotation(dir);
+        controller.transform.rotation = targetRotation;
+    }
+
+    public Quaternion ModifyRotation()
+    {
+        return Quaternion.Inverse(targetRotation);
+    }
+
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, attackPerceptionRange);
+    }
+}
