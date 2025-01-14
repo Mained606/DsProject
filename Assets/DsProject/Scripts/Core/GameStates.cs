@@ -13,5 +13,7 @@ public enum GameSystemState
     Inventory,       // 인벤토리 화면
     Cutscene,         // 컷씬 연출
     Pause,           // 일시정지
-    GameOver        // 게임 종료
+    GameOver,        // 게임 종료
+    Quest,            // 퀘스트 화면
+    Status              //  스탯 화면 
 }
