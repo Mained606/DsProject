@@ -178,16 +178,11 @@ public class DialogUITest : MonoBehaviour
 
     public void ClickMainQuest()
     {
-        if(NPCData.SameQuestCheck())
-        {
-            NPCData.ChangeState(NPCState.MainQuestGiver);
-            UIManagerTest.Instance.DialogUI.StartDialogue(QuestManager.Instance.GetQuestStringData(QuestManager.Instance.nextMainQuestId).questString_diologue);
-            ClearChoiceButton();
-        }
-        else
-        {
-            DialogueExit();
-        }
+        
+        NPCData.ChangeState(NPCState.MainQuestGiver);
+        UIManagerTest.Instance.DialogUI.StartDialogue(QuestManager.Instance.GetQuestStringData(QuestManager.Instance.nextMainQuestId).questString_diologue);
+        ClearChoiceButton();
+        
     }
     public void ClickSubQuest()
     {

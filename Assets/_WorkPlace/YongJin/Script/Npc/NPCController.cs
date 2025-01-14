@@ -144,7 +144,6 @@ public class NPCController : MonoBehaviour
     public void GiveQuest()
     {
         
-        if(!SameQuestCheck()) return;
         if(hasQuestList.Contains(QuestManager.Instance.GetQuestIdToQuestTable(QuestManager.Instance.nextMainQuestId)))
         {
             var data = hasQuestList.Find(x => x.quest_index == QuestManager.Instance.nextMainQuestId);
