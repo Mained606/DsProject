@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     private HashSet<string> readyManagers = new HashSet<string>();
     private bool allManagersReady = false;
     
+    public static Transform playerTransform;
+    
     public static event Action OnAllManagersReadyEvent;
 
     private void Awake()
