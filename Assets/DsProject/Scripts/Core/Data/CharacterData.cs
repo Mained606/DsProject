@@ -228,16 +228,6 @@ public class CharacterData
             strength, agility, vitality, intelligence, maxHp, physicalDamage, magicDamage, criticalChance * 100, baseDamage, staminaCurrent, stamina);
     }
 
-    // 디버그용 코드 이후 삭제 필요 ============================
-#if UNITY_EDITOR
-    public void OnValidate()
-    {
-        // 모든 파생 스탯을 업데이트
-        UpdateDerivedStats();
-    }
-#endif
-    // 디버그용 코드 이후 삭제 필요 ============================
-
     public CharacterData Clone()
     {
         return new CharacterData(

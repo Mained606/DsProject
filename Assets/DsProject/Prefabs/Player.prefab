@@ -8961,6 +8961,7 @@ GameObject:
   - component: {fileID: 1923360659147011416}
   - component: {fileID: 5264475562808799088}
   - component: {fileID: 5109036584787559721}
+  - component: {fileID: 2400680139046476970}
   m_Layer: 0
   m_Name: pico_chan_chr_pico_00
   m_TagString: Untagged
@@ -9021,6 +9022,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillAnimator: {fileID: 5264475562808799088}
+--- !u!114 &2400680139046476970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6949841579525280964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e328a5f8abae0849a0ae1d50efc2999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6961892644257715340
 GameObject:
   m_ObjectHideFlags: 0
