@@ -1,174 +1,170 @@
 using UnityEngine;
 
-namespace JWS
+public class NonePlayerCharacter : MonoBehaviour
 {
-    public class NonePlayerCharacter : MonoBehaviour
+    [SerializeField] private float interactionRadius = 2f;
+    [SerializeField] private bool isPlayerInRange = false;
+    [SerializeField] private NPCData currentNPCData = null;
+    private bool isInitNPC = false;
+
+    private void Start()
     {
-        [SerializeField] private float interactionRadius = 2f;
-        [SerializeField] private bool isPlayerInRange = false;
-        [SerializeField] private int npcIndex;
-        [SerializeField] private NPCData currentNPCData = null;
-        private bool isInitNPC = false;
-
-        private void Start()
+        CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
+        if (capsuleCollider != null)
         {
-            CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
-            if (capsuleCollider != null)
+            capsuleCollider.radius = interactionRadius;
+        }
+    }
+
+    private void Update()
+    {
+        if (!isInitNPC)
+        {
+            if (currentNPCData.currentNPC != this.gameObject && QuestManager.NpcDatabase.mainQuestNpcLists.Count > 0)
             {
-                capsuleCollider.radius = interactionRadius;
+                GetMainNpcData();
             }
         }
-
-        private void Update()
+        if (isPlayerInRange && InputManager.InputActions.actions["Interact"].triggered)
         {
-            if (!isInitNPC)
-            {
-                if (currentNPCData.currentNPC != this.gameObject && QuestManager.NpcDatabase.mainQuestNpcLists.Count > 0)
-                {
-                    GetMainNpcData();
-                }
-            }
-            if (isPlayerInRange && InputManager.InputActions.actions["Interact"].triggered)
-            {
-                Interact();
-            }
+            Interact();
         }
+    }
 
 
-        private void GetMainNpcData()
+    private void GetMainNpcData()
+    {
+        foreach (NPCData npcData in QuestManager.NpcDatabase.mainQuestNpcLists)
         {
-            foreach (NPCData npcData in QuestManager.NpcDatabase.mainQuestNpcLists)
+            if (npcData.currentNPC == null && npcData.npcType == NPCType.퀘스트)
             {
-                if (npcData.currentNPC == null && npcData.npcType == NPCType.퀘스트)
-                {
-                    isInitNPC = true;
-                    currentNPCData = npcData;
-                    currentNPCData.currentNPC = this.gameObject;
-                    break;
-                }
+                isInitNPC = true;
+                currentNPCData = npcData;
+                currentNPCData.currentNPC = this.gameObject;
+                break;
             }
         }
+    }
 
 
-        public void Interact()
+    public void Interact()
+    {
+        if (!currentNPCData.isInteractable)
         {
-            if (!currentNPCData.isInteractable)
-            {
-                Debug.Log($"{currentNPCData.name}은(는) 상호작용이 불가능합니다.");
-                return;
-            }
-
-            switch (currentNPCData.npcType)
-            {
-                case NPCType.상점:
-                    OpenShop();
-                    break;
-                case NPCType.퀘스트:
-                    GiveQuest();
-                    break;
-                default:
-                    HandleState();
-                    break;
-            }
-
-            PlayInteractionEffect();
-            PlayVoice();
+            Debug.Log($"{currentNPCData.name}은(는) 상호작용이 불가능합니다.");
+            return;
         }
 
-        private void HandleState()
+        switch (currentNPCData.npcType)
         {
-            switch (currentNPCData.currentState)
-            {
-                case NPCState.중립:  // 일반 NPC 대화.
-                    Debug.Log($"{currentNPCData.name}은(는) 중립 상태입니다.");
-                    ShowDialogue();
-                    break;
-                case NPCState.동료:
-                    FollowPlayer();
-                    break;
-                case NPCState.적:
-                    AttackPlayer();
-                    break;
-            }
+            case NPCType.상점:
+                OpenShop();
+                break;
+            case NPCType.퀘스트:
+                GiveQuest();
+                break;
+            default:
+                HandleState();
+                break;
         }
 
-        public void ChangeState(NPCState newState)
+        PlayInteractionEffect();
+        PlayVoice();
+    }
+
+    private void HandleState()
+    {
+        switch (currentNPCData.currentState)
         {
-            Debug.Log($"{currentNPCData.name} 상태가 {currentNPCData.currentState}에서 {newState}(으)로 변경되었습니다.");
-            currentNPCData.currentState = newState;
+            case NPCState.중립:  // 일반 NPC 대화.
+                Debug.Log($"{currentNPCData.name}은(는) 중립 상태입니다.");
+                ShowDialogue();
+                break;
+            case NPCState.동료:
+                FollowPlayer();
+                break;
+            case NPCState.적:
+                AttackPlayer();
+                break;
+        }
+    }
+
+    public void ChangeState(NPCState newState)
+    {
+        Debug.Log($"{currentNPCData.name} 상태가 {currentNPCData.currentState}에서 {newState}(으)로 변경되었습니다.");
+        currentNPCData.currentState = newState;
+    }
+
+    private void FollowPlayer()
+    {
+        Debug.Log($"{currentNPCData.name}은(는) 동료로서 플레이어를 따라다닙니다.");
+        // 스토리 진행하다 동료로 활동하는 로직
+    }
+
+    private void AttackPlayer()
+    {
+        Debug.Log($"{currentNPCData.name}이(가) 적으로 변해 플레이어를 공격합니다!");
+        // 스토리 진행하다 공격하는 방식의 로직
+    }
+
+    private void OpenShop()
+    {
+        Debug.Log($"{currentNPCData.name}의 상점을 열었습니다.");
+        // 상점열며 처음여는지 재방문확인하는 로직과 상점오픈 로직
+    }
+
+    private void GiveQuest()
+    {
+        if (currentNPCData.quests == null)
+        {
+            Debug.Log("퀘스트가 없습니다.");
+            return;
         }
 
-        private void FollowPlayer()
+        Debug.Log("Interacting with NPC: " + gameObject.name);
+        UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, currentNPCData.quests[0]);
+        Debug.Log($"{currentNPCData.name}은(는) 퀘스트를 제공합니다.");
+        // 스토리 진행후 퀘스트를 제공하는 방식의 로직
+    }
+
+    private void ShowDialogue()
+    {
+        UIManager.Instance.DisplayDialogWindow(currentNPCData);
+    }
+
+    private void PlayInteractionEffect()
+    {
+        if (currentNPCData.interactionEffect != null)
         {
-            Debug.Log($"{currentNPCData.name}은(는) 동료로서 플레이어를 따라다닙니다.");
-            // 스토리 진행하다 동료로 활동하는 로직
+            Instantiate(currentNPCData.interactionEffect, transform.position, Quaternion.identity);
         }
+    }
 
-        private void AttackPlayer()
+    private void PlayVoice()
+    {
+        if (currentNPCData.voiceLines != null && currentNPCData.voiceLines.Length > 0)
         {
-            Debug.Log($"{currentNPCData.name}이(가) 적으로 변해 플레이어를 공격합니다!");
-            // 스토리 진행하다 공격하는 방식의 로직
+            var clip = currentNPCData.voiceLines[Random.Range(0, currentNPCData.voiceLines.Length)];
+            SoundManager.Instance.PlayClipAtPoint("QuestVoice", transform.position);
         }
+    }
 
-        private void OpenShop()
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
         {
-            Debug.Log($"{currentNPCData.name}의 상점을 열었습니다.");
-            // 상점열며 처음여는지 재방문확인하는 로직과 상점오픈 로직
+            isPlayerInRange = true;
+            UIManager.Instance.InteractText.text = "F";
         }
+    }
 
-        private void GiveQuest()
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
         {
-            if (currentNPCData.quests == null)
-            {
-                Debug.Log("퀘스트가 없습니다.");
-                return;
-            }
-
-            Debug.Log("Interacting with NPC: " + gameObject.name);
-            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, currentNPCData.quests[0]);
-            Debug.Log($"{currentNPCData.name}은(는) 퀘스트를 제공합니다.");
-            // 스토리 진행후 퀘스트를 제공하는 방식의 로직
-        }
-
-        private void ShowDialogue()
-        {
-            UIManager.Instance.DisplayDialogWindow(currentNPCData);
-        }
-
-        private void PlayInteractionEffect()
-        {
-            if (currentNPCData.interactionEffect != null)
-            {
-                Instantiate(currentNPCData.interactionEffect, transform.position, Quaternion.identity);
-            }
-        }
-
-        private void PlayVoice()
-        {
-            if (currentNPCData.voiceLines != null && currentNPCData.voiceLines.Length > 0)
-            {
-                var clip = currentNPCData.voiceLines[Random.Range(0, currentNPCData.voiceLines.Length)];
-                SoundManager.Instance.PlayClipAtPoint("QuestVoice", transform.position);
-            }
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.CompareTag("Player"))
-            {
-                isPlayerInRange = true;
-                UIManager.Instance.InteractText.text = "F";
-            }
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (other.CompareTag("Player"))
-            {
-                isPlayerInRange = false;
-                UIManager.Instance.InteractText.text = "";
-                UIManager.Instance.UIClose();
-            }
+            isPlayerInRange = false;
+            UIManager.Instance.InteractText.text = "";
+            UIManager.Instance.UIClose();
         }
     }
 }

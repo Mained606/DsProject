@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class Sword : MonoBehaviour
 {
-    private int swordDamage = 10;
-
     private Collider swordCollider;
 
     public bool CanReceiveInput { get; set; } = true;

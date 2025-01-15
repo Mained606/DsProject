@@ -193,7 +193,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         }
         
         // 아이템 드롭
-        JWS.ItemManager.Instance.SpawnItemBox(position, monster, false);
+        ItemManager.Instance.SpawnItemBox(position, monster, false);
         
         // 몬스터 오브젝트 삭제
         if (monster.instance != null)
