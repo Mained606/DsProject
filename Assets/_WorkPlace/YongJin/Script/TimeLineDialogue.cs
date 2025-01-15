@@ -10,12 +10,12 @@ public class TimeLineDialogue : MonoBehaviour
     private void OnEnable() 
     {
         dialogUITest.StartDialogue(contextName, dialogue);
-        Debug.Log("킬게");
+
     }
     private void OnDisable() 
     {
         dialogUITest.DialogueExit();
-        Debug.Log("죽을게");    
+
     }
     
 }
