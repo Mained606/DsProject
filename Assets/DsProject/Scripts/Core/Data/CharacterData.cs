@@ -26,7 +26,7 @@ public class CharacterData
     public float staminaRecoveryRate; // 스태미나 회복 속도
     
     // 레벨과 경험치 관련 변수 추가
-    [HideInInspector] public int level;             // 레벨
+    public int level;             // 레벨
     [HideInInspector] public int currentExperience; // 현재 경험치
     [HideInInspector] public int experienceToLevelUp; // 레벨업에 필요한 경험치
     
@@ -74,8 +74,10 @@ public class CharacterData
         experienceToLevelUp = CalculateExperienceToLevelUp(); // 첫 번째 레벨업에 필요한 경험치 설정
 
         // 스텟 값에 따라 자동 계산
-        IncreaseStatsBasedOnLevel();
+        // IncreaseStatsBasedOnLevel();
         UpdateDerivedStats();  // 모든 파생 스탯을 한 번에 계산
+        this.currentHp = this.maxHp;
+        this.staminaCurrent = this.stamina;
         InitializeStats();
     }
 
@@ -93,6 +95,7 @@ public class CharacterData
     // 파생 스탯 계산 (중복을 줄이기 위해 한 번에 계산)
     public void UpdateDerivedStats()
     {
+        int previousMaxHp = maxHp; // 이전 최대 체력 저장
         maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier);  // 체력에 비례한 최대 HP
         physicalDamage = Mathf.RoundToInt(strength * statModifier.strengthMultiplier);  // 힘에 따른 물리 공격력
         physicalDefense = Mathf.RoundToInt((strength + vitality) * statModifier.physicalDefenseMultiplier);  // 힘과 체력에 비례한 물리 방어력
@@ -100,6 +103,13 @@ public class CharacterData
         magicDefense = Mathf.RoundToInt(intelligence * statModifier.magicDefenseMultiplier);  // 지능에 따른 마법 방어력
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f);  // 민첩성에 따른 크리티컬 확률
         baseDamage = physicalDamage + strength;  // 물리 공격력 + 힘
+        
+        // maxHp가 증가한 경우 currentHp도 증가분 만큼 회복
+        if (maxHp > previousMaxHp)
+        {
+            currentHp += maxHp - previousMaxHp;
+            currentHp = Mathf.Clamp(currentHp, 0, maxHp);
+        }
     }
     
     // 경험치를 얻었을 때 호출되는 함수
@@ -129,20 +139,14 @@ public class CharacterData
 
         // 레벨업 시 로그 출력 (디버깅용)
         Debug.Log($"레벨업! 현재 레벨: {level}, 남은 경험치: {currentExperience}");
+        ToStringForTMPro();
     }
     
     // 경험치 계산 함수
     private int CalculateExperienceToLevelUp()
     {
         // 레벨 9 -> 10, 19 -> 20, 29 -> 30 구간에서 경험치를 완화
-        if ((level) % 10 == 9)  // 레벨 9, 19, 29, 39, ...
-        {
-            return Mathf.RoundToInt(level * 80f);  // 완화된 구간: 경험치 요구량 80%로 설정
-        }
-        else
-        {
-            return Mathf.RoundToInt(level * 100f);  // 그 외 구간은 기본적으로 100씩 증가
-        }
+        return (level % 10 == 9) ? Mathf.RoundToInt(level * 80f) : Mathf.RoundToInt(level * 100f);
     }
 
     // 능력치 증가 처리 함수 (레벨에 따른 규칙을 설정)
@@ -212,20 +216,47 @@ public class CharacterData
     }
 
     // ToString()을 오버라이드하여 TMP로 출력할 수 있는 형식으로 정보 제공
+    // CharacterData 클래스
     public string ToStringForTMPro()
     {
         return string.Format(
-            "<color=red>Strength:</color> {0}\n" +
-            "<color=blue>Agility:</color> {1}\n" +
-            "<color=green>Vitality:</color> {2}\n" +
-            "<color=yellow>Intelligence:</color> {3}\n" +
-            "<color=orange>Max HP:</color> {4}\n" +
-            "<color=purple>Physical Damage:</color> {5}\n" +
-            "<color=cyan>Magic Damage:</color> {6}\n" +
-            "<color=magenta>Critical Chance:</color> {7}%\n" +
-            "<color=gray>Base Damage:</color> {8}\n" +
-            "<color=lime>Stamina:</color> {9}/{10}",
-            strength, agility, vitality, intelligence, maxHp, physicalDamage, magicDamage, criticalChance * 100, baseDamage, staminaCurrent, stamina);
+            "<color=red>Name:</color> {0}\n" +
+            "<color=red>Level:</color> {1}\n" +
+            "<color=red>Strength:</color> {2}\n" +
+            "<color=blue>Agility:</color> {3}\n" +
+            "<color=green>Vitality:</color> {4}\n" +
+            "<color=yellow>Intelligence:</color> {5}\n" +
+            "<color=lime>Current HP:</color> {6}/{7}\n" +
+            "<color=purple>Physical Damage:</color> {8}\n" +
+            "<color=cyan>Magic Damage:</color> {9}\n" +
+            "<color=magenta>Critical Chance:</color> {10}%\n" +
+            "<color=gray>Base Damage:</color> {11}\n" +
+            "<color=lime>Stamina:</color> {12}/{13}\n" +
+            "<color=teal>Speed:</color> {14}\n" +
+            "<color=gold>Attack Speed:</color> {15}\n" +
+            "<color=gold>Gold:</color> {16}\n" + // 골드 추가
+            "<color=orange>Current Experience:</color> {17}\n" + // 현재 경험치 추가
+            "<color=orange>Experience To Level Up:</color> {18}\n", // 레벨업에 필요한 경험치 추가
+            characterName,                      // 0
+            level,                              // 1
+            strength,                           // 2
+            agility,                            // 3
+            vitality,                           // 4
+            intelligence,                       // 5
+            currentHp,                          // 6 - 현재 체력
+            maxHp,                              // 7 - 최대 체력
+            physicalDamage,                     // 8
+            magicDamage,                        // 9
+            criticalChance * 100,               // 10 - 크리티컬 확률 (백분율)
+            baseDamage,                         // 11
+            staminaCurrent,                     // 12 - 현재 스태미나
+            stamina,                            // 13 - 최대 스태미나
+            speed,                              // 14
+            attackSpeed,                        // 15
+            this is PlayerData player ? player.gold : 0,  // 16 - 골드
+            currentExperience,                  // 17 - 현재 경험치
+            experienceToLevelUp                 // 18 - 레벨업에 필요한 경험치
+        );
     }
 
     public CharacterData Clone()
@@ -280,7 +311,7 @@ public class PlayerData : CharacterData
 
     public PlayerData(string name, GameObject prefab, int strength, int vitality, int agility, int intelligence,
         float speed, float attackSpeed, float stamina, float staminaRecoveryRate)
-        : base(name, CharacterType.Player, prefab, strength, vitality, agility, intelligence, null,speed, attackSpeed, stamina, staminaRecoveryRate)
+        : base(name, CharacterType.Player, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, stamina, staminaRecoveryRate)
     {
         gold = 0; // 초기 골드는 0
     }
@@ -329,11 +360,12 @@ public class MonsterData : CharacterData
     public List<int> dropItems = new List<int>(); // 드롭 아이템
     public int experienceReward; // 경험치 보상
     public int goldReward;       // 골드 보상
+    [HideInInspector] public GameObject instance;  // 생성된 몬스터 인스턴스를 저장할 필드
 
     public MonsterData(string name, CharacterType characterType, GameObject prefab, int strength, int vitality, int agility,
         int intelligence, float speed, float attackSpeed, float stamina, float staminaRecoveryRate, List<int> dropItems,
         int experienceReward, int goldReward)
-        : base(name, CharacterType.Monster, prefab, strength, vitality, agility, intelligence, null, speed, attackSpeed, stamina, staminaRecoveryRate)
+        : base(name, CharacterType.Monster, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, stamina, staminaRecoveryRate)
     {
         this.dropItems = new List<int>(dropItems);
         this.experienceReward = experienceReward;
