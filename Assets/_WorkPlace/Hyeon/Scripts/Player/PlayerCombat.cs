@@ -95,14 +95,20 @@ public class PlayerCombat : MonoBehaviour
         }
         if (InputManager.InputActions.actions["PlayerSkill_1"].triggered)
         {
-            SkillManager.Instance.ActivateSkill("Fire", closestMonster);
+            controller.CanMove = false;
+            controller.CanAttack = false;
+            SkillManager.Instance.ActivateSkill("Fire");
         }
         if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
         {
+            controller.CanMove = false;
+            controller.CanAttack = false;
             SkillManager.Instance.ActivateSkill("Water", closestMonster);
         }
         if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
         {
+            controller.CanMove = false;
+            controller.CanAttack = false;
             SkillManager.Instance.ActivateSkill("eee", closestMonster);
         }
     }
@@ -133,8 +139,7 @@ public class PlayerCombat : MonoBehaviour
             if (normalizedTime >= 0.95f)
             {
                 controller.CanMove = true;
-                InputManager.InputActions.actions["Attack"].Enable();   // 막았던 평타 키 활성화
-                Debug.Log("CanMove True");
+                controller.CanAttack = true;   // 막았던 평타 키 활성화
             }
         }
     }
@@ -167,12 +172,6 @@ public class PlayerCombat : MonoBehaviour
         targetRotation = Quaternion.LookRotation(dir);
         controller.transform.rotation = targetRotation;
     }
-
-    public Quaternion ModifyRotation()
-    {
-        return Quaternion.Inverse(targetRotation);
-    }
-
 
     private void OnDrawGizmosSelected()
     {

@@ -82,15 +82,18 @@ public class SkillManager : BaseManager<SkillManager>
         animator.SetTrigger(skill.activeTriggerName);
         if(skill.effectPrefab != null)
         {
-            var effect = Instantiate(skill.effectPrefab, target.transform.position, Quaternion.identity);
+            Quaternion playerRotation = Quaternion.LookRotation(GameManager.playerTransform.forward);
+            var effect = Instantiate(skill.effectPrefab, target.transform.position, playerRotation);
             if(skill.particleDelay > 0)
             {
                 var particleEffect = effect.GetComponent<ParticleSystem>().main;
                 particleEffect.startDelay = skill.particleDelay;
             }
 
+            Destroy(effect, 5f);
+
         }
-        Debug.Log($"ActivateSkill: {skill.skillName}");
+        //Debug.Log($"ActivateSkill: {skill.skillName}");
         currentUsedSkills.Add(skill);
     }
 

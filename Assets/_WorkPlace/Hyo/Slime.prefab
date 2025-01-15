@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7770370892326907637}
   - component: {fileID: -383185174062201188}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Slime
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42,7 +42,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8059210834124453814}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &2099601842303455836
 MeshRenderer:
   m_ObjectHideFlags: 0
