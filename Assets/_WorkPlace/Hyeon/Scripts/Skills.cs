@@ -19,6 +19,7 @@ public class Skills
     public float energyCost;
     public GameObject effectPrefab;
     public string activeTriggerName;
+    public float particleDelay;
 
     public BasicTimer cooldownTimer;
 
