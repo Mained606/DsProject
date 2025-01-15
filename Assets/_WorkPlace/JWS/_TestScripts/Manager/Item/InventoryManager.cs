@@ -38,6 +38,7 @@ namespace JWS
                 inventory.Add(item);
             }
             QuestManager.Instance.UpdateQuestProgress(item);
+            UIManager.Instance.PickUpItemTextDisplay?.AddItem(item.name);
         }
 
 

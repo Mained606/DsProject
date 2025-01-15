@@ -8,6 +8,7 @@ namespace JWS
     public class ItemManager : BaseManager<ItemManager>
     {
         [SerializeField] private List<Item> itemDatabase = new List<Item>();
+        [SerializeField] private GameObject dropItemPrefab;
 
         public static List<Item> ItemDatabase => Instance.itemDatabase;
 
@@ -120,6 +121,19 @@ namespace JWS
         public void HandleStateChange()
         {
             Debug.Log("[ItemManager] 상태 변화에 따른 아이템 관련 로직 실행");
+        }
+        
+        public GameObject SpawnItemBox(Vector3 spawnPosition, MonsterData monsterData, bool isRandom = true)
+        {
+            GameObject itemBox = Instantiate(dropItemPrefab, spawnPosition, Quaternion.identity);
+            if (!isRandom)
+            {
+                itemBox.transform.GetComponent<DropItemBoxController>().isRandomDrop = false;
+                itemBox.transform.GetComponent<DropItemBoxController>().dropItemIds = monsterData.dropItems;
+                Debug.Log(monsterData.dropItems.Count);
+            }
+
+            return itemBox;
         }
 
         protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)

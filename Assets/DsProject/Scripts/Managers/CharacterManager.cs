@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 // 캐릭터의 상위 타입을 정의
@@ -195,7 +193,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         }
         
         // 아이템 드롭
-        ItemManager.Instance.SpawnItemBox(position, monster, false);
+        JWS.ItemManager.Instance.SpawnItemBox(position, monster, false);
         
         // 몬스터 오브젝트 삭제
         if (monster.instance != null)

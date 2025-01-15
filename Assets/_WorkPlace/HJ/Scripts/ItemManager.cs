@@ -37,17 +37,17 @@ public class ItemManager : BaseManager<ItemManager>
     /// <summary>
     /// 아이템 박스 생성
     /// </summary>
-    public GameObject SpawnItemBox(Vector3 spawnPosition, MonsterData monsterData, bool isRandom = true)
-    {
-        GameObject itemBox = Instantiate(itemDropBox, spawnPosition, Quaternion.identity);
-        if (!isRandom)
-        {
-            itemBox.transform.GetComponent<DropItemBoxController>().isRandomDrop = false;
-            itemBox.transform.GetComponent<DropItemBoxController>().dropItemIds = monsterData.dropItems;
-        }
-
-        return itemBox;
-    }
+    // public GameObject SpawnItemBox(Vector3 spawnPosition, MonsterData monsterData, bool isRandom = true)
+    // {
+    //     GameObject itemBox = Instantiate(itemDropBox, spawnPosition, Quaternion.identity);
+    //     if (!isRandom)
+    //     {
+    //         itemBox.transform.GetComponent<DropItemBoxController>().isRandomDrop = false;
+    //         itemBox.transform.GetComponent<DropItemBoxController>().dropItemIds = monsterData.dropItems;
+    //     }
+    //
+    //     return itemBox;
+    // }
 
     /// <summary>
     /// 아이템 드랍
