@@ -38,7 +38,19 @@ namespace JWS
 
         private void Update()
         {
-            InputManager.InputActions.enabled = !IsUIWindowOpen();
+            if (UIManager.Instance.IsUIWindowOpen())
+            {
+                InputManager.InputActions.actions["Attack"].Disable(); // UI가 열려 있을 때 공격 비활성화
+            }
+            else
+            {
+                InputManager.InputActions.actions["Attack"].Enable(); // UI가 닫혀 있을 때 공격 활성화
+            }
+
+            InputManager.InputActions.actions["Inventory"].Enable();
+            InputManager.InputActions.actions["Quest"].Enable();
+
+
         }
 
         public void ToggleDialog()
@@ -49,6 +61,7 @@ namespace JWS
 
         public void ToggleInventory()
         {
+            Debug.Log("인벤 호출");
             inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
             mainCanvas.SetActive(!mainCanvas.activeSelf);
         }
@@ -249,10 +262,26 @@ namespace JWS
             return dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf;
         }
 
-        protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
+        protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
         {
+            UIClose();
+            #region Delete
 
+            switch (newState)
+            {
+                
+                case GameSystemState.Inventory:
+                    
+                    ToggleInventory();
+                    break;
+                case GameSystemState.QuestReview:
+
+                    ToggleQuestWindow();
+                    break;
+            }
+            #endregion
         }
     }
 
 }
+

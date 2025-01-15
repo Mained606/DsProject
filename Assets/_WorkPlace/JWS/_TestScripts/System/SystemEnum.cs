@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 
 namespace JWS
@@ -79,4 +79,4 @@ namespace JWS
         public List<SystemLogic> SystemLogics;     // 상태와 연결된 시스템 로직 목록
     }
 
-}
+}*/

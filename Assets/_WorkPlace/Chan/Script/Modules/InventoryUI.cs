@@ -32,18 +32,16 @@ public class InventoryUI : MonoBehaviour
         GetItemData();
     }
 
-    [SerializeField] ItemDatabase testItemList;
+
     private void GetItemData()
     {
         // TestItemList에서 데이터 가져오기
-        if (testItemList != null)
+        itemList = InventoryManager.Instance.items; // 데이터 가져오기
+        Debug.Log($"아이템 리스트 연결확인, {itemList.Count}개의 소지중.");
+
+        if (itemList == null)
         {
-            //itemList = testItemList.GetTestItems(); // 데이터 가져오기
-            Debug.Log($"아이템 리스트 연결확인, {itemList.Count}개의 소지중.");
-        }
-        else
-        {
-            Debug.LogError("TestItemList 연결안됨.");
+            Debug.LogError("ItemList 연결안됨.");
         }
     }
     public void Update()
@@ -77,7 +75,7 @@ public class InventoryUI : MonoBehaviour
     {
         CategorizeItems();
         ClearUI();
-        Debug.Log("ClearUI 완료");
+        //  Debug.Log("ClearUI 완료");
 
         // 기본 검증
         if (buttons == null || buttons.Length == 0)
@@ -94,19 +92,34 @@ public class InventoryUI : MonoBehaviour
 
         ItemType selectedCategory = (ItemType)currentButtonIndex;
 
-        Debug.Log($"선택된 카테고리 '{selectedCategory}'에 포함된 아이템 개수: {categorizedItems[selectedCategory].Count}");
+        // 카테고리가 비어있으면 리턴
+        if (!categorizedItems.ContainsKey(selectedCategory) || categorizedItems[selectedCategory].Count == 0)
+        {
+            //   Debug.Log($"선택된 카테고리 '{selectedCategory}'에 포함된 아이템이 없습니다.");
+            return;
+        }
+
+        //   Debug.Log($"선택된 카테고리 '{selectedCategory}'에 포함된 아이템 개수: {categorizedItems[selectedCategory].Count}");
         foreach (var item in categorizedItems[selectedCategory])
         {
             CreateItemUI(item);
         }
 
-        Debug.Log("UpdateUI 완료");
+        //   Debug.Log("UpdateUI 완료");
     }
     private void CreateItemUI(Item item)
     {
         var itemUI = Instantiate(basePrefab, baseParent);
         itemUI.GetComponentsInChildren<TextMeshProUGUI>()[0].text = item.itemName;
         itemUI.GetComponentsInChildren<TextMeshProUGUI>()[1].text = item.itemDescription;
+
+        // 이미지 설정
+        var images = itemUI.GetComponentsInChildren<Image>();
+        if (images.Length > 1)
+        {
+            // 아이템 이미지가 있으면 설정, 없으면 NONE 상태로 유지
+            images[1].sprite = item.itemImage; // item.itemImage가 null이면 이미지가 NONE 상태로 표시됨
+        }
     }
 
     private void ClearUI()
