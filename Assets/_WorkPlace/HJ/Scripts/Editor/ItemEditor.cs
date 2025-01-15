@@ -71,18 +71,23 @@ public class ItemDatabaseEditor : Editor
         switch (itemType)
         {
             case ItemType.Weapon:
+                EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("attribute"));
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("attackPower"));
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("durability"));
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("weaponType"));
                 break;
             case ItemType.Armor:
+                EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("attribute"));
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("defensePower"));
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("durability"));
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("equipmentSlot"));
-                break;
+                break;            
             case ItemType.Consumable:
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("consumableType"));
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("effectAmount"));
+                break;
+            case ItemType.Accessory:
+                EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("attribute"));
                 break;
             case ItemType.QuestItem:
                 EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("questId"));
