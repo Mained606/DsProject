@@ -109,10 +109,10 @@ public class NPCController : MonoBehaviour
             switch(contextNPC.NPC_currentState)
             {
                 case NPCState.Common :
-                    UIManagerTest.Instance.DialogUI.StartDialogue(this, NPCStringTable.NPCString_dialogue);
+                    //UIManagerTest.Instance.DialogUI.StartDialogue(this, NPCStringTable.NPCString_dialogue);
                     break;
                 case NPCState.MainQuestGiver :
-                    UIManagerTest.Instance.DialogUI.StartDialogue(QuestManager.Instance.GetQuestStringData(QuestManager.Instance.nextMainQuestId).questString_diologue);
+                    //UIManagerTest.Instance.DialogUI.StartDialogue(QuestManager.Instance.GetQuestStringData(QuestManager.Instance.nextMainQuestId).questString_diologue);
                     break;
                 case NPCState.SubQuestGiver :
                     break;
