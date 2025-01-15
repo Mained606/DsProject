@@ -196,8 +196,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-
-
             PlayerAnimator.SetFloat("MotionSpeed", 1);
             PlayerAnimator.SetFloat("Speed", currentSpeed);
         }
@@ -312,6 +310,9 @@ public class PlayerController : MonoBehaviour
     {
         if (InputManager.InputActions.actions["Parry"].triggered)
         {
+            CanAttack = false;
+            CanMove = false;
+            CanUseSkill = false;
             PlayerAnimator.SetTrigger("Parry");
         }
         AnimatorStateInfo stateInfo = PlayerAnimator.GetCurrentAnimatorStateInfo(0);
@@ -326,6 +327,12 @@ public class PlayerController : MonoBehaviour
                 {
                     // TODO
                     Debug.Log("can parry");
+                }
+                if(normalizedTime > 0.95f)
+                {
+                    CanAttack = true;
+                    CanMove = true;
+                    CanUseSkill = true;
                 }
             }
 
