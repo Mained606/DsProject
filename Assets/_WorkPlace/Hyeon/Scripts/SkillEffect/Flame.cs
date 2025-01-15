@@ -33,12 +33,13 @@ public class Flame : MonoBehaviour
         }
         if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
-            MonsterData monster = other.GetComponent<TestMonster>().monsterData;
+            MonsterData monster = other.GetComponent<Test1>().monster;
             int monsterHP;
             if (monster != null)
             {
                 monsterHP = monster.currentHp;
-                monster.TakeDamage(damage);
+                // monster.TakeDamage(damage);
+                CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monster, other.transform, true);
                 Debug.Log($"Damaged: {monster.characterName}, monsterHP: {monsterHP}, monsterCurrentHP: {monster.currentHp}");
             }
         }
