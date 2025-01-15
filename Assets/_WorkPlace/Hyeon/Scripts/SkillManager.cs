@@ -89,8 +89,10 @@ public class SkillManager : BaseManager<SkillManager>
                 particleEffect.startDelay = skill.particleDelay;
             }
 
+            Destroy(effect, 5f);
+
         }
-        Debug.Log($"ActivateSkill: {skill.skillName}");
+        //Debug.Log($"ActivateSkill: {skill.skillName}");
         currentUsedSkills.Add(skill);
     }
 

@@ -196,8 +196,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-
-
             PlayerAnimator.SetFloat("MotionSpeed", 1);
             PlayerAnimator.SetFloat("Speed", currentSpeed);
         }
