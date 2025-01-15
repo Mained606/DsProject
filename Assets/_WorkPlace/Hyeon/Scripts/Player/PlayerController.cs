@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dodgeDist = 3f;
     [SerializeField] private float dodgeDuration = 0.3f;
 
+    [SerializeField] private float detectionRange = 2f;
+
     private Vector2 moveInput;
     public Transform cameraTransform;
 
@@ -24,14 +26,17 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
     private Vector3 verticalVelocity;
     private float gravity = -9.81f;
-    private bool isGrounded;
+    [SerializeField] private bool isGrounded;
     private bool isSprinting;
     [SerializeField] private bool isDodging = false;
     //[SerializeField] private bool isInvincible = false;
     public bool isFreefall;
+    public bool isClimb;
     public bool CanMove;
     public bool CanAttack;
     public bool CanUseSkill;
+
+    [SerializeField] private bool isCollisionEnter;
 
     private CharacterController characterController;
     public Animator PlayerAnimator;
@@ -70,6 +75,7 @@ public class PlayerController : MonoBehaviour
         avoidKeyInput();
         
         HandleGravity();
+        DetectCliff();
         if (!isDodging)
         {
             ControlMovement();
@@ -340,8 +346,41 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    // 장비 장착에 따른 스탯 변화
+    private void DetectCliff()
+    {
+        Vector3 rayOrigin = transform.position + Vector3.up * 1.5f;
+        if (Physics.Raycast(rayOrigin, transform.forward, out RaycastHit hit, detectionRange))
+        {
+            Debug.DrawLine(rayOrigin, hit.point, Color.red);
 
+            float angle = Vector3.Angle(hit.normal, Vector3.up);
+
+            float heightDifference = hit.point.y - transform.position.y;
+
+            if (Mathf.Abs(heightDifference) < 0.01f)
+            {
+                heightDifference = 0f;
+            }
+
+            Debug.Log($"angle : {angle}, heightDifference : {heightDifference}");
+            if (angle > 75f && angle < 105f)
+            {
+                //StartHanging(hit.point, hit.normal);
+                Debug.Log("매달릴 수 있는 벽");
+                isClimb = true;
+            }
+            else
+            {
+                Debug.Log("매달릴 수 없는 벽");
+            }
+        }
+        else
+        {
+            Debug.DrawLine(rayOrigin, rayOrigin + transform.forward * detectionRange, Color.blue);
+        }
+    }
+
+    // 장비 장착에 따른 스탯 변화
 
     private void IdleMotion()
     {
