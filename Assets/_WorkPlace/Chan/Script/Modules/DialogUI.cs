@@ -34,7 +34,7 @@ public class DialogUI : MonoBehaviour
 
         #endregion
 
-        UIManager.Instance.DialogUI.ShowNext(dialogueList);
+        ShowNext(dialogueList);
     }
 
     void Update()
