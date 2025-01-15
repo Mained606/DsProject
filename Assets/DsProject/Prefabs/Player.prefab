@@ -8159,7 +8159,7 @@ GameObject:
   - component: {fileID: 1205624006367007641}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8174,7 +8174,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.85, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 598221348434157570}
@@ -8960,7 +8960,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1923360659147011416}
   - component: {fileID: 5264475562808799088}
-  - component: {fileID: 5109036584787559721}
+  - component: {fileID: 5429668476682211760}
   m_Layer: 0
   m_Name: pico_chan_chr_pico_00
   m_TagString: Untagged
@@ -9008,7 +9008,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5109036584787559721
+--- !u!114 &5429668476682211760
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9017,10 +9017,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6949841579525280964}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37c089ad62a1e6147ba1e37c5f27b7a9, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e328a5f8abae0849a0ae1d50efc2999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillAnimator: {fileID: 5264475562808799088}
 --- !u!1 &6961892644257715340
 GameObject:
   m_ObjectHideFlags: 0
@@ -9670,7 +9669,7 @@ Transform:
   m_GameObject: {fileID: 8055558322652533865}
   serializedVersion: 2
   m_LocalRotation: {x: 0.14874217, y: -0.000000010672789, z: 0.0000000016053515, w: 0.98887604}
-  m_LocalPosition: {x: 0, y: 2.9462662, z: -4.986576}
+  m_LocalPosition: {x: 0, y: 1.4731331, z: -2.493288}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
