@@ -97,14 +97,18 @@ public class PlayerCombat : MonoBehaviour
         {
             controller.CanMove = false;
             controller.CanAttack = false;
-            SkillManager.Instance.ActivateSkill("Fire", closestMonster);
+            SkillManager.Instance.ActivateSkill("Fire");
         }
         if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
         {
+            controller.CanMove = false;
+            controller.CanAttack = false;
             SkillManager.Instance.ActivateSkill("Water", closestMonster);
         }
         if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
         {
+            controller.CanMove = false;
+            controller.CanAttack = false;
             SkillManager.Instance.ActivateSkill("eee", closestMonster);
         }
     }
