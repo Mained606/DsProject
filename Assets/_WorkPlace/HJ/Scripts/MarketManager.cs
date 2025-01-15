@@ -18,7 +18,7 @@ public class MarketManager : BaseManager<MarketManager>
         //플레이어 돈 -= item.value;
 
         //인벤토리에 아이템 배치
-        InventoryManager.Instance.AddItem(item, quantity);
+        InventoryManager.Instance.AddItem(item.id, quantity);
     }
 
 
@@ -29,10 +29,10 @@ public class MarketManager : BaseManager<MarketManager>
     public void SellItem(Item item, int quantity = 1)
     {
         //플레이어 돈 증가
-        int value = (int)(1 - (item.value * discount));
+        int value = (int)(1 - (item.costValue * discount));
         //플레이어 돈 += value;
 
         //인벤토리에서 아이템 삭제
-        InventoryManager.Instance.RemoveItem(item, quantity);
+        InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
     }
 }
