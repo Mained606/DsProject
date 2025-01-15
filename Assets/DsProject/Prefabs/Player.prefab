@@ -8157,6 +8157,7 @@ GameObject:
   - component: {fileID: 1098804586676782611}
   - component: {fileID: 6211557189889423590}
   - component: {fileID: 1205624006367007641}
+  - component: {fileID: 8460110016908858381}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -8299,6 +8300,19 @@ MonoBehaviour:
   playerAnimator: {fileID: 5264475562808799088}
   inputReceived: 0
   targetRotation: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &8460110016908858381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6123863050184164686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37c089ad62a1e6147ba1e37c5f27b7a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillAnimator: {fileID: 5264475562808799088}
 --- !u!1 &6176708764453778850
 GameObject:
   m_ObjectHideFlags: 0
@@ -8960,7 +8974,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1923360659147011416}
   - component: {fileID: 5264475562808799088}
-  - component: {fileID: 5109036584787559721}
+  - component: {fileID: 5429668476682211760}
   m_Layer: 0
   m_Name: pico_chan_chr_pico_00
   m_TagString: Untagged
@@ -9008,7 +9022,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5109036584787559721
+--- !u!114 &5429668476682211760
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9017,10 +9031,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6949841579525280964}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37c089ad62a1e6147ba1e37c5f27b7a9, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e328a5f8abae0849a0ae1d50efc2999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillAnimator: {fileID: 5264475562808799088}
 --- !u!1 &6961892644257715340
 GameObject:
   m_ObjectHideFlags: 0

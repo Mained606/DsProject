@@ -60,7 +60,11 @@ public class CharacterManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
-        InitialCharacter();
+        PlayerCharacterData = characterTemplates.players[0];
+
+        PlayerCharacterData.statModifier = new StatModifier();
+        PlayerCharacterData.UpdateDerivedStats();
+        Debug.Log(PlayerCharacterData.ToStringForTMPro());
     }
     //
     // private void Start()
@@ -82,9 +86,6 @@ public class CharacterManager : MonoBehaviour
             stamina: 100f,
             staminaRecoveryRate: 10f
         );
-        // 스킬 추가
-        PlayerCharacterData.AddSkill("Dash");
-        PlayerCharacterData.AddSkill("Slash");
 
     }
 

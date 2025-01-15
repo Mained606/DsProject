@@ -80,7 +80,16 @@ public class SkillManager : BaseManager<SkillManager>
         }
         TimerManager.Instance.StartTimer(skill.cooldownTimer);
         animator.SetTrigger(skill.activeTriggerName);
-        var effect = Instantiate(skill.effectPrefab, target.transform.position, Quaternion.identity);
+        if(skill.effectPrefab != null)
+        {
+            var effect = Instantiate(skill.effectPrefab, target.transform.position, Quaternion.identity);
+            if(skill.particleDelay > 0)
+            {
+                var particleEffect = effect.GetComponent<ParticleSystem>().main;
+                particleEffect.startDelay = skill.particleDelay;
+            }
+
+        }
         Debug.Log($"ActivateSkill: {skill.skillName}");
         currentUsedSkills.Add(skill);
     }
