@@ -6,4 +6,13 @@ using UnityEngine;
 public class ItemDatabase : ScriptableObject
 {
     public List<Item> items = new List<Item>();
+
+    //모든 아이템 초기화
+    public void InitializeAllItems()
+    {
+        items.ForEach(item =>
+        {
+            item.Initialize();
+        });
+    }
 }

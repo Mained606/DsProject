@@ -6,41 +6,39 @@ using UnityEngine;
 [Serializable]
 public class Item
 {
-    [Header("아이템 공통 속성")]
+    //[Header("아이템 공통 속성")]
+    public ItemType itemType;           //아이템 타입
     public int itemId;                  //아이템 고유번호
     public string itemName;             //아이템 이름
     public string itemDescription;      //아이템 설명
-    public ItemType itemType;           //아이템 타입
     public int currentQuantity = 0;     //현재 수량
     public int maxCapacity;             //아이템 최대 소지 갯수
     public bool isCanStack;             //여러개 소지 가능한 아이템 여부
     public int value;                   //가치
     public bool isDiscardable;          //버릴 수 있는 아이템인지 여부
-    public float itemDropChance = 1.0f; //아이템 드랍 확률
+    [Range(0,1)]
+    public float itemDropChance = 1;    //아이템 드랍 확률
     public Sprite itemImage;            //아이템 이미지
 
-    [Header("장착용 아이템 공통 속성")]
-    public float strength;              //힘
-    public float vitality;              //활력
-    public float agility;               //민첩
-    public float intelligence;          //지능
+    //[Header("장착용 아이템 공통 속성")]
+    public Attribute[] attribute = new Attribute[0];
 
-    [Header("무기/방어구 속성")]
+    //[Header("무기/방어구 속성")]
     //무기 속성
     public int attackPower;             //공격력
     public int durability;              //내구도
     public WeaponType weaponType;       //무기 타입
 
     //방어구 속성
-    public int defensePower;            //방어도
+    public int defensePower;            //방어력
     public EquipmentSlot equipmentSlot; //장착 위치
 
-    [Header("소모품 속성")]
+    //[Header("소모품 속성")]
     public ConsumableType consumableType;   //소모품 타입
     public int effectAmount;                //효과량
 
-    [Header("퀘스트아이템 속성")]
-    public string questId;                  //퀘스트 ID
+    //[Header("퀘스트아이템 속성")]
+    public int questId;                  //퀘스트 ID
 
     //초기화
     public void Initialize()
@@ -75,6 +73,13 @@ public class Item
     }
 }
 
+[Serializable]
+public class Attribute
+{
+    public CharacterAttribute characterAttribute;   //능력
+    public float amount;   //능력치
+}
+
 #region ItemEnum
 public enum ItemType
 {
@@ -83,6 +88,14 @@ public enum ItemType
     Consumable,
     Accessory,
     QuestItem
+}
+
+public enum CharacterAttribute
+{
+    Strength,
+    Vitality,
+    Agility,
+    Intelligence
 }
 
 public enum WeaponType { Melee, Magic }

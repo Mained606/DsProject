@@ -1,8 +1,9 @@
 using UnityEngine;
 using static UnityEditor.Timeline.Actions.MenuPriority;
 
-public class MarketManager : BaseManager<MarketManager>
+public class ShopManager : BaseManager<ShopManager>
 {
+    [Range(0,1)]
     [SerializeField] private float discount = 0.5f;
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
@@ -15,6 +16,7 @@ public class MarketManager : BaseManager<MarketManager>
     public void BuyItem(Item item, int quantity = 1)
     {
         //플레이어 돈 감소
+        int value = item.value * quantity;
         //플레이어 돈 -= item.value;
 
         //인벤토리에 아이템 배치
@@ -24,12 +26,11 @@ public class MarketManager : BaseManager<MarketManager>
 
     /// <summary>
     /// 팔기
-    /// 판매할때는 가치를 discount만큼 깎기
     /// </summary>
     public void SellItem(Item item, int quantity = 1)
     {
         //플레이어 돈 증가
-        int value = (int)(1 - (item.value * discount));
+        int value = (int)((item.value * discount) * quantity);
         //플레이어 돈 += value;
 
         //인벤토리에서 아이템 삭제

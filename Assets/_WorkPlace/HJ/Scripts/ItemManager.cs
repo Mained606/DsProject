@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class ItemManager : BaseManager<ItemManager>
 {
@@ -9,7 +8,6 @@ public class ItemManager : BaseManager<ItemManager>
 
     public GameObject itemDropBox;              //itemdropBox 프리팹
     #endregion
-
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {

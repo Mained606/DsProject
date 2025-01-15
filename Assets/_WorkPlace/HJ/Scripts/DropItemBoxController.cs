@@ -36,7 +36,6 @@ public class DropItemBoxController : MonoBehaviour
                 //아이템 랜덤 생성
                 if (item != null && Random.value <= item.itemDropChance)
                 {
-                    item.Initialize(); //드랍할 아이템 초기화
                     ItemManager.Instance.AddItemToInventory(item);  //인벤토리에 아이템 추가
                 }
             });

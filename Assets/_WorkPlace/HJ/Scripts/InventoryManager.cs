@@ -26,8 +26,8 @@ public class InventoryManager : BaseManager<InventoryManager>
         CurrentCapacity = initialCapacity;      //초기 수용한도 설정
 
         //테스트용
-        //AddItem(ItemManager.Instance.FindItemById(1001));
-        //AddItem(ItemManager.Instance.FindItemById(2001));
+        AddItem(ItemManager.Instance.FindItemById(1001));
+        AddItem(ItemManager.Instance.FindItemById(3001));
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
