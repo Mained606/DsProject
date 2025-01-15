@@ -23,9 +23,9 @@ namespace JWS
         {
             if (!isInitNPC)
             {
-                if (currentNPCData.currentNPC != this.gameObject && QuestManager.NpcDatabase.Count > 0)
+                if (currentNPCData.currentNPC != this.gameObject && QuestManager.NpcDatabase.mainQuestNpcLists.Count > 0)
                 {
-                    GetNpcData();
+                    GetMainNpcData();
                 }
             }
             if (isPlayerInRange && InputManager.InputActions.actions["Interact"].triggered)
@@ -35,15 +35,12 @@ namespace JWS
         }
 
 
-        private void GetNpcData()
+        private void GetMainNpcData()
         {
-            Debug.LogWarning("NPC갯수 : " + QuestManager.NpcDatabase.Count + ", " + isInitNPC);
-
-            foreach (NPCData npcData in QuestManager.NpcDatabase)
+            foreach (NPCData npcData in QuestManager.NpcDatabase.mainQuestNpcLists)
             {
                 if (npcData.currentNPC == null && npcData.npcType == NPCType.퀘스트)
                 {
-                    Debug.LogWarning("있나? " + currentNPCData.name);
                     isInitNPC = true;
                     currentNPCData = npcData;
                     currentNPCData.currentNPC = this.gameObject;
@@ -170,7 +167,7 @@ namespace JWS
             {
                 isPlayerInRange = false;
                 UIManager.Instance.InteractText.text = "";
-                UIManager.Instance.ToggleDialog();
+                UIManager.Instance.UIClose();
             }
         }
     }

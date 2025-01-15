@@ -111,9 +111,9 @@ namespace JWS
         {
             TextMeshProUGUI[] subDisplay = gameObj.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
             string text = quest.description;
-            if (text.Length > 40)
+            if (text.Length > 20)
             {
-                text = text.Substring(0, 40) + "...";
+                text = text.Substring(0, 20) + "...";
             }
             subDisplay[0].text = text;
             subDisplay[2].text = quest.ToStringTMPro();
@@ -143,7 +143,7 @@ namespace JWS
 
             if (subDisplay.Length < 2)
             {
-                Debug.LogError("Dialog window does not have the required TextMeshProUGUI components.");
+                Debug.LogError("텍스트 박스가 없습니다.");
                 return;
             }
 
@@ -229,6 +229,14 @@ namespace JWS
             }
             dialogWindow.SetActive(false);
             mainCanvas.SetActive(true);
+        }
+
+        public void UIClose()
+        {
+            mainCanvas.SetActive(true);
+            dialogWindow.SetActive(false);
+            questWindow.SetActive(false);
+            inventoryUI.gameObject.SetActive(false);
         }
 
         public void UIWindowClose()

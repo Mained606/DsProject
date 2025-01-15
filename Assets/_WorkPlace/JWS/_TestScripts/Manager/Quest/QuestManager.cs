@@ -13,7 +13,7 @@ namespace JWS
 
         public static List<Quest> QuestDatabase => Instance.questDatabase;
         public static List<Quest> CompletedQuests => Instance.completedQuests;
-        public static List<NPCData> NpcDatabase => Instance.npcDatabase;
+        public static NPCList NpcDatabase => Instance.npcDataList;
 
 
         protected override void OnEnable()
@@ -189,7 +189,7 @@ namespace JWS
                 new Quest("메인퀘스트", "quest101", "용사의 마지막 숨결",
                     "용사의 마지막 전투를 목격하고, 남긴 검의 빛을 확인하세요.",
                     new Dictionary<string, QuestCondition> { { "location_001", new QuestCondition(QuestConditionType.Explore, 1) } },
-                    new List<Reward> { new Reward("item_sword_fragment", 1, 0, 0) }),
+                    new List<Reward> { new Reward("item001", 1, 0, 0) }),
 
                 // 2장: 소년과 숲 속의 발견
                 new Quest("메인퀘스트", "quest102", "숲 속의 알",
@@ -199,13 +199,13 @@ namespace JWS
                         { "item_strawberry", new QuestCondition(QuestConditionType.Collect, 5) },
                         { "location_002", new QuestCondition(QuestConditionType.Explore, 1) }
                     },
-                    new List<Reward> { new Reward("item_mystic_egg", 1, 0, 0) }),
+                    new List<Reward> { new Reward("item001", 1, 0, 0) }),
 
                 // 3장: 알에서 태어난 생명체
                 new Quest("메인퀘스트", "quest103", "알의 신비",
                     "알에서 깨어난 생명체를 몰래 숲으로 데려가세요.",
                     new Dictionary<string, QuestCondition> { { "location_003", new QuestCondition(QuestConditionType.Explore, 1) } },
-                    new List<Reward> { new Reward("item_axe", 1, 0, 0) }),
+                    new List<Reward> { new Reward("item001", 1, 0, 0) }),
 
                 // 4장: 소년과 생물체의 우정
                 new Quest("메인퀘스트", "quest104", "신비한 동물의 도움",
@@ -215,13 +215,13 @@ namespace JWS
                         { "location_004", new QuestCondition(QuestConditionType.Explore, 1) },
                         { "item_wood", new QuestCondition(QuestConditionType.Collect, 5) }
                     },
-                    new List<Reward> { new Reward("item_wood_wand", 1, 0, 0) }),
+                    new List<Reward> { new Reward("item001", 1, 0, 0) }),
 
                 // 5장: 하급 마족의 위협
                 new Quest("메인퀘스트", "quest105", "엄마를 지켜라",
                     "하급 마족과의 첫 전투에서 승리하고 생존하세요.",
-                    new Dictionary<string, QuestCondition> { { "monster_low_demon", new QuestCondition(QuestConditionType.Kill, 3) } },
-                    new List<Reward> { new Reward("item_training_sword", 1, 0, 0) }),
+                    new Dictionary<string, QuestCondition> { { "monster1", new QuestCondition(QuestConditionType.Kill, 3) } },
+                    new List<Reward> { new Reward("item001", 1, 0, 0) }),
 
                 // 6장: 숲 속에서 힘을 연마하다
                 new Quest("메인퀘스트", "quest106", "새로운 힘",
@@ -236,8 +236,8 @@ namespace JWS
                 // 7장: 엄마의 복수를 실행해라
                 new Quest("메인퀘스트", "quest107", "홀로서기",
                     "엄마를 살해한 하급 관리자 3명을 처치하세요.",
-                    new Dictionary<string, QuestCondition> { { "monster_low_admin", new QuestCondition(QuestConditionType.Kill, 3) } },
-                    new List<Reward> { new Reward("item_armor_set", 1, 0, 0) }),
+                    new Dictionary<string, QuestCondition> { { "monster1", new QuestCondition(QuestConditionType.Kill, 3) } },
+                    new List<Reward> { new Reward("item001", 1, 0, 0) }),
 
                 // 8장: 마을의 위험에 대비하라
                 new Quest("메인퀘스트", "quest108", "강해지기 위한 연습",
@@ -250,10 +250,10 @@ namespace JWS
                     "하급 관리자 3명을 처치하고 중급 관리자 모파안과 전투하세요.",
                     new Dictionary<string, QuestCondition>
                     {
-                        { "monster_low_admin", new QuestCondition(QuestConditionType.Kill, 3) },
-                        { "monster_mid_demon", new QuestCondition(QuestConditionType.Kill, 1) }
+                        { "monster1", new QuestCondition(QuestConditionType.Kill, 3) },
+                        { "monster2", new QuestCondition(QuestConditionType.Kill, 1) }
                     },
-                    new List<Reward> { new Reward("item_healing_ring", 1, 0, 0) }),
+                    new List<Reward> { new Reward("item001", 1, 0, 0) }),
 
                 // 10장: 새로운 여정의 시작
                 new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
@@ -261,8 +261,8 @@ namespace JWS
                     new Dictionary<string, QuestCondition> { { "location_006", new QuestCondition(QuestConditionType.Explore, 1) } },
                     new List<Reward>
                     {
-                        new Reward("item_map_fragment", 1, 0, 0),
-                        new Reward("item_scroll", 1, 0, 0)
+                        new Reward("item001", 1, 0, 0),
+                        new Reward("item001", 1, 0, 0)
                     })
             };
 
@@ -365,6 +365,27 @@ namespace JWS
         {
             List<NPCData> mainNpcList = new List<NPCData>();
             List<NPCData> npcList = new List<NPCData>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                string npcName = $"메인퀘스트NPC {i + 1}";
+                NPCType npcType = NPCType.퀘스트;
+                NPCState npcState = NPCState.중립;
+                NPCData mainnpc = new NPCData
+                {
+                    id = $"MainNPC_{i + 1}",
+                    name = npcName,
+                    npcType = npcType,
+                    currentState = npcState,
+                    quests = new Quest[1],
+                    isQuestGiver = true,
+                    isInteractable = true,
+                    description = "메인퀘스트를 제공하는 NPC입니다."
+                };
+                mainnpc.quests[0] = baseDatabase[i];
+                mainNpcList.Add(mainnpc);
+            }
+            npcDataList.mainQuestNpcLists = mainNpcList;
 
             for (int i = 0; i < numberOfNPCs; i++)
             {
