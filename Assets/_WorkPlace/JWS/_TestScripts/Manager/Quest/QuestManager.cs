@@ -196,7 +196,7 @@ public class QuestManager : BaseManager<QuestManager>
             {
                 CharacterManager.PlayerCharacterData.AddGold(reward.gold);
                 UIManager.Instance.PickUpItemTextDisplay?.AddItem($"{reward.gold}골드를 획득했습니다.", ItemManager.Instance.GetItemSprite("금화"));
-                Debug.Log($"[QuestManager] 골드 {reward.gold} 지급됨.");
+                Debug.Log($"[QuestManager] 골드 {reward.gold} 지급됨. ttt");
             }
         }
 

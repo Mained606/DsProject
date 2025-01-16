@@ -417,12 +417,12 @@ public class PlayerController : MonoBehaviour
             else
             {
                 Debug.Log("매달릴 수 없는 벽");
-                isClimb = false;
             }
         }
         else
         {
             isClimb = false;
+            PlayerAnimator.SetBool("Climb", false);
             Debug.DrawLine(rayOrigin, rayOrigin + transform.forward * detectionRange, Color.blue);
         }
     }
@@ -432,6 +432,7 @@ public class PlayerController : MonoBehaviour
         isClimb = true;
         isFreefall = false;
         PlayerAnimator.SetBool("Freefall", false);
+        PlayerAnimator.SetBool("Climb", true);
         transform.position = climbStartPosition;
         // Anim
     }
@@ -451,6 +452,7 @@ public class PlayerController : MonoBehaviour
     private void EndClimbing(bool successful)
     {
         isClimb = false;
+        PlayerAnimator.SetBool("Climb", false);
 
         if (successful)
         {
@@ -461,6 +463,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             Debug.Log("절벽타기 취소됨");
+            isClimb = false;
         }
 
         // Anim
@@ -487,6 +490,20 @@ public class PlayerController : MonoBehaviour
 
         moveDirection = direction;
         moveDirection.y = verticalVelocity.y;
+
+        if (moveInput == Vector2.zero)
+        {
+            PlayerAnimator.SetFloat("VelocityY", 0f);
+
+        }
+        if(moveInput.y > 0)
+        {
+            PlayerAnimator.SetFloat("VelocityY", 1f);
+        }
+        if(moveInput.y < 0)
+        {
+            PlayerAnimator.SetFloat("VelocityY", -1f);
+        }
 
         characterController.Move(climbDirection * walkSpeed * Time.deltaTime);
 
