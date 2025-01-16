@@ -68,6 +68,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.currentHp = PlayerCharacterData.maxHp;
         PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
         Debug.Log(PlayerCharacterData.ToStringForTMPro());
+        InitialCharacter();
     }
 
     private void Update()

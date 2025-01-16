@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.UI;
-using UnityEngine;
 
 public class HistoryManager
 {
-    private List<HistoryLog> historyLogs;  // 히스토리 로그를 저장하는 리스트
-    private const int LogsPerPage = 20;    // 한 페이지에 출력할 로그 개수
+    private List<HistoryLog> historyLogs;
+    private const int LogsPerPage = 20;
     private string currentTags = "All";
 
     public HistoryManager()
@@ -15,7 +13,6 @@ public class HistoryManager
         historyLogs = new List<HistoryLog>();
     }
 
-    // 히스토리 로그 추가
     public void AddHistory(string eventDescription, string eventType, int eventID)
     {
         HistoryLog newLog = new HistoryLog(eventDescription, eventType, eventID);
@@ -23,25 +20,21 @@ public class HistoryManager
         DisplayHistory(currentTags);
     }
 
-    // 모든 히스토리 로그 조회
     public List<HistoryLog> GetAllHistory()
     {
         return historyLogs;
     }
 
-    // 이벤트 유형에 따른 히스토리 로그 조회
     public List<HistoryLog> GetHistoryByType(string eventType)
     {
         return historyLogs.Where(log => log.eventType == eventType).ToList();
     }
 
-    // 특정 기간 내의 히스토리 조회
     public List<HistoryLog> GetHistoryByDateRange(DateTime start, DateTime end)
     {
         return historyLogs.Where(log => log.timestamp >= start && log.timestamp <= end).ToList();
     }
 
-    // 히스토리 로그 정렬 (시간순)
     public List<HistoryLog> GetSortedHistoryByTimestamp(bool ascending = true)
     {
         if (ascending)
@@ -54,25 +47,21 @@ public class HistoryManager
         }
     }
 
-    // 특정 이벤트 ID로 히스토리 조회
     public HistoryLog? GetHistoryByID(int eventID)
     {
         return historyLogs.FirstOrDefault(log => log.eventID == eventID);
     }
 
-    // 히스토리 로그 삭제
     public void RemoveHistoryByID(int eventID)
     {
         historyLogs.RemoveAll(log => log.eventID == eventID);
     }
 
-    // 전체 히스토리 로그 수 가져오기
     public int GetTotalLogCount()
     {
         return historyLogs.Count;
     }
 
-    // 특정 태그로 히스토리 로그를 필터링하고 페이지네이션으로 반환
     public List<HistoryLog> GetHistoryByTagAndPage(string tag, int pageNumber)
     {
         var filteredLogs = historyLogs.Where(log => log.eventType == tag)
@@ -83,7 +72,6 @@ public class HistoryManager
         return filteredLogs;
     }
 
-    // 태그별 로그를 줄바꿈으로 페이지별 출력하는 함수
     public string GetPagedTextByTag(string tag, int pageNumber)
     {
         var logs = GetHistoryByTagAndPage(tag, pageNumber);
@@ -102,7 +90,6 @@ public class HistoryManager
         return pageText;
     }
 
-    // 특정 ID로 히스토리 로그를 필터링하고 페이지네이션으로 반환
     public List<HistoryLog> GetHistoryByIDAndPage(int eventID, int pageNumber)
     {
         var filteredLogs = historyLogs.Where(log => log.eventID == eventID)
@@ -113,7 +100,6 @@ public class HistoryManager
         return filteredLogs;
     }
 
-    // ID별 로그를 줄바꿈으로 페이지별 출력하는 함수
     public string GetPagedTextByID(int eventID, int pageNumber)
     {
         var logs = GetHistoryByIDAndPage(eventID, pageNumber);
@@ -132,14 +118,11 @@ public class HistoryManager
         return pageText;
     }
 
-
-    // 페이징할 수 있는 페이지 수 가져오기
     public int GetTotalPages()
     {
         return (int)Math.Ceiling((double)historyLogs.Count / LogsPerPage);
     }
 
-    // 전체 로그를 텍스트로 반환 (스크롤뷰 안에 표시할 텍스트)
     public string GetAllHistoryAsText()
     {
         string fullHistoryText = string.Empty;
@@ -165,21 +148,68 @@ public class HistoryManager
         //GameManager.Instance._historyRect.verticalNormalizedPosition = 0f;  // 0은 맨 아래로 스크롤
     }
 
-    // 태그에 따른 색상을 반환하는 함수
-    private string GetColorByTag(string tag)
+    private readonly Dictionary<MessageTag, string> tagColors = new Dictionary<MessageTag, string>
     {
-        switch (tag)
+        { MessageTag.Quest, "#FFD700" }, // 금색
+        { MessageTag.PlayerDamage, "#FF0000" }, // 빨간색
+        { MessageTag.EnemyDamage, "#00FF00" }, // 초록색
+        { MessageTag.Other, "#1E90FF" }, // 파란색
+        { MessageTag.PlayerHeal, "#32CD32" }, // 라임 그린
+        { MessageTag.PlayerBuff, "#87CEEB" }, // 스카이 블루
+        { MessageTag.PlayerDebuff, "#8B0000" }, // 다크 레드
+        { MessageTag.CriticalHit, "#FF4500" }, // 오렌지 레드
+        { MessageTag.Miss, "#708090" }, // 슬레이트 그레이
+        { MessageTag.Dodge, "#00CED1" }, // 다크 터콰이즈
+        { MessageTag.EnemySpawn, "#8A2BE2" }, // 보라색
+        { MessageTag.EnemyDefeated, "#FFDAB9" }, // 피치
+        { MessageTag.Warning, "#FFA500" }, // 오렌지
+        { MessageTag.Error, "#DC143C" }, // 크림슨
+        { MessageTag.SystemNotice, "#ADD8E6" }, // 라이트 블루
+        { MessageTag.Event, "#FFC0CB" }, // 핑크
+        { MessageTag.ItemPickup, "#FFD700" }, // 금색
+        { MessageTag.ItemRare, "#9400D3" }, // 다크 바이올렛
+        { MessageTag.GoldGain, "#FFFF00" }, // 노란색
+        { MessageTag.AllyHeal, "#00FA9A" }, // 미디움 스프링 그린
+        { MessageTag.AllyDamage, "#FF6347" }, // 토마토 레드
+        { MessageTag.TeamBuff, "#4169E1" }, // 로얄 블루
+        { MessageTag.SkillUse, "#6495ED" }, // 코넬 플라워 블루
+        { MessageTag.MagicCast, "#9932CC" } // 다크 오키드
+    };
+
+    private string GetColorByTag(MessageTag tag)
+    {
+        if (tagColors.TryGetValue(tag, out string color))
         {
-            case "Quest":
-                return "#FFD700"; // 금색
-            case "PlayerDamage":
-                return "#FF0000"; // 빨간색
-            case "EnemyDamage":
-                return "#00FF00"; // 초록색
-            case "Other":
-                return "#1E90FF"; // 파란색
-            default:
-                return "#FFFFFF"; // 기본 흰색
+            return color;
         }
+        return "#FFFFFF"; // 기본 흰색
     }
+}
+
+public enum MessageTag
+{
+    Quest,
+    PlayerDamage,
+    EnemyDamage,
+    Other,
+    PlayerHeal,
+    PlayerBuff,
+    PlayerDebuff,
+    CriticalHit,
+    Miss,
+    Dodge,
+    EnemySpawn,
+    EnemyDefeated,
+    Warning,
+    Error,
+    SystemNotice,
+    Event,
+    ItemPickup,
+    ItemRare,
+    GoldGain,
+    AllyHeal,
+    AllyDamage,
+    TeamBuff,
+    SkillUse,
+    MagicCast
 }

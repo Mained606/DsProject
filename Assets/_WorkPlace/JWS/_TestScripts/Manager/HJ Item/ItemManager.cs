@@ -15,8 +15,6 @@ public class ItemManager : BaseManager<ItemManager>
     protected override void Awake()
     {
         base.Awake();
-        ItemDatabase.Clear();
-
         Addressables.LoadAssetsAsync<Sprite>("ItemSprites", sprite =>
         {
             if (!itemSpriteDictionary.ContainsKey(sprite.name))

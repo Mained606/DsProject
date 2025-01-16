@@ -5,8 +5,8 @@ namespace JWS
 {
     public class Items : MonoBehaviour
     {
-        private float triggerArea = 10f; // 플레이어와의 트리거 거리
-        private float moveSpeed = 10f; // 아이템이 이동하는 속도
+        private float triggerArea = 3f; // 플레이어와의 트리거 거리
+        private float moveSpeed = 20f; // 아이템이 이동하는 속도
         private Transform playerTransform;
 
         private void Start()
