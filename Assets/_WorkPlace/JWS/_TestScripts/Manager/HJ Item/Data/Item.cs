@@ -20,7 +20,7 @@ public class Item
 
     [Header("장착용 속성")]
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
-    public Durability durability;                 // 내구도
+    public Durability durability;          // 내구도
     public EquipmentSlot equipmentSlot;    // 장착 위치 (무기, 방어구 등)
 
     [Header("소모품 속성")]
