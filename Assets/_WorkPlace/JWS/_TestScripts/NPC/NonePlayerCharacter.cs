@@ -54,7 +54,6 @@ public class NonePlayerCharacter : MonoBehaviour
             Debug.Log($"{currentNPCData.name}은(는) 상호작용이 불가능합니다.");
             return;
         }
-
         switch (currentNPCData.npcType)
         {
             case NPCType.상점:
@@ -154,7 +153,7 @@ public class NonePlayerCharacter : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            UIManager.Instance.InteractText.text = "F";
+            UIManager.Instance.InteractTextPopup("F", currentNPCData.name + " 대화", true);
         }
     }
 
@@ -163,7 +162,7 @@ public class NonePlayerCharacter : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            UIManager.Instance.InteractText.text = "";
+            UIManager.Instance.InteractTextPopup("F", currentNPCData.name + " 대화", false);
             UIManager.Instance.UIClose();
         }
     }
