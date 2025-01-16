@@ -13,6 +13,7 @@ public enum GameSystemState
     DialogueState,    // 대화 상태
     Inventory,        // 인벤토리 화면
     QuestReview,      // 퀘스트 정보 및 진행 상황 확인
+    Stat,
     PetInteraction,   // 펫 상호작용
     Training,         // 훈련 모드
     Cutscene,         // 컷씬 연출

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 // 캐릭터의 상위 타입을 정의
@@ -43,49 +41,72 @@ public enum BossType
     Mophan      // 중간 보스: 모파안
 }
 
-public class CharacterManager : MonoBehaviour
+public class CharacterManager : BaseManager<CharacterManager>
 {
     // 캐릭터 데이터 리스트 (플레이어 + 몬스터/보스)
-    public static CharacterManager Instance;
     private List<CharacterData> characterList = new List<CharacterData>();
     public static IReadOnlyList<CharacterData> CharacterList => Instance.characterList.AsReadOnly();
     // 플레이어 캐릭터 (온리 원)
-    public static  PlayerData PlayerCharacterData;
+    public static PlayerData PlayerCharacterData;
+    [SerializeField] private PlayerData playercharacterData;
 
     // ScriptableObject로부터 로드된 캐릭터 템플릿 리스트
     [SerializeField]
     private CharacterList characterTemplates;
+    
+    [SerializeField]
+    private bool isInitialized = false;
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-        InitialCharacter();
+        base.Awake();
+        PlayerCharacterData = characterTemplates.players[0];
+        playercharacterData = PlayerCharacterData;
+
+        PlayerCharacterData.statModifier = new StatModifier();
+        PlayerCharacterData.UpdateDerivedStats();
+        PlayerCharacterData.currentHp = PlayerCharacterData.maxHp;
+        PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
+        Debug.Log(PlayerCharacterData.ToStringForTMPro());
     }
-    //
-    // private void Start()
-    // {
-    //     SpawnMonster("MophanS", Vector3.zero);
-    // }
+
+    private void Update()
+    {
+        if (isInitialized)
+        {
+            isInitialized = false;
+            InitialCharacter();
+            playercharacterData = PlayerCharacterData;
+            Debug.Log(isInitialized);
+        }
+    }
+
+    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
+    {
+        
+    }
+    
+    // 플레이어 캐릭터 데이터 가져오기
+    public PlayerData GetPlayerCharacter()
+    {
+        return PlayerCharacterData;
+    }
 
     public void InitialCharacter()
     {
-        PlayerCharacterData = new PlayerData(
-            name: "Hero",
-            prefab: null, // 플레이어 프리팹 (Unity 에디터에서 할당 가능)
-            strength: 10,
-            vitality: 15,
-            agility: 8,
-            intelligence: 12,
-            speed: 5.0f,
-            attackSpeed: 1.2f,
-            stamina: 100f,
-            staminaRecoveryRate: 10f
-        );
-        // 스킬 추가
-        PlayerCharacterData.AddSkill("Dash");
-        PlayerCharacterData.AddSkill("Slash");
+        PlayerCharacterData.characterName = "Hero";
+        PlayerCharacterData.prefab= null; // 플레이어 프리팹 (Unity 에디터에서 할당 가능)
+        PlayerCharacterData.strength= 10;
+        PlayerCharacterData.vitality= 15;
+        PlayerCharacterData.agility= 8;
+        PlayerCharacterData.intelligence= 12;
+        PlayerCharacterData.speed= 5.0f;
+        PlayerCharacterData.attackSpeed= 1.2f;
+        PlayerCharacterData.stamina= 100f;
+        PlayerCharacterData.staminaRecoveryRate = 1;
 
+        PlayerCharacterData.gold = 0;
+        PlayerCharacterData.UpdateDerivedStats();
     }
 
     // 특정 인덱스의 캐릭터 반환 (플레이어 또는 몬스터)
@@ -113,7 +134,7 @@ public class CharacterManager : MonoBehaviour
     {
         // 템플릿에서 이름에 해당하는 캐릭터 데이터 검색
         MonsterData template = characterTemplates.monsters.Find(c => c.characterName == Name);
-
+        Debug.Log(template.ToStringForTMPro() + "몬스터 생성 전 스텟");
         if (template == null)
         {
             Debug.LogError($"Character template '{Name}'을(를) 찾을 수 없습니다.");
@@ -122,9 +143,9 @@ public class CharacterManager : MonoBehaviour
 
         // 템플릿을 메모리에서 복제 (독립적인 인스턴스 생성)
         MonsterData cloned = template.Clone();
-        cloned.IncreaseStatsBasedOnLevel();
-        cloned.InitializeStats();
-        cloned.UpdateDerivedStats();
+        // cloned.IncreaseStatsBasedOnLevel();
+        // cloned.InitializeStats();
+        // cloned.UpdateDerivedStats();
 
         // 복제된 템플릿의 이름을 변경 (옵션)
         if (!string.IsNullOrEmpty(characterName))
@@ -143,36 +164,51 @@ public class CharacterManager : MonoBehaviour
     public void SpawnMonster(string templateName, Vector3 spawnPosition)
     {
         MonsterData monster = CreateCharacterFromTemplate(templateName);
+        Debug.Log(monster.ToStringForTMPro() + "몬스터 생성 후 스텟");
 
         if (monster != null)
         {
             Debug.Log($"몬스터 '{monster.characterName}' 생성 완료. 스폰 위치: {spawnPosition}");
-            var monster1 = Instantiate(monster.prefab, spawnPosition, Quaternion.identity);
-            monster1.transform.AddComponent<Test1>();
-            monster1.GetComponent<Test1>().monster = monster;
+            GameObject monsterInstance = Instantiate(monster.prefab, spawnPosition, Quaternion.identity);
+            // 생성된 인스턴스를 MonsterData에 연결
+            monster.instance = monsterInstance;
+            // 필요한 컴포넌트 추가 및 초기화
+            var testComponent = monsterInstance.AddComponent<Test1>();
+            testComponent.monster = monster;
+            
+            // monster1.transform.AddComponent<Test1>();
+            // monster1.GetComponent<Test1>().monster = monster;
         }
     }
 
     // 몬스터 처치 처리
     public void OnMonsterDefeated(MonsterData monster, Vector3 position)
     {
-        // 플레이어 경험치 증가
+        // 경험치와 골드 보상 처리
         if (PlayerCharacterData != null)
         {
             PlayerCharacterData.GainExperience(monster.experienceReward);
-            Debug.Log($"{monster.characterName} 처치! 경험치 +{monster.experienceReward}");
+            PlayerCharacterData.AddGold(monster.goldReward);
+            Debug.Log($"{monster.characterName} 처치! 경험치 +{monster.experienceReward}, 골드 +{monster.goldReward}");
         }
         
-        if (PlayerCharacterData != null )
-        {
-            PlayerCharacterData.AddGold(monster.goldReward); // 플레이어의 골드 추가
-            Debug.Log(PlayerCharacterData.gold);
-        }
-        
+        // 아이템 드롭
         ItemManager.Instance.SpawnItemBox(position, monster, false);
+        
+        // 몬스터 오브젝트 삭제
+        if (monster.instance != null)
+        {
+            Destroy(monster.instance); // 실제 생성된 인스턴스 삭제
+            Debug.Log($"{monster.characterName}의 게임 오브젝트가 삭제되었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning($"{monster.characterName}의 인스턴스를 찾을 수 없습니다.");
+        }
+        
+        Debug.Log($"{monster.characterName} 제거 완료.");
         
         // 몬스터 제거
         characterList.Remove(monster);
-        Debug.Log($"{monster.characterName} 제거 완료.");
     }
 }

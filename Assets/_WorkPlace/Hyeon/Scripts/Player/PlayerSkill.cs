@@ -26,6 +26,9 @@ public class PlayerSkill : MonoBehaviour
     {
         if (InputManager.InputActions.actions["PlayerSkill_1"].triggered)
         {
+            controller.CanMove = false;
+            InputManager.InputActions.actions["Attack"].Disable();
+            Debug.Log(InputManager.InputActions.actions["Attack"].enabled);
             SkillManager.Instance.ActivateSkill("Fire", this.gameObject);
         }
         if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
@@ -36,26 +39,6 @@ public class PlayerSkill : MonoBehaviour
         {
             SkillManager.Instance.ActivateSkill("eee", this.gameObject);
         }
-    }
-    private void Skill_1()
-    {
-        controller.CanMove = false;
-        InputManager.InputActions.actions["Attack"].Disable();  // 미리 트리거 입력돼서 스킬 끝나고 평타 나가는 거 방지
-        skillAnimator.SetTrigger("Skill_1");
-    }
-
-    private void Skill_2()
-    {
-        controller.CanMove = false;
-        InputManager.InputActions.actions["Attack"].Disable();  // 미리 트리거 입력돼서 스킬 끝나고 평타 나가는 거 방지
-        skillAnimator.SetTrigger("Skill_1");
-    }
-
-    private void Skill_3()
-    {
-        controller.CanMove = false;
-        InputManager.InputActions.actions["Attack"].Disable();  // 미리 트리거 입력돼서 스킬 끝나고 평타 나가는 거 방지
-        skillAnimator.SetTrigger("Skill_1");
     }
 
     // 스킬 애니메이션이 끝났는지 검사

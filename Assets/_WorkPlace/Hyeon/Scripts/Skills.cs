@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-using Unity.VisualScripting;
 
-[CreateAssetMenu(fileName = "NewSkill", menuName = "Skills/Skill")]
 
+[CreateAssetMenu(fileName = "SkillList", menuName = "Ds Project/Skill")]
 public class SkillList : ScriptableObject
 {
     public List<Skills> skillList;
@@ -20,6 +19,7 @@ public class Skills
     public float energyCost;
     public GameObject effectPrefab;
     public string activeTriggerName;
+    public float particleDelay;
 
     public BasicTimer cooldownTimer;
 

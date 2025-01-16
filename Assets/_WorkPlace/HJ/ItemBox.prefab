@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7336084414917041832}
   - component: {fileID: 5071578271857643374}
   - component: {fileID: 9076867414625721946}
-  - component: {fileID: 5390904261052850583}
+  - component: {fileID: 8683545585756294323}
   m_Layer: 0
   m_Name: ItemBox
   m_TagString: Untagged
@@ -109,7 +109,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5390904261052850583
+--- !u!114 &8683545585756294323
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -118,7 +118,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5784722882407542849}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b6b4eae8d6f79e4badc9f5ff095fba8, type: 3}
+  m_Script: {fileID: 11500000, guid: 3505f2cdd46b90b47b2167e995ed98b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dropItmes: []
+  dropItemIds: 
+  detectionDistance: 2
+  isRandomDrop: 1
