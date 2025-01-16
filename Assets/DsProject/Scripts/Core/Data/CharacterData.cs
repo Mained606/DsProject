@@ -320,6 +320,7 @@ public class PlayerData : CharacterData
     {
         if (amount < 0) return;
         gold += amount;
+        UIManager.Instance.PickUpItemTextDisplay?.AddItem($"{amount}골드를 획득했습니다.", ItemManager.Instance.GetItemSprite("금화"));
         Debug.Log($"골드 추가: {amount}, 현재 골드: {gold}");
     }
 
