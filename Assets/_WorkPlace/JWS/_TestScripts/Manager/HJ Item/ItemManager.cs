@@ -12,8 +12,8 @@ public class ItemManager : BaseManager<ItemManager>
     protected override void Awake()
     {
         base.Awake();
-        GenerateData generateData = new GenerateData();
-        generateData.InitializeItems(itemList);
+        //GenerateData generateData = new GenerateData();
+        //generateData.InitializeItems(itemList);
     }
 
     public void AddItemLogic(string itemId, int quantity = 1)
@@ -54,6 +54,7 @@ public class ItemManager : BaseManager<ItemManager>
         }
         return item;
     }
+
     public void UseItem(Item item, int quantity = 1)
     {
         if (item == null)
