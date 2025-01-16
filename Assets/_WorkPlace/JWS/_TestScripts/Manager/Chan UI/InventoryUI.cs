@@ -103,6 +103,7 @@ public class InventoryUI : MonoBehaviour
     {
         var inventoryItem = Instantiate(itemPrefab, itemsParent);
         inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
+        if (item.sprite != null ) inventoryItem.GetComponentInChildren<Image>().sprite = item.sprite;
         Debug.Log(item.ToStringTMPro());
     }
 
