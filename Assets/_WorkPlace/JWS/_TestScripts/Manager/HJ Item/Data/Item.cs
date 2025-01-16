@@ -15,7 +15,7 @@ public class Item
     public int maxStack;                   // 최대 소지 가능 개수
     public bool isDiscardable;             // 버릴 수 있는지 여부
     public bool isStackable;               // 중첩 가능 여부
-    public Sprite icon;                    // 아이템 아이콘
+    public Sprite sprite;                    // 아이템 아이콘
     public float dropChance;               // 드랍 확률 (%)
 
     [Header("장착용 속성")]

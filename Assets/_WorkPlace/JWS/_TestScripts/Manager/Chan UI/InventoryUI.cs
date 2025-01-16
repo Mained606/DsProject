@@ -46,7 +46,6 @@ public class InventoryUI : MonoBehaviour
     {
         CategorizeItems();
         ClearUI();
-        Debug.Log("ClearUI 완료");
         // 기본 검증
         if (buttons == null || buttons.Length == 0)
         {
@@ -67,7 +66,6 @@ public class InventoryUI : MonoBehaviour
         string selectedTag = ((CategotyItemType)currentButtonIndex).ToString();
         if (selectedTag == CategotyItemType.전체아이템.ToString())
         {
-            Debug.Log("전체아이템 선택됨: 모든 아이템 출력");
             foreach (var category in categorizedItems.Values)
             {
                 foreach (var item in category)
@@ -78,17 +76,11 @@ public class InventoryUI : MonoBehaviour
         }
         else if (categorizedItems.ContainsKey(selectedTag))
         {
-            Debug.Log($"선택된 태그에 포함된 아이템 개수: {categorizedItems[selectedTag].Count}");
             foreach (var item in categorizedItems[selectedTag])
             {
                 CreateItemUI(item);
             }
         }
-        else
-        {
-            Debug.LogWarning($"선택된 태그 '{selectedTag}'에 해당하는 아이템이 없습니다.");
-        }
-        Debug.Log("UpdateUI 완료");
     }
 
     private void ClearUI()
@@ -103,6 +95,7 @@ public class InventoryUI : MonoBehaviour
     {
         var inventoryItem = Instantiate(itemPrefab, itemsParent);
         inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
+        if (item.sprite != null ) inventoryItem.GetComponentsInChildren<Image>()[1].sprite = item.sprite;
         Debug.Log(item.ToStringTMPro());
     }
 
