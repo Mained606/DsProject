@@ -54,13 +54,4 @@ public class GameStateMachine : MonoBehaviour
         // 상태 변경 이벤트 발행
         OnGameStateChanged?.Invoke(newState, additionalData);
     }
-    
-    // 인스펙터에서 테스트할 때 필요한 전용 메서드 - 추후 삭제 필요
-    private void OnValidate()
-    {
-        if (Application.isPlaying && Instance == this)
-        {
-            ChangeState(currentState, true);
-        }
-    }
 }

@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class Sword : MonoBehaviour
 {
-    private int swordDamage = 10;
-
     private Collider swordCollider;
 
     public bool CanReceiveInput { get; set; } = true;
@@ -28,12 +26,12 @@ public class Sword : MonoBehaviour
             int monsterHP = 0;
             if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
             {
-                MonsterData monster = other.GetComponent<TestMonster>().monsterData;
+                MonsterData monster = other.GetComponent<Test1>().monster;
                 if (monster != null)
                 {
                     monsterHP = monster.currentHp;
-                    monster.TakeDamage(swordDamage);
-                    //CombatManager.Instance.ProcessAttack(playerData, targetData, other.transform, true);
+                    // monster.TakeDamage(swordDamage);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monster, other.transform, true);
                     Debug.Log($"Damaged: {monster.characterName}, monsterHP: {monsterHP}, monsterCurrentHP: {monster.currentHp}");
                 }
             }

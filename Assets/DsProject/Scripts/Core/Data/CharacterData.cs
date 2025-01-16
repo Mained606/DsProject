@@ -259,16 +259,6 @@ public class CharacterData
         );
     }
 
-    // 디버그용 코드 이후 삭제 필요 ============================
-#if UNITY_EDITOR
-    public void OnValidate()
-    {
-        // 모든 파생 스탯을 업데이트
-        UpdateDerivedStats();
-    }
-#endif
-    // 디버그용 코드 이후 삭제 필요 ============================
-
     public CharacterData Clone()
     {
         return new CharacterData(
@@ -343,6 +333,13 @@ public class PlayerData : CharacterData
         gold -= amount;
         Debug.Log($"골드 사용: {amount}, 남은 골드: {gold}");
     }
+
+    public void AddExperience(int amount)
+    {
+        if (amount < 0) return;
+        currentExperience += amount;
+        Debug.Log($"경험치 추가: {amount}, 현재 경험치: {currentExperience}");
+    }
     public new PlayerData Clone()
     {
         var clone = new PlayerData (
@@ -367,17 +364,17 @@ public class PlayerData : CharacterData
 [Serializable]
 public class MonsterData : CharacterData
 {
-    public List<int> dropItems = new List<int>(); // 드롭 아이템
+    public List<string> dropItems = new List<string>(); // 드롭 아이템
     public int experienceReward; // 경험치 보상
     public int goldReward;       // 골드 보상
     [HideInInspector] public GameObject instance;  // 생성된 몬스터 인스턴스를 저장할 필드
 
     public MonsterData(string name, CharacterType characterType, GameObject prefab, int strength, int vitality, int agility,
-        int intelligence, float speed, float attackSpeed, float stamina, float staminaRecoveryRate, List<int> dropItems,
+        int intelligence, float speed, float attackSpeed, float stamina, float staminaRecoveryRate, List<string> dropItems,
         int experienceReward, int goldReward)
         : base(name, CharacterType.Monster, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, stamina, staminaRecoveryRate)
     {
-        this.dropItems = new List<int>(dropItems);
+        this.dropItems = new List<string>(dropItems);
         this.experienceReward = experienceReward;
         this.goldReward = goldReward;
     }
