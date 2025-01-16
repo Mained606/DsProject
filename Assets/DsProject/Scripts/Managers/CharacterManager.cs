@@ -190,7 +190,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         {
             PlayerCharacterData.GainExperience(monster.experienceReward);
             PlayerCharacterData.AddGold(monster.goldReward);
-            Debug.Log($"{monster.characterName} 처치! 경험치 +{monster.experienceReward}, 골드 +{monster.goldReward}");
+            UIManager.SystemGameMessage($"{monster.characterName} 처치! 경험치 +{monster.experienceReward}, 골드 +{monster.goldReward}", MessageTag.아이템_획득);
         }
         
         // 아이템 드롭
@@ -200,16 +200,11 @@ public class CharacterManager : BaseManager<CharacterManager>
         if (monster.instance != null)
         {
             Destroy(monster.instance); // 실제 생성된 인스턴스 삭제
-            Debug.Log($"{monster.characterName}의 게임 오브젝트가 삭제되었습니다.");
         }
         else
         {
             Debug.LogWarning($"{monster.characterName}의 인스턴스를 찾을 수 없습니다.");
         }
-        
-        Debug.Log($"{monster.characterName} 제거 완료.");
-        
-        // 몬스터 제거
         characterList.Remove(monster);
     }
 }
