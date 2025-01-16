@@ -6,7 +6,7 @@ public class MainButtonUI : MonoBehaviour
 {
     private Button[] mainButtons;
     private TextMeshProUGUI playerGold;
-    private enum MainButtonType { Main, StatusUI, HistoryUI, QuestUI }
+    private enum MainButtonType { Main, StatusUI, QuestUI, Exit }
     private MainButtonType clickedButtonType = MainButtonType.Main;
 
     private void Awake()
@@ -59,11 +59,11 @@ public class MainButtonUI : MonoBehaviour
             case MainButtonType.StatusUI:
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
                 break;
-            case MainButtonType.HistoryUI:
-                GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-                break;
             case MainButtonType.QuestUI:
                 GameStateMachine.Instance.ChangeState(GameSystemState.QuestReview);
+                break;
+            case MainButtonType.Exit:
+                GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
                 break;
             default:
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
