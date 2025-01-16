@@ -10,6 +10,7 @@ public class TimeLineDialogue : MonoBehaviour
     private void OnEnable() 
     {
         dialogUITest.StartDialogue(contextName, dialogue);
+        UIManager.SystemGameMessage($"", MessageTag.퀘스트);
 
     }
     private void OnDisable() 

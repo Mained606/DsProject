@@ -13,6 +13,7 @@ public class DialogUITest : MonoBehaviour
 
 
     private List<string> dialogueList = new List<string>(); // JSON에서 불러온 대사 리스트
+    private List<string> dialogueNameList = new List<string>(); // JSON에서 불러온 대사 리스트
     private int currentNPCDesaIndex = 0; // 현재 출력중인 일반 대사 인덱스 
     
     private Coroutine typingCoroutine;
@@ -28,6 +29,7 @@ public class DialogUITest : MonoBehaviour
         dialogueName.text = dialogueNameList[currentNPCDesaIndex];
 
         this.dialogueList = dialogueList;
+        this.dialogueNameList = dialogueNameList;
         if(currentNPCDesaIndex >= dialogueList.Count)
         {
             DialogueExit();
@@ -36,6 +38,7 @@ public class DialogUITest : MonoBehaviour
         if(typingCoroutine == null)
         {
             string typingDialogyeData = dialogueList[currentNPCDesaIndex];
+            UIManager.SystemGameMessage($"대사 출력 {dialogueNameList[currentNPCDesaIndex]}:{dialogueList[currentNPCDesaIndex]}", MessageTag.퀘스트);
             typingCoroutine = StartCoroutine(TypeNpcDialogue(typingDialogyeData));
         }
         else
@@ -70,6 +73,7 @@ public class DialogUITest : MonoBehaviour
         else
         {
             string typingDialogyeData = dialogueList[currentNPCDesaIndex];
+            UIManager.SystemGameMessage($"대사 출력 {dialogueNameList[currentNPCDesaIndex]}:{dialogueList[currentNPCDesaIndex]}", MessageTag.퀘스트);
             typingCoroutine = StartCoroutine(TypeNpcDialogue(typingDialogyeData));
         }
         
