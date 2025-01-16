@@ -136,6 +136,25 @@ public class ItemManager : BaseManager<ItemManager>
         return itemBox;
     }
 
+    //타입과 등급으로 해당 아이템 가져오기
+    public List<Item> GetItemsByTypeAndGrade(ItemType itemType, ItemGrade grade)
+    {
+        return ItemDatabase.Where(i => i.type == itemType && i.grade >= grade).ToList();
+    }
+
+    //특정 아이템 리스트
+    public List<Item> GetSpeificItem(List<string> itemids)
+    {
+        List<Item> items = new List<Item>();
+        foreach (var itemid in itemids)
+        {
+            items.Add(GetItemById(itemid));
+        }
+
+        return items;
+    }
+
+
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
     {
 
