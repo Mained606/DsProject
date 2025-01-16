@@ -1,5 +1,6 @@
 using System.Collections;
 using TMPro;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -247,6 +248,12 @@ public class UIManager : BaseManager<UIManager>
         }
         dialogWindow.SetActive(false);
         mainCanvas.SetActive(true);
+    }
+
+
+    public static void SystemMessage(string msg, MessageTag tag)
+    {
+        Debug.Log(msg);
     }
 
     public void UIClose()
