@@ -12,11 +12,10 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject mainCanvas;
     [SerializeField] private GameObject dialogWindow;
     [SerializeField] private GameObject questWindow;
-    [SerializeField] private TextMeshProUGUI interactText;
+    [SerializeField] private GameObject inventoryUI;
+    [SerializeField] private GameObject interactTextUI;
     [SerializeField] private Transform questListParent;
     private PickUpItemTextDisplay pickUpItemTextDisplay;
-    public GameObject inventoryUI;
-    public TextMeshProUGUI InteractText => interactText;
     public GameObject DisplaySpeechWindow => dialogWindow;
     public GameObject MainTitleButton => mainTitleButton;
 
@@ -24,6 +23,7 @@ public class UIManager : BaseManager<UIManager>
     public static InventoryUI InventoryUI;
     public static QuestUI Quest_UI;
     public static MainButtonUI MainButtonUI;
+    public static InteractPopupUI InteractPopupUI;
 
     protected override void OnEnable()
     {
@@ -31,7 +31,8 @@ public class UIManager : BaseManager<UIManager>
         pickUpItemTextDisplay = GetComponent<PickUpItemTextDisplay>();
         InventoryUI = inventoryUI.GetComponent<InventoryUI>();
         Quest_UI = questWindow.GetComponent<QuestUI>();
-        MainButtonUI = MainButtonUI.GetComponent<MainButtonUI>();
+        MainButtonUI = mainTitleButton.GetComponent<MainButtonUI>();
+        InteractPopupUI = interactTextUI.GetComponent<InteractPopupUI>();
         mainCanvas.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
@@ -40,7 +41,7 @@ public class UIManager : BaseManager<UIManager>
 
     private void Update()
     {
-        if (UIManager.Instance.IsUIWindowOpen())
+        if (IsUIWindowOpen())
         {
             InputManager.InputActions.actions["Attack"].Disable(); // UI가 열려 있을 때 공격 비활성화
             InputManager.InputActions.actions["Interact"].Disable(); // UI가 열려 있을 때 공격 비활성화
@@ -256,6 +257,11 @@ public class UIManager : BaseManager<UIManager>
         inventoryUI.gameObject.SetActive(false);
     }
 
+    public void InteractTextPopup(string keyname, string comment, bool isOn)
+    {
+        InteractPopupUI.UpdateInteractText(keyname, comment, isOn);
+    }
+
     public void UIWindowClose()
     {
         InputManager.InputActions.enabled = !IsUIWindowOpen();
@@ -273,7 +279,9 @@ public class UIManager : BaseManager<UIManager>
 
         switch (newState)
         {
-
+            case GameSystemState.MainMenu:
+                UIClose();
+                break;
             case GameSystemState.Inventory:
 
                 ToggleInventory();

@@ -66,7 +66,7 @@ public class InventoryManager : BaseManager<InventoryManager>
             Debug.Log($"[InventoryManager] '{item.name}' 추가됨 (새 아이템)");
         }
         QuestManager.Instance.UpdateQuestProgress( QuestConditionType.Collect, item.id ,item.quantity);
-        UIManager.Instance.PickUpItemTextDisplay?.AddItem(item.name);
+        UIManager.Instance.PickUpItemTextDisplay?.AddItem(item.name, item.sprite);
     }
 
     public void RemoveItemLogic(string itemId, int quantity = 1)
