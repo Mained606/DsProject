@@ -1,25 +1,45 @@
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.AddressableAssets;
 using UnityEngine;
 
 public class ItemManager : BaseManager<ItemManager>
 {
     [SerializeField] private ItemList itemList;
+    [SerializeField] private List<Sprite> itemSpriteList = new List<Sprite>();
     [SerializeField] private GameObject dropItemPrefab;
 
     public static List<Item> ItemDatabase => Instance.itemList.itemList;
+    private Dictionary<string, Sprite> itemSpriteDictionary = new Dictionary<string, Sprite>(); // 스프라이트 딕셔너리
 
     protected override void Awake()
     {
         base.Awake();
-        //GenerateData generateData = new GenerateData();
-        //generateData.InitializeItems(itemList);
+        ItemDatabase.Clear();
+
+        Addressables.LoadAssetsAsync<Sprite>("ItemSprites", sprite =>
+        {
+            if (!itemSpriteDictionary.ContainsKey(sprite.name))
+            {
+                itemSpriteDictionary[sprite.name] = sprite; // 스프라이트 딕셔너리에 추가
+                itemSpriteList.Add(sprite); // 스프라이트 리스트에도 추가
+            }
+        }).Completed += handle =>
+        {
+            Debug.Log($"{itemSpriteList.Count}개의 아이템 스프라이트를 로드했습니다.");
+        };
+
+        if (itemList.itemList.Count <= 0)
+        {
+            GenerateData generateData = new GenerateData();
+            generateData.InitializeItems(itemList);
+        }
     }
 
     public void AddItemLogic(string itemId, int quantity = 1)
     {
         var item = GetItemById(itemId);
-        item.quantity = item.quantity > 0 ? item.quantity : quantity;
+        item.quantity = quantity;
         if (item != null)
         {
             InventoryManager.Instance.AddItemLogic(item);
@@ -94,6 +114,16 @@ public class ItemManager : BaseManager<ItemManager>
         // CreateDroppedItemInWorld(item, quantity); ; 이런식의 연결함수 구현이 필요.
     }
 
+    public Sprite GetItemSprite(string spriteName)
+    {
+        if (itemSpriteDictionary.TryGetValue(spriteName, out Sprite sprite))
+        {
+            return sprite;
+        }
+
+        Debug.LogWarning($"'{spriteName}'에 해당하는 스프라이트를 찾을 수 없습니다.");
+        return null;
+    }
 
     public GameObject SpawnItemBox(Vector3 spawnPosition, MonsterData monsterData, bool isRandom = true)
     {
