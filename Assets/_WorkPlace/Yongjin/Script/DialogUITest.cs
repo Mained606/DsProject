@@ -30,6 +30,7 @@ public class DialogUITest : MonoBehaviour
         this.dialogueList = dialogueList;
         if(currentNPCDesaIndex >= dialogueList.Count)
         {
+            DialogueExit();
             return;
         }
         if(typingCoroutine == null)
@@ -51,7 +52,7 @@ public class DialogUITest : MonoBehaviour
             dialogueText.text += i;
             yield return new WaitForSeconds(typingSpeed);
         }
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1.5f);
         SkipNpcDialogue();
 
     }
@@ -64,6 +65,7 @@ public class DialogUITest : MonoBehaviour
         if(currentNPCDesaIndex >= dialogueList.Count)
         {
             Debug.Log("스킵 끝");
+            DialogueExit();
         }
         else
         {
@@ -87,6 +89,8 @@ public class DialogUITest : MonoBehaviour
     }
     public void DialogueExit()
     {
+        if(typingCoroutine != null) StopCoroutine(typingCoroutine);
+        typingCoroutine = null;
         gameObject.SetActive(false);
         currentNPCDesaIndex = 0;
     }
