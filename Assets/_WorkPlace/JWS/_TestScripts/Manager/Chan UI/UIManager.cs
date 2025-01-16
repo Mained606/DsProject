@@ -1,5 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,18 +14,21 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject mainCanvas;
     [SerializeField] private GameObject dialogWindow;
     [SerializeField] private GameObject questWindow;
-    [SerializeField] private TextMeshProUGUI interactText;
+    [SerializeField] private GameObject inventoryUI;
+    [SerializeField] private GameObject interactTextUI;
+    [SerializeField] private GameObject historyWindow;
     [SerializeField] private Transform questListParent;
     private PickUpItemTextDisplay pickUpItemTextDisplay;
-    public GameObject inventoryUI;
-    public TextMeshProUGUI InteractText => interactText;
     public GameObject DisplaySpeechWindow => dialogWindow;
     public GameObject MainTitleButton => mainTitleButton;
+    public static HistoryManager HistoryManager;
 
     public PickUpItemTextDisplay PickUpItemTextDisplay => pickUpItemTextDisplay;
     public static InventoryUI InventoryUI;
     public static QuestUI Quest_UI;
     public static MainButtonUI MainButtonUI;
+    public static InteractPopupUI InteractPopupUI;
+    public static HistoryUI HistoryUI;
 
     protected override void OnEnable()
     {
@@ -31,16 +36,19 @@ public class UIManager : BaseManager<UIManager>
         pickUpItemTextDisplay = GetComponent<PickUpItemTextDisplay>();
         InventoryUI = inventoryUI.GetComponent<InventoryUI>();
         Quest_UI = questWindow.GetComponent<QuestUI>();
-        MainButtonUI = MainButtonUI.GetComponent<MainButtonUI>();
+        MainButtonUI = mainTitleButton.GetComponent<MainButtonUI>();
+        InteractPopupUI = interactTextUI.GetComponent<InteractPopupUI>();
         mainCanvas.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
+        HistoryManager = new HistoryManager();
+        HistoryUI = historyWindow.GetComponent<HistoryUI>();
     }
 
     private void Update()
     {
-        if (UIManager.Instance.IsUIWindowOpen())
+        if (IsUIWindowOpen())
         {
             InputManager.InputActions.actions["Attack"].Disable(); // UI가 열려 있을 때 공격 비활성화
             InputManager.InputActions.actions["Interact"].Disable(); // UI가 열려 있을 때 공격 비활성화
@@ -248,12 +256,33 @@ public class UIManager : BaseManager<UIManager>
         mainCanvas.SetActive(true);
     }
 
+
+    public void DisplayHistory()
+    {
+        HistoryUI.DisplayHistory();
+    }
+
+    public static void SystemMessage(string msg)
+    {
+        HistoryManager.AddHistory(msg, MessageTag.시스템_알림, 1);
+    }
+
+    public static void SystemGameMessage(string msg, MessageTag tag)
+    {
+        HistoryManager.AddHistory(msg, tag, 1);
+    }
+
     public void UIClose()
     {
         mainCanvas.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
+    }
+
+    public void InteractTextPopup(string keyname, string comment, bool isOn)
+    {
+        InteractPopupUI.UpdateInteractText(keyname, comment, isOn);
     }
 
     public void UIWindowClose()
@@ -273,7 +302,9 @@ public class UIManager : BaseManager<UIManager>
 
         switch (newState)
         {
-
+            case GameSystemState.MainMenu:
+                UIClose();
+                break;
             case GameSystemState.Inventory:
 
                 ToggleInventory();
@@ -284,5 +315,43 @@ public class UIManager : BaseManager<UIManager>
                 break;
         }
         #endregion
+    }
+    PlayerData playerda = CharacterManager.PlayerCharacterData;
+
+    private readonly Dictionary<MessageTag, string> tagColors = new Dictionary<MessageTag, string>
+    {
+        { MessageTag.퀘스트, "#FFD700" },          // Gold
+        { MessageTag.플레이어_피해, "#FF0000" },   // Red
+        { MessageTag.적_피해, "#00FF00" },         // Green
+        { MessageTag.기타, "#1E90FF" },            // Blue
+        { MessageTag.플레이어_회복, "#32CD32" },   // Lime Green
+        { MessageTag.플레이어_버프, "#87CEEB" },   // Sky Blue
+        { MessageTag.플레이어_디버프, "#8B0000" }, // Dark Red
+        { MessageTag.치명타, "#FF4500" },          // Orange Red
+        { MessageTag.빗나감, "#708090" },          // Slate Gray
+        { MessageTag.회피, "#00CED1" },            // Dark Turquoise
+        { MessageTag.적_등장, "#8A2BE2" },         // Purple
+        { MessageTag.적_처치, "#FFDAB9" },         // Peach
+        { MessageTag.경고, "#FFA500" },            // Orange
+        { MessageTag.오류, "#DC143C" },            // Crimson
+        { MessageTag.시스템_알림, "#ADD8E6" },     // Light Blue
+        { MessageTag.이벤트, "#FFC0CB" },          // Pink
+        { MessageTag.아이템_획득, "#FFD700" },     // Gold
+        { MessageTag.희귀_아이템, "#9400D3" },     // Dark Violet
+        { MessageTag.금화_획득, "#FFFF00" },       // Yellow
+        { MessageTag.아군_회복, "#00FA9A" },       // Medium Spring Green
+        { MessageTag.아군_피해, "#FF6347" },       // Tomato Red
+        { MessageTag.팀_버프, "#4169E1" },         // Royal Blue
+        { MessageTag.스킬_사용, "#6495ED" },       // Cornflower Blue
+        { MessageTag.마법_사용, "#9932CC" }        // Dark Orchid
+    };
+
+    public string GetColorByTag(MessageTag tag)
+    {
+        if (tagColors.TryGetValue(tag, out string color))
+        {
+            return color;
+        }
+        return "#FFFFFF"; // 기본 흰색
     }
 }
