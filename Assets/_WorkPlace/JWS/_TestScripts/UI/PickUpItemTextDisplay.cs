@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PickUpItemTextDisplay : MonoBehaviour
 {
@@ -14,10 +15,11 @@ public class PickUpItemTextDisplay : MonoBehaviour
     {
     }
 
-    public void AddItem(string itemName)
+    public void AddItem(string itemName, Sprite sprite = null)
     {
         GameObject newItemText = Instantiate(itemTextPrefab, itemListParent);
         newItemText.GetComponent<TextMeshProUGUI>().text = itemName;
+        if (sprite != null ) newItemText.GetComponentInChildren<Image>().sprite = sprite;
         PicUpitemTextList.Add(newItemText, Time.time);
         UpdateItemListLayout();
         Invoke(nameof(CheckAndRemoveItems), displayPickUPItemTextTime);
