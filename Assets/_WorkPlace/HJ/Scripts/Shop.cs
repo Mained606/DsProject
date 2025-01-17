@@ -35,6 +35,7 @@ public class Shop : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
+            UIManager.Instance.InteractTextPopup("F12", shopData.shopName + "상점", true);
         }
     }
 
@@ -43,6 +44,8 @@ public class Shop : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
+            UIManager.Instance.InteractTextPopup("F12", shopData.shopName + "상점", false);
+            UIManager.Instance.UIClose();
         }
     }
 

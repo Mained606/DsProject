@@ -11,7 +11,7 @@ public class ShopManager : BaseManager<ShopManager>
     [SerializeField] private int playerMoney = 1000; //테스트용 임시변수
     #endregion
 
-    /// 상점 오픈
+    // 상점 오픈
     public void OpenShop(ShopData shopData)
     {
         if (shopData == null || !shopData.isInteractable)
