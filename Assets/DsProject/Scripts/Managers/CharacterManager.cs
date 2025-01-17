@@ -68,6 +68,8 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.currentHp = PlayerCharacterData.maxHp;
         PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
         Debug.Log(PlayerCharacterData.ToStringForTMPro());
+        
+        // 게임 시작시 강제 초기화 원하면 활성화
         InitialCharacter();
     }
 
