@@ -243,12 +243,10 @@ public class UIManager : BaseManager<UIManager>
         {
             if (!quest.isCompleted)
             {
-                Debug.LogWarning("AddQuest");
                 QuestManager.Instance.AddQuest(quest);
             }
             else
             {
-                Debug.LogWarning("CompleteQuest");
                 QuestManager.Instance.CompleteQuest(quest);
             }
         }
