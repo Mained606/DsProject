@@ -19,6 +19,7 @@ public class TitleStatusUI : MonoBehaviour
 
     private void UpdateStatusBar()
     {
+        float result = 0f;
         for (int i = 0; i < transform.GetChild(0).childCount; i++)
         {
             TextMeshProUGUI amount = transform.GetChild(0).GetChild(i).GetComponentInChildren<TextMeshProUGUI>();
@@ -27,12 +28,22 @@ public class TitleStatusUI : MonoBehaviour
             {
                 case 0:
                     amount.text = $"{CharacterManager.PlayerCharacterData.currentHp} / {CharacterManager.PlayerCharacterData.maxHp}";
+                    result = (float)CharacterManager.PlayerCharacterData.currentHp /
+                             (float)CharacterManager.PlayerCharacterData.maxHp;
+                    fillbar.fillAmount = result;
+                    
                     break;
                 case 1:
                     amount.text = $"{CharacterManager.PlayerCharacterData.currentMp} / {CharacterManager.PlayerCharacterData.maxMp}";
+                    result = (float)CharacterManager.PlayerCharacterData.currentMp /
+                             (float)CharacterManager.PlayerCharacterData.maxMp;
+                    fillbar.fillAmount = result;
                     break;
                 case 2:
                     amount.text = $"{CharacterManager.PlayerCharacterData.staminaCurrent} / {CharacterManager.PlayerCharacterData.stamina}";
+                    result = (float)CharacterManager.PlayerCharacterData.staminaCurrent /
+                             (float)CharacterManager.PlayerCharacterData.stamina;
+                    fillbar.fillAmount = result;
                     break;
             }
         }
