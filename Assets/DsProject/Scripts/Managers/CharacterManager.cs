@@ -87,12 +87,6 @@ public class CharacterManager : BaseManager<CharacterManager>
         
     }
     
-    // 플레이어 캐릭터 데이터 가져오기
-    public PlayerData GetPlayerCharacter()
-    {
-        return PlayerCharacterData;
-    }
-
     public void InitialCharacter()
     {
         PlayerCharacterData.characterName = "Hero";
@@ -105,8 +99,17 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.attackSpeed= 1.2f;
         PlayerCharacterData.stamina= 100f;
         PlayerCharacterData.staminaRecoveryRate = 1;
+        PlayerCharacterData.level = 1;
 
+        // 레벨 초기화
+        PlayerCharacterData.level = 1;
+        PlayerCharacterData.currentExperience = 0;
+        PlayerCharacterData.experienceToLevelUp = PlayerCharacterData.CalculateExperienceToLevelUp();
+
+        // 골드 초기화
         PlayerCharacterData.gold = 0;
+
+        // 파생 스탯 계산
         PlayerCharacterData.UpdateDerivedStats();
     }
 
@@ -141,12 +144,11 @@ public class CharacterManager : BaseManager<CharacterManager>
             Debug.LogError($"Character template '{Name}'을(를) 찾을 수 없습니다.");
             return null;
         }
-
+        
         // 템플릿을 메모리에서 복제 (독립적인 인스턴스 생성)
         MonsterData cloned = template.Clone();
-        // cloned.IncreaseStatsBasedOnLevel();
-        // cloned.InitializeStats();
-        // cloned.UpdateDerivedStats();
+        cloned.InitializeStats();
+        cloned.UpdateDerivedStats();
 
         // 복제된 템플릿의 이름을 변경 (옵션)
         if (!string.IsNullOrEmpty(characterName))
@@ -176,9 +178,6 @@ public class CharacterManager : BaseManager<CharacterManager>
             // 필요한 컴포넌트 추가 및 초기화
             var testComponent = monsterInstance.AddComponent<Test1>();
             testComponent.monster = monster;
-            
-            // monster1.transform.AddComponent<Test1>();
-            // monster1.GetComponent<Test1>().monster = monster;
         }
     }
 
@@ -188,7 +187,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         // 경험치와 골드 보상 처리
         if (PlayerCharacterData != null)
         {
-            PlayerCharacterData.GainExperience(monster.experienceReward);
+            PlayerCharacterData.AddExperience(monster.experienceReward);
             PlayerCharacterData.AddGold(monster.goldReward);
             UIManager.SystemGameMessage($"{monster.characterName} 처치! 경험치 +{monster.experienceReward}, 골드 +{monster.goldReward}", MessageTag.아이템_획득);
         }

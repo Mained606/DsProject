@@ -113,7 +113,7 @@ public class CharacterData
     }
     
     // 경험치를 얻었을 때 호출되는 함수
-    public void GainExperience(int amount)
+    public void AddExperience(int amount)
     {
         if (amount < 0) amount = 0; // 경험치가 음수일 경우 0으로 처리
 
@@ -143,14 +143,14 @@ public class CharacterData
     }
     
     // 경험치 계산 함수
-    private int CalculateExperienceToLevelUp()
+    public int CalculateExperienceToLevelUp()
     {
         // 레벨 9 -> 10, 19 -> 20, 29 -> 30 구간에서 경험치를 완화
         return (level % 10 == 9) ? Mathf.RoundToInt(level * 80f) : Mathf.RoundToInt(level * 100f);
     }
 
     // 능력치 증가 처리 함수 (레벨에 따른 규칙을 설정)
-    public void IncreaseStatsBasedOnLevel()
+    private void IncreaseStatsBasedOnLevel()
     {
         // 레벨에 따라 각 스탯을 증가
         strength += level <= 10 ? 2 : 1;
@@ -167,7 +167,8 @@ public class CharacterData
     {
         return isCritical ? baseDamage * 2 : baseDamage;  // 크리티컬이면 데미지 2배, 아니면 기본 데미지
     }
-
+    
+    // 특정 스텟 증가 함수
     public void ModifyStat(string statType, int amount)
     {
         if (!stats.ContainsKey(statType)) return;
@@ -334,13 +335,7 @@ public class PlayerData : CharacterData
         gold -= amount;
         Debug.Log($"골드 사용: {amount}, 남은 골드: {gold}");
     }
-
-    public void AddExperience(int amount)
-    {
-        if (amount < 0) return;
-        currentExperience += amount;
-        Debug.Log($"경험치 추가: {amount}, 현재 경험치: {currentExperience}");
-    }
+    
     public new PlayerData Clone()
     {
         var clone = new PlayerData (
@@ -354,9 +349,18 @@ public class PlayerData : CharacterData
             this.attackSpeed,
             this.stamina,
             this.staminaRecoveryRate
-            );
-        clone.skills = this.skills;
-        clone.gold = this.gold;
+            )
+        {
+            gold = this.gold,  // 골드 복사
+            skills = new List<string>(this.skills),  // 스킬 리스트 복사
+            level = this.level,  // 레벨 복사
+            currentExperience = this.currentExperience,  // 현재 경험치 복사
+            experienceToLevelUp = this.experienceToLevelUp,  // 레벨업 경험치 복사
+            staminaCurrent = this.staminaCurrent,  // 현재 스태미나 복사
+            currentHp = this.currentHp,  // 현재 HP 복사
+            statModifier = this.statModifier != null ? this.statModifier.Clone() : null  // StatModifier 복사
+        };
+
         return clone;
     }
 }
@@ -397,6 +401,56 @@ public class MonsterData : CharacterData
             this.experienceReward,
             this.goldReward
         );
+
+        clone.level = this.level; // 레벨 복사
+        clone.currentExperience = this.currentExperience; // 현재 경험치 복사
+        clone.experienceToLevelUp = this.experienceToLevelUp; // 레벨업 경험치 복사
+        return clone;
+    }
+}
+
+[Serializable]
+public class BossData : MonsterData
+{
+    public List<string> specialSkills; // 보스의 특수 스킬
+    public BossData(string name, GameObject prefab, int strength, int vitality, int agility,
+        int intelligence, float speed, float attackSpeed, float stamina, float staminaRecoveryRate,
+        List<string> dropItems, int experienceReward, int goldReward, List<string> specialSkills)
+        : base(name, CharacterType.Boss, prefab, strength, vitality, agility, intelligence, 
+            speed, attackSpeed, stamina, staminaRecoveryRate, dropItems, experienceReward, goldReward)
+    {
+        this.specialSkills = new List<string>(specialSkills);
+    }
+    
+    public new BossData Clone()
+    {
+        var clone = new BossData(
+            this.characterName,
+            this.prefab,
+            this.strength,
+            this.vitality,
+            this.agility,
+            this.intelligence,
+            this.speed,
+            this.attackSpeed,
+            this.stamina,
+            this.staminaRecoveryRate,
+            new List<string>(this.dropItems), // 드롭 아이템 복사
+            this.experienceReward,
+            this.goldReward,
+            new List<string>(this.specialSkills) // 특수 스킬 복사
+        );
+
+        // MonsterData의 파생 속성 복사
+        clone.level = this.level; // 레벨 복사
+        clone.currentExperience = this.currentExperience; // 현재 경험치 복사
+        clone.experienceToLevelUp = this.experienceToLevelUp; // 레벨업 경험치 복사
+        clone.currentHp = this.currentHp; // 현재 HP 복사
+        clone.staminaCurrent = this.staminaCurrent; // 현재 스태미나 복사
+
+        // StatModifier 복사
+        clone.statModifier = this.statModifier != null ? this.statModifier.Clone() : null;
+
         return clone;
     }
 }
