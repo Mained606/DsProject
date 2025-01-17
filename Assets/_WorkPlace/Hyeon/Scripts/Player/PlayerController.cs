@@ -11,7 +11,8 @@ public class PlayerController : MonoBehaviour
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
     private CharacterController characterController;
-    public Animator PlayerAnimator;
+    [SerializeField] private Animator playerAnimator;
+    public Animator PlayerAnimator => playerAnimator;
 
     [Header("이동")]
     private Vector2 moveInput;
@@ -37,11 +38,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float detectionRange = 2f;
     private Vector3 currentCliffNormal;
     public bool isClimb;
-    [SerializeField] private float climbEndCheckOffset = 0.5f; // 절벽 끝 검사 오프셋
+    [SerializeField] private float climbEndCheckOffset = 0.2f; // 절벽 끝 검사 오프셋
     [SerializeField] private float climbEndThreshold = 0.2f; // 절벽 끝 판정 높이 차이
     [SerializeField] private float successfulClimbOffset = 1f; // 절벽 끝 도달 후 위치 조정
-    //[SerializeField] private float backJumpHeightMultiplier = 1.5f; // 뒤로 점프 높이 비율
-    //[SerializeField] private float backJumpSpeed = 5f; // 뒤로 점프 속도
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 3f;
@@ -77,7 +76,7 @@ public class PlayerController : MonoBehaviour
     {
         isGrounded = characterController.isGrounded;
         isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
-        PlayerAnimator.SetBool("Grounded", isGrounded);
+        playerAnimator.SetBool("Grounded", isGrounded);
 
         if (InputManager.InputActions.actions["Interact"].triggered)
         {
@@ -142,7 +141,7 @@ public class PlayerController : MonoBehaviour
             {
                 isFreefall = true;
                 lastGroundHeight = transform.position.y;
-                PlayerAnimator.SetBool("Freefall", true);
+                playerAnimator.SetBool("Freefall", true);
             }
             verticalVelocity.y += gravity * Time.deltaTime;
         }
@@ -159,10 +158,10 @@ public class PlayerController : MonoBehaviour
 
                 isFreefall = false;
                 CanAttack = true; CanUseSkill = true; CanParry = true;
-                PlayerAnimator.SetBool("Freefall", false);
+                playerAnimator.SetBool("Freefall", false);
             }
 
-            PlayerAnimator.SetBool("Jump", false);
+            playerAnimator.SetBool("Jump", false);
             if (verticalVelocity.y < 0)
             {
                 verticalVelocity.y = -0.5f;
@@ -174,7 +173,8 @@ public class PlayerController : MonoBehaviour
     {
         float damage = (fallDistance - fallDamageThreshold) * fallDamageMultiplier;
         damage = Mathf.Max(0, damage);
-        Debug.Log($"낙하 데미지: {damage}");
+        CharacterManager.PlayerCharacterData.TakeDamage((int)damage);
+        Debug.Log($"낙하 데미지: {(int)damage}");
     }
 
     private void StateCheck()
@@ -230,14 +230,14 @@ public class PlayerController : MonoBehaviour
 
         if (moveInput == Vector2.zero)
         {
-            PlayerAnimator.SetFloat("MotionSpeed", 0);
-            PlayerAnimator.SetFloat("Speed", 0);
+            playerAnimator.SetFloat("MotionSpeed", 0);
+            playerAnimator.SetFloat("Speed", 0);
 
         }
         else
         {
-            PlayerAnimator.SetFloat("MotionSpeed", 1);
-            PlayerAnimator.SetFloat("Speed", currentSpeed);
+            playerAnimator.SetFloat("MotionSpeed", 1);
+            playerAnimator.SetFloat("Speed", currentSpeed);
         }
 
         direction = GetDirection(moveInput);
@@ -277,7 +277,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnJump()
     {
-        PlayerAnimator.SetBool("Jump", true);
+        playerAnimator.SetBool("Jump", true);
 
         verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
     }
@@ -370,10 +370,10 @@ public class PlayerController : MonoBehaviour
             CanAttack = false;
             CanMove = false;
             CanUseSkill = false;
-            PlayerAnimator.SetTrigger("Parry");
+            playerAnimator.SetTrigger("Parry");
         }
-        AnimatorStateInfo stateInfo = PlayerAnimator.GetCurrentAnimatorStateInfo(0);
-        AnimatorClipInfo[] clipInfo = PlayerAnimator.GetCurrentAnimatorClipInfo(0);
+        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+        AnimatorClipInfo[] clipInfo = playerAnimator.GetCurrentAnimatorClipInfo(0);
         if (clipInfo.Length > 0)
         {
             AnimationClip currentClip = clipInfo[0].clip;
@@ -402,7 +402,7 @@ public class PlayerController : MonoBehaviour
         Vector3 rayOrigin = transform.position + Vector3.up * 1.5f;
         if (Physics.Raycast(rayOrigin, transform.forward, out RaycastHit hit, detectionRange))
         {
-            Debug.DrawLine(rayOrigin, hit.point, Color.red);
+            //Debug.DrawLine(rayOrigin, hit.point, Color.red);
 
             float angle = Vector3.Angle(hit.normal, Vector3.up);
 
@@ -416,13 +416,12 @@ public class PlayerController : MonoBehaviour
             //Debug.Log($"angle : {angle}, heightDifference : {heightDifference}");
             if (angle > 75f && angle < 105f)
             {
-                //Debug.Log("매달릴 수 있는 벽");
+                Debug.Log("매달릴 수 있는 벽");
                 if (hit.distance < detectionRange / 2)
                 {
                     currentCliffNormal = hit.normal;
                     if (!isClimb)
                     {
-                        //SetCliffMode();
                         StartClimbing(hit.point);
                         //Debug.Log("StartClimbing");
                     }
@@ -436,8 +435,8 @@ public class PlayerController : MonoBehaviour
         else
         {
             isClimb = false;
-            PlayerAnimator.SetBool("Climb", false);
-            Debug.DrawLine(rayOrigin, rayOrigin + transform.forward * detectionRange, Color.blue);
+            playerAnimator.SetBool("Climb", false);
+            Debug.Log("Ray에 감지 안 됨");
         }
     }
 
@@ -445,37 +444,43 @@ public class PlayerController : MonoBehaviour
     {
         isClimb = true;
         isFreefall = false;
-        PlayerAnimator.SetBool("Freefall", false);
-        PlayerAnimator.SetBool("Climb", true);
+        playerAnimator.SetBool("Freefall", false);
+        playerAnimator.SetBool("Climb", true);
         transform.position = climbStartPosition;
         // Anim
     }
 
     private void CheckClimbEnd()
     {
-        Vector3 rayStart = transform.position - transform.forward * 0.2f;
-        float sphereRadius = 1f;
-        if (Physics.SphereCast(rayStart + transform.up * climbEndCheckOffset, sphereRadius, Vector3.up, out RaycastHit hit, detectionRange))
+        Vector3 rayOrigin = transform.position + transform.up * climbEndCheckOffset;
+        if (Physics.Raycast(rayOrigin, transform.forward, out RaycastHit hit, detectionRange))
         {
-            //Debug.DrawLine(transform.position + transform.forward * climbEndCheckOffset, hit.point, Color.red);
+            Debug.Log("있는 벽 오르는 중");
+            //Debug.DrawLine(rayOrigin + Vector3.up * climbEndCheckOffset, hit.point, Color.red);
             float topEdgeHeight = hit.point.y - transform.position.y;
-            if (topEdgeHeight > 0 && topEdgeHeight < climbEndThreshold)
+            Debug.Log($"topEdgeHeight = {topEdgeHeight}");
+            if (topEdgeHeight < climbEndThreshold)
             {
                 EndClimbing(true); // 절벽 끝까지 올라간 경우
                 Debug.Log("성공적으로 절벽 끝 도달");
             }
         }
+        else
+        {
+            //Debug.DrawLine(rayOrigin + Vector3.up * climbEndCheckOffset, transform.forward * detectionRange, Color.blue);
+        }
     }
 
     private void EndClimbing(bool successful)
     {
-        isClimb = false;
-        PlayerAnimator.SetBool("Climb", false);
+        playerAnimator.SetBool("Climb", false);
 
         if (successful)
         {
-            Vector3 finalPosition = transform.position + transform.up * successfulClimbOffset;
-            transform.position = finalPosition; // 캐릭터 위치 조정
+            playerAnimator.SetTrigger("ClimbUp");
+            StartCoroutine(FinishingClimbing());
+            //Vector3 finalPosition = transform.position + transform.up * successfulClimbOffset;
+            //transform.position = finalPosition; // 캐릭터 위치 조정
             Debug.Log("Climbing successfully ended");
         }
         else
@@ -485,6 +490,16 @@ public class PlayerController : MonoBehaviour
         }
 
         // Anim
+    }
+
+    private IEnumerator FinishingClimbing()
+    {
+        yield return new WaitForSeconds(playerAnimator.GetCurrentAnimatorStateInfo(0).length);
+
+        Vector3 climbUpPosition = transform.position + transform.up * 0.7f + transform.forward * 0.2f;
+
+        transform.position = climbUpPosition;
+        isClimb = false;
     }
 
     private void HandleClimbJump()
@@ -511,16 +526,16 @@ public class PlayerController : MonoBehaviour
 
         if (moveInput == Vector2.zero)
         {
-            PlayerAnimator.SetFloat("VelocityY", 0f);
+            playerAnimator.SetFloat("VelocityY", 0f);
 
         }
         if(moveInput.y > 0)
         {
-            PlayerAnimator.SetFloat("VelocityY", 1f);
+            playerAnimator.SetFloat("VelocityY", 1f);
         }
         if(moveInput.y < 0)
         {
-            PlayerAnimator.SetFloat("VelocityY", -1f);
+            playerAnimator.SetFloat("VelocityY", -1f);
         }
 
         characterController.Move(climbDirection * walkSpeed * Time.deltaTime);
