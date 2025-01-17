@@ -33,6 +33,8 @@ public class CharacterData
     // 계산된 값 (정수형)
     [HideInInspector] public int maxHp;        // 최대 HP
     [HideInInspector] public int currentHp;    // 현재 HP
+    [HideInInspector] public int maxMp;        // 최대 HP
+    [HideInInspector] public int currentMp;    // 현재 HP
     [HideInInspector] public int physicalDefense;  // 물리 방어력
     [HideInInspector] public int magicDefense;     // 마법 방어력
     [HideInInspector] public int physicalDamage;   // 물리 공격력
@@ -68,7 +70,6 @@ public class CharacterData
         this.staminaCurrent = stamina; // 초기 스태미나는 최대 스태미나와 동일
         this.staminaRecoveryRate = staminaRecoveryRate;
         this.statModifier = modifier != null ? modifier :basestatModifier;
-
         this.level = 1; // 초기 레벨은 1
         this.currentExperience = 0; // 초기 경험치는 0
         experienceToLevelUp = CalculateExperienceToLevelUp(); // 첫 번째 레벨업에 필요한 경험치 설정
@@ -96,7 +97,9 @@ public class CharacterData
     public void UpdateDerivedStats()
     {
         int previousMaxHp = maxHp; // 이전 최대 체력 저장
+        int previousMaxMp = maxMp; // 이전 최대 체력 저장
         maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier);  // 체력에 비례한 최대 HP
+        maxMp = Mathf.RoundToInt(intelligence * 10 + level * 5); // MP예시
         physicalDamage = Mathf.RoundToInt(strength * statModifier.strengthMultiplier);  // 힘에 따른 물리 공격력
         physicalDefense = Mathf.RoundToInt((strength + vitality) * statModifier.physicalDefenseMultiplier);  // 힘과 체력에 비례한 물리 방어력
         magicDamage = Mathf.RoundToInt(intelligence * statModifier.intelligenceMultiplier);  // 지능에 따른 마법 공격력
@@ -109,6 +112,11 @@ public class CharacterData
         {
             currentHp += maxHp - previousMaxHp;
             currentHp = Mathf.Clamp(currentHp, 0, maxHp);
+        }
+        if (maxHp > previousMaxMp)
+        {
+            currentMp += maxMp - previousMaxMp;
+            currentMp = Mathf.Clamp(currentMp, 0, maxMp);
         }
     }
     
