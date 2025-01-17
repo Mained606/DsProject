@@ -13,6 +13,8 @@ public class InputManager : BaseManager<InputManager>
         // ui키 연결
         InputActions.actions["Inventory"].performed += OnInventoryKey;
         InputActions.actions["Quest"].performed += OnQuestReview;
+        InputActions.actions["StatusUI"].performed += OnStatKey;
+
         #endregion
     }
 
@@ -37,6 +39,20 @@ public class InputManager : BaseManager<InputManager>
         if (GameStateMachine.Instance.CurrentState != GameSystemState.QuestReview)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.QuestReview);
+            Debug.Log("Quest 상태로 전환됨.");
+        }
+        else
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+    private void OnStatKey(InputAction.CallbackContext context)
+    {
+        // 상태를 Inventory로 전환
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.StatusUI)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.StatusUI);
             Debug.Log("Quest 상태로 전환됨.");
         }
         else
