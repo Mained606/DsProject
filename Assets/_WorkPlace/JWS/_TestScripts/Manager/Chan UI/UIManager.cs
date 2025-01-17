@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UIManager : BaseManager<UIManager>
@@ -243,12 +244,10 @@ public class UIManager : BaseManager<UIManager>
         {
             if (!quest.isCompleted)
             {
-                Debug.LogWarning("AddQuest");
                 QuestManager.Instance.AddQuest(quest);
             }
             else
             {
-                Debug.LogWarning("CompleteQuest");
                 QuestManager.Instance.CompleteQuest(quest);
             }
         }
@@ -274,6 +273,7 @@ public class UIManager : BaseManager<UIManager>
 
     public void UIClose()
     {
+        EventSystem.current.SetSelectedGameObject(null);
         mainCanvas.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
