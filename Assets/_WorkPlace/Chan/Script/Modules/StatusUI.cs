@@ -1,69 +1,64 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class StatusUI : MonoBehaviour
 {
-    [SerializeField] private List<GameObject> statSlotPrefabs; // 스탯 슬롯 프리팹 리스트
-    [SerializeField] private Transform statPanelParent;       // 슬롯 부모 오브젝트
+    [SerializeField] private GameObject statPrefab1; // 첫 번째 프리팹
+    [SerializeField] private GameObject statPrefab2; // 두 번째 프리팹
+    [SerializeField] private Transform statPanel;    // 스탯 슬롯들이 추가될 부모 오브젝트
 
-    private CharacterData characterData; // 캐릭터 데이터를 참조할 필드
+    private PlayerData playerData; //
 
-    // CharacterData를 바인딩
-    public void SetCharacterData(CharacterData data)
+    private void Start()
     {
-        characterData = data;
-        UpdateStatsUI();
-    }
-
-    public void UpdateStatsUI()
-    {
-        if (characterData == null)
+        // 필요한 필드 확인
+        if (statPrefab1 == null || statPrefab2 == null || statPanel == null)
         {
-            Debug.LogWarning("CharacterData가 설정되지 않았습니다.");
+            Debug.LogError("StatUI에 필요한 프리팹 또는 부모 오브젝트가 연결되지 않았습니다.");
             return;
         }
 
-        // 기존 슬롯 제거
-        ClearStatsUI();
+        // CharacterManager에서 PlayerCharacterData 가져오기
+        playerData = CharacterManager.PlayerCharacterData;
 
-        // 스탯 데이터를 가져와 슬롯 생성
-        Dictionary<string, string> stats = new Dictionary<string, string>
+        if (playerData == null)
         {
-            { "체력", $"{characterData.currentHp}/{characterData.maxHp}" },
-            { "스태미나", $"{characterData.staminaCurrent}/{characterData.stamina}" },
-            { "힘", $"{characterData.strength}" },
-            { "지능", $"{characterData.intelligence}" }
-        };
-
-        int prefabIndex = 0; // 번갈아가며 선택할 프리팹 인덱스
-
-        foreach (var stat in stats)
-        {
-            // 프리팹 선택
-            GameObject prefabToUse = statSlotPrefabs[prefabIndex];
-
-            // 슬롯 생성
-            GameObject slot = Instantiate(prefabToUse, statPanelParent);
-
-            // 슬롯 텍스트 바인딩
-            TextMeshProUGUI[] texts = slot.GetComponentsInChildren<TextMeshProUGUI>();
-            if (texts.Length >= 2)
-            {
-                texts[0].text = stat.Key;   // 스탯 이름
-                texts[1].text = stat.Value; // 스탯 값
-            }
-
-            // 다음 프리팹 선택
-            prefabIndex = (prefabIndex + 1) % statSlotPrefabs.Count; // 프리팹 인덱스 번갈아 변경
+            Debug.LogError("PlayerCharacterData가 null입니다. CharacterManager를 확인하세요.");
+            return;
         }
+
+        // 스탯 슬롯 생성
+        GenerateStatSlots();
     }
 
-    private void ClearStatsUI()
+    // 스탯 슬롯 생성 함수
+    private void GenerateStatSlots()
     {
-        foreach (Transform child in statPanelParent)
+        var stats = new (string statName, string value)[]
         {
-            Destroy(child.gameObject);
+            ("Strength", playerData.strength.ToString()),
+            ("Vitality", playerData.vitality.ToString()),
+            ("Agility", playerData.agility.ToString()),
+            ("Intelligence", playerData.intelligence.ToString()),
+            ("Stamina", $"{playerData.staminaCurrent}/{playerData.stamina}"),
+            ("Physical Defense", playerData.physicalDefense.ToString()),
+            ("Magic Defense", playerData.magicDefense.ToString()),
+            ("Physical Damage", playerData.physicalDamage.ToString()),
+            ("Magic Damage", playerData.magicDamage.ToString())
+        };
+
+        // 번갈아 가면서 생성
+        for (int i = 0; i < stats.Length; i++)
+        {
+            GameObject prefabToUse = i % 2 == 0 ? statPrefab1 : statPrefab2;
+            var slot = Instantiate(prefabToUse, statPanel);
+
+            var texts = slot.GetComponentsInChildren<TextMeshProUGUI>();
+            if (texts.Length >= 2)
+            {
+                texts[0].text = stats[i].statName; // 스탯 이름 적용
+                texts[1].text = stats[i].value;   // 스탯 값 적용 
+            }
         }
     }
 }
