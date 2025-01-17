@@ -22,7 +22,7 @@ public class CharacterData
 
     // 스태미나 관련
     public float stamina;     // 최대 스태미나
-    [HideInInspector] public float staminaCurrent; // 현재 스태미나
+    public float staminaCurrent; // 현재 스태미나
     public float staminaRecoveryRate; // 스태미나 회복 속도
     
     // 레벨과 경험치 관련 변수 추가
@@ -34,7 +34,7 @@ public class CharacterData
     [HideInInspector] public int maxHp;        // 최대 HP
     [HideInInspector] public int currentHp;    // 현재 HP
     [HideInInspector] public int maxMp;        // 최대 HP
-    [HideInInspector] public int currentMp;    // 현재 HP
+     public int currentMp;    // 현재 HP
     [HideInInspector] public int physicalDefense;  // 물리 방어력
     [HideInInspector] public int magicDefense;     // 마법 방어력
     [HideInInspector] public int physicalDamage;   // 물리 공격력

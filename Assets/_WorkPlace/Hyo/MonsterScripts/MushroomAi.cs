@@ -3,20 +3,23 @@ using UnityEngine;
 
 public class MushroomAi : MonoBehaviour
 {
+    public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning }
+
     [Header("움직임 세팅")]
     public float patrolRange = 4f; // 랜덤 이동 범위
+    public float idleTime = 2f; // 대기 시간
+    public float movementSpeed = 2f; // 이동 속도
 
     [Header("서치 & 공격 세팅")]
     public float searchRange = 7f; // 서치 범위
     public float attackRange = 1.5f; // 공격 범위
     public float attackCooldown = 2f; // 공격 쿨타임
 
-    private Vector3 spawnPosition; // 스폰 위치
-    private Vector3 targetPosition; // 랜덤 이동 목표 위치
-    private Transform playerTarget; // 플레이어 타겟
-    private bool isAttacking = false;
-    private bool canAttack = true;
-
+    private AIState currentState = AIState.Idle;
+    private Vector3 spawnPosition;
+    private Vector3 targetPosition;
+    private Transform playerTarget;
+    private float attackCooldownTimer = 0f;
     private Animator animator;
     private MonsterData monsterData;
 
@@ -25,18 +28,115 @@ public class MushroomAi : MonoBehaviour
         spawnPosition = transform.position;
         animator = GetComponent<Animator>();
         monsterData = GetComponent<Test1>().monster;
-        StartCoroutine(PatrolRoutine());
+        SetNewPatrolTarget();
     }
 
     private void Update()
     {
-        // 플레이어 탐색
-        SearchForPlayer();
+        attackCooldownTimer -= Time.deltaTime;
 
+        switch (currentState)
+        {
+            case AIState.Idle:
+                HandleIdleState();
+                break;
+            case AIState.Patrolling:
+                HandlePatrollingState();
+                break;
+            case AIState.Chasing:
+                HandleChasingState();
+                break;
+            case AIState.Attacking:
+                HandleAttackingState();
+                break;
+            case AIState.Returning:
+                HandleReturningState();
+                break;
+        }
+
+        SearchForPlayer();
+    }
+
+    private void HandleIdleState()
+    {
         if (playerTarget != null)
         {
-            // 플레이어가 서치 범위 내에 있을 경우 공격 실행
-            ApproachAndAttackPlayer();
+            ChangeState(AIState.Chasing);
+            return;
+        }
+
+        animator?.SetBool("isWalking", false);
+        StartCoroutine(SwitchStateAfterDelay(AIState.Patrolling, idleTime));
+    }
+
+    private void HandlePatrollingState()
+    {
+        if (playerTarget != null)
+        {
+            ChangeState(AIState.Chasing);
+            return;
+        }
+
+        MoveTowards(targetPosition);
+
+        if (Vector3.Distance(transform.position, targetPosition) <= 0.1f)
+        {
+            ChangeState(AIState.Idle);
+        }
+    }
+
+    private void HandleChasingState()
+    {
+        if (playerTarget == null || Vector3.Distance(transform.position, playerTarget.position) > searchRange)
+        {
+            playerTarget = null;
+            ChangeState(AIState.Returning);
+            return;
+        }
+
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
+
+        if (distanceToPlayer <= attackRange)
+        {
+            ChangeState(AIState.Attacking);
+        }
+        else
+        {
+            MoveTowards(playerTarget.position);
+        }
+    }
+
+    private void HandleAttackingState()
+    {
+        if (playerTarget == null || Vector3.Distance(transform.position, playerTarget.position) > searchRange)
+        {
+            playerTarget = null;
+            ChangeState(AIState.Returning);
+            return;
+        }
+
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
+
+        if (distanceToPlayer > attackRange)
+        {
+            ChangeState(AIState.Chasing);
+            return;
+        }
+
+        if (attackCooldownTimer <= 0f)
+        {
+            PerformAttack();
+            attackCooldownTimer = attackCooldown;
+        }
+    }
+
+    private void HandleReturningState()
+    {
+        MoveTowards(spawnPosition);
+
+        if (Vector3.Distance(transform.position, spawnPosition) <= 0.1f)
+        {
+            ChangeState(AIState.Patrolling);
         }
     }
 
@@ -49,104 +149,60 @@ public class MushroomAi : MonoBehaviour
             if (hit.CompareTag("Player"))
             {
                 playerTarget = hit.transform;
-                break;
+                return;
             }
         }
     }
 
-    private void ApproachAndAttackPlayer()
+    private void MoveTowards(Vector3 destination)
     {
-        if (playerTarget == null) return;
+        Vector3 direction = (destination - transform.position).normalized;
+        transform.position += direction * movementSpeed * Time.deltaTime;
+        transform.LookAt(new Vector3(destination.x, transform.position.y, destination.z));
 
-        float distanceToPlayer = Vector3.Distance(transform.position, playerTarget.position);
-
-        if (distanceToPlayer > attackRange)
-        {
-            // 플레이어에게 접근
-            Vector3 direction = (playerTarget.position - transform.position).normalized;
-            transform.position += direction * monsterData.speed * Time.deltaTime;
-            transform.LookAt(playerTarget.position);
-
-            if (animator != null)
-            {
-                animator.SetBool("isWalking", true);
-            }
-        }
-        else if (canAttack && distanceToPlayer <= attackRange)
-        {
-            // 공격 실행
-            StartCoroutine(AttackPlayer());
-        }
+        animator?.SetBool("isWalking", true);
     }
-    
-    // 패트롤 패턴
-    private IEnumerator PatrolRoutine()
+
+    private void PerformAttack()
     {
-        while (true)
+        animator?.SetTrigger("Attack");
+        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false);
+    }
+
+    private void SetNewPatrolTarget()
+    {
+        targetPosition = spawnPosition + new Vector3(
+            Random.Range(-patrolRange, patrolRange),
+            0,
+            Random.Range(-patrolRange, patrolRange)
+        );
+    }
+
+    private void ChangeState(AIState newState)
+    {
+        if (currentState == newState) return;
+
+        currentState = newState;
+
+        if (currentState == AIState.Patrolling)
         {
-            if (playerTarget == null)
-            {
-                // 랜덤 위치 설정
-                targetPosition = spawnPosition + new Vector3(
-                    Random.Range(-patrolRange, patrolRange),
-                    0,
-                    Random.Range(-patrolRange, patrolRange)
-                );
+            SetNewPatrolTarget();
+        }
 
-                // 목표 위치로 이동
-                while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
-                {
-                    Vector3 direction = (targetPosition - transform.position).normalized;
-                    transform.position += direction * monsterData.speed * Time.deltaTime;
-                    transform.LookAt(targetPosition);
-
-                    if (animator != null)
-                    {
-                        animator.SetBool("isWalking", true);
-                    }
-
-                    yield return null;
-                }
-
-                if (animator != null)
-                {
-                    animator.SetBool("isWalking", false);
-                }
-
-                // 잠시 대기
-                yield return new WaitForSeconds(Random.Range(2f, 5f));
-            }
-            else
-            {
-                yield return null;
-            }
+        if (currentState == AIState.Idle || currentState == AIState.Returning)
+        {
+            animator?.SetBool("isWalking", false);
         }
     }
 
-    private IEnumerator AttackPlayer()
+    private IEnumerator SwitchStateAfterDelay(AIState newState, float delay)
     {
-        if (isAttacking) yield break;
-
-        isAttacking = true;
-        canAttack = false;
-
-        if (animator != null)
-        {
-            animator.SetTrigger("Attack");
-        }
-
-        // CombatManager를 통한 공격 처리
-        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.monsterData, this.transform, false);
-
-        yield return new WaitForSeconds(attackCooldown);
-
-        canAttack = true;
-        isAttacking = false;
+        yield return new WaitForSeconds(delay);
+        ChangeState(newState);
     }
 
     private void OnDrawGizmosSelected()
     {
-        // 서치 범위와 공격 범위를 시각적으로 표시
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, searchRange);
 
