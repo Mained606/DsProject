@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class UIManager : BaseManager<UIManager>
@@ -274,6 +275,7 @@ public class UIManager : BaseManager<UIManager>
 
     public void UIClose()
     {
+        EventSystem.current.SetSelectedGameObject(null);
         mainCanvas.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);

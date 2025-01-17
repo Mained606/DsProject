@@ -11,8 +11,10 @@ GameObject:
   - component: {fileID: 4162405467240868}
   - component: {fileID: 2593068888325796535}
   - component: {fileID: 4734444243389737722}
+  - component: {fileID: 1566052467807922105}
+  - component: {fileID: 2884683775759641259}
   m_Layer: 10
-  m_Name: MushroomMonster
+  m_Name: Mushroom_H
   m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,8 +83,46 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 4
   m_CollisionDetection: 0
+--- !u!95 &1566052467807922105
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1382258774799692}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d0d2346c746fe44479d6397898526f29, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &2884683775759641259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1382258774799692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 226eb648bae01e748bee00501c1e83f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patrolRange: 4
+  searchRange: 7
+  attackRange: 1.5
+  attackCooldown: 2
 --- !u!1 &1643898645384686
 GameObject:
   m_ObjectHideFlags: 0
