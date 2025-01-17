@@ -15,12 +15,12 @@ public class Item
     public int maxStack;                   // 최대 소지 가능 개수
     public bool isDiscardable;             // 버릴 수 있는지 여부
     public bool isStackable;               // 중첩 가능 여부
-    public Sprite sprite;                    // 아이템 아이콘
+    public Sprite sprite;                  // 아이템 아이콘
     public float dropChance;               // 드랍 확률 (%)
 
     [Header("장착용 속성")]
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
-    public Durability durability;                 // 내구도
+    public Durability durability;          // 내구도
     public EquipmentSlot equipmentSlot;    // 장착 위치 (무기, 방어구 등)
 
     [Header("소모품 속성")]
@@ -95,13 +95,13 @@ public class Item
     {
         switch (grade)
         {
-            case ItemGrade.일반: return "#FFFFFF";     // 흰색
-            case ItemGrade.고급: return "#1EFF00";  // 초록색
-            case ItemGrade.희귀: return "#0070DD";      // 파랑색
-            case ItemGrade.에픽: return "#A335EE";      // 보라색
-            case ItemGrade.전설: return "#FF8000"; // 주황색
+            case ItemGrade.일반: return "#FFFFFF";    // 흰색
+            case ItemGrade.고급: return "#1EFF00";    // 초록색
+            case ItemGrade.희귀: return "#0070DD";    // 파랑색
+            case ItemGrade.에픽: return "#A335EE";    // 보라색
+            case ItemGrade.전설: return "#FF8000";    // 주황색
             case ItemGrade.신화: return "#FF0000";    // 빨간색
-            default: return "#FFFFFF";                 // 기본 흰색
+            default: return "#FFFFFF";               // 기본 흰색
         }
     }
 
