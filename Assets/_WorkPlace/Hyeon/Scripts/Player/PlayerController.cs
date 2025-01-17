@@ -52,6 +52,7 @@ public class PlayerController : MonoBehaviour
     [Header("공격")]
     public bool CanAttack;
     [SerializeField] private bool CanUseSkill;
+    public bool CanParry;
 
     private void OnEnable()
     {
@@ -66,6 +67,7 @@ public class PlayerController : MonoBehaviour
         CanMove = true;
         CanAttack = true;
         CanUseSkill = true;
+        CanParry = true;
         playerData = CharacterManager.PlayerCharacterData;
 
         ValueInitialize();
@@ -81,10 +83,10 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("Interact");
         }
-
+        HandleGravity();
         avoidKeyInput();
         
-        HandleGravity();
+
         DetectCliff();
         UpdateClimbState();
         if (!isDodging)
@@ -135,10 +137,10 @@ public class PlayerController : MonoBehaviour
 
         if (!isGrounded)
         {
-            if(verticalVelocity.y <= fallDamageThreshold && !isFreefall && !isClimb)
+            CanAttack = false; CanUseSkill = false; CanParry = false;
+            if (verticalVelocity.y <= fallDamageThreshold && !isFreefall && !isClimb)
             {
                 isFreefall = true;
-                CanAttack = false; CanUseSkill = false;
                 lastGroundHeight = transform.position.y;
                 PlayerAnimator.SetBool("Freefall", true);
             }
@@ -156,7 +158,7 @@ public class PlayerController : MonoBehaviour
                 }
 
                 isFreefall = false;
-                CanAttack = true; CanUseSkill = true;
+                CanAttack = true; CanUseSkill = true; CanParry = true;
                 PlayerAnimator.SetBool("Freefall", false);
             }
 
@@ -346,6 +348,18 @@ public class PlayerController : MonoBehaviour
                 InputManager.InputActions.actions["PlayerSkill_3"].Disable();
                 break;
         }
+
+        switch (CanParry)
+        {
+            case true:
+                InputManager.InputActions.actions["Parry"].Enable();
+                break;
+            case false:
+                InputManager.InputActions.actions["Parry"].Disable();
+                break;
+        }
+
+
     }
 
     // 패링
@@ -399,10 +413,10 @@ public class PlayerController : MonoBehaviour
                 heightDifference = 0f;
             }
 
-            Debug.Log($"angle : {angle}, heightDifference : {heightDifference}");
+            //Debug.Log($"angle : {angle}, heightDifference : {heightDifference}");
             if (angle > 75f && angle < 105f)
             {
-                Debug.Log("매달릴 수 있는 벽");
+                //Debug.Log("매달릴 수 있는 벽");
                 if (hit.distance < detectionRange / 2)
                 {
                     currentCliffNormal = hit.normal;
@@ -410,7 +424,7 @@ public class PlayerController : MonoBehaviour
                     {
                         //SetCliffMode();
                         StartClimbing(hit.point);
-                        Debug.Log("StartClimbing");
+                        //Debug.Log("StartClimbing");
                     }
                 }
             }
@@ -439,12 +453,16 @@ public class PlayerController : MonoBehaviour
 
     private void CheckClimbEnd()
     {
-        if(Physics.Raycast(transform.position + transform.up * climbEndCheckOffset, transform.forward, out RaycastHit hit, detectionRange))
+        Vector3 rayStart = transform.position - transform.forward * 0.2f;
+        float sphereRadius = 1f;
+        if (Physics.SphereCast(rayStart + transform.up * climbEndCheckOffset, sphereRadius, Vector3.up, out RaycastHit hit, detectionRange))
         {
+            //Debug.DrawLine(transform.position + transform.forward * climbEndCheckOffset, hit.point, Color.red);
             float topEdgeHeight = hit.point.y - transform.position.y;
-            if (topEdgeHeight < climbEndThreshold)
+            if (topEdgeHeight > 0 && topEdgeHeight < climbEndThreshold)
             {
                 EndClimbing(true); // 절벽 끝까지 올라간 경우
+                Debug.Log("성공적으로 절벽 끝 도달");
             }
         }
     }
@@ -527,8 +545,8 @@ public class PlayerController : MonoBehaviour
 
     // 장비 장착에 따른 스탯 변화
 
-    private void IdleMotion()
-    {
+    //private void IdleMotion()
+    //{
 
-    }
+    //}
 }
