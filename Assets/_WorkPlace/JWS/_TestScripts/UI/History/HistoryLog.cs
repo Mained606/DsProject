@@ -20,6 +20,6 @@ public struct HistoryLog
     public override string ToString()
     {
         string _color = UIManager.Instance.GetColorByTag(eventType);
-        return $"<mspace=0.5em>{timestamp.ToString("HH:mm:ss")}</mspace>    <color={_color}>{eventDescription}</color>";
+        return $"<mspace=0.5em>{timestamp.ToString("HH:mm:ss")}</mspace>  <color={_color}>{eventDescription}</color>";
     }
 }

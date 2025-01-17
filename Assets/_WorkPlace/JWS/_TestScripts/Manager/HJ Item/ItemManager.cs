@@ -136,9 +136,6 @@ public class ItemManager : BaseManager<ItemManager>
         return itemBox;
     }
 
-
-
-
     /// <summary>
     /// 01.17 희정 추가한 함수
     /// </summary>
@@ -159,7 +156,6 @@ public class ItemManager : BaseManager<ItemManager>
 
         return items;
     }
-
 
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
     {
