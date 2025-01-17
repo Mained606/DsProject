@@ -10,7 +10,7 @@ public class InputManager : BaseManager<InputManager>
         InputActions = GetComponent<PlayerInput>();
 
         #region Delete
-        // Inventory 액션 연결
+        // ui키 연결
         InputActions.actions["Inventory"].performed += OnInventoryKey;
         InputActions.actions["Quest"].performed += OnQuestReview;
         #endregion
