@@ -6,20 +6,20 @@ public class Shop : MonoBehaviour
     #region Variables
     [SerializeField] private string shopId;
     [SerializeField] private ShopData shopData;
-    [SerializeField] private float valueReductionRate = 0.7f;
+    private float valueReductionRate;
 
     private bool isPlayerInRange = false;
 
-    private string testItem;  //테스트 변수
     #endregion
 
     private void Start()
     {
+        //상점데이터 초기화
         shopData = ShopManager.shopsDataList.FirstOrDefault(i => i.shopId == shopId);
         shopData.Initialize();
 
-        //테스트용 아이템
-        testItem = shopData.availableItems[0].id;
+        //가치감소율
+        valueReductionRate = shopData.valueReductionRate;
     }
 
     private void Update()
@@ -49,13 +49,11 @@ public class Shop : MonoBehaviour
         }
     }
 
-    public void PurchaseButton()
+    public void PurchaseItemButton()
     {
-        ShopManager.Instance.PurchaseItem(testItem, shopData, 1);
     }
 
     public void SellItemButton()
     {
-        ShopManager.Instance.SellItem(testItem, shopData, valueReductionRate, 1);
     }
 }

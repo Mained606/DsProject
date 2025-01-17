@@ -8,7 +8,10 @@ public class ShopManager : BaseManager<ShopManager>
     [SerializeField] private List<ShopData> shops = new List<ShopData>();
     public static IReadOnlyList<ShopData> shopsDataList => Instance.shops;
 
-    [SerializeField] private int playerMoney = 1000; //테스트용 임시변수
+    private int PlayerMoney
+    {
+        get { return CharacterManager.PlayerCharacterData.gold; }
+    }
     #endregion
 
     // 상점 오픈
@@ -28,20 +31,19 @@ public class ShopManager : BaseManager<ShopManager>
     {
         var purchaseItem = data.availableItems.Find(i => i.id == itemId);
 
-
         int amount = purchaseItem.costValue * quantity;
 
-        if (playerMoney < amount)
+        if (PlayerMoney < amount)
         {
             Debug.Log("플레이어 소지 금액 부족");
             return;
         }
 
         //구매
-        playerMoney -= amount;
+        CharacterManager.PlayerCharacterData.UseGold(amount);
         InventoryManager.Instance.AddItem(itemId, quantity);
 
-        Debug.Log($"{purchaseItem.name} 아이템 구매하고 남은 플레이어 소지금액: {playerMoney}");
+        Debug.Log($"{purchaseItem.name} 아이템 구매하고 남은 플레이어 소지금액: {PlayerMoney}");
     }
 
     //아이템 판매
@@ -60,12 +62,11 @@ public class ShopManager : BaseManager<ShopManager>
 
         //판매시 가치 감소를 반영한 전체 금액
         int amount = ((int)(sellItem.costValue * valueReductionRate) * quantity);
-
         Debug.Log($"판매금액 : {amount}");
 
         //판매
-        playerMoney += amount;
-        Debug.Log($"{sellItem.name} 아이템 판매한 후 플레이어 소지금액: {playerMoney}");
+        CharacterManager.PlayerCharacterData.AddGold(amount);
+        Debug.Log($"{sellItem.name} 아이템 판매한 후 플레이어 소지 금액: {PlayerMoney}");
 
         InventoryManager.Instance.RemoveItemLogic(itemId, quantity);
     }
