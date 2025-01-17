@@ -136,6 +136,12 @@ public class ItemManager : BaseManager<ItemManager>
         return itemBox;
     }
 
+
+
+
+    /// <summary>
+    /// 01.17 희정 추가한 함수
+    /// </summary>
     //타입과 등급으로 해당 아이템 가져오기
     public List<Item> GetItemsByTypeAndGrade(ItemType itemType, ItemGrade grade)
     {
