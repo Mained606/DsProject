@@ -42,7 +42,6 @@ public class QuestManager : BaseManager<QuestManager>
         if (quest != null && npc != null)
         {
             quest.npcid = npcId;
-            Debug.Log($"퀘스트 '{quest.name}'가 NPC '{npc.name}'에게 할당되었습니다.");
         }
     }
 
@@ -73,7 +72,7 @@ public class QuestManager : BaseManager<QuestManager>
         if (quest != null)
         {
             questDatabase.Remove(quest);
-            Debug.Log($"[QuestManager] 퀘스트 '{quest.name}' 삭제됨");
+            UIManager.SystemGameMessage($"[QuestManager] 퀘스트 '{quest.name}' 삭제됨", MessageTag.아이템_획득);
         }
         else
         {
@@ -115,14 +114,14 @@ public class QuestManager : BaseManager<QuestManager>
                     {
                         quest.progress[conditionId] = condition.requiredQuantity;
                         condition.isCompleted = true;
-                        Debug.Log($"[QuestManager] 퀘스트 조건 '{condition.targetName}' 완료!");
+                        UIManager.SystemGameMessage($"[QuestManager] 퀘스트 조건 '{condition.targetName}' 완료!", MessageTag.아이템_획득);
                     }
                 }
             }
             if (IsQuestCompleted(quest))
             {
                 quest.isCompleted = true;
-                Debug.Log($"[QuestManager] 퀘스트 '{quest.name}' 완료!");
+                UIManager.SystemGameMessage($"[QuestManager] 퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
                 UIManager.Instance.QuestUpdate();
             }
         }
@@ -161,15 +160,15 @@ public class QuestManager : BaseManager<QuestManager>
                     break;
 
                 case QuestConditionType.Kill:
-                    Debug.Log($"[QuestManager] 처치 조건 '{condition.Value.targetName}' 완료 처리.");
+                    UIManager.SystemGameMessage($"[QuestManager] 처치 조건 '{condition.Value.targetName}' 완료 처리.", MessageTag.퀘스트);
                     break;
 
                 case QuestConditionType.Explore:
-                    Debug.Log($"[QuestManager] 탐험 조건 '{condition.Value.targetName}' 완료 처리.");
+                    UIManager.SystemGameMessage($"[QuestManager] 탐험 조건 '{condition.Value.targetName}' 완료 처리.", MessageTag.퀘스트);
                     break;
 
                 case QuestConditionType.Meet:
-                    Debug.Log($"[QuestManager] 만남 조건 '{condition.Value.targetName}' 완료 처리.");
+                    UIManager.SystemGameMessage($"[QuestManager] 만남 조건 '{condition.Value.targetName}' 완료 처리.", MessageTag.퀘스트);
                     break;
 
                 default:
@@ -183,25 +182,24 @@ public class QuestManager : BaseManager<QuestManager>
             if (!string.IsNullOrEmpty(reward.itemId))
             {
                 InventoryManager.Instance.AddItem(reward.itemId, reward.quantity);
-                Debug.Log($"[QuestManager] 보상 아이템 '{reward.itemId}' {reward.quantity}개 지급됨.");
+                UIManager.SystemGameMessage($"[QuestManager] 보상 아이템 '{reward.itemId}' {reward.quantity}개 지급됨.", MessageTag.아이템_획득);
             }
 
             if (reward.experience > 0)
             {
                 CharacterManager.PlayerCharacterData.AddExperience(reward.experience);
-                Debug.Log($"[QuestManager] 경험치 {reward.experience} 지급됨.");
+                UIManager.SystemGameMessage($"[QuestManager] 경험치 {reward.experience} 지급됨.", MessageTag.퀘스트);
             }
 
             if (reward.gold > 0)
             {
                 CharacterManager.PlayerCharacterData.AddGold(reward.gold);
-                UIManager.Instance.PickUpItemTextDisplay?.AddItem($"{reward.gold}골드를 획득했습니다.", ItemManager.Instance.GetItemSprite("금화"));
-                Debug.Log($"[QuestManager] 골드 {reward.gold} 지급됨. ttt");
+                UIManager.SystemGameMessage($"[QuestManager] 골드 {reward.gold} 지급됨.", MessageTag.금화_획득);
             }
         }
 
-        quest.isCompleted = false; // 퀘스트 재사용 가능하도록 초기화
-        Debug.Log($"[QuestManager] 퀘스트 '{quest.name}' 보상이 지급되었습니다.");
+        if (quest.questType != "메인퀘스트") quest.isCompleted = false;
+        UIManager.SystemGameMessage($"[QuestManager] 퀘스트 '{quest.name}' 보상이 지급되었습니다.", MessageTag.퀘스트);
         UIManager.Instance.QuestUpdate();
     }
 

@@ -15,8 +15,6 @@ public class ItemManager : BaseManager<ItemManager>
     protected override void Awake()
     {
         base.Awake();
-        //ItemDatabase.Clear();
-
         Addressables.LoadAssetsAsync<Sprite>("ItemSprites", sprite =>
         {
             if (!itemSpriteDictionary.ContainsKey(sprite.name))
@@ -29,11 +27,11 @@ public class ItemManager : BaseManager<ItemManager>
             Debug.Log($"{itemSpriteList.Count}개의 아이템 스프라이트를 로드했습니다.");
         };
 
-        //if (itemList.itemList.Count <= 0)
-        //{
-        //    GenerateData generateData = new GenerateData();
-        //    generateData.InitializeItems(itemList);
-        //}
+        if (itemList.itemList.Count <= 0)
+        {
+            GenerateData generateData = new GenerateData();
+            generateData.InitializeItems(itemList);
+        }
     }
 
     public void AddItemLogic(string itemId, int quantity = 1)
