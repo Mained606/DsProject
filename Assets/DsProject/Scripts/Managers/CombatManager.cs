@@ -42,9 +42,9 @@ public class CombatManager : BaseManager<CombatManager>
     }
     
     // 데미지 계산 메서드
-    public int CalculateDamage(CharacterData attacker, CharacterData defender)
+    private int CalculateDamage(CharacterData attacker, CharacterData defender)
     {
-        // 공격자의 물리 공격력, 방어자의 물리 방어력
+        // 공격자의 물리 공격력, 방어자의 물리 방어력 계산 로직
         int damage = attacker.physicalDamage - defender.physicalDefense;
 
         // 크리티컬 여부 체크
