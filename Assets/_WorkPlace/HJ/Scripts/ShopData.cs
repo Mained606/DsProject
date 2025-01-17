@@ -5,6 +5,7 @@ using System.Collections.Generic;
 [Serializable]
 public class ShopData
 {
+    public string shopId;               //상점id
     public string shopName;             //상점이름
     public ItemType type;               //상점이 다루는 아이템 타입
     public ItemGrade grade;             //상점이 다루는 아이템 등급

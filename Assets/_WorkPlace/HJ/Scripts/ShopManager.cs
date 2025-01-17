@@ -1,55 +1,73 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ShopManager : BaseManager<ShopManager>
 {
     #region Variables
-    [SerializeField] private ShopData shopData;
+    [SerializeField] private List<ShopData> shops = new List<ShopData>();
+    public static IReadOnlyList<ShopData> shopsDataList => Instance.shops;
 
-    private bool isPlayerInRange;
+    [SerializeField] private int playerMoney = 1000; //테스트용 임시변수
     #endregion
 
-    protected override void Awake()
-    {
-        base.Awake();
-        shopData.Initialize();
-    }
-
-    private void Update()
-    {
-        if (isPlayerInRange && InputManager.InputActions.actions["Interact"].triggered)
-        {
-            OpenShop();
-        }
-    }
-
-    /// <summary>
     /// 상점 오픈
-    /// </summary>
-    private void OpenShop()
+    public void OpenShop(ShopData shopData)
     {
-        if(shopData == null || !shopData.isInteractable)
+        if (shopData == null || !shopData.isInteractable)
         {
             Debug.Log("상점 비활성화 상태");
+            return;
         }
 
         //UI관련 로직
     }
 
-    private void OnTriggerEnter(Collider other)
+    //아이템 구매
+    public void PurchaseItem(string itemId, ShopData data, int quantity = 1)
     {
-        if (other.CompareTag("Player"))
+        var purchaseItem = data.availableItems.Find(i => i.id == itemId);
+
+
+        int amount = purchaseItem.costValue * quantity;
+
+        if (playerMoney < amount)
         {
-            isPlayerInRange = true;
+            Debug.Log("플레이어 소지 금액 부족");
+            return;
         }
+
+        //구매
+        playerMoney -= amount;
+        InventoryManager.Instance.AddItem(itemId, quantity);
+
+        Debug.Log($"{purchaseItem.name} 아이템 구매하고 남은 플레이어 소지금액: {playerMoney}");
     }
 
-    private void OnTriggerExit(Collider other)
+    //아이템 판매
+    public void SellItem(string itemId, ShopData data, float valueReductionRate, int quantity = 1)
     {
-        if (other.CompareTag("Player"))
+        var sellItem = InventoryManager.InventoryList.FirstOrDefault(i => i.id == itemId);
+
+        //인벤토리에 있는 전체 아이템 수량
+        int totalQuantity = InventoryManager.InventoryList.Where(i => i.id == itemId).Sum(i => i.quantity);
+
+        if(totalQuantity < quantity)
         {
-            isPlayerInRange = false;
+            Debug.Log($"{sellItem.name} 아이템 수량 부족");
+            return;
         }
+
+        //판매시 가치 감소를 반영한 전체 금액
+        int amount = ((int)(sellItem.costValue * valueReductionRate) * quantity);
+
+        Debug.Log($"판매금액 : {amount}");
+
+        //판매
+        playerMoney += amount;
+        Debug.Log($"{sellItem.name} 아이템 판매한 후 플레이어 소지금액: {playerMoney}");
+
+        InventoryManager.Instance.RemoveItemLogic(itemId, quantity);
     }
 
 
