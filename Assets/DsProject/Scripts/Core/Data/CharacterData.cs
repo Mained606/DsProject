@@ -32,9 +32,9 @@ public class CharacterData
     
     // 계산된 값 (정수형)
     [HideInInspector] public int maxHp;        // 최대 HP
-    [HideInInspector] public int currentHp;    // 현재 HP
+    public int currentHp;    // 현재 HP
     [HideInInspector] public int maxMp;        // 최대 HP
-     public int currentMp;    // 현재 HP
+    public int currentMp;    // 현재 HP
     [HideInInspector] public int physicalDefense;  // 물리 방어력
     [HideInInspector] public int magicDefense;     // 마법 방어력
     [HideInInspector] public int physicalDamage;   // 물리 공격력
