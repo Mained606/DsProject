@@ -153,6 +153,8 @@ public enum MessageTag
     시스템_알림,         // System notice
     이벤트,              // General event message
     아이템_획득,         // Item picked up
+    아이템_사용,         // Item used up
+    아이템_버림,         // Item droped
     희귀_아이템,         // Rare item obtained
     금화_획득,           // Gold acquired
     아군_회복,           // Ally healed

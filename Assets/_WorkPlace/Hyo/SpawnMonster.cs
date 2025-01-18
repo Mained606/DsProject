@@ -17,6 +17,8 @@ public class SpawnMonster : MonoBehaviour
         CharacterManager.Instance.SpawnMonster("Mushroom", new Vector3(15, 1, 0));
         CharacterManager.Instance.SpawnMonster("Mushroom", new Vector3(18, 1, 0));
         CharacterManager.Instance.SpawnMonster("Mushroom", new Vector3(20, 1, 0));
-
+        CharacterManager.Instance.SpawnMonster("Mushroom", new Vector3(13, 1, 0));
+        CharacterManager.Instance.SpawnMonster("Mushroom", new Vector3(22, 1, 0));
+        CharacterManager.Instance.SpawnMonster("Mushroom", new Vector3(24, 1, 0));
     }
 }

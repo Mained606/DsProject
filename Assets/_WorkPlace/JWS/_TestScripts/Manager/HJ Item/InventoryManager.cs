@@ -7,65 +7,106 @@ public class InventoryManager : BaseManager<InventoryManager>
     [SerializeField] private List<Item> inventory = new List<Item>();
     public static IReadOnlyList<Item> InventoryList => Instance.inventory;
 
-    //최대 수용한도
-    [SerializeField] private int maxCapacity = 99;
-    //아이템 수용한도
-    public int CurrentCapacity { get; set; } = 30;
+    [SerializeField] private int maxCapacity = 99;  // 인벤토리 가방 최대수용량
+    public int CurrentCapacity { get; set; } = 30;   // 현재 수용량
     public bool IsCanUseInventory => inventory.Count < CurrentCapacity;
 
-    public void AddItem(string itemId, int quantity = 1)
+    //public void AddItem(string itemId, int quantity = 1)
+    //{
+    //    if (!IsCanUseInventory) return;
+    //    Item item = ItemManager.Instance.GetItemById(itemId).Clone();
+    //    if (item != null)
+    //    {
+    //        item.quantity = quantity;
+    //        AddItemLogic(item);
+    //    }
+    //    else
+    //    {
+    //        Debug.LogWarning($"[InventoryManager] 아이템 ID '{itemId}'를 데이터베이스에서 찾을 수 없습니다.");
+    //    }
+    //}
+
+    public void AddItemLogic(Item addItem)
     {
-        if (!IsCanUseInventory) return;
-        var item = ItemManager.Instance.GetItemById(itemId).Clone();
-        if (item != null)
+        if (!IsCanUseInventory)
         {
-            item.quantity = quantity;
-            AddItemLogic(item);
+            UIManager.SystemMessage($"[InventoryManager] 인벤토리를 사용할 수 없는 상태입니다.");
+            return;
+        }
+
+        var existingItem = FindExistingItem(addItem.id);
+        if (existingItem != null && existingItem.isStackable)
+        {
+            HandleStackableItem(existingItem, addItem);
         }
         else
         {
-            Debug.LogWarning($"[InventoryManager] 아이템 ID '{itemId}'를 데이터베이스에서 찾을 수 없습니다.");
+            HandleNonStackableItem(addItem);
         }
     }
 
-    public void AddItemLogic(Item item)
+    private Item FindExistingItem(string itemId)
     {
-        if (!IsCanUseInventory) return;
+        return inventory.Find(i => i.id == itemId);
+    }
 
-        var existingItem = inventory.Find(i => i.id == item.id);
+    private void HandleStackableItem(Item existingItem, Item addItem)
+    {
+        int totalQuantity = existingItem.quantity + addItem.quantity;
+        int remainingQuantity = totalQuantity;
 
-        // 스택 가능한 아이템 처리
-        if (existingItem != null && existingItem.isStackable)
+        while (remainingQuantity > addItem.maxStack)
         {
-            int totalQuantity = existingItem.quantity + item.quantity;
-
-            if (totalQuantity > item.maxStack)
+            existingItem.quantity = addItem.maxStack;
+            remainingQuantity -= addItem.maxStack;
+            Item newItem = addItem.Clone();
+            newItem.quantity = addItem.maxStack;
+            if (!AddNewItemToInventory(newItem))
             {
-                int remainingQuantity = totalQuantity - item.maxStack;
-                existingItem.quantity = item.maxStack;
-                UIManager.SystemGameMessage($"[InventoryManager] '{item.name}'의 수량이 최대치 {item.maxStack}에 도달했습니다. 초과된 수량: {remainingQuantity}", MessageTag.아이템_획득);
+                UIManager.SystemMessage($"[InventoryManager] 인벤토리가 가득 찼습니다. '{newItem.name}' 추가 불가.");
+                return;
+            }
+            UIManager.SystemGameMessage($"[InventoryManager] '{newItem.name}' 추가됨 (현재 수량: {newItem.quantity})", MessageTag.아이템_획득);
+        }
+        if (remainingQuantity > 0)
+        {
+            existingItem.quantity = remainingQuantity;
+            UIManager.SystemGameMessage($"[InventoryManager] '{existingItem.name}' 추가됨 (최종 수량: {existingItem.quantity})", MessageTag.아이템_획득);
+        }
 
-                var newItem = item.Clone();
-                newItem.quantity = remainingQuantity;
-                AddItemLogic(newItem);
-            }
-            else
-            {
-                existingItem.quantity = totalQuantity;
-                UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 추가됨 (현재 수량: {existingItem.quantity})", MessageTag.아이템_획득);
-            }
-        }
-        else if (!item.isStackable)
+        UpdateQuestAndUI(existingItem);
+    }
+
+    private void HandleNonStackableItem(Item addItem)
+    {
+        if (!AddNewItemToInventory(addItem))
         {
-            inventory.Add(item);
-            UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 추가됨 (스택 불가 아이템)", MessageTag.아이템_획득);
+            UIManager.SystemMessage($"[InventoryManager] 인벤토리가 가득 찼습니다. '{addItem.name}' 추가 불가.");
+            return;
         }
-        else
+
+        string message = addItem.isStackable
+            ? $"[InventoryManager] '{addItem.name}' 추가됨 (새 아이템)"
+            : $"[InventoryManager] '{addItem.name}' 추가됨 (스택 불가 아이템)";
+        UIManager.SystemGameMessage(message, MessageTag.아이템_획득);
+
+        UpdateQuestAndUI(addItem);
+    }
+
+    private bool AddNewItemToInventory(Item item)
+    {
+        if (inventory.Count >= CurrentCapacity)
         {
-            inventory.Add(item);
-            UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 추가됨 (새 아이템)", MessageTag.아이템_획득);
+            return false;
         }
-        QuestManager.Instance.UpdateQuestProgress( QuestConditionType.Collect, item.id ,item.quantity);
+
+        inventory.Add(item.Clone());
+        return true;
+    }
+
+    private void UpdateQuestAndUI(Item item)
+    {
+        QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Collect, item.id, item.quantity);
         UIManager.Instance.PickUpItemTextDisplay?.AddItem(item.name, item.sprite);
     }
 
@@ -103,7 +144,6 @@ public class InventoryManager : BaseManager<InventoryManager>
         UIManager.Instance.InventoryUpdate();
     }
 
-
     public int GetItemQuantity(string itemId)
     {
         Item existingItem = inventory.FirstOrDefault(i => i.id == itemId);
@@ -134,12 +174,6 @@ public class InventoryManager : BaseManager<InventoryManager>
         int previousCapacity = CurrentCapacity;
         CurrentCapacity = Mathf.Min(CurrentCapacity + expandSize, maxCapacity);
         UIManager.SystemGameMessage($"[InventoryManager] 인벤토리가 확장되었습니다. 이전 용량: {previousCapacity}, 현재 용량: {CurrentCapacity}/{maxCapacity}", MessageTag.아이템_획득);
-    }
-
-    public void AddQuestRewardItem(string itemId, int quantity)
-    {
-        AddItem(itemId, quantity);
-        UIManager.SystemGameMessage($"[InventoryManager] 퀘스트 보상으로 '{itemId}' 아이템이 {quantity}개 추가되었습니다.", MessageTag.아이템_획득);
     }
 
     public void PrintInventory()

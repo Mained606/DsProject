@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class DropItemBoxController : MonoBehaviour
 {
     public List<string> dropItemIds = new List<string>();
-    [SerializeField] private float detectionDistance = 2f;
+    [SerializeField] private float detectionDistance = 1f;
     public bool isRandomDrop = true;
 
     private void Start()
@@ -13,7 +13,7 @@ public class DropItemBoxController : MonoBehaviour
 
     private void Update()
     {
-        if (InputManager.InputActions.actions["Interact"].IsPressed())
+        if (InputManager.InputActions.actions["Interact"].triggered)
         {
             OpenBox(dropItemIds);
         }
@@ -23,8 +23,6 @@ public class DropItemBoxController : MonoBehaviour
     {
         if (!IsNearPlayer())
             return;
-
-        Debug.Log("박스열기");
 
         if (isRandomDrop)
         {
@@ -44,8 +42,6 @@ public class DropItemBoxController : MonoBehaviour
         }
         else
         {
-            // 추가 필요 고정 아이템
-            Debug.Log("고정아이템 : " + items.Count + "아이템 아이디" + items[0]);
             foreach (var itemId in items)
             {
                 ItemManager.Instance.AddItemLogic(itemId);
@@ -55,9 +51,6 @@ public class DropItemBoxController : MonoBehaviour
         Destroy(gameObject); //박스 삭제
     }
 
-    /// <summary>
-    /// 플레이어가 근처에 있는지 감지
-    /// </summary>
     private bool IsNearPlayer()
     {
         float disatance = Vector3.Distance(transform.position, GameManager.playerTransform.position);
