@@ -12,9 +12,15 @@ public class CombatManager : BaseManager<CombatManager>
     {
         CharacterData attacker = isPlayerAttacking ? player : enemy;
         CharacterData defender = isPlayerAttacking ? enemy : player;
-        Vector3 targetPosition = (Vector3.up * 3.5f) + (isPlayerAttacking ? enemyTransform.position : GameManager.playerTransform.position);
+        Transform targetTransform = isPlayerAttacking ? enemyTransform : GameManager.playerTransform;
 
+        // 현재 타겟의 실제높이 계산을 위한부분
+        Collider collider = targetTransform.GetComponent<Collider>();
+        float characterHeight = collider != null ? collider.bounds.size.y : 0f;
+        float targetHeight = targetTransform.position.y + characterHeight;// ( (characterHeight == 0f ? 2f : characterHeight));
 
+        // 현재 타겟의 실제높이 계산을 위한부분
+        Vector3 targetPosition = new Vector3(targetTransform.position.x, targetHeight, targetTransform.position.z);
 
         if (defender == null || defender.currentHp <= 0)
         {

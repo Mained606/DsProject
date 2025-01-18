@@ -233,7 +233,6 @@ public class UIManager : BaseManager<UIManager>
         Debug.Log("Quest dialog setup complete.");
     }
 
-
     private void SetupDialog(Button button, TextMeshProUGUI display, string buttonText, string message, UnityEngine.Events.UnityAction onClickAction)
     {
         button.GetComponentInChildren<TextMeshProUGUI>().text = buttonText;
