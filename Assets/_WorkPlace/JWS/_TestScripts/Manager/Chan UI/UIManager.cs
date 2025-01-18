@@ -53,7 +53,7 @@ public class UIManager : BaseManager<UIManager>
 
     private void Update()
     {
-        if (IsUIWindowOpen())
+        if (IsUIWindowOpen() || IsPointerOverUI())
         {
             InputManager.InputActions.actions["Attack"].Disable(); // UI가 열려 있을 때 공격 비활성화
             InputManager.InputActions.actions["Interact"].Disable(); // UI가 열려 있을 때 공격 비활성화
@@ -65,8 +65,17 @@ public class UIManager : BaseManager<UIManager>
         }
         InputManager.InputActions.actions["Inventory"].Enable();
         InputManager.InputActions.actions["Quest"].Enable();
+    }
 
-
+    private bool IsPointerOverUI()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+        return results.Count > 0; // UI 요소를 클릭했는지 여부 반환
     }
 
     public void ToggleDialog()
@@ -296,7 +305,7 @@ public class UIManager : BaseManager<UIManager>
 
     public bool IsUIWindowOpen()
     {
-        return dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf || historyWindow;
+        return dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
