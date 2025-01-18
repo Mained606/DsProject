@@ -27,31 +27,20 @@ public class HistoryWindowUI : MonoBehaviour
         DisplayHistory(selectedTag);
     }
 
-
+    private void OnEnable()
+    {
+        DisplayHistory();
+    }
 
     public void DisplayHistory(MessageTag tags = MessageTag.전체)
     {
-        if (tags != MessageTag.전체)
-        {
-            historyLog.text = UIManager.HistoryManager.GetPagedTextByTag(tags, 1);
-        }
-        else
-        {
-            historyLog.text = UIManager.HistoryManager.GetAllHistoryAsText();
-        }
+        historyLog.text = UIManager.HistoryManager.DisplayHistory(tags);
         Canvas.ForceUpdateCanvases();
     }
 
     private void OnCLickButton(MessageTag tags)
     {
         selectedTag = tags;
-        if (tags != MessageTag.전체)
-        {
-            historyLog.text = UIManager.HistoryManager.GetPagedTextByTag(tags, 1);
-        }
-        else
-        {
-            historyLog.text = UIManager.HistoryManager.GetAllHistoryAsText();
-        }
+        DisplayHistory(tags);
     }
 }

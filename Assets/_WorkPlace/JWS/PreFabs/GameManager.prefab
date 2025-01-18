@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemList: {fileID: 11400000, guid: 09486d49e48af1441bb7f646a326401c, type: 2}
+  itemSpriteList: []
   dropItemPrefab: {fileID: 5784722882407542849, guid: 8699b19efa8ab9745b919704ee5311b0, type: 3}
 --- !u!1 &668412533047110478
 GameObject:
@@ -300,6 +301,8 @@ MonoBehaviour:
     experienceToLevelUp: 0
     maxHp: 0
     currentHp: 0
+    maxMp: 0
+    currentMp: 0
     physicalDefense: 0
     magicDefense: 0
     physicalDamage: 0
@@ -524,14 +527,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questTextPrefab: {fileID: 3663757764234859239, guid: b211697614d516943814eacca5a993bd, type: 3}
   mainQuestTextPrefab: {fileID: 2612860732477827289, guid: 990dbfd5b6262f640867262da8e3e6c5, type: 3}
+  damagePopUpPrefab: {fileID: 7089320614165589264, guid: 45fcd57e52fa2414b859ad52233499f3, type: 3}
   mainTitleButton: {fileID: 0}
   baseCanvas: {fileID: 0}
   mainCanvas: {fileID: 0}
   dialogWindow: {fileID: 0}
   questWindow: {fileID: 0}
-  interactText: {fileID: 0}
-  questListParent: {fileID: 0}
   inventoryUI: {fileID: 0}
+  interactTextUI: {fileID: 0}
+  historyLog: {fileID: 0}
+  historyWindow: {fileID: 0}
+  questListParent: {fileID: 0}
 --- !u!1 &9088007830065972167
 GameObject:
   m_ObjectHideFlags: 0
@@ -635,7 +641,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c45aa212ec97f1459b72bd1e2f737fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalManagers: 7
+  totalManagers: 1
 --- !u!114 &4132014792383948691
 MonoBehaviour:
   m_ObjectHideFlags: 0

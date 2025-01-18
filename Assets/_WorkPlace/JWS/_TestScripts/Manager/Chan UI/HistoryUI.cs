@@ -38,19 +38,18 @@ public class HistoryUI : MonoBehaviour
         {
             Debug.LogError("HistoryUI의 필드가 제대로 연결되지 않았습니다.");
         }
+
+        DisplayHistory();
+    }
+
+    private void OnEnable()
+    {
+        DisplayHistory();
     }
 
     public void DisplayHistory(MessageTag tags = MessageTag.전체)
     {
-        if (tags != MessageTag.전체)
-        {
-            logText.text = UIManager.HistoryManager.GetPagedTextByTag(tags, 1);
-        }
-        else
-        {
-            logText.text = UIManager.HistoryManager.GetAllHistoryAsText();
-        }
-
+        logText.text = UIManager.HistoryManager.DisplayHistory(tags);
         Canvas.ForceUpdateCanvases(); // UI 강제 업데이트
         scrollRect.verticalNormalizedPosition = 0f; // 스크롤 위치 초기화 (아래로 이동)
     }
@@ -58,5 +57,6 @@ public class HistoryUI : MonoBehaviour
     private void ToggleHistoryLog()
     {
         animator.SetBool("Close", !animator.GetBool("Close"));
+        UIManager.Instance.ToggleHistorylog();
     }
 }

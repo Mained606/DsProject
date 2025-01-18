@@ -12,7 +12,10 @@ public class CombatManager : BaseManager<CombatManager>
     {
         CharacterData attacker = isPlayerAttacking ? player : enemy;
         CharacterData defender = isPlayerAttacking ? enemy : player;
-        
+        Vector3 targetPosition = (Vector3.up * 3.5f) + (isPlayerAttacking ? enemyTransform.position : GameManager.playerTransform.position);
+
+
+
         if (defender == null || defender.currentHp <= 0)
         {
             Debug.Log(defender.currentHp);
@@ -23,9 +26,11 @@ public class CombatManager : BaseManager<CombatManager>
         int damage = CalculateDamage(attacker, defender);
 
         defender.TakeDamage(damage);
+
+        UIManager.DisplayPopupText(damage.ToString(), targetPosition, isPlayerAttacking ? MessageTag.적_피해 : MessageTag.플레이어_피해);
+
         Debug.Log($"{attacker.characterName}가 {defender.characterName}에게 {damage}의 데미지를 입혔습니다.");
         Debug.Log($"{defender.characterName}의 체력이 {defender.currentHp} 만큼 남았습니다.");
-
 
         // 대상이 사망했는지 확인
         if (defender.currentHp <= 0)
