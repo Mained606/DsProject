@@ -28,8 +28,17 @@ public class Durability : IDurability
             CurrentDurability = MaxDurability;
         }
     }
+
     public float GetDurabilityPercentage()
     {
         return DurabilityPercentage;
+    }
+
+    public Durability Clone()
+    {
+        return new Durability(this.MaxDurability)
+        {
+            CurrentDurability = this.CurrentDurability
+        };
     }
 }

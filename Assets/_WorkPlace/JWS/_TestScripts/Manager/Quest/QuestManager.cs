@@ -181,7 +181,7 @@ public class QuestManager : BaseManager<QuestManager>
         {
             if (!string.IsNullOrEmpty(reward.itemId))
             {
-                InventoryManager.Instance.AddItem(reward.itemId, reward.quantity);
+                ItemManager.Instance.AddItemLogic(reward.itemId, reward.quantity);
                 UIManager.SystemGameMessage($"[QuestManager] 보상 아이템 '{reward.itemId}' {reward.quantity}개 지급됨.", MessageTag.아이템_획득);
             }
 

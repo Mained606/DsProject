@@ -57,7 +57,7 @@ public class Ex_ShopManager
         playerMoney -= amount;  //플레이어 소지금액 감소
         npcMoney += amount;     //npc 소지금액 증가
         RemoveShopItem(itemId, shopItems, quantitiy);   //상점에서 아이템 제거
-        InventoryManager.Instance.AddItem(itemId, quantitiy); //인벤토리에 아이템 추가
+        ItemManager.Instance.AddItemLogic(itemId, quantitiy); //인벤토리에 아이템 추가
         Debug.Log($"{shopItem.item.name} 구매하고 남은 돈: {playerMoney}");
     }
 

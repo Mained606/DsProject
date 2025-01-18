@@ -17,6 +17,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject questWindow;
     [SerializeField] private GameObject inventoryUI;
     [SerializeField] private GameObject interactTextUI;
+    [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
     [SerializeField] private Transform questListParent;
     private PickUpItemTextDisplay pickUpItemTextDisplay;
@@ -30,6 +31,7 @@ public class UIManager : BaseManager<UIManager>
     public static MainButtonUI MainButtonUI;
     public static InteractPopupUI InteractPopupUI;
     public static HistoryUI HistoryUI;
+    public static HistoryWindowUI HistoryWindowUI;
 
     protected override void OnEnable()
     {
@@ -43,13 +45,15 @@ public class UIManager : BaseManager<UIManager>
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
+        historyWindow.gameObject.SetActive(false);
         HistoryManager = new HistoryManager();
-        HistoryUI = historyWindow.GetComponent<HistoryUI>();
+        HistoryUI = historyLog.GetComponent<HistoryUI>();
+        HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
     }
 
     private void Update()
     {
-        if (IsUIWindowOpen())
+        if (IsUIWindowOpen() || IsPointerOverUI())
         {
             InputManager.InputActions.actions["Attack"].Disable(); // UI가 열려 있을 때 공격 비활성화
             InputManager.InputActions.actions["Interact"].Disable(); // UI가 열려 있을 때 공격 비활성화
@@ -61,8 +65,17 @@ public class UIManager : BaseManager<UIManager>
         }
         InputManager.InputActions.actions["Inventory"].Enable();
         InputManager.InputActions.actions["Quest"].Enable();
+    }
 
-
+    private bool IsPointerOverUI()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+        return results.Count > 0; // UI 요소를 클릭했는지 여부 반환
     }
 
     public void ToggleDialog()
@@ -73,7 +86,6 @@ public class UIManager : BaseManager<UIManager>
 
     public void ToggleInventory()
     {
-        Debug.Log("인벤 호출");
         inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
     }
@@ -278,6 +290,7 @@ public class UIManager : BaseManager<UIManager>
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
+        historyWindow.gameObject.SetActive(false);
     }
 
     public void InteractTextPopup(string keyname, string comment, bool isOn)
@@ -292,7 +305,7 @@ public class UIManager : BaseManager<UIManager>
 
     public bool IsUIWindowOpen()
     {
-        return dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf;
+        return dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
