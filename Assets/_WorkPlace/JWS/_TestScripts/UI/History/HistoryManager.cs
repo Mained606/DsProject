@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class HistoryManager
 {
@@ -130,6 +131,20 @@ public class HistoryManager
             fullHistoryText += $"{log.ToString()}\n";
         }
         return fullHistoryText;
+    }
+
+    public string DisplayHistory(MessageTag tags = MessageTag.전체)
+    {
+        string msg = string.Empty;
+        if (tags != MessageTag.전체)
+        {
+            msg = GetPagedTextByTag(tags, 1);
+        }
+        else
+        {
+            msg = GetAllHistoryAsText();
+        }
+        return msg;
     }
 }
 
