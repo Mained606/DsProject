@@ -38,13 +38,6 @@ public class HistoryUI : MonoBehaviour
         {
             Debug.LogError("HistoryUI의 필드가 제대로 연결되지 않았습니다.");
         }
-
-        DisplayHistory();
-    }
-
-    private void OnEnable()
-    {
-        DisplayHistory();
     }
 
     public void DisplayHistory(MessageTag tags = MessageTag.전체)
