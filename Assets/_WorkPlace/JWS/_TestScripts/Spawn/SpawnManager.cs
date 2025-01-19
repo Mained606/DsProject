@@ -89,12 +89,10 @@ public class SpawnManager : MonoBehaviour
         {
             spawnerList.Add(nPCSpawner);
         }
-
         if (spawnnerLists != null && !spawnnerLists.spawnDataLists.Contains(nPCSpawner.SpawnData))
         {
             spawnnerLists.spawnDataLists.Add(nPCSpawner.SpawnData);
         }
-
         Debug.Log($"NPCSpawner '{nPCSpawner.SpawnData.spwanName}'가 SpawnManager에 등록되었습니다.");
     }
 }
