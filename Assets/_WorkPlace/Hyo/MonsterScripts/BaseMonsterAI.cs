@@ -35,9 +35,21 @@ public class BaseMonsterAI : MonoBehaviour
         col = GetComponent<Collider>();
         rb = GetComponent<Rigidbody>();
         monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
+        if (monsterData != null) monsterData.OnTakeDamage += HandleTakeDamage;
 
         SetNewPatrolTarget(); // 새로운 패트롤 목표 설정
         SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
+    }
+    
+    protected virtual void OnDestroy()
+    {
+        if (monsterData != null) monsterData.OnTakeDamage -= HandleTakeDamage;
+    }
+    
+    protected virtual void HandleTakeDamage()
+    {
+        // 피격 애니메이션 실행
+        animator.SetTrigger("Hit");
     }
 
     protected virtual void Update()

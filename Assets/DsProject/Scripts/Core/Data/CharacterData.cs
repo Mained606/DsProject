@@ -51,6 +51,8 @@ public class CharacterData
 
     private Dictionary<string, int> stats;
     private StatModifier basestatModifier = new StatModifier();
+    
+    public event Action OnTakeDamage; // 피격 했는지 이벤트 전달
 
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(string name, CharacterType type, GameObject prefab, 
@@ -197,8 +199,9 @@ public class CharacterData
     // 피해를 입었을 때
     public void TakeDamage(int damage)
     {
-        currentHp -= damage;
-        currentHp = Mathf.Max(0, currentHp);  // currentHp가 0 이하로 떨어지지 않도록 처리
+        currentHp = Mathf.Max(0, currentHp - damage);
+        
+        OnTakeDamage?.Invoke();
     }
 
     // 회복
