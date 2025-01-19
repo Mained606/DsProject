@@ -144,6 +144,10 @@ public class CharacterData
         // 레벨업 시 능력치 증가 및 파생 스탯 계산
         IncreaseStatsBasedOnLevel();
         UpdateDerivedStats();
+        
+        currentHp = this.maxHp;
+        currentMp = this.maxMp;
+        staminaCurrent = this.stamina;
 
         // 레벨업 시 로그 출력 (디버깅용)
         Debug.Log($"레벨업! 현재 레벨: {level}, 남은 경험치: {currentExperience}");
