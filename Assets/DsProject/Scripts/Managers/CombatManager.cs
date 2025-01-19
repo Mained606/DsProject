@@ -10,6 +10,8 @@ public class CombatManager : BaseManager<CombatManager>
     // 공격 처리 메서드
     public void ProcessAttack(CharacterData player, CharacterData enemy, Transform enemyTransform, bool isPlayerAttacking)
     {
+        GameStateMachine.Instance.ChangeState(GameSystemState.Combat);
+        
         CharacterData attacker = isPlayerAttacking ? player : enemy;
         CharacterData defender = isPlayerAttacking ? enemy : player;
         Transform targetTransform = isPlayerAttacking ? enemyTransform : GameManager.playerTransform;
@@ -45,6 +47,7 @@ public class CombatManager : BaseManager<CombatManager>
             {
                 // 플레이어 사망 처리
                 Debug.LogError("플레이어 사망");
+                GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
                 return;
             }
             HandleDefeated(defender, enemyTransform);
@@ -79,5 +82,7 @@ public class CombatManager : BaseManager<CombatManager>
         {
             Debug.LogError("defeatedCharacter를 MonsterData로 캐스팅할 수 없습니다.");
         }
+        
+        GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
     }
 }
