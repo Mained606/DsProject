@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SpawnManager : MonoBehaviour
 {
     public static SpawnManager Instance { get; private set; }
     [SerializeField] private SpawnnerList spawnnerLists;    // 관리할 스포너 리스트
-    [SerializeField] private Text uiText;                   // UI 텍스트
+    [SerializeField] private TextMeshProUGUI uiText;                   // UI 텍스트
     [SerializeField] private List<NPCSpawner> spawnerList;
 
     private float uiUpdateInterval = 0.5f;
@@ -49,10 +49,10 @@ public class SpawnManager : MonoBehaviour
     private void CreateSpawnerFromData(SpawnData spawnData)
     {
         GameObject spawnerObject = new GameObject(spawnData.spwanName);
+        spawnerObject.transform.position = spawnData.spawnPosition;
         NPCSpawner newSpawner = spawnerObject.AddComponent<NPCSpawner>();
         newSpawner.SpawnData = spawnData;
         spawnerList.Add(newSpawner);
-
         Debug.Log($"스폰 데이터 '{spawnData.spwanName}'에서 새로운 스포너 생성.");
     }
 
@@ -70,14 +70,18 @@ public class SpawnManager : MonoBehaviour
     {
         if (uiText != null)
         {
-            string uiStatus = "";
+            string uiStatus = $"스폰 정보 ( 스폰갯수 : <color=green>{spawnerList.Count}</color>개 )\n";
             foreach (var spawner in spawnerList)
             {
-                uiStatus += $"{spawner.SpawnType}: {spawner.ActiveObjectCount} ";
+                float distance = Vector3.Distance(GameManager.playerTransform.position, spawner.SpawnData.spawnPosition);
+                uiStatus += $"<color=yellow>{spawner.SpawnData.spwanName}</color>  " +
+                            $"-  <color=blue>{spawner.SpawnType}</color>  " +
+                            $"-  <color=green>{distance:F1}m</color>\n";
             }
             uiText.text = uiStatus;
         }
     }
+
 
     public void AddNPCSpawner(NPCSpawner nPCSpawner)
     {
@@ -95,52 +99,3 @@ public class SpawnManager : MonoBehaviour
     }
 }
 
-[CreateAssetMenu(fileName = "SpawnnerList", menuName = "Ds Project/Spawnner List", order = 1)]
-public class SpawnnerList : ScriptableObject
-{
-    public List<SpawnData> spawnDataLists = new List<SpawnData>();
-}
-
-[Serializable]
-public class SpawnData
-{
-    public string spwanName;                // 스폰 데이터 이름
-    public SpawnnerType spwanType;          // 스폰 타입
-    public SpawnStyle spawnStyle;           // 스폰 스타일
-    public Vector2 spaawnSize;
-    public Transform spawnTransform;        // 스폰 위치
-    public List<GameObject> spawnObjects;   // 스폰 대상 프리팹 리스트
-    public bool autoSpawn = true;           // 자동 스폰 여부
-    public float initialDelay = 1f;         // 재 스폰 딜레이
-    public float spawnInterval = 5f;        // 스폰 주기
-    public int maxSpawnCount = 5;           // 최대 스폰 개수
-    public float detectionDistance = 30;    // 감지거리
-    public TriggerType triggerType;         // 스폰 트리거조건
-    public Func<bool> triggerCondition;     // 스폰 조건 (함수)
-    public int activeObjectCount;
-}
-
-public enum SpawnnerType
-{
-    None,
-    Npc,
-    Monster,
-    Boss
-}
-
-public enum SpawnStyle
-{
-    None,
-    BoxArea,
-    CircleArea,
-    FollowPath
-}
-
-public enum TriggerType
-{
-    Distance,
-    Time,
-    Event
-}
-
-// spawnData.triggerCondition = () => Vector3.Distance(player.position, spawnData.spawnTransform.position) < 10f;

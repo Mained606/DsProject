@@ -183,6 +183,31 @@ public class CharacterManager : BaseManager<CharacterManager>
         }
     }
 
+
+
+    /// <summary>
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    /// </summary>
+    // 몬스터 생성 함수 (템플릿 기반)
+    public GameObject CreatMonster(string templateName, Transform parent)
+    {
+        MonsterData monster = CreateCharacterFromTemplate(templateName);
+        if (monster != null)
+        {
+            GameObject monsterInstance = Instantiate(monster.prefab, parent);
+            monster.instance = monsterInstance;
+            var testComponent = monsterInstance.AddComponent<Test1>();
+            testComponent.monster = monster;
+            return monsterInstance;
+        }
+        return null;
+    }
+    /// <summary>
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    /// </summary>
+    /// 
+
+
     // 몬스터 처치 처리
     public void OnMonsterDefeated(MonsterData monster, Vector3 position)
     {
