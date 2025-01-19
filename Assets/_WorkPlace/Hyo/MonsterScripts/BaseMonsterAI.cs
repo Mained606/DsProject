@@ -198,6 +198,7 @@ public class BaseMonsterAI : MonoBehaviour
     protected virtual void PerformAttack()
     {
         animator.SetTrigger("Attack"); // 공격 애니메이션 실행
+        
         CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false);
     }
     
@@ -251,6 +252,8 @@ public class BaseMonsterAI : MonoBehaviour
     public void SetDeadState()
     {
         SetState(AIState.Dead);
+
+        OnDeathAnimationEnd();
     }
     
     public void OnDeathAnimationEnd()
@@ -258,9 +261,9 @@ public class BaseMonsterAI : MonoBehaviour
         // 몬스터 제거 처리
         col.enabled = false;
         rb.isKinematic = true;
-        Destroy(gameObject, 1f);
+        Destroy(this.gameObject, 1f);
     }
-
+    
     private void OnDrawGizmosSelected()
     {
         // 디버깅을 위한 Gizmo 시각화
