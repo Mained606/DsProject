@@ -44,7 +44,7 @@ public enum BossType
 public class CharacterManager : BaseManager<CharacterManager>
 {
     // 캐릭터 데이터 리스트 (플레이어 + 몬스터/보스)
-    private List<CharacterData> characterList = new List<CharacterData>();
+    [SerializeField] private List<CharacterData> characterList = new List<CharacterData>();
     public static IReadOnlyList<CharacterData> CharacterList => Instance.characterList.AsReadOnly();
     // 플레이어 캐릭터 (온리 원)
     public static PlayerData PlayerCharacterData;
@@ -164,12 +164,29 @@ public class CharacterManager : BaseManager<CharacterManager>
         Debug.Log($"캐릭터 템플릿 '{cloned.characterName}' 생성 완료.");
         return cloned;
     }
+    
+    // 몬스터를 지정한 위치에 여러 개 소환하는 함수
+    public void SpawnMonsters(string monsterName, int spawnCount, Vector3 spawnCenter, float spawnRange)
+    {
+        for (int i = 0; i < spawnCount; i++)
+        {
+            // 랜덤한 위치 계산
+            Vector3 spawnPosition = spawnCenter + new Vector3(
+                Random.Range(-spawnRange, spawnRange),
+                0f,  // Y 값은 고정 (필요에 따라 수정 가능)
+                Random.Range(-spawnRange, spawnRange)
+            );
 
-    // 몬스터 생성 함수 (템플릿 기반)
+            // 몬스터 생성
+            SpawnMonster(monsterName, spawnPosition);
+            Debug.Log($"몬스터 '{monsterName}' 스폰 위치: {spawnPosition}");
+        }
+    }
+
+    // 단일 몬스터 생성 함수 (템플릿 기반)
     public void SpawnMonster(string templateName, Vector3 spawnPosition)
     {
         MonsterData monster = CreateCharacterFromTemplate(templateName);
-        Debug.Log(monster.ToStringForTMPro() + "몬스터 생성 후 스텟");
 
         if (monster != null)
         {
@@ -220,7 +237,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         }
         
         // 아이템 드롭
-        ItemManager.Instance.SpawnItemBox(position, monster, false);
+        ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, false);
         
         // 몬스터 오브젝트 삭제
         if (monster.instance != null)
