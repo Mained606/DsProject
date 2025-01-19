@@ -70,7 +70,6 @@ public class UIManager : BaseManager<UIManager>
 
     private bool IsPointerOverUI()
     {
-        Debug.Log("UI 클릭..");
         PointerEventData eventData = new PointerEventData(EventSystem.current)
         {
             position = Input.mousePosition
