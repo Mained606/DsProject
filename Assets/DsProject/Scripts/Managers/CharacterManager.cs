@@ -228,6 +228,35 @@ public class CharacterManager : BaseManager<CharacterManager>
     // 몬스터 처치 처리
     public void OnMonsterDefeated(MonsterData monster, Vector3 position)
     {
+        
+        // AI 상태를 Dead로 변경
+        if (monster.instance != null)
+        {
+            // BaseMonsterAI 검색 및 처리
+            BaseMonsterAI baseAI = monster.instance.GetComponent<BaseMonsterAI>();
+            if (baseAI != null)
+            {
+               baseAI.SetDeadState();
+            }
+            else
+            {
+                // // BossMonsterAI 검색 및 처리
+                // BossMonsterAI bossAI = monster.instance.GetComponent<BossMonsterAI>();
+                // if (bossAI != null)
+                // {
+                //     bossAI.SetDeadState();
+                // }
+                // else
+                // {
+                //     Debug.LogWarning($"몬스터 '{monster.characterName}'에 AI 스크립트가 없습니다.");
+                // }
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"{monster.characterName}의 인스턴스를 찾을 수 없습니다.");
+        }
+        
         // 경험치와 골드 보상 처리
         if (PlayerCharacterData != null)
         {
@@ -239,15 +268,6 @@ public class CharacterManager : BaseManager<CharacterManager>
         // 아이템 드롭
         ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, false);
         
-        // 몬스터 오브젝트 삭제
-        if (monster.instance != null)
-        {
-            Destroy(monster.instance); // 실제 생성된 인스턴스 삭제
-        }
-        else
-        {
-            Debug.LogWarning($"{monster.characterName}의 인스턴스를 찾을 수 없습니다.");
-        }
         characterList.Remove(monster);
     }
 }

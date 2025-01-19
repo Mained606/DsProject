@@ -56,8 +56,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3.6302068, y: 3.9302065, z: 3.5871174}
-  m_Center: {x: -0.006837845, y: 1.9072515, z: -0.017487407}
+  m_Size: {x: 3.6302068, y: 4.5988045, z: 3.5871174}
+  m_Center: {x: -0.006837845, y: 2.2415504, z: -0.017487407}
 --- !u!54 &4734444243389737722
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -121,7 +121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patrolRange: 4
   idleTime: 2
-  movementSpeed: 4
+  movementSpeed: 7
   maxPatrolDistance: 30
   searchRange: 7
   attackRange: 1.5
