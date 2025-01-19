@@ -56,7 +56,7 @@ public class NPCSpawner : MonoBehaviour
         }
 
         StartTriggerCheck();
-        spawnDelayTimer = new BasicTimer(spawnData.spawnInterval);
+        spawnDelayTimer = new BasicTimer(spawnData.initialDelay);
         isInitialized = true;
     }
 
@@ -71,7 +71,6 @@ public class NPCSpawner : MonoBehaviour
 
         if (distance < spawnData.detectionDistance)
         {
-            // 플레이어가 범위 내에 있을 경우
             if (!spawnDelayTimer.IsRunning && ActiveObjectCount == 0)
             {
                 SpawnObjectAction();
@@ -79,7 +78,6 @@ public class NPCSpawner : MonoBehaviour
         }
         else
         {
-            // 플레이어가 범위를 벗어난 경우
             DisableActiveMonsters();
         }
     }
@@ -157,6 +155,7 @@ public class NPCSpawner : MonoBehaviour
 
     private void OnTransformChildrenChanged()
     {
+        Debug.Log("자식들 정보가 변동되었습닏.");
         if (!isInitialized) return;
 
         ActiveObjectCount = GetActiveObjectCount();
