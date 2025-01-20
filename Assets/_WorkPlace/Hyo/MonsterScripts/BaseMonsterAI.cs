@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class BaseMonsterAI : MonoBehaviour
 {
@@ -8,14 +10,14 @@ public class BaseMonsterAI : MonoBehaviour
     [Header("움직임 세팅")]
     public float patrolRange = 4f; // 패트롤 범위 (몬스터가 움직일 수 있는 반경)
     public float idleTime = 2f; // 대기 상태에서 머무는 시간
-    public float movementSpeed = 2f; // 이동 속도
+    protected float movementSpeed; // 이동 속도
     public float turnSpeed = 10f;
     public float maxPatrolDistance = 10f; // 스폰 위치에서 최대 이동 가능 거리
 
     [Header("서치 & 공격 세팅")]
     public float searchRange = 7f; // 플레이어 탐지 범위
     public float attackRange = 1.5f; // 공격 범위
-    public float attackCooldown = 2f; // 공격 쿨타임
+    protected float attackCooldown; // 공격 쿨타임
 
     [SerializeField] protected AIState currentState = AIState.Idle; // 현재 AI 상태
     [SerializeField] protected Vector3 spawnPosition; // 스폰 위치
@@ -27,6 +29,8 @@ public class BaseMonsterAI : MonoBehaviour
     protected Collider col; // 몬스터의 충돌체 캐시
     protected Rigidbody rb; // 몬스터의 물리 캐시
     protected MonsterData monsterData; // 몬스터 데이터
+    
+    private bool respawn = false;
 
     protected virtual void Start()
     {
@@ -37,14 +41,36 @@ public class BaseMonsterAI : MonoBehaviour
         monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
         if (monsterData != null) monsterData.OnTakeDamage += HandleTakeDamage;
 
+        if (monsterData != null) movementSpeed = monsterData.speed;
+        if (monsterData != null) attackCooldown = monsterData.attackSpeed;
+        
         SetNewPatrolTarget(); // 새로운 패트롤 목표 설정
         SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
     }
-    
+
+    protected virtual void OnEnable()
+    {
+        if (respawn)
+        {
+            col.enabled = true;
+            rb.isKinematic = false;
+            SetState(AIState.Patrolling);
+        }
+    }
+
     protected virtual void OnDestroy()
     {
         if (monsterData != null) monsterData.OnTakeDamage -= HandleTakeDamage;
     }
+    
+    // private void OnCollisionEnter(Collision collision)
+    // {
+    //     // 두 오브젝트가 모두 "Monster" 태그를 가진 경우 충돌 무시
+    //     if (collision.gameObject.CompareTag("Monster") && gameObject.CompareTag("Monster"))
+    //     {
+    //         Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
+    //     }
+    // }
     
     protected virtual void HandleTakeDamage()
     {
@@ -52,7 +78,7 @@ public class BaseMonsterAI : MonoBehaviour
         animator.SetTrigger("Hit");
     }
 
-    protected virtual void Update()
+    protected virtual void FixedUpdate()
     {
         if (currentState == AIState.Dead) return; // 사망 상태에서는 동작하지 않음
 
@@ -145,7 +171,8 @@ public class BaseMonsterAI : MonoBehaviour
             SetState(AIState.Chasing); // 공격 범위를 벗어나면 추적 상태로 전환
             return;
         }
-
+        
+        //
         if (attackCooldownTimer <= 0f)
         {
             PerformAttack(); // 공격 실행
@@ -198,7 +225,17 @@ public class BaseMonsterAI : MonoBehaviour
     protected virtual void PerformAttack()
     {
         animator.SetTrigger("Attack"); // 공격 애니메이션 실행
-        
+
+        // 애니메이션의 길이 가져오기
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        float animationLength = stateInfo.length;
+    
+        // 70% 지점에 맞춰 메서드 호출
+        Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
+    }
+    
+    private void ExecuteAttack()
+    {
         CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false);
     }
     
@@ -207,7 +244,7 @@ public class BaseMonsterAI : MonoBehaviour
         // 패트롤을 위한 새로운 목표 위치 설정
         targetPosition = spawnPosition + new Vector3(
             Random.Range(-patrolRange, patrolRange),
-            0,
+            0f,
             Random.Range(-patrolRange, patrolRange)
         );
     }
@@ -249,19 +286,27 @@ public class BaseMonsterAI : MonoBehaviour
         SetState(newState);
     }
 
-    public void SetDeadState()
+    public void SetDeadState(bool pooling)
     {
         SetState(AIState.Dead);
-
-        OnDeathAnimationEnd();
+        StartCoroutine(OnDeathAnimationEnd(pooling));
     }
     
-    public void OnDeathAnimationEnd()
+    IEnumerator OnDeathAnimationEnd(bool pooling)
     {
-        // 몬스터 제거 처리
+        // // 몬스터 제거 처리
         col.enabled = false;
         rb.isKinematic = true;
-        Destroy(this.gameObject, 1f);
+        yield return new WaitForSeconds(1.5f);
+        if (pooling)
+        {
+            respawn = true;
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
     
     private void OnDrawGizmosSelected()

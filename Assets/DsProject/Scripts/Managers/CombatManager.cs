@@ -46,8 +46,8 @@ public class CombatManager : BaseManager<CombatManager>
             if (!isPlayerAttacking)
             {
                 // 플레이어 사망 처리
-                Debug.LogError("플레이어 사망");
                 GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
+                Debug.LogError("플레이어 사망");
                 return;
             }
             HandleDefeated(defender, enemyTransform);
