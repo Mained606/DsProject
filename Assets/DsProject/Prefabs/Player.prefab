@@ -8221,6 +8221,7 @@ MonoBehaviour:
     baseDamage: 0
     skills: []
     gold: 0
+  playerCombat: {fileID: 0}
   playerAnimator: {fileID: 5264475562808799088}
   cameraTransform: {fileID: 0}
   CanMove: 0
@@ -8231,9 +8232,10 @@ MonoBehaviour:
   isFreefall: 0
   detectionRange: 2
   isClimb: 0
-  climbEndCheckOffset: 0.2
-  climbEndThreshold: 0.15
-  successfulClimbOffset: 1
+  climbEndCheckOffset: 0.7
+  isGliding: 0
+  CanGliding: 0
+  glidableHeight: 5
   dodgeDist: 3
   dodgeDuration: 0.3
   isDodging: 0
@@ -8260,7 +8262,7 @@ CharacterController:
   serializedVersion: 3
   m_Height: 1.4
   m_Radius: 0.15
-  m_SlopeLimit: 45
+  m_SlopeLimit: 60
   m_StepOffset: 0.7
   m_SkinWidth: 0.001
   m_MinMoveDistance: 0.001
@@ -9447,7 +9449,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputReceived: 0
 --- !u!1 &7632451405261937962
 GameObject:
   m_ObjectHideFlags: 0
