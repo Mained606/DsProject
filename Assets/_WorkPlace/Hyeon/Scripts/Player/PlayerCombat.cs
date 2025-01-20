@@ -91,9 +91,12 @@ public class PlayerCombat : MonoBehaviour
         }
         if (InputManager.InputActions.actions["PlayerSkill_1"].triggered)
         {
-            controller.CanMove = false;
-            controller.CanAttack = false;
             SkillManager.Instance.ActivateSkill("Fire");
+            if (!SkillManager.Instance.isActivating)
+            {
+                controller.CanMove = false;
+                controller.CanAttack = false;
+            }
         }
         if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
         {
@@ -167,6 +170,11 @@ public class PlayerCombat : MonoBehaviour
         dir.y = 0f;
         targetRotation = Quaternion.LookRotation(dir);
         controller.transform.rotation = targetRotation;
+    }
+
+    public void ToggleSwordVisible()
+    {
+        sword.SetActive(!sword.activeSelf);
     }
 
     private void OnDrawGizmosSelected()
