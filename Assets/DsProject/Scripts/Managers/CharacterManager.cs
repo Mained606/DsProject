@@ -62,12 +62,6 @@ public class CharacterManager : BaseManager<CharacterManager>
         base.Awake();
         PlayerCharacterData = characterTemplates.players[0];
         playercharacterData = PlayerCharacterData;
-
-        PlayerCharacterData.statModifier = new StatModifier();
-        PlayerCharacterData.UpdateDerivedStats();
-        PlayerCharacterData.currentHp = PlayerCharacterData.maxHp;
-        PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
-        Debug.Log(PlayerCharacterData.ToStringForTMPro());
         
         // 게임 시작시 강제 초기화 원하면 활성화
         InitialCharacter();
@@ -91,6 +85,8 @@ public class CharacterManager : BaseManager<CharacterManager>
     
     public void InitialCharacter()
     {
+        PlayerCharacterData.statModifier = new StatModifier();
+        
         PlayerCharacterData.characterName = "Hero";
         PlayerCharacterData.prefab= null; // 플레이어 프리팹 (Unity 에디터에서 할당 가능)
         PlayerCharacterData.strength= 10;
@@ -101,7 +97,6 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.attackSpeed= 1.2f;
         PlayerCharacterData.stamina= 100f;
         PlayerCharacterData.staminaRecoveryRate = 1;
-        PlayerCharacterData.level = 1;
 
         // 레벨 초기화
         PlayerCharacterData.level = 1;
@@ -110,9 +105,15 @@ public class CharacterManager : BaseManager<CharacterManager>
 
         // 골드 초기화
         PlayerCharacterData.gold = 0;
+        
+        PlayerCharacterData.currentHp = PlayerCharacterData.maxHp;
+        playercharacterData.currentMp = PlayerCharacterData.maxMp;
+        PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
 
         // 파생 스탯 계산
         PlayerCharacterData.UpdateDerivedStats();
+        
+        Debug.Log(PlayerCharacterData.ToStringForTMPro());
     }
 
     // 특정 인덱스의 캐릭터 반환 (플레이어 또는 몬스터)

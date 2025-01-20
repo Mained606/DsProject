@@ -52,7 +52,10 @@ public class CombatManager : BaseManager<CombatManager>
             }
             HandleDefeated(defender, enemyTransform);
             Debug.Log(attacker.ToStringForTMPro());
+            QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Kill, defender.characterName, 1);
         }
+        
+        
     }
     
     // 데미지 계산 메서드

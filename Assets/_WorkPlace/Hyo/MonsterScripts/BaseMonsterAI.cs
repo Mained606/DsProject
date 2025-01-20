@@ -54,7 +54,6 @@ public class BaseMonsterAI : MonoBehaviour
         {
             col.enabled = true;
             rb.isKinematic = false;
-            monsterData?.ResetDataByLevel();
             SetState(AIState.Patrolling);
         }
     }
