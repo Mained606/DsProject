@@ -1,15 +1,26 @@
+using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class NonePlayerCharacter : MonoBehaviour
 {
-    [SerializeField] private float interactionRadius = 2f;
-    [SerializeField] private bool isPlayerInRange = false;
+    [SerializeField] private NPCType npcType;
+    [SerializeField] public bool isMainQuest = false;
+    [SerializeField] private int mainIndex = 0;
     [SerializeField] private NPCData currentNPCData = null;
+
+    private CapsuleCollider capsuleCollider;
+    private InterActText interActText = null;
+    private float interactionRadius = 2f;
+    private bool isPlayerInRange = false;
     private bool isInitNPC = false;
 
     private void Start()
     {
-        CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
+        interActText = GetComponentInChildren<InterActText>(true);
+        interActText.gameObject.SetActive(false);
         if (capsuleCollider != null)
         {
             capsuleCollider.radius = interactionRadius;
@@ -34,15 +45,53 @@ public class NonePlayerCharacter : MonoBehaviour
 
     private void GetMainNpcData()
     {
-        foreach (NPCData npcData in QuestManager.NpcDatabase.mainQuestNpcLists)
+        List<NPCData> npclist = isMainQuest ? QuestManager.NpcDatabase.mainQuestNpcLists : QuestManager.NpcDatabase.npcLists;
+        if (!isMainQuest)
         {
-            if (npcData.currentNPC == null && npcData.npcType == NPCType.퀘스트)
+            foreach (NPCData npcData in npclist)
             {
-                isInitNPC = true;
-                currentNPCData = npcData;
-                currentNPCData.currentNPC = this.gameObject;
-                break;
+                if (npcData.currentNPC == null && npcData.npcType == npcType)
+                {
+                    isInitNPC = true;
+                    currentNPCData = npcData;
+                    currentNPCData.currentNPC = this.gameObject;
+                    break;
+                }
             }
+        }
+        else
+        {
+            isInitNPC = true;
+            currentNPCData = npclist[mainIndex - 1];
+            currentNPCData.currentNPC = this.gameObject;
+        }
+
+        switch (currentNPCData.npcType)
+        {
+            case NPCType.퀘스트:
+                bool isHasQuestNew = !currentNPCData.quests.Any(quest => quest.isCompleted);
+                interActText.InteractTextSetting("대화하기", 0, isHasQuestNew);
+                break;
+            case NPCType.상점:
+                interActText.InteractTextSetting("상점열기", 0);
+                break;
+            default:
+                capsuleCollider.radius = interactionRadius * 2.5f;
+                string msg = string.Empty;
+                if (currentNPCData.dialogue != null)
+                {
+                    msg = string.Empty;
+                    foreach (string str in currentNPCData.dialogue)
+                    {
+                        msg += $"{str} + \n";
+                    }
+                }
+                else
+                {
+                    msg = currentNPCData.description;
+                }
+                interActText.InteractTextSetting(msg, 1);
+                break;
         }
     }
 
@@ -148,12 +197,24 @@ public class NonePlayerCharacter : MonoBehaviour
         }
     }
 
+    private float GetHeight()
+    {
+        Collider collider = GetComponent<Collider>();
+
+        if (collider != null)
+        {
+            float height = collider.bounds.size.y; // y축 크기가 높이
+            return height;
+        }
+        return -1;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            UIManager.Instance.InteractTextPopup("F", currentNPCData.name + " 대화", true);
+            interActText.gameObject.SetActive(true);
         }
     }
 
@@ -162,7 +223,7 @@ public class NonePlayerCharacter : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            UIManager.Instance.InteractTextPopup("F", currentNPCData.name + " 대화", false);
+            interActText.gameObject.SetActive(false);
             UIManager.Instance.UIClose();
         }
     }

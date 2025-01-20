@@ -9,6 +9,42 @@ public class NPCDataEditor : Editor
         // SerializedObject 업데이트
         serializedObject.Update();
 
+        // 기본 필드 표시
+        SerializedProperty npctypeProperty = serializedObject.FindProperty("npcType");
+        SerializedProperty isMainQuestProperty = serializedObject.FindProperty("isMainQuest");
+        SerializedProperty mainIndexProperty = serializedObject.FindProperty("mainIndex");
+
+        EditorGUILayout.LabelField("▣ NPC 설정");
+        EditorGUILayout.PropertyField(npctypeProperty, new GUIContent("      npcType"));
+        EditorGUILayout.PropertyField(isMainQuestProperty, new GUIContent("      isMainQuest"));
+
+        // "isMainQuest"가 true일 때만 드롭다운 표시
+        if (isMainQuestProperty.boolValue)
+        {
+            // 드롭다운 항목 생성
+            string[] indexOptions = new string[11]; // "None" + 1~10
+            indexOptions[0] = "None";
+            for (int i = 1; i <= 10; i++)
+            {
+                indexOptions[i] = i.ToString();
+            }
+
+            // 드롭다운 UI 표시
+            int selectedIndex = mainIndexProperty.intValue;
+            selectedIndex = EditorGUILayout.Popup("      mainIndex", selectedIndex, indexOptions);
+
+            // 선택 결과 반영
+            if (selectedIndex != mainIndexProperty.intValue)
+            {
+                mainIndexProperty.intValue = selectedIndex;
+            }
+        }
+
+        serializedObject.ApplyModifiedProperties();
+
+
+        // 읽기 전용 처리
+        GUI.enabled = false;
         // NonePlayerCharacter와 NPCData 참조 가져오기
         NonePlayerCharacter holder = (NonePlayerCharacter)target;
         SerializedProperty npcDataProperty = serializedObject.FindProperty("currentNPCData");
@@ -99,8 +135,5 @@ public class NPCDataEditor : Editor
         {
             EditorGUILayout.PropertyField(interactionEffectProperty, new GUIContent("      Interaction Effect"));
         }
-
-        // 변경 사항 저장
-        serializedObject.ApplyModifiedProperties();
     }
 }

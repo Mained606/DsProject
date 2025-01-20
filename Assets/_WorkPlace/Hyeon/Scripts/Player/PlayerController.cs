@@ -1,13 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+//using static Unity.Cinemachine.InputAxisControllerBase<T>;
 
 public class PlayerController : MonoBehaviour
 {
     public PlayerData playerData;
+    private float beforeHP;
+    public PlayerCombat playerCombat;
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
     private CharacterController characterController;
@@ -39,8 +43,11 @@ public class PlayerController : MonoBehaviour
     private Vector3 currentCliffNormal;
     public bool isClimb;
     [SerializeField] private float climbEndCheckOffset = 0.2f; // 절벽 끝 검사 오프셋
-    [SerializeField] private float climbEndThreshold = 0.2f; // 절벽 끝 판정 높이 차이
-    [SerializeField] private float successfulClimbOffset = 1f; // 절벽 끝 도달 후 위치 조정
+
+    [Header("글라이딩")]
+    [SerializeField] private bool isGliding;
+    [SerializeField] private bool CanGliding;
+    [SerializeField] private float glidableHeight = 6f;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 3f;
@@ -63,25 +70,26 @@ public class PlayerController : MonoBehaviour
     {
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
+        playerCombat = GetComponent<PlayerCombat>();
         CanMove = true;
         CanAttack = true;
         CanUseSkill = true;
         CanParry = true;
         playerData = CharacterManager.PlayerCharacterData;
+        beforeHP = playerData.currentHp;
 
         ValueInitialize();
     }
 
     private void Update()
     {
+        DeathCheck();
+        //HitCheck();
         isGrounded = characterController.isGrounded;
+        //GroundCheck();
         isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
         playerAnimator.SetBool("Grounded", isGrounded);
 
-        if (InputManager.InputActions.actions["Interact"].triggered)
-        {
-            Debug.Log("Interact");
-        }
         HandleGravity();
         avoidKeyInput();
         
@@ -96,7 +104,9 @@ public class PlayerController : MonoBehaviour
             OnParry();
         }
 
-        //Debug.Log($"Player State : {CurrentState}");
+        CanGlidingCheck();
+        OnGliding();
+
         switch (CurrentState)
         {
             case PlayerState.PlayerIdle:
@@ -129,6 +139,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void GroundCheck()
+    {
+        //isGrounded = characterController.isGrounded;
+        if(Physics.Raycast(transform.position + Vector3.up * 0.05f, Vector3.down, out RaycastHit originHit, 1f))
+        {
+            isGrounded = true;
+            //if(Physics.Raycast(transform.position + Vector3.forward * 0.3f + Vector3.up * 1f, Vector3.down, out RaycastHit kneeHit, 1.2f))
+            //{
+            //    Debug.Log("GroundRay 2");
+            //    isGrounded = true;
+            //}
+        }
+        else
+        {
+            isGrounded = false;
+        }
+    }
+
     // 상시 중력 적용
     private void HandleGravity()
     {
@@ -143,7 +171,16 @@ public class PlayerController : MonoBehaviour
                 lastGroundHeight = transform.position.y;
                 playerAnimator.SetBool("Freefall", true);
             }
-            verticalVelocity.y += gravity * Time.deltaTime;
+
+            if (isGliding)
+            {
+                isFreefall = false;
+                verticalVelocity.y += (gravity / 10) * Time.deltaTime;
+            }
+            else
+            {
+                verticalVelocity.y += gravity * Time.deltaTime;
+            }
         }
         else
         {
@@ -155,12 +192,11 @@ public class PlayerController : MonoBehaviour
                 {
                     ApplyFallDamage(fallDistance);
                 }
-
-                isFreefall = false;
-                CanAttack = true; CanUseSkill = true; CanParry = true;
-                playerAnimator.SetBool("Freefall", false);
             }
-
+            isFreefall = false;
+            isGliding = false;
+            CanAttack = true; CanUseSkill = true; CanParry = true;
+            playerAnimator.SetBool("Freefall", false);
             playerAnimator.SetBool("Jump", false);
             if (verticalVelocity.y < 0)
             {
@@ -169,6 +205,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // 낙뎀
     private void ApplyFallDamage(float fallDistance)
     {
         float damage = (fallDistance - fallDamageThreshold) * fallDamageMultiplier;
@@ -182,6 +219,29 @@ public class PlayerController : MonoBehaviour
         if(isGrounded && moveInput == Vector2.zero)
         {
             SetState(PlayerState.PlayerIdle);
+        }
+    }
+
+    private bool animFinishCheck(string animName)
+    {
+        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+        AnimatorClipInfo[] clipInfo = playerAnimator.GetCurrentAnimatorClipInfo(0);
+        AnimationClip currentClip = clipInfo[0].clip;
+        float normalize = stateInfo.normalizedTime;
+        if(currentClip.name == animName)
+        {
+            if (normalize >= 0.95f)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return true;
         }
     }
 
@@ -227,6 +287,10 @@ public class PlayerController : MonoBehaviour
         moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
 
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        if (isGliding)
+        {
+            currentSpeed = walkSpeed;
+        }
 
         if (moveInput == Vector2.zero)
         {
@@ -264,7 +328,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // 캐릭터 점프
+    // 캐릭터 점프 제어
     private void ControlJump()
     {
         if (!CanMove) return;
@@ -275,6 +339,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // 점프
     private void OnJump()
     {
         playerAnimator.SetBool("Jump", true);
@@ -313,6 +378,7 @@ public class PlayerController : MonoBehaviour
         //isInvincible = false;
     }
 
+    // 키 활성화 변경
     private void avoidKeyInput()
     {
         switch (CanMove)
@@ -383,7 +449,6 @@ public class PlayerController : MonoBehaviour
                 if (normalizedTime < 0.2f)
                 {
                     // TODO
-                    Debug.Log("can parry");
                 }
                 if(normalizedTime > 0.95f)
                 {
@@ -397,12 +462,13 @@ public class PlayerController : MonoBehaviour
         
     }
 
+    // ----------Climb----------
     private void DetectCliff()
     {
-        Vector3 rayOrigin = transform.position + Vector3.up * 1.5f;
+        Vector3 rayOrigin = transform.position + Vector3.up * 3f;
         if (Physics.Raycast(rayOrigin, transform.forward, out RaycastHit hit, detectionRange))
         {
-            //Debug.DrawLine(rayOrigin, hit.point, Color.red);
+            Debug.DrawLine(rayOrigin, hit.point, Color.red);
 
             float angle = Vector3.Angle(hit.normal, Vector3.up);
 
@@ -412,11 +478,9 @@ public class PlayerController : MonoBehaviour
             {
                 heightDifference = 0f;
             }
-
-            //Debug.Log($"angle : {angle}, heightDifference : {heightDifference}");
             if (angle > 75f && angle < 105f)
             {
-                Debug.Log("매달릴 수 있는 벽");
+                //Debug.Log("매달릴 수 있는 벽");
                 if (hit.distance < detectionRange / 2)
                 {
                     currentCliffNormal = hit.normal;
@@ -429,14 +493,15 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                Debug.Log("매달릴 수 없는 벽");
+                //Debug.Log("매달릴 수 없는 벽");
             }
         }
         else
         {
-            isClimb = false;
-            playerAnimator.SetBool("Climb", false);
-            Debug.Log("Ray에 감지 안 됨");
+            //isClimb = false;
+            //playerAnimator.SetBool("Climb", false);
+            //Debug.Log("Ray에 감지 안 됨");
+            CheckClimbEnd();
         }
     }
 
@@ -447,45 +512,55 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("Freefall", false);
         playerAnimator.SetBool("Climb", true);
         transform.position = climbStartPosition;
+        playerCombat.ToggleSwordVisible();
         // Anim
     }
 
     private void CheckClimbEnd()
     {
+        if (!isClimb) return;
+
         Vector3 rayOrigin = transform.position + transform.up * climbEndCheckOffset;
         if (Physics.Raycast(rayOrigin, transform.forward, out RaycastHit hit, detectionRange))
         {
-            Debug.Log("있는 벽 오르는 중");
+            //Debug.Log("있는 벽 오르는 중");
             //Debug.DrawLine(rayOrigin + Vector3.up * climbEndCheckOffset, hit.point, Color.red);
-            float topEdgeHeight = hit.point.y - transform.position.y;
-            Debug.Log($"topEdgeHeight = {topEdgeHeight}");
-            if (topEdgeHeight < climbEndThreshold)
+            //float topEdgeHeight = hit.point.y - transform.position.y;
+            //Debug.Log($"topEdgeHeight = {topEdgeHeight}");
+            //if (topEdgeHeight < climbEndThreshold)
+            //{
+            //    EndClimbing(true); // 절벽 끝까지 올라간 경우
+            //    Debug.Log("성공적으로 절벽 끝 도달");
+            //}
+            if (isGrounded)
             {
-                EndClimbing(true); // 절벽 끝까지 올라간 경우
-                Debug.Log("성공적으로 절벽 끝 도달");
+                EndClimbing(false);
             }
         }
         else
         {
+            // 옆벽 검사
+            EndClimbing(true);
+            Debug.Log("성공적으로 절벽 끝 도달");
             //Debug.DrawLine(rayOrigin + Vector3.up * climbEndCheckOffset, transform.forward * detectionRange, Color.blue);
         }
     }
 
     private void EndClimbing(bool successful)
     {
-        playerAnimator.SetBool("Climb", false);
-
         if (successful)
         {
-            playerAnimator.SetTrigger("ClimbUp");
+            CanMove = false;
+            isClimb = false;
+            playerAnimator.SetBool("ClimbUp", true);
+            playerCombat.ToggleSwordVisible();
             StartCoroutine(FinishingClimbing());
-            //Vector3 finalPosition = transform.position + transform.up * successfulClimbOffset;
-            //transform.position = finalPosition; // 캐릭터 위치 조정
-            Debug.Log("Climbing successfully ended");
         }
         else
         {
+            playerAnimator.SetBool("Climb", false);
             Debug.Log("절벽타기 취소됨");
+            playerCombat.ToggleSwordVisible();
             isClimb = false;
         }
 
@@ -494,12 +569,14 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator FinishingClimbing()
     {
-        yield return new WaitForSeconds(playerAnimator.GetCurrentAnimatorStateInfo(0).length);
-
-        Vector3 climbUpPosition = transform.position + transform.up * 0.7f + transform.forward * 0.2f;
-
+        float duration = playerAnimator.GetCurrentAnimatorStateInfo(0).length;
+        Vector3 climbUpPosition = transform.position + transform.up * 0.5f + transform.forward * 1f;
         transform.position = climbUpPosition;
-        isClimb = false;
+        yield return new WaitForSeconds(duration);
+        
+        playerAnimator.SetBool("Climb", false);
+        playerAnimator.SetBool("ClimbUp", false);
+        CanMove = true;
     }
 
     private void HandleClimbJump()
@@ -557,6 +634,72 @@ public class PlayerController : MonoBehaviour
             HandleClimbJump();
         }
     }
+
+    //
+    private void HitCheck()
+    {
+        // 이벤트 발생시 호출 함수
+        // 임시로 데미지 감지
+        if(beforeHP > playerData.currentHp + 10f)
+        {
+            playerAnimator.SetTrigger("Hit");
+        }
+        beforeHP = playerData.currentHp;
+        bool isAnimating = animFinishCheck("Hit_F_1_InPlace");
+        if (!isAnimating)
+        {
+            CanMove = false;
+            CanAttack = false;
+            CanUseSkill = false;
+            return;
+        }
+        else
+        {
+            CanMove = true;
+            CanAttack = true;
+            CanUseSkill = true;
+            return;
+        }
+    }
+
+    private void DeathCheck()
+    {
+        if(playerData.currentHp <= 0)
+        {
+            Debug.Log("Player Death");
+            CanMove = false;
+            CanAttack = false;
+            CanParry = false;
+            CanUseSkill = false;
+            // anim
+        }
+    }
+
+    // 글라이딩
+    private void CanGlidingCheck()
+    {
+        if(Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, glidableHeight))
+        {
+            CanGliding = false;
+            Debug.DrawLine(transform.position, hit.point, Color.magenta);
+        }
+        else
+        {
+            if (!isGrounded && isFreefall)
+            {
+                CanGliding = true;
+            }
+        }
+    }
+
+    private void OnGliding()
+    {
+        if (InputManager.InputActions.actions["Jump"].triggered && CanGliding)
+        {
+            isGliding = true;
+        }
+    }
+
 
     // 장비 장착에 따른 스탯 변화
 
