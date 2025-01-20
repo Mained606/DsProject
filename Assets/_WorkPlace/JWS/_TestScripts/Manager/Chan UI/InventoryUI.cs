@@ -10,7 +10,8 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Transform itemsParent;
 
     #region 툴팁 관련
-   
+    [SerializeField] private GameObject tooltip;
+    [SerializeField] private Transform tooltipPanel;
     #endregion
 
     private Button[] buttons;
@@ -116,7 +117,7 @@ public class InventoryUI : MonoBehaviour
     {
         var inventoryItem = Instantiate(itemPrefab, itemsParent);
         // -> 툴팁으로 따로 빼려고 임시로 주석 처리. 슬롯 자체에서 전부 보여줄거면 살리기
-        // inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
+         inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
         if (item.sprite != null) inventoryItem.GetComponentsInChildren<Image>()[1].sprite = item.sprite;
         Debug.Log(item.ToStringTMPro());
 
