@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class NPCSpawner : MonoBehaviour
 {
-    [SerializeField] private string spwanName;
+    [SerializeField] private string spawnName;
     [SerializeField] private SpawnData spawnData;
     [SerializeField] private bool isSaveNPCSpawner;
 
@@ -19,15 +19,15 @@ public class NPCSpawner : MonoBehaviour
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        if (!Application.isPlaying && !string.IsNullOrEmpty(spwanName) && isSaveNPCSpawner)
+        if (!Application.isPlaying && !string.IsNullOrEmpty(spawnName) && isSaveNPCSpawner)
         {
             isSaveNPCSpawner = false;
             if (spawnData == null)
             {
-                Debug.LogWarning($"{spwanName}: SpawnData가 설정되지 않았습니다.");
+                Debug.LogWarning($"{spawnName}: SpawnData가 설정되지 않았습니다.");
                 return;
             }
-            spawnData.spwanName = spwanName;
+            spawnData.spwanName = spawnName;
             spawnData.spawnPosition = transform.position;
             SpawnManager.GetInstance()?.AddNPCSpawner(this);
         }
@@ -41,6 +41,7 @@ public class NPCSpawner : MonoBehaviour
 
     public void Initialize()
     {
+        spawnName = spawnData.spwanName;
         poolParent = new GameObject($"{spawnData.spwanType}_Pool").transform;
         poolParent.transform.position = transform.position;
         poolParent.SetParent(transform);
@@ -67,6 +68,7 @@ public class NPCSpawner : MonoBehaviour
 
     private void CheckPlayerDistance()
     {
+        ActiveObjectCount = GetActiveObjectCount();
         float distance = Vector3.Distance(transform.position, GameManager.playerTransform.position);
 
         if (distance < spawnData.detectionDistance)
@@ -153,9 +155,18 @@ public class NPCSpawner : MonoBehaviour
         ActiveObjectCount = 0;
     }
 
-    private void OnTransformChildrenChanged()
+    //private void OnTransformChildrenChanged()
+    //{
+    //    if (!isInitialized) return;
+
+    //    ActiveObjectCount = GetActiveObjectCount();
+    //    if (ActiveObjectCount == 0)
+    //    {
+    //        TimerManager.Instance.StartTimer(spawnDelayTimer);
+    //    }
+    //}
+    private void OnTransformChanged()
     {
-        Debug.Log("자식들 정보가 변동되었습닏.");
         if (!isInitialized) return;
 
         ActiveObjectCount = GetActiveObjectCount();

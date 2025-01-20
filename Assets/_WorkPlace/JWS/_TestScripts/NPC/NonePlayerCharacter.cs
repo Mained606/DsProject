@@ -44,7 +44,6 @@ public class NonePlayerCharacter : MonoBehaviour
         {
             foreach (NPCData npcData in npclist)
             {
-                Debug.Log("엔피씨타입 : " + npcData.ToString());
                 if (npcData.currentNPC == null && npcData.npcType == npcType)
                 {
                     isInitNPC = true;
