@@ -436,7 +436,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1773656247975474}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 506ab9ed9fe71614d9002e37dd530c3e, type: 3}
+  m_Avatar: {fileID: 0}
   m_Controller: {fileID: 22100000, guid: 10667cfbfc8e1b541899e8206067dbe6, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
@@ -511,12 +511,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patrolRange: 4
   idleTime: 2
-  movementSpeed: 7
   turnSpeed: 10
   maxPatrolDistance: 50
   searchRange: 10
   attackRange: 2
-  attackCooldown: 2
   currentState: 0
   spawnPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &1779164207820988
