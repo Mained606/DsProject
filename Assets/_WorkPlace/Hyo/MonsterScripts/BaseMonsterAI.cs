@@ -52,9 +52,9 @@ public class BaseMonsterAI : MonoBehaviour
     {
         if (respawn)
         {
-            col.enabled = true;
+            // col.enabled = true;
             rb.isKinematic = false;
-            SetState(AIState.Patrolling);
+            SetState(AIState.Idle);
         }
     }
 
@@ -306,7 +306,7 @@ public class BaseMonsterAI : MonoBehaviour
     IEnumerator OnDeathAnimationEnd(bool pooling)
     {
         // // 몬스터 제거 처리
-        col.enabled = false;
+        // col.enabled = false;
         rb.isKinematic = true;
         yield return new WaitForSeconds(1.5f);
         if (pooling)
