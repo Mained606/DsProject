@@ -1,10 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class NonePlayerCharacter : MonoBehaviour
 {
-    [SerializeField] private float interactionRadius = 2f;
-    [SerializeField] private bool isPlayerInRange = false;
+    [SerializeField] private NPCType npcType;
+    [SerializeField] public bool isMainQuest = false;
+    [SerializeField] private int mainIndex = 0;
     [SerializeField] private NPCData currentNPCData = null;
+
+    private float interactionRadius = 2f;
+    private bool isPlayerInRange = false;
     private bool isInitNPC = false;
 
     private void Start()
@@ -34,15 +39,25 @@ public class NonePlayerCharacter : MonoBehaviour
 
     private void GetMainNpcData()
     {
-        foreach (NPCData npcData in QuestManager.NpcDatabase.mainQuestNpcLists)
+        List<NPCData> npclist = isMainQuest ? QuestManager.NpcDatabase.mainQuestNpcLists : QuestManager.NpcDatabase.npcLists;
+        if (!isMainQuest)
         {
-            if (npcData.currentNPC == null && npcData.npcType == NPCType.퀘스트)
+            foreach (NPCData npcData in npclist)
             {
-                isInitNPC = true;
-                currentNPCData = npcData;
-                currentNPCData.currentNPC = this.gameObject;
-                break;
+                if (npcData.currentNPC == null && npcData.npcType == npcType)
+                {
+                    isInitNPC = true;
+                    currentNPCData = npcData;
+                    currentNPCData.currentNPC = this.gameObject;
+                    break;
+                }
             }
+        }
+        else
+        {
+            isInitNPC = true;
+            currentNPCData = npclist[mainIndex - 1];
+            currentNPCData.currentNPC = this.gameObject;
         }
     }
 
