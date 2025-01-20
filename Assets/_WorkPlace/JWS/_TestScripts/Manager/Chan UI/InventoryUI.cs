@@ -3,16 +3,12 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private Transform itemsParent;
-
-    #region 툴팁 관련
-    [SerializeField] private GameObject tooltip;
-    [SerializeField] private Transform tooltipPanel;
-    #endregion
 
     private Button[] buttons;
     private int currentButtonIndex = 0;
@@ -31,12 +27,9 @@ public class InventoryUI : MonoBehaviour
         {
             Debug.LogWarning("버튼이 연결되지 않았거나 배열이 비어있습니다.");
         }
-        #region 툴팁 관련 초기화 추가
-       
-        #endregion
     }
 
-  
+
 
     private void OnEnable()
     {
@@ -117,13 +110,11 @@ public class InventoryUI : MonoBehaviour
     {
         var inventoryItem = Instantiate(itemPrefab, itemsParent);
         // -> 툴팁으로 따로 빼려고 임시로 주석 처리. 슬롯 자체에서 전부 보여줄거면 살리기
-         inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
+       //  inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
         if (item.sprite != null) inventoryItem.GetComponentsInChildren<Image>()[1].sprite = item.sprite;
         Debug.Log(item.ToStringTMPro());
-
-        #region 툴팁 관련 추가부분
-       
-        #endregion
+        inventoryItem.AddComponent<InventoryTooltip>();
+        inventoryItem.GetComponent<InventoryTooltip>().currentitem = item;
 
     }
 
@@ -134,7 +125,6 @@ public class InventoryUI : MonoBehaviour
             int index = i;
             buttons[i].onClick.RemoveAllListeners();
             buttons[i].onClick.AddListener(() => OnButtonClick(index));
-
         }
     }
 

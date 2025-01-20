@@ -20,6 +20,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject interactTextUI;
     [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
+    [SerializeField] private GameObject InventorytooltipWindow;
     [SerializeField] private Transform questListParent;
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -47,6 +48,7 @@ public class UIManager : BaseManager<UIManager>
         questWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
+        InventorytooltipWindow.SetActive(false);
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
@@ -101,6 +103,23 @@ public class UIManager : BaseManager<UIManager>
     {
         questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+    }
+
+    public void ToggleInventorytooltipWindow(Item item, bool ison )
+    {
+        if( ison )
+        {
+            InventorytooltipWindow.SetActive(true);
+            TextMeshProUGUI text = InventorytooltipWindow.GetComponentInChildren<TextMeshProUGUI>();
+            if( text != null )
+            {
+                text.text = item.ToStringTMPro();
+            }
+        }
+        else
+        {
+            InventorytooltipWindow.SetActive(false);
+        }
     }
 
     public void InventoryUpdate()
