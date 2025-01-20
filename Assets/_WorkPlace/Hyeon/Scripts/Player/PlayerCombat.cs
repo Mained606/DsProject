@@ -21,8 +21,6 @@ public class PlayerCombat : MonoBehaviour
 
     public bool inputReceived = false;
 
-    public int MaxComboCount { get; set; } = 3;
-
     public Quaternion targetRotation;
     public Collider SwordCollider => swordCollider;
 
@@ -77,7 +75,7 @@ public class PlayerCombat : MonoBehaviour
             LookEnemy();
         }
         
-        if (inputReceived && currentComboIndex < MaxComboCount)
+        if (inputReceived)
         {
             inputReceived = false;
             CanReceiveInput = false;

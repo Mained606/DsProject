@@ -399,10 +399,10 @@ public class PlayerController : MonoBehaviour
 
     private void DetectCliff()
     {
-        Vector3 rayOrigin = transform.position + Vector3.up * 1.5f;
+        Vector3 rayOrigin = transform.position + Vector3.up * 3f;
         if (Physics.Raycast(rayOrigin, transform.forward, out RaycastHit hit, detectionRange))
         {
-            //Debug.DrawLine(rayOrigin, hit.point, Color.red);
+            Debug.DrawLine(rayOrigin, hit.point, Color.red);
 
             float angle = Vector3.Angle(hit.normal, Vector3.up);
 
@@ -434,9 +434,10 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            isClimb = false;
-            playerAnimator.SetBool("Climb", false);
-            Debug.Log("Ray에 감지 안 됨");
+            //isClimb = false;
+            //playerAnimator.SetBool("Climb", false);
+            //Debug.Log("Ray에 감지 안 됨");
+            CheckClimbEnd();
         }
     }
 
@@ -452,39 +453,42 @@ public class PlayerController : MonoBehaviour
 
     private void CheckClimbEnd()
     {
+        if (!isClimb) return;
+
         Vector3 rayOrigin = transform.position + transform.up * climbEndCheckOffset;
         if (Physics.Raycast(rayOrigin, transform.forward, out RaycastHit hit, detectionRange))
         {
             Debug.Log("있는 벽 오르는 중");
             //Debug.DrawLine(rayOrigin + Vector3.up * climbEndCheckOffset, hit.point, Color.red);
-            float topEdgeHeight = hit.point.y - transform.position.y;
-            Debug.Log($"topEdgeHeight = {topEdgeHeight}");
-            if (topEdgeHeight < climbEndThreshold)
-            {
-                EndClimbing(true); // 절벽 끝까지 올라간 경우
-                Debug.Log("성공적으로 절벽 끝 도달");
-            }
+            //float topEdgeHeight = hit.point.y - transform.position.y;
+            //Debug.Log($"topEdgeHeight = {topEdgeHeight}");
+            //if (topEdgeHeight < climbEndThreshold)
+            //{
+            //    EndClimbing(true); // 절벽 끝까지 올라간 경우
+            //    Debug.Log("성공적으로 절벽 끝 도달");
+            //}
         }
         else
         {
+            EndClimbing(true);
+            Debug.Log("성공적으로 절벽 끝 도달");
             //Debug.DrawLine(rayOrigin + Vector3.up * climbEndCheckOffset, transform.forward * detectionRange, Color.blue);
         }
     }
 
     private void EndClimbing(bool successful)
     {
-        playerAnimator.SetBool("Climb", false);
-
         if (successful)
         {
-            playerAnimator.SetTrigger("ClimbUp");
-            StartCoroutine(FinishingClimbing());
+            //StartCoroutine(FinishingClimbing());
+            FinishingClimbing();
             //Vector3 finalPosition = transform.position + transform.up * successfulClimbOffset;
             //transform.position = finalPosition; // 캐릭터 위치 조정
             Debug.Log("Climbing successfully ended");
         }
         else
         {
+            playerAnimator.SetBool("Climb", false);
             Debug.Log("절벽타기 취소됨");
             isClimb = false;
         }
@@ -492,14 +496,19 @@ public class PlayerController : MonoBehaviour
         // Anim
     }
 
-    private IEnumerator FinishingClimbing()
+    private void FinishingClimbing()
     {
-        yield return new WaitForSeconds(playerAnimator.GetCurrentAnimatorStateInfo(0).length);
-
+        CanMove = false;
+        playerAnimator.SetBool("ClimbUp", true);
+        float duration = playerAnimator.GetCurrentAnimatorStateInfo(0).length;
         Vector3 climbUpPosition = transform.position + transform.up * 0.7f + transform.forward * 0.2f;
+        Debug.Log(climbUpPosition);
 
         transform.position = climbUpPosition;
         isClimb = false;
+        playerAnimator.SetBool("Climb", false);
+        playerAnimator.SetBool("ClimbUp", false);
+        CanMove = true;
     }
 
     private void HandleClimbJump()
