@@ -10,6 +10,7 @@ public class UIManager : BaseManager<UIManager>
 {
     [SerializeField] private GameObject questTextPrefab;
     [SerializeField] private GameObject mainQuestTextPrefab;
+    [SerializeField] private GameObject damagePopUpPrefab;
     [SerializeField] private GameObject mainTitleButton;
     [SerializeField] private GameObject baseCanvas;
     [SerializeField] private GameObject mainCanvas;
@@ -17,6 +18,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject questWindow;
     [SerializeField] private GameObject inventoryUI;
     [SerializeField] private GameObject interactTextUI;
+    [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
     [SerializeField] private Transform questListParent;
     private PickUpItemTextDisplay pickUpItemTextDisplay;
@@ -30,6 +32,7 @@ public class UIManager : BaseManager<UIManager>
     public static MainButtonUI MainButtonUI;
     public static InteractPopupUI InteractPopupUI;
     public static HistoryUI HistoryUI;
+    public static HistoryWindowUI HistoryWindowUI;
 
     protected override void OnEnable()
     {
@@ -43,13 +46,15 @@ public class UIManager : BaseManager<UIManager>
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
+        historyWindow.gameObject.SetActive(false);
         HistoryManager = new HistoryManager();
-        HistoryUI = historyWindow.GetComponent<HistoryUI>();
+        HistoryUI = historyLog.GetComponent<HistoryUI>();
+        HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
     }
 
     private void Update()
     {
-        if (IsUIWindowOpen())
+        if (IsUIWindowOpen()/* || IsPointerOverUI()*/)
         {
             InputManager.InputActions.actions["Attack"].Disable(); // UI가 열려 있을 때 공격 비활성화
             InputManager.InputActions.actions["Interact"].Disable(); // UI가 열려 있을 때 공격 비활성화
@@ -61,8 +66,17 @@ public class UIManager : BaseManager<UIManager>
         }
         InputManager.InputActions.actions["Inventory"].Enable();
         InputManager.InputActions.actions["Quest"].Enable();
+    }
 
-
+    private bool IsPointerOverUI()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+        return results.Count > 0;
     }
 
     public void ToggleDialog()
@@ -71,9 +85,14 @@ public class UIManager : BaseManager<UIManager>
         mainCanvas.SetActive(!mainCanvas.activeSelf);
     }
 
+    public void ToggleHistorylog()
+    {
+        historyWindow.SetActive(!historyWindow.activeSelf);
+        mainCanvas.SetActive(!mainCanvas.activeSelf);
+    }
+
     public void ToggleInventory()
     {
-        Debug.Log("인벤 호출");
         inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
     }
@@ -144,8 +163,6 @@ public class UIManager : BaseManager<UIManager>
         subDisplay[0].text = text;
         subDisplay[2].text = quest.ToStringTMPro();
         if (quest.isCompleted) { subDisplay[3].gameObject.SetActive(true); }
-
-        //Debug.Log($"[UIManager] {text} 퀘스트 텍스트 표시");
     }
 
     public void DisplayDialogWindow(NPCData nPCData)
@@ -212,10 +229,8 @@ public class UIManager : BaseManager<UIManager>
                 () => HandleQuest(quest, canAccept)
             );
         }
-
         Debug.Log("Quest dialog setup complete.");
     }
-
 
     private void SetupDialog(Button button, TextMeshProUGUI display, string buttonText, string message, UnityEngine.Events.UnityAction onClickAction)
     {
@@ -244,12 +259,10 @@ public class UIManager : BaseManager<UIManager>
         {
             if (!quest.isCompleted)
             {
-                Debug.LogWarning("AddQuest");
                 QuestManager.Instance.AddQuest(quest);
             }
             else
             {
-                Debug.LogWarning("CompleteQuest");
                 QuestManager.Instance.CompleteQuest(quest);
             }
         }
@@ -257,10 +270,10 @@ public class UIManager : BaseManager<UIManager>
         mainCanvas.SetActive(true);
     }
 
-
     public void DisplayHistory()
     {
-        HistoryUI.DisplayHistory();
+        if (historyWindow.activeSelf) HistoryWindowUI.DisplayHistory();
+        else HistoryUI.DisplayHistory();
     }
 
     public static void SystemMessage(string msg)
@@ -280,11 +293,29 @@ public class UIManager : BaseManager<UIManager>
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
+        historyWindow.gameObject.SetActive(false);
     }
 
     public void InteractTextPopup(string keyname, string comment, bool isOn)
     {
         InteractPopupUI.UpdateInteractText(keyname, comment, isOn);
+    }
+
+    public static void DisplayPopupText(string text, Vector3 targetPosition, MessageTag msgTag)
+    {
+        Vector3 finalPosition = targetPosition + new Vector3(Random.Range(-0.3f, 0.3f), Random.Range(0f, 0.5f), Random.Range(-0.3f, 0.3f));
+        var go = Instantiate(Instance.damagePopUpPrefab, finalPosition, Quaternion.identity);
+        TextMeshProUGUI displayText = go.GetComponentInChildren<TextMeshProUGUI>();
+        displayText.text = text;
+
+        Debug.Log("출력위치 : " + targetPosition);
+        if (Instance.tagColors.TryGetValue(msgTag, out string colorCode))
+        {
+            if (ColorUtility.TryParseHtmlString(colorCode, out Color color))
+            {
+                displayText.color = color;
+            }
+        }
     }
 
     public void UIWindowClose()
@@ -294,7 +325,7 @@ public class UIManager : BaseManager<UIManager>
 
     public bool IsUIWindowOpen()
     {
-        return dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf;
+        return dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
@@ -318,7 +349,6 @@ public class UIManager : BaseManager<UIManager>
         }
         #endregion
     }
-    PlayerData playerda = CharacterManager.PlayerCharacterData;
 
     private readonly Dictionary<MessageTag, string> tagColors = new Dictionary<MessageTag, string>
     {

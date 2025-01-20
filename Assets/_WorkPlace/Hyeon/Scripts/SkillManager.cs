@@ -15,6 +15,7 @@ public class SkillManager : BaseManager<SkillManager>
     private Animator animator;
     [SerializeField] private GameObject skillImage;
     [SerializeField] private Transform skillPanel;
+    public bool isActivating;
 
     protected override void OnEnable()
     {
@@ -74,7 +75,8 @@ public class SkillManager : BaseManager<SkillManager>
             target = GameManager.playerTransform.gameObject;
         }
         Skills skill = GetSkill(skillName);
-        if (activeSkill.ContainsKey(skill))
+        isActivating = activeSkill.ContainsKey(skill);
+        if (isActivating)
         {
             return;
         }

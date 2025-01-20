@@ -41,7 +41,7 @@ public class ShopManager : BaseManager<ShopManager>
 
         //구매
         CharacterManager.PlayerCharacterData.UseGold(amount);
-        InventoryManager.Instance.AddItem(itemId, quantity);
+        ItemManager.Instance.AddItemLogic(itemId, quantity);
 
         Debug.Log($"{purchaseItem.name} 아이템 구매하고 남은 플레이어 소지금액: {PlayerMoney}");
     }

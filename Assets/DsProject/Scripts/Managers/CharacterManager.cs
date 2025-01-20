@@ -44,7 +44,7 @@ public enum BossType
 public class CharacterManager : BaseManager<CharacterManager>
 {
     // 캐릭터 데이터 리스트 (플레이어 + 몬스터/보스)
-    private List<CharacterData> characterList = new List<CharacterData>();
+    [SerializeField] private List<CharacterData> characterList = new List<CharacterData>();
     public static IReadOnlyList<CharacterData> CharacterList => Instance.characterList.AsReadOnly();
     // 플레이어 캐릭터 (온리 원)
     public static PlayerData PlayerCharacterData;
@@ -62,12 +62,6 @@ public class CharacterManager : BaseManager<CharacterManager>
         base.Awake();
         PlayerCharacterData = characterTemplates.players[0];
         playercharacterData = PlayerCharacterData;
-
-        PlayerCharacterData.statModifier = new StatModifier();
-        PlayerCharacterData.UpdateDerivedStats();
-        PlayerCharacterData.currentHp = PlayerCharacterData.maxHp;
-        PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
-        Debug.Log(PlayerCharacterData.ToStringForTMPro());
         
         // 게임 시작시 강제 초기화 원하면 활성화
         InitialCharacter();
@@ -91,6 +85,8 @@ public class CharacterManager : BaseManager<CharacterManager>
     
     public void InitialCharacter()
     {
+        PlayerCharacterData.statModifier = new StatModifier();
+        
         PlayerCharacterData.characterName = "Hero";
         PlayerCharacterData.prefab= null; // 플레이어 프리팹 (Unity 에디터에서 할당 가능)
         PlayerCharacterData.strength= 10;
@@ -101,7 +97,6 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.attackSpeed= 1.2f;
         PlayerCharacterData.stamina= 100f;
         PlayerCharacterData.staminaRecoveryRate = 1;
-        PlayerCharacterData.level = 1;
 
         // 레벨 초기화
         PlayerCharacterData.level = 1;
@@ -110,9 +105,15 @@ public class CharacterManager : BaseManager<CharacterManager>
 
         // 골드 초기화
         PlayerCharacterData.gold = 0;
+        
+        PlayerCharacterData.currentHp = PlayerCharacterData.maxHp;
+        playercharacterData.currentMp = PlayerCharacterData.maxMp;
+        PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
 
         // 파생 스탯 계산
         PlayerCharacterData.UpdateDerivedStats();
+        
+        Debug.Log(PlayerCharacterData.ToStringForTMPro());
     }
 
     // 특정 인덱스의 캐릭터 반환 (플레이어 또는 몬스터)
@@ -164,12 +165,29 @@ public class CharacterManager : BaseManager<CharacterManager>
         Debug.Log($"캐릭터 템플릿 '{cloned.characterName}' 생성 완료.");
         return cloned;
     }
+    
+    // 몬스터를 지정한 위치에 여러 개 소환하는 함수 - 풀링 적용 X
+    public void SpawnMonsters(string monsterName, int spawnCount, Vector3 spawnCenter, float spawnRange)
+    {
+        for (int i = 0; i < spawnCount; i++)
+        {
+            // 랜덤한 위치 계산
+            Vector3 spawnPosition = spawnCenter + new Vector3(
+                Random.Range(-spawnRange, spawnRange),
+                0f,  // Y 값은 고정 (필요에 따라 수정 가능)
+                Random.Range(-spawnRange, spawnRange)
+            );
+    
+            // 몬스터 생성
+            SpawnMonster(monsterName, spawnPosition);
+            Debug.Log($"몬스터 '{monsterName}' 스폰 위치: {spawnPosition}");
+        }
+    }
 
-    // 몬스터 생성 함수 (템플릿 기반)
+    // 단일 몬스터 생성 함수 (템플릿 기반) - 풀링 적용 X
     public void SpawnMonster(string templateName, Vector3 spawnPosition)
     {
         MonsterData monster = CreateCharacterFromTemplate(templateName);
-        Debug.Log(monster.ToStringForTMPro() + "몬스터 생성 후 스텟");
 
         if (monster != null)
         {
@@ -182,10 +200,52 @@ public class CharacterManager : BaseManager<CharacterManager>
             testComponent.monster = monster;
         }
     }
+    
+    /// <summary>
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    /// </summary>
+    // 몬스터 생성 함수 (템플릿 기반) - 풀링
+    public GameObject CreatMonster(string templateName, Transform parent)
+    {
+        MonsterData monster = CreateCharacterFromTemplate(templateName);
+        if (monster != null)
+        {
+            GameObject monsterInstance = Instantiate(monster.prefab, parent);
+            monster.instance = monsterInstance;
+            var testComponent = monsterInstance.AddComponent<Test1>();
+            testComponent.monster = monster;
+            return monsterInstance;
+        }
+        return null;
+    }
+    /// <summary>
+    /// /////////////////////////////////////////////////////////////////////////////////////////
+    /// </summary>
+    /// 
+
 
     // 몬스터 처치 처리
     public void OnMonsterDefeated(MonsterData monster, Vector3 position)
     {
+        // AI 상태를 Dead로 변경
+        if (monster.instance != null)
+        {
+            // BaseMonsterAI 검색 및 처리
+            BaseMonsterAI baseAI = monster.instance.GetComponent<BaseMonsterAI>();
+            
+            if (monster.instance.transform.parent != null) // 부모가 있는지 확인
+            {
+                if (baseAI != null)
+                {
+                    baseAI.SetDeadState(true);
+                }
+            }
+            else
+            {
+                baseAI.SetDeadState(false); // 부모가 없으면 파괴
+            }
+        }
+        
         // 경험치와 골드 보상 처리
         if (PlayerCharacterData != null)
         {
@@ -195,17 +255,8 @@ public class CharacterManager : BaseManager<CharacterManager>
         }
         
         // 아이템 드롭
-        ItemManager.Instance.SpawnItemBox(position, monster, false);
+        ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, false);
         
-        // 몬스터 오브젝트 삭제
-        if (monster.instance != null)
-        {
-            Destroy(monster.instance); // 실제 생성된 인스턴스 삭제
-        }
-        else
-        {
-            Debug.LogWarning($"{monster.characterName}의 인스턴스를 찾을 수 없습니다.");
-        }
         characterList.Remove(monster);
     }
 }

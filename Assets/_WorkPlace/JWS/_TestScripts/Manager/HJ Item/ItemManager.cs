@@ -62,7 +62,6 @@ public class ItemManager : BaseManager<ItemManager>
         }
     }
 
-
     public Item GetItemById(string itemId)
     {
         var item = ItemDatabase.FirstOrDefault(i => i.id == itemId);
@@ -72,6 +71,7 @@ public class ItemManager : BaseManager<ItemManager>
         }
         return item;
     }
+
     public void UseItem(Item item, int quantity = 1)
     {
         if (item == null)
@@ -84,7 +84,7 @@ public class ItemManager : BaseManager<ItemManager>
             Debug.LogWarning($"[InventoryManager] '{item.name}'의 수량이 부족합니다. 요청: {quantity}, 현재: {InventoryManager.Instance.GetItemQuantity(item.id)}");
             return;
         }
-        Debug.Log($"[InventoryManager] '{item.name}' 아이템 {quantity}개 사용");
+        UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 아이템 {quantity}개 사용", MessageTag.아이템_사용);
         InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
 
         // TODO
@@ -106,7 +106,7 @@ public class ItemManager : BaseManager<ItemManager>
             Debug.LogWarning($"[InventoryManager] '{item.name}'의 수량이 부족합니다. 요청: {quantity}, 현재: {InventoryManager.Instance.GetItemQuantity(item.id)}");
             return;
         }
-        Debug.Log($"[InventoryManager] '{item.name}' 아이템 {quantity}개 버림");
+        UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 아이템 {quantity}개 버림", MessageTag.아이템_버림);
         InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
 
         // TODO
@@ -134,12 +134,8 @@ public class ItemManager : BaseManager<ItemManager>
             itemBox.transform.GetComponent<DropItemBoxController>().dropItemIds = monsterData.dropItems;
             Debug.Log(monsterData.dropItems.Count);
         }
-
         return itemBox;
     }
-
-
-
 
     /// <summary>
     /// 01.17 희정 추가한 함수
@@ -161,7 +157,6 @@ public class ItemManager : BaseManager<ItemManager>
 
         return items;
     }
-
 
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
     {

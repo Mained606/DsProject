@@ -10,9 +10,20 @@ public class CombatManager : BaseManager<CombatManager>
     // 공격 처리 메서드
     public void ProcessAttack(CharacterData player, CharacterData enemy, Transform enemyTransform, bool isPlayerAttacking)
     {
+        GameStateMachine.Instance.ChangeState(GameSystemState.Combat);
+        
         CharacterData attacker = isPlayerAttacking ? player : enemy;
         CharacterData defender = isPlayerAttacking ? enemy : player;
-        
+        Transform targetTransform = isPlayerAttacking ? enemyTransform : GameManager.playerTransform;
+
+        // 현재 타겟의 실제높이 계산을 위한부분
+        Collider collider = targetTransform.GetComponent<Collider>();
+        float characterHeight = collider != null ? collider.bounds.size.y : 0f;
+        float targetHeight = targetTransform.position.y + characterHeight;// ( (characterHeight == 0f ? 2f : characterHeight));
+
+        // 현재 타겟의 실제높이 계산을 위한부분
+        Vector3 targetPosition = new Vector3(targetTransform.position.x, targetHeight, targetTransform.position.z);
+
         if (defender == null || defender.currentHp <= 0)
         {
             Debug.Log(defender.currentHp);
@@ -23,9 +34,11 @@ public class CombatManager : BaseManager<CombatManager>
         int damage = CalculateDamage(attacker, defender);
 
         defender.TakeDamage(damage);
+
+        UIManager.DisplayPopupText(damage.ToString(), targetPosition, isPlayerAttacking ? MessageTag.적_피해 : MessageTag.플레이어_피해);
+
         Debug.Log($"{attacker.characterName}가 {defender.characterName}에게 {damage}의 데미지를 입혔습니다.");
         Debug.Log($"{defender.characterName}의 체력이 {defender.currentHp} 만큼 남았습니다.");
-
 
         // 대상이 사망했는지 확인
         if (defender.currentHp <= 0)
@@ -33,12 +46,16 @@ public class CombatManager : BaseManager<CombatManager>
             if (!isPlayerAttacking)
             {
                 // 플레이어 사망 처리
+                GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
                 Debug.LogError("플레이어 사망");
                 return;
             }
             HandleDefeated(defender, enemyTransform);
             Debug.Log(attacker.ToStringForTMPro());
+            QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Kill, defender.characterName, 1);
         }
+        
+        
     }
     
     // 데미지 계산 메서드
@@ -68,5 +85,7 @@ public class CombatManager : BaseManager<CombatManager>
         {
             Debug.LogError("defeatedCharacter를 MonsterData로 캐스팅할 수 없습니다.");
         }
+        
+        GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
     }
 }

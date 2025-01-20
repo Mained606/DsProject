@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class HistoryManager
 {
@@ -131,6 +132,20 @@ public class HistoryManager
         }
         return fullHistoryText;
     }
+
+    public string DisplayHistory(MessageTag tags = MessageTag.전체)
+    {
+        string msg = string.Empty;
+        if (tags != MessageTag.전체)
+        {
+            msg = GetPagedTextByTag(tags, 1);
+        }
+        else
+        {
+            msg = GetAllHistoryAsText();
+        }
+        return msg;
+    }
 }
 
 public enum MessageTag
@@ -153,6 +168,8 @@ public enum MessageTag
     시스템_알림,         // System notice
     이벤트,              // General event message
     아이템_획득,         // Item picked up
+    아이템_사용,         // Item used up
+    아이템_버림,         // Item droped
     희귀_아이템,         // Rare item obtained
     금화_획득,           // Gold acquired
     아군_회복,           // Ally healed

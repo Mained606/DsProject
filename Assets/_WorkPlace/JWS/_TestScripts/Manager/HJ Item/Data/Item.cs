@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [Serializable]
@@ -49,7 +50,7 @@ public class Item
         {
             // 장착 아이템 초기화
             this.itemStat = new ItemStat(1, 1, 1, 1, 1); // 기본 스탯
-            this.durability = new Durability(100);                      // 기본 내구도
+            this.durability = new Durability(100);       // 기본 내구도
         }
         else if (type == ItemType.소모품)
         {
@@ -63,8 +64,6 @@ public class Item
             // 퀘스트 아이템 초기화
             this.isDiscardable = false; // 퀘스트 아이템은 버릴 수 없음
         }
-
-        this.costValue = costValue;
     }
 
     // 아이템 복제
@@ -72,10 +71,17 @@ public class Item
     {
         Item newItem = new Item(this.id, this.name, this.description, this.type, this.grade,
             this.quantity, this.maxStack, this.isStackable, this.isDiscardable, this.costValue);
+
         if (this.itemStat != null)
         {
             newItem.itemStat = this.itemStat.Clone();
         }
+
+        if (this.durability != null)
+        {
+            newItem.durability = this.durability.Clone(); // 내구도도 복제
+        }
+        newItem.sprite = this.sprite;
         return newItem;
     }
 
@@ -95,13 +101,13 @@ public class Item
     {
         switch (grade)
         {
-            case ItemGrade.일반: return "#FFFFFF";    // 흰색
-            case ItemGrade.고급: return "#1EFF00";    // 초록색
-            case ItemGrade.희귀: return "#0070DD";    // 파랑색
-            case ItemGrade.에픽: return "#A335EE";    // 보라색
-            case ItemGrade.전설: return "#FF8000";    // 주황색
+            case ItemGrade.일반: return "#FFFFFF";     // 흰색
+            case ItemGrade.고급: return "#1EFF00";  // 초록색
+            case ItemGrade.희귀: return "#0070DD";      // 파랑색
+            case ItemGrade.에픽: return "#A335EE";      // 보라색
+            case ItemGrade.전설: return "#FF8000"; // 주황색
             case ItemGrade.신화: return "#FF0000";    // 빨간색
-            default: return "#FFFFFF";               // 기본 흰색
+            default: return "#FFFFFF";                 // 기본 흰색
         }
     }
 

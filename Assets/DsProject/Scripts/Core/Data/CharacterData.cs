@@ -32,9 +32,9 @@ public class CharacterData
     
     // 계산된 값 (정수형)
     [HideInInspector] public int maxHp;        // 최대 HP
-    [HideInInspector] public int currentHp;    // 현재 HP
+    public int currentHp;    // 현재 HP
     [HideInInspector] public int maxMp;        // 최대 HP
-     public int currentMp;    // 현재 HP
+    public int currentMp;    // 현재 HP
     [HideInInspector] public int physicalDefense;  // 물리 방어력
     [HideInInspector] public int magicDefense;     // 마법 방어력
     [HideInInspector] public int physicalDamage;   // 물리 공격력
@@ -51,6 +51,8 @@ public class CharacterData
 
     private Dictionary<string, int> stats;
     private StatModifier basestatModifier = new StatModifier();
+    
+    public event Action OnTakeDamage; // 피격 했는지 이벤트 전달
 
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(string name, CharacterType type, GameObject prefab, 
@@ -78,6 +80,7 @@ public class CharacterData
         // IncreaseStatsBasedOnLevel();
         UpdateDerivedStats();  // 모든 파생 스탯을 한 번에 계산
         this.currentHp = this.maxHp;
+        this.currentMp = this.maxMp;
         this.staminaCurrent = this.stamina;
         InitializeStats();
     }
@@ -92,28 +95,50 @@ public class CharacterData
             { "intelligence", intelligence }
         };
     }
+    
+    // 데이터 초기화 함수
+    public void ResetDataByLevel()
+    {
+        // 기본적인 스탯과 상태 초기화
+        currentHp = maxHp;
+        currentMp = maxMp;
+        staminaCurrent = stamina;
+
+        // 레벨과 관련된 동적 데이터 재계산
+        UpdateDerivedStats();
+
+        Debug.Log($"Monster data reset. Level: {level}, HP: {currentHp}/{maxHp}");
+    }
 
     // 파생 스탯 계산 (중복을 줄이기 위해 한 번에 계산)
     public void UpdateDerivedStats()
     {
         int previousMaxHp = maxHp; // 이전 최대 체력 저장
-        int previousMaxMp = maxMp; // 이전 최대 체력 저장
+        int previousMaxMp = maxMp; // 이전 최대 MP 저장
+    
+        // 체력, MP 등 파생 스탯 계산
         maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier);  // 체력에 비례한 최대 HP
-        maxMp = Mathf.RoundToInt(intelligence * 10 + level * 5); // MP예시
+        maxMp = Mathf.RoundToInt((intelligence * statModifier.mpMultiplier) + (level * statModifier.levelMpBonus)); // MP 계산
+    
+        // 공격력 및 방어력 계산
         physicalDamage = Mathf.RoundToInt(strength * statModifier.strengthMultiplier);  // 힘에 따른 물리 공격력
         physicalDefense = Mathf.RoundToInt((strength + vitality) * statModifier.physicalDefenseMultiplier);  // 힘과 체력에 비례한 물리 방어력
         magicDamage = Mathf.RoundToInt(intelligence * statModifier.intelligenceMultiplier);  // 지능에 따른 마법 공격력
         magicDefense = Mathf.RoundToInt(intelligence * statModifier.magicDefenseMultiplier);  // 지능에 따른 마법 방어력
+
+        // 크리티컬 확률 및 기본 데미지 계산
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f);  // 민첩성에 따른 크리티컬 확률
         baseDamage = physicalDamage + strength;  // 물리 공격력 + 힘
-        
-        // maxHp가 증가한 경우 currentHp도 증가분 만큼 회복
+
+        // 체력 증가 처리
         if (maxHp > previousMaxHp)
         {
             currentHp += maxHp - previousMaxHp;
             currentHp = Mathf.Clamp(currentHp, 0, maxHp);
         }
-        if (maxHp > previousMaxMp)
+    
+        // MP 증가 처리
+        if (maxMp > previousMaxMp)
         {
             currentMp += maxMp - previousMaxMp;
             currentMp = Mathf.Clamp(currentMp, 0, maxMp);
@@ -144,6 +169,10 @@ public class CharacterData
         // 레벨업 시 능력치 증가 및 파생 스탯 계산
         IncreaseStatsBasedOnLevel();
         UpdateDerivedStats();
+        
+        currentHp = this.maxHp;
+        currentMp = this.maxMp;
+        staminaCurrent = this.stamina;
 
         // 레벨업 시 로그 출력 (디버깅용)
         Debug.Log($"레벨업! 현재 레벨: {level}, 남은 경험치: {currentExperience}");
@@ -193,8 +222,9 @@ public class CharacterData
     // 피해를 입었을 때
     public void TakeDamage(int damage)
     {
-        currentHp -= damage;
-        currentHp = Mathf.Max(0, currentHp);  // currentHp가 0 이하로 떨어지지 않도록 처리
+        currentHp = Mathf.Max(0, currentHp - damage);
+        
+        OnTakeDamage?.Invoke();
     }
 
     // 회복
@@ -236,17 +266,18 @@ public class CharacterData
             "<color=green>Vitality:</color> {4}\n" +
             "<color=yellow>Intelligence:</color> {5}\n" +
             "<color=lime>Current HP:</color> {6}/{7}\n" +
-            "<color=lime>Stamina:</color> {8}/{9} (Recovery: {10}/s)\n" +
-            "<color=purple>Physical Damage:</color> {11}\n" +
-            "<color=cyan>Magic Damage:</color> {12}\n" +
-            "<color=orange>Physical Defense:</color> {13}\n" +
-            "<color=orange>Magic Defense:</color> {14}\n" +
-            "<color=magenta>Critical Chance:</color> {15}%\n" +
-            "<color=black>Base Damage:</color> {16}\n" +
-            "<color=teal>Speed:</color> {17}\n" +
-            "<color=yellow>Attack Speed:</color> {18}\n" +
-            "<color=orange>Current Experience:</color> {19}\n" +
-            "<color=orange>Experience To Level Up:</color> {20}\n",
+            "<color=cyan>Current MP:</color> {8}/{9}\n" +
+            "<color=lime>Stamina:</color> {10}/{11} (Recovery: {12}/s)\n" +
+            "<color=purple>Physical Damage:</color> {13}\n" +
+            "<color=cyan>Magic Damage:</color> {14}\n" +
+            "<color=orange>Physical Defense:</color> {15}\n" +
+            "<color=orange>Magic Defense:</color> {16}\n" +
+            "<color=magenta>Critical Chance:</color> {17}%\n" +
+            "<color=black>Base Damage:</color> {18}\n" +
+            "<color=teal>Speed:</color> {19}\n" +
+            "<color=yellow>Attack Speed:</color> {20}\n" +
+            "<color=orange>Current Experience:</color> {21}\n" +
+            "<color=orange>Experience To Level Up:</color> {22}\n",
             characterName,                      // 0
             level,                              // 1
             strength,                           // 2
@@ -255,19 +286,21 @@ public class CharacterData
             intelligence,                       // 5
             currentHp,                          // 6
             maxHp,                              // 7
-            staminaCurrent,                     // 8
-            stamina,                            // 9
-            staminaRecoveryRate,                // 10
-            physicalDamage,                     // 11
-            magicDamage,                        // 12
-            physicalDefense,                    // 13
-            magicDefense,                       // 14
-            criticalChance * 100,               // 15
-            baseDamage,                         // 16
-            speed,                              // 17
-            attackSpeed,                        // 18
-            currentExperience,                  // 19
-            experienceToLevelUp                 // 20
+            currentMp,                          // 8
+            maxMp,                              // 9
+            staminaCurrent,                     // 10
+            stamina,                            // 11
+            staminaRecoveryRate,                // 12
+            physicalDamage,                     // 13
+            magicDamage,                        // 14
+            physicalDefense,                    // 15
+            magicDefense,                       // 16
+            criticalChance * 100,               // 17
+            baseDamage,                         // 18
+            speed,                              // 19
+            attackSpeed,                        // 20
+            currentExperience,                  // 21
+            experienceToLevelUp                 // 22
         );
 
         // 플레이어 전용 정보
@@ -305,48 +338,7 @@ public class CharacterData
 
         return baseInfo;
     }
-    // public string ToStringForTMPro()
-    // {
-    //     return string.Format(
-    //         "<color=red>Name:</color> {0}\n" +
-    //         "<color=red>Level:</color> {1}\n" +
-    //         "<color=red>Strength:</color> {2}\n" +
-    //         "<color=blue>Agility:</color> {3}\n" +
-    //         "<color=green>Vitality:</color> {4}\n" +
-    //         "<color=yellow>Intelligence:</color> {5}\n" +
-    //         "<color=lime>Current HP:</color> {6}/{7}\n" +
-    //         "<color=purple>Physical Damage:</color> {8}\n" +
-    //         "<color=cyan>Magic Damage:</color> {9}\n" +
-    //         "<color=magenta>Critical Chance:</color> {10}%\n" +
-    //         "<color=Black>Base Damage:</color> {11}\n" +
-    //         "<color=lime>Stamina:</color> {12}/{13}\n" +
-    //         "<color=teal>Speed:</color> {14}\n" +
-    //         "<color=yellow>Attack Speed:</color> {15}\n" +
-    //         "<color=yellow>Gold:</color> {16}\n" + // 골드 추가
-    //         "<color=orange>Current Experience:</color> {17}\n" + // 현재 경험치 추가
-    //         "<color=orange>Experience To Level Up:</color> {18}\n", // 레벨업에 필요한 경험치 추가
-    //         characterName,                      // 0
-    //         level,                              // 1
-    //         strength,                           // 2
-    //         agility,                            // 3
-    //         vitality,                           // 4
-    //         intelligence,                       // 5
-    //         currentHp,                          // 6 - 현재 체력
-    //         maxHp,                              // 7 - 최대 체력
-    //         physicalDamage,                     // 8
-    //         magicDamage,                        // 9
-    //         criticalChance * 100,               // 10 - 크리티컬 확률 (백분율)
-    //         baseDamage,                         // 11
-    //         staminaCurrent,                     // 12 - 현재 스태미나
-    //         stamina,                            // 13 - 최대 스태미나
-    //         speed,                              // 14
-    //         attackSpeed,                        // 15
-    //         this is PlayerData player ? player.gold : 0,  // 16 - 골드
-    //         currentExperience,                  // 17 - 현재 경험치
-    //         experienceToLevelUp                 // 18 - 레벨업에 필요한 경험치
-    //     );
-    // }
-
+    
     public CharacterData Clone()
     {
         return new CharacterData(
@@ -372,6 +364,8 @@ public class StatModifier
     public float vitalityMultiplier = 10f;    // 체력에 대한 HP 증가 비율
     public float agilityMultiplier = 0.01f;  // 민첩성에 대한 크리티컬 확률 비율
     public float intelligenceMultiplier = 3f; // 지능에 대한 마법 공격력 비율
+    public float mpMultiplier = 10f;          // 지능에 대한 MP 증가 비율
+    public float levelMpBonus = 5f;           // 레벨에 따른 추가 MP 보너스
 
     // 방어력 계산 비율 (동적 설정)
     public float physicalDefenseMultiplier = 1f;  // 물리 방어력 계산 비율
@@ -384,6 +378,8 @@ public class StatModifier
             vitalityMultiplier = this.vitalityMultiplier,
             agilityMultiplier = this.agilityMultiplier,
             intelligenceMultiplier = this.intelligenceMultiplier,
+            mpMultiplier = this.mpMultiplier,
+            levelMpBonus = this.levelMpBonus,
             physicalDefenseMultiplier = this.physicalDefenseMultiplier,
             magicDefenseMultiplier = this.magicDefenseMultiplier
         };
@@ -403,7 +399,9 @@ public class PlayerData : CharacterData
     {
         gold = 0; // 초기 골드는 0
     }
+
     public void AddSkill(string skill) => skills.Add(skill);
+
     public void AddGold(int amount)
     {
         if (amount < 0) return;
@@ -445,6 +443,7 @@ public class PlayerData : CharacterData
             experienceToLevelUp = this.experienceToLevelUp,  // 레벨업 경험치 복사
             staminaCurrent = this.staminaCurrent,  // 현재 스태미나 복사
             currentHp = this.currentHp,  // 현재 HP 복사
+            currentMp = this.currentMp,  // 현재 MP 복사
             statModifier = this.statModifier != null ? this.statModifier.Clone() : null  // StatModifier 복사
         };
 
@@ -533,6 +532,7 @@ public class BossData : MonsterData
         clone.currentExperience = this.currentExperience; // 현재 경험치 복사
         clone.experienceToLevelUp = this.experienceToLevelUp; // 레벨업 경험치 복사
         clone.currentHp = this.currentHp; // 현재 HP 복사
+        clone.currentMp = this.currentMp; // 현재 MP 복사
         clone.staminaCurrent = this.staminaCurrent; // 현재 스태미나 복사
 
         // StatModifier 복사
