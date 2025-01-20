@@ -159,7 +159,7 @@ public class BaseMonsterAI : MonoBehaviour
     // 공격 상태 처리
     protected virtual void HandleAttackingState()
     {
-        if (playerTarget == null || Vector3.Distance(transform.position, playerTarget.position) > searchRange)
+        if (CharacterManager.PlayerCharacterData.currentHp <= 0 || playerTarget == null || Vector3.Distance(transform.position, playerTarget.position) > searchRange)
         {
             playerTarget = null;
             SetState(AIState.Patrolling); // 플레이어가 범위를 벗어나면 패트롤 상태로 전환
@@ -197,11 +197,17 @@ public class BaseMonsterAI : MonoBehaviour
         if (playerTarget != null) return;
 
         Collider[] hits = Physics.OverlapSphere(transform.position, searchRange);
+        if (CharacterManager.PlayerCharacterData.currentHp <= 0)
+        {
+            playerTarget = null;
+            return;
+        }
         foreach (var hit in hits)
         {
             if (hit.CompareTag("Player"))
             {
                 playerTarget = hit.transform; // 플레이어 발견 시 타겟 설정
+                
                 return;
             }
         }
@@ -247,6 +253,11 @@ public class BaseMonsterAI : MonoBehaviour
             0f,
             Random.Range(-patrolRange, patrolRange)
         );
+    }
+
+    public void ChangeState(AIState newState)
+    {
+        SetState(newState);
     }
 
     // 상태 전환

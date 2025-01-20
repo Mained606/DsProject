@@ -258,7 +258,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         }
         
         // 아이템 드롭
-        ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, true);
+        ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, false);
         
         characterList.Remove(monster);
     }
