@@ -90,6 +90,8 @@ public class ItemManager : BaseManager<ItemManager>
         // TODO
         // 아이템 사용 효과 적용 (예: 체력 회복 등) 효과 구현연결
         // ApplyItemEffect(item, quantity); 이런식의 연결함수 구현이 필요.
+
+        ItemEffectManager.Instance.ApplyItemEffect(item, quantity);
     }
 
     public void DropItem(Item item, int quantity = 1)
