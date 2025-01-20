@@ -410,7 +410,9 @@ public class PlayerData : CharacterData
     {
         gold = 0; // 초기 골드는 0
     }
+
     public void AddSkill(string skill) => skills.Add(skill);
+
     public void AddGold(int amount)
     {
         if (amount < 0) return;
