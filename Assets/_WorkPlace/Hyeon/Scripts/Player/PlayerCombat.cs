@@ -15,8 +15,6 @@ public class PlayerCombat : MonoBehaviour
     public Animator playerAnimator;
     private Transform closestMonster;
 
-    private int currentComboIndex = 0;
-
     public bool CanReceiveInput { get; set; } = true;
 
     public bool inputReceived = false;
