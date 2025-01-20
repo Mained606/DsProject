@@ -1,7 +1,7 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 
-public class MushroomAi : BaseMonsterAI
+public class SlimeRabbitAI : BaseMonsterAI
 {
     protected override void PerformAttack()
     {

@@ -35,6 +35,10 @@ public class SpawnManager : MonoBehaviour
 
     private void Awake()
     {
+        npcSpawnerList.Clear();
+        bossSpawnerList.Clear();
+        monsterSpawnerList.Clear();
+        
         if (Instance == null) Instance = this;
         else Destroy(this.gameObject);
 
