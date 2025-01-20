@@ -221,12 +221,29 @@ public class CharacterManager : BaseManager<CharacterManager>
         
         // 아이템 드롭
         ItemManager.Instance.SpawnItemBox(position, monster, false);
-        
+
         // 몬스터 오브젝트 삭제
+        //if (monster.instance != null)
+        //{
+        //    Destroy(monster.instance); // 실제 생성된 인스턴스 삭제
+        //}
+
+        // 스풀링된 인스턴트인지 확인후 비활성화.
+        ////////////////////////////////////////////////////////////////////////////////////////////////
         if (monster.instance != null)
         {
-            Destroy(monster.instance); // 실제 생성된 인스턴스 삭제
+            if (monster.instance.transform.parent != null) // 부모가 있는지 확인
+            {
+                monster.currentHp = monster.maxHp;
+                monster.currentMp = monster.maxMp;
+                monster.instance.SetActive(false); // 비활성화
+            }
+            else
+            {
+                Destroy(monster.instance); // 부모가 없으면 파괴
+            }
         }
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         else
         {
             Debug.LogWarning($"{monster.characterName}의 인스턴스를 찾을 수 없습니다.");
