@@ -54,6 +54,7 @@ public class BaseMonsterAI : MonoBehaviour
         {
             col.enabled = true;
             rb.isKinematic = false;
+            monsterData?.ResetDataByLevel();
             SetState(AIState.Patrolling);
         }
     }
@@ -313,6 +314,9 @@ public class BaseMonsterAI : MonoBehaviour
         {
             respawn = true;
             gameObject.SetActive(false);
+            
+            // 데이터 초기화 부분
+            monsterData.ResetDataByLevel();
         }
         else
         {

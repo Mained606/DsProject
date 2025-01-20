@@ -238,10 +238,6 @@ public class CharacterManager : BaseManager<CharacterManager>
                 {
                     baseAI.SetDeadState(true);
                 }
-                
-                // 데이터 초기화 부분
-                // monster.currentHp = monster.maxHp;
-                // monster.currentMp = monster.maxMp;
             }
             else
             {

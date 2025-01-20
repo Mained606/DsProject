@@ -94,34 +94,55 @@ public class CharacterData
             { "intelligence", intelligence }
         };
     }
+    
+    // 데이터 초기화 함수
+    public void ResetDataByLevel()
+    {
+        // 기본적인 스탯과 상태 초기화
+        currentHp = maxHp;
+        currentMp = maxMp;
+        staminaCurrent = stamina;
+
+        // 레벨과 관련된 동적 데이터 재계산
+        UpdateDerivedStats();
+
+        Debug.Log($"Monster data reset. Level: {level}, HP: {currentHp}/{maxHp}");
+    }
 
     // 파생 스탯 계산 (중복을 줄이기 위해 한 번에 계산)
     public void UpdateDerivedStats()
     {
         int previousMaxHp = maxHp; // 이전 최대 체력 저장
-        int previousMaxMp = maxMp; // 이전 최대 체력 저장
+        int previousMaxMp = maxMp; // 이전 최대 MP 저장
+    
+        // 체력, MP 등 파생 스탯 계산
         maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier);  // 체력에 비례한 최대 HP
-        maxMp = Mathf.RoundToInt(intelligence * 10 + level * 5); // MP예시
+        maxMp = Mathf.RoundToInt((intelligence * statModifier.mpMultiplier) + (level * statModifier.levelMpBonus)); // MP 계산
+    
+        // 공격력 및 방어력 계산
         physicalDamage = Mathf.RoundToInt(strength * statModifier.strengthMultiplier);  // 힘에 따른 물리 공격력
         physicalDefense = Mathf.RoundToInt((strength + vitality) * statModifier.physicalDefenseMultiplier);  // 힘과 체력에 비례한 물리 방어력
         magicDamage = Mathf.RoundToInt(intelligence * statModifier.intelligenceMultiplier);  // 지능에 따른 마법 공격력
         magicDefense = Mathf.RoundToInt(intelligence * statModifier.magicDefenseMultiplier);  // 지능에 따른 마법 방어력
+
+        // 크리티컬 확률 및 기본 데미지 계산
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f);  // 민첩성에 따른 크리티컬 확률
         baseDamage = physicalDamage + strength;  // 물리 공격력 + 힘
-        
-        // maxHp가 증가한 경우 currentHp도 증가분 만큼 회복
+
+        // 체력 증가 처리
         if (maxHp > previousMaxHp)
         {
             currentHp += maxHp - previousMaxHp;
             currentHp = Mathf.Clamp(currentHp, 0, maxHp);
         }
-        if (maxHp > previousMaxMp)
+    
+        // MP 증가 처리
+        if (maxMp > previousMaxMp)
         {
             currentMp += maxMp - previousMaxMp;
             currentMp = Mathf.Clamp(currentMp, 0, maxMp);
         }
     }
-    
     // 경험치를 얻었을 때 호출되는 함수
     public void AddExperience(int amount)
     {
@@ -379,6 +400,8 @@ public class StatModifier
     public float vitalityMultiplier = 10f;    // 체력에 대한 HP 증가 비율
     public float agilityMultiplier = 0.01f;  // 민첩성에 대한 크리티컬 확률 비율
     public float intelligenceMultiplier = 3f; // 지능에 대한 마법 공격력 비율
+    public float mpMultiplier = 10f;          // 지능에 대한 MP 증가 비율
+    public float levelMpBonus = 5f;           // 레벨에 따른 추가 MP 보너스
 
     // 방어력 계산 비율 (동적 설정)
     public float physicalDefenseMultiplier = 1f;  // 물리 방어력 계산 비율
@@ -391,6 +414,8 @@ public class StatModifier
             vitalityMultiplier = this.vitalityMultiplier,
             agilityMultiplier = this.agilityMultiplier,
             intelligenceMultiplier = this.intelligenceMultiplier,
+            mpMultiplier = this.mpMultiplier,
+            levelMpBonus = this.levelMpBonus,
             physicalDefenseMultiplier = this.physicalDefenseMultiplier,
             magicDefenseMultiplier = this.magicDefenseMultiplier
         };
