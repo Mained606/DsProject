@@ -23,10 +23,6 @@ public class MainCutSceneManager : BaseManager<MainCutSceneManager>
         StartCoroutine(CutSceneFadeOut());
     }
 
-
-
-    
-
     protected override void Start() 
     {
         base.Start();
