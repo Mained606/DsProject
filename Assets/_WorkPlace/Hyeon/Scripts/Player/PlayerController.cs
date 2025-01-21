@@ -1,3 +1,4 @@
+using NUnit.Framework.Constraints;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -40,8 +41,10 @@ public class PlayerController : MonoBehaviour
 
     [Header("벽타기")]
     [SerializeField] private float detectionRange = 2f;
+    [SerializeField] private float climbRange = 1f;
     private Vector3 currentCliffNormal;
     public bool isClimb;
+    public bool CanClimb;
     [SerializeField] private float climbEndCheckOffset = 0.2f; // 절벽 끝 검사 오프셋
 
     [Header("글라이딩")]
@@ -84,7 +87,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         DeathCheck();
-        //HitCheck();
+        HitCheck();
         isGrounded = characterController.isGrounded;
         //GroundCheck();
         isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
@@ -92,7 +95,7 @@ public class PlayerController : MonoBehaviour
 
         HandleGravity();
         avoidKeyInput();
-        
+
 
         DetectCliff();
         UpdateClimbState();
@@ -179,6 +182,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                isFreefall = true;
                 verticalVelocity.y += gravity * Time.deltaTime;
             }
         }
@@ -468,6 +472,8 @@ public class PlayerController : MonoBehaviour
         Vector3 rayOrigin = transform.position + Vector3.up * 3f;
         if (Physics.Raycast(rayOrigin, transform.forward, out RaycastHit hit, detectionRange))
         {
+            if (hit.transform.gameObject.layer == 10) return;
+
             Debug.DrawLine(rayOrigin, hit.point, Color.red);
 
             float angle = Vector3.Angle(hit.normal, Vector3.up);
@@ -480,11 +486,12 @@ public class PlayerController : MonoBehaviour
             }
             if (angle > 75f && angle < 105f)
             {
+                CanClimb = true;
                 //Debug.Log("매달릴 수 있는 벽");
-                if (hit.distance < detectionRange / 2)
+                if (hit.distance <= climbRange)
                 {
                     currentCliffNormal = hit.normal;
-                    if (!isClimb)
+                    if (!isClimb && moveInput.y > 0)
                     {
                         StartClimbing(hit.point);
                         //Debug.Log("StartClimbing");
@@ -493,12 +500,13 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                CanClimb = false;
                 //Debug.Log("매달릴 수 없는 벽");
             }
         }
         else
         {
-            //isClimb = false;
+            CanClimb = false;
             //playerAnimator.SetBool("Climb", false);
             //Debug.Log("Ray에 감지 안 됨");
             CheckClimbEnd();
@@ -507,10 +515,14 @@ public class PlayerController : MonoBehaviour
 
     private void StartClimbing(Vector3 climbStartPosition)
     {
+        if (isClimb) return;
+        Debug.Log("StartClimbing");
         isClimb = true;
         isFreefall = false;
+        isGliding = false;
         playerAnimator.SetBool("Freefall", false);
         playerAnimator.SetBool("Climb", true);
+        playerAnimator.SetBool("Jump", false);
         transform.position = climbStartPosition;
         playerCombat.ToggleSwordVisible();
         // Anim
@@ -548,20 +560,21 @@ public class PlayerController : MonoBehaviour
 
     private void EndClimbing(bool successful)
     {
+        Debug.Log("EndClimbing");
         if (successful)
         {
-            CanMove = false;
             isClimb = false;
+            CanMove = false;
             playerAnimator.SetBool("ClimbUp", true);
             playerCombat.ToggleSwordVisible();
             StartCoroutine(FinishingClimbing());
         }
         else
         {
+            isClimb = false;
             playerAnimator.SetBool("Climb", false);
             Debug.Log("절벽타기 취소됨");
             playerCombat.ToggleSwordVisible();
-            isClimb = false;
         }
 
         // Anim
@@ -569,11 +582,22 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator FinishingClimbing()
     {
-        float duration = playerAnimator.GetCurrentAnimatorStateInfo(0).length;
-        Vector3 climbUpPosition = transform.position + transform.up * 0.5f + transform.forward * 1f;
-        transform.position = climbUpPosition;
-        yield return new WaitForSeconds(duration);
-        
+        float duration = playerAnimator.GetCurrentAnimatorStateInfo(0).length + 0.5f;
+        Vector3 climbUpPosition = transform.position + transform.up * 0.8f + transform.forward * 2f;
+        Vector3 dir = (climbUpPosition - transform.position).normalized;
+        float offsetDist = Vector3.Distance(transform.position, climbUpPosition);
+        //transform.position = climbUpPosition;
+        //yield return new WaitForSeconds(duration);
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            characterController.Move(dir * (offsetDist / duration) * Time.deltaTime);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
         playerAnimator.SetBool("Climb", false);
         playerAnimator.SetBool("ClimbUp", false);
         CanMove = true;
@@ -606,21 +630,40 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetFloat("VelocityY", 0f);
 
         }
-        if(moveInput.y > 0)
+        else
         {
-            playerAnimator.SetFloat("VelocityY", 1f);
-        }
-        if(moveInput.y < 0)
-        {
-            playerAnimator.SetFloat("VelocityY", -1f);
+            playerAnimator.SetFloat("VelocityY", moveInput.y > 0 ? 1f: -1f);
         }
 
-        characterController.Move(climbDirection * walkSpeed * Time.deltaTime);
-
-        if (climbDirection != Vector3.zero)
+        //UpdateCliffNormal();
+        if(climbDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(-currentCliffNormal, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+
+            climbDirection = Vector3.ProjectOnPlane(climbDirection, currentCliffNormal).normalized;
+            characterController.Move(climbDirection * walkSpeed * Time.deltaTime);
+        }
+
+        StickToCliff();
+    }
+
+    private void UpdateCliffNormal()
+    {
+        if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, 1f))
+        {
+            currentCliffNormal = hit.normal;
+        }
+    }
+
+    private void StickToCliff()
+    {
+        if (Physics.Raycast(transform.position, -currentCliffNormal, out RaycastHit hit, 1f))
+        {
+            // 표면에 가까운 위치로 보정
+            transform.position = hit.point + currentCliffNormal * 0.5f; // 약간 띄운다.
+            Quaternion surfaceRotation = Quaternion.LookRotation(-currentCliffNormal, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, surfaceRotation, Time.deltaTime * 5f);
         }
     }
 
@@ -645,21 +688,21 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetTrigger("Hit");
         }
         beforeHP = playerData.currentHp;
-        bool isAnimating = animFinishCheck("Hit_F_1_InPlace");
-        if (!isAnimating)
-        {
-            CanMove = false;
-            CanAttack = false;
-            CanUseSkill = false;
-            return;
-        }
-        else
-        {
-            CanMove = true;
-            CanAttack = true;
-            CanUseSkill = true;
-            return;
-        }
+        //bool isAnimating = animFinishCheck("Hit_F_2_InPlace");
+        //if (!isAnimating)
+        //{
+        //    CanMove = false;
+        //    CanAttack = false;
+        //    CanUseSkill = false;
+        //    return;
+        //}
+        //if(isAnimating && )
+        //{
+        //    CanMove = true;
+        //    CanAttack = true;
+        //    CanUseSkill = true;
+        //    return;
+        //}
     }
 
     private void DeathCheck()
