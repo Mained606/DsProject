@@ -19,4 +19,9 @@ public class PopupFloatingText : MonoBehaviour
             transform.LookAt(_camera.transform.position/* - direction*/);
         }
     }
+
+    void PopUpDestroy()
+    {
+        Destroy(this.gameObject);
+    }
 }

@@ -150,7 +150,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Menu/Skip",
+                    "name": "ESC",
                     "type": "Button",
                     "id": "17113a5c-4fea-4727-8dc8-e3cfb3b9aeda",
                     "expectedControlType": "",
@@ -720,7 +720,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Menu/Skip",
+                    "action": "ESC",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
