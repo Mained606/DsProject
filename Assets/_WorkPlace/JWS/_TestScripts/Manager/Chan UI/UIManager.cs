@@ -56,7 +56,7 @@ public class UIManager : BaseManager<UIManager>
 
     private void Update()
     {
-        if (IsUIWindowOpen() || IsPointerOverUI())
+        if (IsUIWindowOpen()/* || IsPointerOverUI()*/)
         {
             InputManager.InputActions.actions["Attack"].Disable(); // UI가 열려 있을 때 공격 비활성화
             InputManager.InputActions.actions["Interact"].Disable(); // UI가 열려 있을 때 공격 비활성화
