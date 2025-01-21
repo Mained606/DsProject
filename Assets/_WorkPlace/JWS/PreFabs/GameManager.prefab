@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemList: {fileID: 11400000, guid: 09486d49e48af1441bb7f646a326401c, type: 2}
   itemSpriteList: []
-  dropItemPrefab: {fileID: 5784722882407542849, guid: 8699b19efa8ab9745b919704ee5311b0, type: 3}
+  dropItemPrefab: {fileID: 5829863160345447765, guid: 9f24f9f1556ad094489e3067284dc5e3, type: 3}
 --- !u!1 &668412533047110478
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,6 +283,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e41ed7d8d224a04da65ca8219e05a55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterList: []
   playercharacterData:
     characterName: 
     characterType: 0
@@ -312,7 +313,7 @@ MonoBehaviour:
     skills: []
     gold: 0
   characterTemplates: {fileID: 11400000, guid: 091e7d62338046b4a8e7ccb7f2fb75c2, type: 2}
-  isInitialized: 0
+  isInitialized: 1
 --- !u!1 &3191311102163359365
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,6 +587,7 @@ MonoBehaviour:
   currentUsedSkills: []
   skillImage: {fileID: 1832674940790419213, guid: 520aa0c1598fbd441bb4db1ef5412700, type: 3}
   skillPanel: {fileID: 0}
+  isActivating: 0
 --- !u!1 &9196922504058191263
 GameObject:
   m_ObjectHideFlags: 0
