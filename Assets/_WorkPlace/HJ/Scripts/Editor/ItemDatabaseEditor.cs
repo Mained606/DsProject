@@ -65,27 +65,6 @@ public class ItemDatabaseEditor : Editor
         foldouts = new bool[itemsProperty.arraySize];
     }
 
-    //private void ResetTypeSpecificFields(SerializedProperty itemProperty, ItemType itemType)
-    //{
-    //    switch (itemType)
-    //    {
-    //        case ItemType.무기:
-    //        case ItemType.방어구:
-    //        case ItemType.장신구:
-    //            itemProperty.FindPropertyRelative("itemStat").objectReferenceValue = null;
-    //            itemProperty.FindPropertyRelative("durability").intValue = 0;
-    //            itemProperty.FindPropertyRelative("equipmentSlot").enumValueIndex = 0;
-    //            break;
-    //        case ItemType.소모품:
-    //            itemProperty.FindPropertyRelative("consumableType").enumValueIndex = 0;
-    //            itemProperty.FindPropertyRelative("effectAmount").floatValue = 0f;
-    //            break;
-    //        case ItemType.퀘스트:
-    //            itemProperty.FindPropertyRelative("questId").intValue = 0;
-    //            break;
-    //    }
-    //}
-
     private void DrawItemEditor(SerializedProperty itemProperty, int index)
     {
         //아이템 공통항목
@@ -104,6 +83,7 @@ public class ItemDatabaseEditor : Editor
 
         //아이템 타입
         ItemType itemType = (ItemType)itemProperty.FindPropertyRelative("type").enumValueIndex;
+        ConsumableType consumableType = (ConsumableType)itemProperty.FindPropertyRelative("consumableType").enumValueIndex;
 
         //아이템 타입에 따른 동적 속성
         switch (itemType)
@@ -111,13 +91,20 @@ public class ItemDatabaseEditor : Editor
             case ItemType.무기:
             case ItemType.방어구:
             case ItemType.장신구:
+                DrawPropertyIfExists(itemProperty, "effect");
                 DrawPropertyIfExists(itemProperty, "itemStat");
                 DrawPropertyIfExists(itemProperty, "durability");
                 DrawPropertyIfExists(itemProperty, "equipmentSlot");
                 break;
             case ItemType.소모품:
+                DrawPropertyIfExists(itemProperty, "effect");
                 DrawPropertyIfExists(itemProperty, "consumableType");
                 DrawPropertyIfExists(itemProperty, "effectAmount");
+
+                if(consumableType == ConsumableType.버프)
+                {
+                    DrawPropertyIfExists(itemProperty, "itemStat");
+                }
                 break;
             case ItemType.퀘스트:
                 DrawPropertyIfExists(itemProperty, "questId");
