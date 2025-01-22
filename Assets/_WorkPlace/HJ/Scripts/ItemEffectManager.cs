@@ -6,11 +6,12 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
     #region Variables
     //테스트 확인용 임시변수
-    [SerializeField] public List<ItemEffect> itemEffects = new List<ItemEffect>();
+    private Item equippedWeapon;
+    private Item equippedAccessory;
+    private Dictionary<EquipmentSlot, Item> equippedArmors = new Dictionary<EquipmentSlot, Item>();
 
     [SerializeField] private float effectParticleDuration = 2f;                 //아이템 이펙트 파티클 재생시간
     [SerializeField] private Vector3 particlePositionOffset = new Vector3();    //파티클 위치 오프셋
-
 
     private PlayerData Player
     {
@@ -42,21 +43,44 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     //아이템 장착 해제
     public void UnequipmentEffect(Item item)
     {
-        ItemType itemType = item.type;
-        
-        if(itemType == ItemType.무기 || itemType == ItemType.방어구 || itemType == ItemType.장신구)
+        if(item.type == ItemType.무기)
         {
-            if(item.itemStat != null)
+            if(equippedWeapon == item)
             {
-                if (InventoryManager.Instance.GetRemainingInventory() > 0)
-                {
-                    UpdatePlayerStats(item.itemStat, -1);
-
-                    //인벤토리에 아이템 추가
-                    InventoryManager.Instance.AddItemLogic(item);
-                }
+                UpdatePlayerStats(item.itemStat, -1);
+                equippedWeapon = null;
+                InventoryManager.Instance.AddItemLogic(item);
+                Debug.Log($"{item.name} 무기 해제");
             }
         }
+        else if(item.type == ItemType.장신구)
+        {
+            if(equippedAccessory == item)
+            {
+                UpdatePlayerStats(item.itemStat, -1);
+                equippedAccessory = null;
+                InventoryManager.Instance.AddItemLogic(item);
+                Debug.Log($"{item.name} 장신구 해제");
+            }
+        }
+        else if(item.type == ItemType.방어구)
+        {
+            if(equippedArmors.TryGetValue(item.equipmentSlot, out Item equippedItem))
+            {
+                if(equippedItem == item)
+                {
+                    UpdatePlayerStats(item.itemStat, -1);
+                    equippedArmors.Remove(item.equipmentSlot);
+                    InventoryManager.Instance.AddItemLogic(item);
+                    Debug.Log($"{item.name} 방어구를 {item.equipmentSlot}에서 해제");
+                }
+            }
+            else
+            {
+                Debug.Log("장착된 방어구 찾을 수 없음");
+            }
+        }
+
     }
 
 
@@ -81,16 +105,56 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         }
 
         PlayParticle(item);
-
+        InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
     }
 
     //장착 아이템 효과
     private void ApplyEquipmentEffect(Item item)
     {
         if (item.itemStat != null)
-        {
+        {            
+            if(item.type == ItemType.무기)
+            {
+                if(equippedWeapon != null)
+                {
+                    Debug.Log("이미 무기가 장착되어 있음");
+                    return;
+                }
+
+                equippedWeapon = item;
+                Debug.Log($"{item.name} 무기 장착");
+            }
+            else if(item.type == ItemType.장신구)
+            {
+                if(equippedAccessory != null)
+                {
+                    Debug.Log("이미 장신구가 장착되어 있음");
+                    return;
+                }
+
+                equippedAccessory = item;
+                Debug.Log($"{item.name} 장신구 장착");
+            }
+            else if(item.type == ItemType.방어구)
+            {
+                if(equippedArmors.TryGetValue(item.equipmentSlot, out Item equippedItem))
+                {
+                    Debug.Log($"{item.equipmentSlot} 슬롯에 이미 {equippedItem} 방어구가 장착되어 있음");
+                    return;
+                }
+
+                equippedArmors[item.equipmentSlot] = item;
+                Debug.Log($"{item.name} 방어구를 {item.equipmentSlot} 슬롯에 장착");
+            }
+            else
+            {
+                Debug.Log("장착할 수 없는 아이템");
+                return;
+            }
+
             UpdatePlayerStats(item.itemStat, 1);
             PlayParticle(item);
+            InventoryManager.Instance.RemoveItemLogic(item.id);
         }
     }
 
@@ -125,6 +189,8 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Player.criticalChance += stat.CriticalChance * multiplier;
         Player.attackSpeed += stat.AttackSpeed * multiplier;
         //Player.evasion += stat.Evasion * multiplier;
+
+        Debug.Log($"플레이어 스탯: {stat.Strength * multiplier}");
     }
 
     //버프 지속시간 처리
@@ -143,6 +209,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         {
             GameObject itemEffectGo = Instantiate(item.effect.effectParticle, GameManager.playerTransform.position + particlePositionOffset, Quaternion.identity);
 
+            itemEffectGo.transform.SetParent(GameManager.playerTransform);
             Destroy(itemEffectGo, effectParticleDuration);
         }
     }

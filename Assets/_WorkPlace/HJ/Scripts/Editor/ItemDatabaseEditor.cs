@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using System.Reflection;
 
 [CustomEditor(typeof(ItemList))]
 public class ItemDatabaseEditor : Editor
@@ -89,8 +90,12 @@ public class ItemDatabaseEditor : Editor
         switch (itemType)
         {
             case ItemType.무기:
-            case ItemType.방어구:
             case ItemType.장신구:
+                DrawPropertyIfExists(itemProperty, "effect");
+                DrawPropertyIfExists(itemProperty, "itemStat");
+                DrawPropertyIfExists(itemProperty, "durability");
+                break;
+            case ItemType.방어구:
                 DrawPropertyIfExists(itemProperty, "effect");
                 DrawPropertyIfExists(itemProperty, "itemStat");
                 DrawPropertyIfExists(itemProperty, "durability");
@@ -101,7 +106,7 @@ public class ItemDatabaseEditor : Editor
                 DrawPropertyIfExists(itemProperty, "consumableType");
                 DrawPropertyIfExists(itemProperty, "effectAmount");
 
-                if(consumableType == ConsumableType.버프)
+                if (consumableType == ConsumableType.버프)
                 {
                     DrawPropertyIfExists(itemProperty, "itemStat");
                 }
@@ -112,6 +117,12 @@ public class ItemDatabaseEditor : Editor
         }
 
         GUILayout.Space(10);
+
+        // 아이템 복사 버튼
+        if (GUILayout.Button("Duplicate Item"))
+        {
+            DuplicateItem(index);
+        }
 
         //아이템 삭제 버튼
         if (GUILayout.Button("Remove Item"))
@@ -126,6 +137,56 @@ public class ItemDatabaseEditor : Editor
         if (property != null)
         {
             EditorGUILayout.PropertyField(property);
+        }
+    }
+
+    private void DuplicateItem(int index)
+    {
+        itemsProperty.InsertArrayElementAtIndex(index); // 배열에 새로운 요소 추가
+        SerializedProperty newItem = itemsProperty.GetArrayElementAtIndex(index + 1); // 새로 추가된 아이템
+        SerializedProperty sourceItem = itemsProperty.GetArrayElementAtIndex(index); // 복사 원본 아이템
+
+        CopySerializedProperty(sourceItem, newItem); // 속성 복사
+        foldouts = new bool[itemsProperty.arraySize]; // 폴드아웃 갱신
+    }
+
+    private void CopySerializedProperty(SerializedProperty source, SerializedProperty destination)
+    {
+        object sourceValue = source.GetValue();
+        destination.SetValue(sourceValue);
+        destination.serializedObject.ApplyModifiedProperties();
+    }
+}
+
+public static class SerializedPropertyExtensions
+{
+    public static object GetValue(this SerializedProperty property)
+    {
+        object obj = property.serializedObject.targetObject;
+        string[] path = property.propertyPath.Split('.');
+        foreach (string part in path)
+        {
+            FieldInfo field = obj.GetType().GetField(part, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            if (field == null) return null;
+            obj = field.GetValue(obj);
+        }
+        return obj;
+    }
+
+    public static void SetValue(this SerializedProperty property, object value)
+    {
+        object obj = property.serializedObject.targetObject;
+        string[] path = property.propertyPath.Split('.');
+        for (int i = 0; i < path.Length - 1; i++)
+        {
+            FieldInfo field = obj.GetType().GetField(path[i], BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            if (field == null) return;
+            obj = field.GetValue(obj);
+        }
+        FieldInfo targetField = obj.GetType().GetField(path[^1], BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+        if (targetField != null)
+        {
+            targetField.SetValue(obj, value);
         }
     }
 }

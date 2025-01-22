@@ -10,15 +10,26 @@ public class ItemEffect
     public float duration;              //아이템 지속 시간
     public GameObject effectParticle;   //이펙트 사용시 파티클 프리팹
 
-
     //초기화
     public void Initialize(Item item)
     {
+        Debug.Log($"{item.name} 아이템 이펙트 초기화");
+
         SetEffectTypeByItemType(item);
         SetItemSize(item);
-        SetEffectAmount(item);
-        ApplyGradeBonus(item);
         AddEffectParticle();
+        if(effectType == EffectType.Equip)
+        {
+            ApplyGradeBonus(item);
+        }
+        else if(effectType == EffectType.Hp || effectType == EffectType.Mp)
+        {
+            SetEffectAmount(item);
+        }
+        else if(effectType == EffectType.Buff)
+        {
+            SetAmountDuration(item);
+        }
     }
 
     /// <summary>
@@ -30,12 +41,12 @@ public class ItemEffect
     /// </summary>
     public class MultiValue
     {
-        public int amount;
+        public float bonusPercnetage;
         public float duration;
 
-        public MultiValue(int amount, float duration)
+        public MultiValue(float bonusPercnetage, float duration)
         {
-            this.amount = amount;
+            this.bonusPercnetage = bonusPercnetage;
             this.duration = duration;
         }
     }
@@ -49,13 +60,13 @@ public class ItemEffect
         { ItemSize.Big, 300 }
     };
 
-    //아이템 사이즈에 따른 효과량, 지속시간 설정(버프 포션)
+    //아이템 사이즈에 따른 효과량 보너스퍼센트, 지속시간 설정(버프 포션)
     private Dictionary<ItemSize, MultiValue> sizeAmountDuration = new Dictionary<ItemSize, MultiValue>
     {
-        { ItemSize.None, new MultiValue(0, 0f)},
-        { ItemSize.Small, new MultiValue(10, 30f)},
-        { ItemSize.Medium, new MultiValue(20, 60f)},
-        { ItemSize.Big, new MultiValue(30, 120f)}
+        { ItemSize.None, new MultiValue(0f, 0f)},
+        { ItemSize.Small, new MultiValue(0.1f, 30f)},
+        { ItemSize.Medium, new MultiValue(0.2f, 60f)},
+        { ItemSize.Big, new MultiValue(0.3f, 120f)}
     };
 
     //아이템 등급에 따른 스탯 보너스 값(장착하는 아이템 적용)
@@ -67,10 +78,10 @@ public class ItemEffect
         { ItemGrade.에픽, 0.3f },
         { ItemGrade.전설, 0.5f },
         { ItemGrade.신화, 0.75f }
-    };    
+    };
 
     //아이템타입에 따라 이펙트타입 설정
-    private void SetEffectTypeByItemType(Item item)
+    public void SetEffectTypeByItemType(Item item)
     {
         ItemType itemType = item.type;
         ConsumableType consumableType = item.consumableType;
@@ -101,7 +112,7 @@ public class ItemEffect
     }
 
     //아이템 이름에 따라 사이즈 설정
-    private void SetItemSize(Item item)
+    public void SetItemSize(Item item)
     {
         if(item.name.Contains("대형"))
         {
@@ -122,7 +133,7 @@ public class ItemEffect
     }
 
     //item 사이즈에 따라 effectAmount양 추가
-    private void SetEffectAmount(Item item)
+    public void SetEffectAmount(Item item)
     {
         if (!sizeAmount.TryGetValue(item.effect.itemSize, out int effectAmount))
         {
@@ -135,7 +146,7 @@ public class ItemEffect
     }
 
     //item 사이즈에 따라 버프 효과량 및 지속시간 설정
-    private void SetDuration(Item item)
+    public void SetAmountDuration(Item item)
     {
         if (!sizeAmountDuration.TryGetValue(item.effect.itemSize, out MultiValue effectAmountDuration))
         {
@@ -144,12 +155,12 @@ public class ItemEffect
         }
 
         //효과량과 버프 지속시간 설정
-        item.effectAmount = effectAmountDuration.amount;
+        item.effectAmount += Mathf.RoundToInt(item.effectAmount * (effectAmountDuration.bonusPercnetage));
         duration = effectAmountDuration.duration;
     }
 
     //아이템 등급에 따른 스탯 보너스 값 적용
-    private void ApplyGradeBonus(Item item)
+    public void ApplyGradeBonus(Item item)
     {
         if (!gradeBonusPercentage.TryGetValue(item.grade, out float bonusPercentage))
         {
@@ -179,7 +190,7 @@ public class ItemEffect
     
 
     //이펙트 타입에 따라 파티클 프리팹 적용
-    private void AddEffectParticle()
+    public void AddEffectParticle()
     {
         switch (effectType)
         {
