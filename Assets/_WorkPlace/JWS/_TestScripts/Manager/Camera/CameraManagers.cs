@@ -22,9 +22,9 @@ using UnityEngine;
         }
     }
 
-public class CameraManager : MonoBehaviour
+public class CameraManagers : MonoBehaviour
 {
-    public static CameraManager Instance { get; private set; }
+    public static CameraManagers Instance { get; private set; }
     public static Camera MainCamera => Instance.mainCamera;
     private Camera mainCamera;
     public CameraPose[] cameraPoses;
