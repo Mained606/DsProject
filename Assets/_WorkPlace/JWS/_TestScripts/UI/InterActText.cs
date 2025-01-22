@@ -63,6 +63,9 @@ public class InterActText : MonoBehaviour
     void Update()
     {
         textMsg.text = message;
+        //Material material = textMsg.fontMaterial;
+        //float reflectivity = Mathf.PingPong(Time.time * 4, 10) + 5;
+        //material.SetFloat("_Reflectivity", reflectivity);
         Vector3 screenPos = Vector3.zero;
         if (currentIndex != 0)
         {

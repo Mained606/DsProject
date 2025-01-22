@@ -38,6 +38,7 @@ public class NonePlayerCharacter : MonoBehaviour
         }
         if (isPlayerInRange && InputManager.InputActions.actions["Interact"].triggered)
         {
+            CameraManager.SetCameraTarget(transform);
             Interact();
         }
     }
