@@ -38,7 +38,7 @@ public class DialogUITest : MonoBehaviour
         if(typingCoroutine == null)
         {
             string typingDialogyeData = dialogueList[currentNPCDesaIndex];
-            UIManager.SystemGameMessage($"대사 출력 {dialogueNameList[currentNPCDesaIndex]}:{dialogueList[currentNPCDesaIndex]}", MessageTag.퀘스트);
+            //UIManager.SystemGameMessage($"대사 출력 {dialogueNameList[currentNPCDesaIndex]}:{dialogueList[currentNPCDesaIndex]}", MessageTag.퀘스트);
             typingCoroutine = StartCoroutine(TypeNpcDialogue(typingDialogyeData));
         }
         else
@@ -73,7 +73,7 @@ public class DialogUITest : MonoBehaviour
         else
         {
             string typingDialogyeData = dialogueList[currentNPCDesaIndex];
-            UIManager.SystemGameMessage($"대사 출력 {dialogueNameList[currentNPCDesaIndex]}:{dialogueList[currentNPCDesaIndex]}", MessageTag.퀘스트);
+            //UIManager.SystemGameMessage($"대사 출력 {dialogueNameList[currentNPCDesaIndex]}:{dialogueList[currentNPCDesaIndex]}", MessageTag.퀘스트);
             typingCoroutine = StartCoroutine(TypeNpcDialogue(typingDialogyeData));
         }
         
