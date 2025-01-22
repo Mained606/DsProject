@@ -11,6 +11,16 @@ public class ItemEffect
     public GameObject effectParticle;   //이펙트 사용시 파티클 프리팹
 
 
+    //초기화
+    public void Initialize(Item item)
+    {
+        SetEffectTypeByItemType(item);
+        SetItemSize(item);
+        SetEffectAmount(item);
+        ApplyGradeBonus(item);
+        AddEffectParticle();
+    }
+
     /// <summary>
     /// TODO
     /// 1. 이펙트 타입별로 파티클 프리팹 알아서 적용되도록(완료)
@@ -18,7 +28,6 @@ public class ItemEffect
     /// 3. 아이템 사이즈와 등급에 따라 duration을 얼마나 줄지 구상(완)
     /// 4. 이펙트 초기화를 어느 시점에서 해야될지
     /// </summary>
-
     public class MultiValue
     {
         public int amount;
@@ -58,17 +67,7 @@ public class ItemEffect
         { ItemGrade.에픽, 0.3f },
         { ItemGrade.전설, 0.5f },
         { ItemGrade.신화, 0.75f }
-    };
-
-    //초기화
-    public void Initialize(Item item)
-    {
-        SetEffectTypeByItemType(item);
-        SetItemSize(item);
-        SetEffectAmount(item);
-        ApplyGradeBonus(item);
-        AddEffectParticle();
-    }
+    };    
 
     //아이템타입에 따라 이펙트타입 설정
     private void SetEffectTypeByItemType(Item item)

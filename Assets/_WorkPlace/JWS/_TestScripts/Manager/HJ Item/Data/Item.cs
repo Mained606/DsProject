@@ -23,7 +23,7 @@ public class Item
     public float dropChance;               // 드랍 확률 (%)
     public ItemEffect effect;              // 아이템 이펙트
 
-    [Header("스탯(장착아이템: 적용할 값 전체 값, 버프 물약: 해당하는 스탯만 값을 1로 설정)")]
+    [Header("스탯(장착아이템: 적용할 전체 값, 버프 물약: 해당하는 스탯만 값을 1로 설정)")]
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
     public Durability durability;          // 내구도
     public EquipmentSlot equipmentSlot;    // 장착 위치 (무기, 방어구 등)
