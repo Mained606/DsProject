@@ -5,10 +5,10 @@ using Random = UnityEngine.Random;
 
 public class BaseMonsterAI : MonoBehaviour
 {
-    private static readonly int IsWalking = Animator.StringToHash("isWalking");
-    private static readonly int Attack = Animator.StringToHash("Attack");
-    private static readonly int IsDead = Animator.StringToHash("isDead");
-    private static readonly int Hit = Animator.StringToHash("Hit");
+    public static readonly int IsWalking = Animator.StringToHash("isWalking");
+    public static readonly int Attack = Animator.StringToHash("Attack");
+    public static readonly int IsDead = Animator.StringToHash("isDead");
+    public static readonly int Hit = Animator.StringToHash("Hit");
 
     public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Stun, Dead }
 
@@ -36,6 +36,8 @@ public class BaseMonsterAI : MonoBehaviour
     protected MonsterData monsterData; // 몬스터 데이터
     
     private bool respawn = false;
+    protected bool isAttacking = false; // 공격 중인지 여부 플래그
+
 
     protected virtual void Start()
     {
@@ -91,6 +93,12 @@ public class BaseMonsterAI : MonoBehaviour
         // 피격 애니메이션 실행
         animator.SetTrigger(Hit);
         
+    }
+    
+    // MonsterData를 반환하는 메서드 추가
+    public MonsterData GetMonsterData()
+    {
+        return monsterData;
     }
 
     protected virtual void FixedUpdate()
@@ -206,6 +214,11 @@ public class BaseMonsterAI : MonoBehaviour
             PerformAttack(); // 공격 실행
             attackCooldownTimer = attackCooldown; // 쿨타임 리셋
         }
+        else
+        {
+            // 공격 쿨타임 동안 공격 애니메이션 유지
+            animator.SetBool(IsWalking, false); // 이동 멈추기
+        }
     }
 
     // 복귀 상태 처리
@@ -266,6 +279,9 @@ public class BaseMonsterAI : MonoBehaviour
     // 공격 실행
     protected virtual void PerformAttack()
     {
+        if (isAttacking) return; // 이미 공격 중이라면 중복 공격 방지
+        
+        StopAllActions();
         animator.SetTrigger(Attack); // 공격 애니메이션 실행
 
         // 애니메이션의 길이 가져오기
@@ -274,7 +290,16 @@ public class BaseMonsterAI : MonoBehaviour
     
         // 70% 지점에 맞춰 메서드 호출
         Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
+        
+        StartCoroutine(ResetAttackState(animationLength));
     }
+    
+    protected virtual IEnumerator ResetAttackState(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isAttacking = false;
+    }
+
     
     private void ExecuteAttack()
     {
@@ -299,6 +324,8 @@ public class BaseMonsterAI : MonoBehaviour
     // 상태 전환
     protected virtual void SetState(AIState newState)
     {
+        if (isAttacking && currentState == AIState.Attacking) return;
+        
         // 죽음 상태면 상태전환 막기
         if (currentState == AIState.Dead) return;
         
