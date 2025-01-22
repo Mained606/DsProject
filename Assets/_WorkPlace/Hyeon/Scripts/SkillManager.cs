@@ -16,6 +16,7 @@ public class SkillManager : BaseManager<SkillManager>
     [SerializeField] private GameObject skillImage;
     [SerializeField] private Transform skillPanel;
     public bool isActivating;
+    private int currentMp;
 
     protected override void OnEnable()
     {
@@ -76,10 +77,12 @@ public class SkillManager : BaseManager<SkillManager>
         }
         Skills skill = GetSkill(skillName);
         isActivating = activeSkill.ContainsKey(skill);
-        if (isActivating)
+        currentMp = CharacterManager.PlayerCharacterData.currentMp;
+        if (isActivating || currentMp < skill.energyCost)
         {
             return;
         }
+        //CharacterManager.PlayerCharacterData.UseMana((int)skill.energyCost);
         TimerManager.Instance.StartTimer(skill.cooldownTimer);
         animator.SetTrigger(skill.activeTriggerName);
         if(skill.effectPrefab != null)

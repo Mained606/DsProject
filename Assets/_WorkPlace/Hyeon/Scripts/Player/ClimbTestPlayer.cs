@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class ClimbTestPlayer : MonoBehaviour
 {
-    //public Animator anim;
+    public Animator anim;
 
     public bool isClimbing;
 
-    bool inPosition;
-    bool isLerping;
+    [SerializeField] bool inPosition;
+    [SerializeField] bool isLerping;
     float t;
     Vector3 startPos;
     Vector3 targetPos;
@@ -19,8 +19,16 @@ public class ClimbTestPlayer : MonoBehaviour
     public float climbSpeed = 3f;
     public float rotateSpeed = 5f;
 
+    public float rayTowardsMoveDir = 0.5f;
+    public float rayForwardTowardsWall = 1f;
+
     public float horizontal;
     public float vertical;
+    public bool isMid;
+
+    public IKSnapshot baseIKsnapshot;
+
+    public FreeClimbAnimHook a_hook;
 
     Transform helper;
     float delta;
@@ -34,7 +42,7 @@ public class ClimbTestPlayer : MonoBehaviour
     {
         helper = new GameObject().transform;
         helper.name = "Climb Helper";
-
+        a_hook.Init(this, helper);
         CheckForClimb();
     }
 
@@ -60,7 +68,7 @@ public class ClimbTestPlayer : MonoBehaviour
         targetPos = hit.point + (hit.normal * offsetFromWall);
         t = 0f;
         inPosition = false;
-        //anim.CrossFade("climb_idle", 2);
+        anim.CrossFade("Ladder_Idle", 0.2f);
     }
 
     private void Update()
@@ -87,16 +95,30 @@ public class ClimbTestPlayer : MonoBehaviour
             Vector3 v = helper.up * vertical;
             Vector3 moveDir = (h + v).normalized;
 
-            bool canMove = CanMove(moveDir);
-            if (!canMove || moveDir == Vector3.zero)
-                return;
+            if (isMid)
+            {
+                if (moveDir == Vector3.zero)
+                    return;
+            }
+            else
+            {
+                bool canMove = CanMove(moveDir);
+                if (!canMove || moveDir == Vector3.zero)
+                    return;
+            }
+
+            isMid = !isMid;
 
             t = 0f;
             isLerping = true;
             startPos = transform.position;
-            Vector3 tp = helper.position = transform.position;
-            
-            targetPos = helper.position;
+            Vector3 tp = helper.position - transform.position;
+            float d = Vector3.Distance(helper.position, startPos) / 2;
+            tp *= positionOffset;
+            tp += transform.position;
+            targetPos = (isMid)? tp : helper.position;
+
+            a_hook.CreatePositions(targetPos, moveDir, isMid);
         }
         else
         {
@@ -115,30 +137,41 @@ public class ClimbTestPlayer : MonoBehaviour
 
     bool CanMove(Vector3 moveDir)
     {
-        Debug.Log(moveDir);
         Vector3 origin = transform.position;
-        float dis = positionOffset;
+        float dis = rayTowardsMoveDir;
         Vector3 dir = moveDir;
+
         Debug.DrawRay(origin, dir * dis, Color.red);
         RaycastHit hit;
 
         if(Physics.Raycast(origin, dir, out hit, dis))
         {
+            Debug.Log("return false");
             return false;
         }
 
         origin += moveDir * dis;
         dir = helper.forward;
-        float dis2 = 0.5f;
+        float dis2 = rayForwardTowardsWall;
 
         Debug.DrawRay(origin, dir * dis2, Color.blue);
-        if(Physics.Raycast(origin, dir, out hit, dis))
+        if(Physics.Raycast(origin, dir, out hit, dis2))
         {
             helper.position = PosWithOffset(origin, hit.point);
             helper.rotation = Quaternion.LookRotation(-hit.normal);
-            Debug.Log("f");
             return true;
         }
+
+        origin = origin + (dir * dis2);
+        dir = -moveDir;
+        if(Physics.Raycast(origin, dir, out hit, rayForwardTowardsWall))
+        {
+            helper.position = PosWithOffset(origin, hit.point);
+            helper.rotation = Quaternion.LookRotation(-hit.normal);
+            return true;
+        }
+
+        //return false;
 
         origin += dir * dis2;
         dir = -Vector3.up;
@@ -146,7 +179,7 @@ public class ClimbTestPlayer : MonoBehaviour
         Debug.DrawRay(origin, dir, Color.yellow);
         if(Physics.Raycast(origin, dir, out hit, dis2))
         {
-            float angle = Vector3.Angle(helper.up, hit.normal);
+            float angle = Vector3.Angle(-helper.forward, hit.normal);
             if(angle < 40f)
             {
                 helper.position = PosWithOffset(origin, hit.point);
@@ -167,7 +200,7 @@ public class ClimbTestPlayer : MonoBehaviour
             t = 1;
             inPosition = true;
 
-            //enable the ik
+            a_hook.CreatePositions(targetPos, Vector3.zero, false);
         }
 
         Vector3 tp = Vector3.Lerp(startPos, targetPos, t);
@@ -183,5 +216,9 @@ public class ClimbTestPlayer : MonoBehaviour
         return target + offset;
     }
 }
-
+[System.Serializable]
+public class IKSnapshot
+{
+    public Vector3 rh, lh, lf, rf;
+}
 

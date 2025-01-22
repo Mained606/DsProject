@@ -63,6 +63,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool CanUseSkill;
     public bool CanParry;
 
+    [Header("디버그용")]
+    public bool isUseStamina;
+    public float staminaUseAmount;
+
     private void OnEnable()
     {
         GameManager.playerTransform = this.transform;
@@ -157,6 +161,14 @@ public class PlayerController : MonoBehaviour
         else
         {
             isGrounded = false;
+        }
+    }
+
+    private void RunningCheck()
+    {
+        if (isSprinting)
+        {
+            CharacterManager.PlayerCharacterData.UseStamina(staminaUseAmount);
         }
     }
 
@@ -314,6 +326,7 @@ public class PlayerController : MonoBehaviour
         moveDirection.y = verticalVelocity.y;
 
         characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
+        RunningCheck();
 
         if (direction != Vector3.zero)
         {
