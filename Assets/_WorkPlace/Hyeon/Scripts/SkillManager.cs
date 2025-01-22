@@ -34,6 +34,7 @@ public class SkillManager : BaseManager<SkillManager>
     {
         base.Start();
         animator = GameManager.playerTransform.GetComponent<PlayerController>().PlayerAnimator;
+        UpdateCurrentMana();
     }
 
     private void Update()
@@ -77,29 +78,34 @@ public class SkillManager : BaseManager<SkillManager>
         }
         Skills skill = GetSkill(skillName);
         isActivating = activeSkill.ContainsKey(skill);
-        currentMp = CharacterManager.PlayerCharacterData.currentMp;
-        if (isActivating || currentMp < skill.energyCost)
+        UpdateCurrentMana();
+        if (isActivating)
         {
+            Debug.Log("isActivating true");
             return;
         }
-        //CharacterManager.PlayerCharacterData.UseMana((int)skill.energyCost);
-        TimerManager.Instance.StartTimer(skill.cooldownTimer);
-        animator.SetTrigger(skill.activeTriggerName);
-        if(skill.effectPrefab != null)
+        else
         {
-            Quaternion playerRotation = Quaternion.LookRotation(GameManager.playerTransform.forward);
-            var effect = Instantiate(skill.effectPrefab, target.transform.position, playerRotation);
-            if(skill.particleDelay > 0)
+            CharacterManager.PlayerCharacterData.UseMp(skill.energyCost);
+            UpdateCurrentMana();
+            TimerManager.Instance.StartTimer(skill.cooldownTimer);
+            animator.SetTrigger(skill.activeTriggerName);
+            if (skill.effectPrefab != null)
             {
-                var particleEffect = effect.GetComponent<ParticleSystem>().main;
-                particleEffect.startDelay = skill.particleDelay;
+                Quaternion playerRotation = Quaternion.LookRotation(GameManager.playerTransform.forward);
+                var effect = Instantiate(skill.effectPrefab, target.transform.position, playerRotation);
+                if (skill.particleDelay > 0)
+                {
+                    var particleEffect = effect.GetComponent<ParticleSystem>().main;
+                    particleEffect.startDelay = skill.particleDelay;
+                }
+
+                Destroy(effect, 5f);
+
             }
-
-            Destroy(effect, 5f);
-
+            //Debug.Log($"ActivateSkill: {skill.skillName}");
+            currentUsedSkills.Add(skill);
         }
-        //Debug.Log($"ActivateSkill: {skill.skillName}");
-        currentUsedSkills.Add(skill);
     }
 
     private Dictionary<Skills, Image> activeSkill = new Dictionary<Skills, Image>();
@@ -142,6 +148,24 @@ public class SkillManager : BaseManager<SkillManager>
                 }
             }
         }
+    }
+
+    public bool CheckMana(string skillName)
+    {
+        Skills skill = GetSkill(skillName);
+        if (currentMp < skill.energyCost)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    private void UpdateCurrentMana()
+    {
+        currentMp = CharacterManager.PlayerCharacterData.currentMp;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)

@@ -10,6 +10,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    #region ----------Variables----------
     public PlayerData playerData;
     private float beforeHP;
     public PlayerCombat playerCombat;
@@ -60,16 +61,29 @@ public class PlayerController : MonoBehaviour
 
     [Header("공격")]
     public bool CanAttack;
-    [SerializeField] private bool CanUseSkill;
+    public bool CanUseSkill;
     public bool CanParry;
+    public bool isAttack;
+    public bool isUseSkill;
+    public bool isParry;
 
     [Header("디버그용")]
     public bool isUseStamina;
     public float staminaUseAmount;
+    public bool isEnoughMana;
+
+
+    #endregion
 
     private void OnEnable()
     {
         GameManager.playerTransform = this.transform;
+        //playerData.OnTakeDamage += HitCheck;
+    }
+
+    private void OnDisable()
+    {
+        //playerData.OnTakeDamage -= HitCheck;
     }
 
 
@@ -93,7 +107,6 @@ public class PlayerController : MonoBehaviour
         DeathCheck();
         HitCheck();
         isGrounded = characterController.isGrounded;
-        //GroundCheck();
         isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
         playerAnimator.SetBool("Grounded", isGrounded);
 
@@ -146,29 +159,41 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void GroundCheck()
-    {
-        //isGrounded = characterController.isGrounded;
-        if(Physics.Raycast(transform.position + Vector3.up * 0.05f, Vector3.down, out RaycastHit originHit, 1f))
-        {
-            isGrounded = true;
-            //if(Physics.Raycast(transform.position + Vector3.forward * 0.3f + Vector3.up * 1f, Vector3.down, out RaycastHit kneeHit, 1.2f))
-            //{
-            //    Debug.Log("GroundRay 2");
-            //    isGrounded = true;
-            //}
-        }
-        else
-        {
-            isGrounded = false;
-        }
-    }
-
     private void RunningCheck()
     {
         if (isSprinting)
         {
             CharacterManager.PlayerCharacterData.UseStamina(staminaUseAmount);
+        }
+    }
+
+    private void SwitchingBoolState()
+    {
+        switch (isAttack)
+        {
+            case true:
+                CanMove = false;
+                CanParry = false;
+                break;
+            case false:
+                CanMove = true;
+                CanAttack = true;
+                CanParry = true;
+                break;
+        }
+
+        switch (isUseSkill)
+        {
+            case true:
+                CanMove = false;
+                CanUseSkill = false;
+                CanParry = false;
+                break;
+            case false:
+                CanMove = true;
+                CanUseSkill = true;
+                CanParry = true;
+                break;
         }
     }
 
@@ -211,7 +236,12 @@ public class PlayerController : MonoBehaviour
             }
             isFreefall = false;
             isGliding = false;
-            CanAttack = true; CanUseSkill = true; CanParry = true;
+            if (!isAttack && !isUseSkill && !isParry)
+            {
+                CanAttack = true;
+                CanUseSkill = true;
+                CanParry = true;
+            }
             playerAnimator.SetBool("Freefall", false);
             playerAnimator.SetBool("Jump", false);
             if (verticalVelocity.y < 0)
@@ -226,7 +256,7 @@ public class PlayerController : MonoBehaviour
     {
         float damage = (fallDistance - fallDamageThreshold) * fallDamageMultiplier;
         damage = Mathf.Max(0, damage);
-        CharacterManager.PlayerCharacterData.TakeDamage((int)damage);
+        playerData.TakeDamage((int)damage);
         Debug.Log($"낙하 데미지: {(int)damage}");
     }
 
@@ -450,9 +480,6 @@ public class PlayerController : MonoBehaviour
     {
         if (InputManager.InputActions.actions["Parry"].triggered)
         {
-            CanAttack = false;
-            CanMove = false;
-            CanUseSkill = false;
             playerAnimator.SetTrigger("Parry");
         }
         AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
@@ -462,6 +489,9 @@ public class PlayerController : MonoBehaviour
             AnimationClip currentClip = clipInfo[0].clip;
             if (currentClip.name == "Parry")
             {
+                CanAttack = false;
+                CanMove = false;
+                CanUseSkill = false;
                 float normalizedTime = stateInfo.normalizedTime;
                 if (normalizedTime < 0.2f)
                 {
@@ -479,7 +509,7 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    // ----------Climb----------
+    #region ---------------Climb---------------
     private void DetectCliff()
     {
         Vector3 rayOrigin = transform.position + Vector3.up * 3f;
@@ -690,16 +720,18 @@ public class PlayerController : MonoBehaviour
             HandleClimbJump();
         }
     }
+    #endregion
 
     //
     private void HitCheck()
     {
         // 이벤트 발생시 호출 함수
         // 임시로 데미지 감지
-        if(beforeHP > playerData.currentHp + 10f)
+        if (beforeHP > playerData.currentHp + 10f)
         {
             playerAnimator.SetTrigger("Hit");
         }
+        //Debug.Log("Hitcheck");
         beforeHP = playerData.currentHp;
         //bool isAnimating = animFinishCheck("Hit_F_2_InPlace");
         //if (!isAnimating)
