@@ -5,7 +5,12 @@ using Random = UnityEngine.Random;
 
 public class BaseMonsterAI : MonoBehaviour
 {
-    public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Dead }
+    private static readonly int IsWalking = Animator.StringToHash("isWalking");
+    private static readonly int Attack = Animator.StringToHash("Attack");
+    private static readonly int IsDead = Animator.StringToHash("isDead");
+    private static readonly int Hit = Animator.StringToHash("Hit");
+
+    public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Stun, Dead }
 
     [Header("움직임 세팅")]
     public float patrolRange = 4f; // 패트롤 범위 (몬스터가 움직일 수 있는 반경)
@@ -52,9 +57,14 @@ public class BaseMonsterAI : MonoBehaviour
     {
         if (respawn)
         {
-            // col.enabled = true;
+            col.isTrigger = false;
             rb.isKinematic = false;
+
+            // 상태 초기화
             SetState(AIState.Idle);
+            animator.SetBool(IsWalking, false);
+            animator.ResetTrigger(IsDead);
+            animator.ResetTrigger(Attack);
         }
     }
 
@@ -72,10 +82,15 @@ public class BaseMonsterAI : MonoBehaviour
     //     }
     // }
     
-    protected virtual void HandleTakeDamage()
+    protected virtual void HandleTakeDamage(Transform attacker)
     {
+        playerTarget = attacker;
+        
+        SetState(AIState.Chasing);
+        
         // 피격 애니메이션 실행
-        animator.SetTrigger("Hit");
+        animator.SetTrigger(Hit);
+        
     }
 
     protected virtual void FixedUpdate()
@@ -84,8 +99,13 @@ public class BaseMonsterAI : MonoBehaviour
 
         attackCooldownTimer -= Time.deltaTime; // 공격 쿨타임 감소
         SearchForPlayer(); // 플레이어 탐색
-
-        // 현재 상태에 따라 동작 수행
+        
+        // 상태 처리
+        HandleCurrentState();
+    }
+    
+    protected virtual void HandleCurrentState()
+    {
         switch (currentState)
         {
             case AIState.Idle:
@@ -103,7 +123,15 @@ public class BaseMonsterAI : MonoBehaviour
             case AIState.Returning:
                 HandleReturningState();
                 break;
+            case AIState.Stun:
+                HandleStunState();
+                break;
         }
+    }
+
+    protected virtual void HandleStunState()
+    {
+        // 패링 당한 후 효과 적용
     }
 
     // 대기 상태 처리
@@ -115,7 +143,7 @@ public class BaseMonsterAI : MonoBehaviour
             return;
         }
 
-        animator.SetBool("isWalking", false); // 대기 상태에서 걷는 애니메이션 비활성화
+        animator.SetBool(IsWalking, false); // 대기 상태에서 걷는 애니메이션 비활성화
         StartCoroutine(SwitchStateAfterDelay(AIState.Patrolling, idleTime)); // 일정 시간 후 패트롤 상태로 전환
     }
 
@@ -196,18 +224,26 @@ public class BaseMonsterAI : MonoBehaviour
     {
         if (playerTarget != null) return;
 
-        Collider[] hits = Physics.OverlapSphere(transform.position, searchRange);
+        Collider[] hits = new Collider[20]; // 배열 크기 설정
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hits);
+
+        if (hitCount == hits.Length)
+        {
+            Debug.LogWarning("탐지 배열 크기가 부족할 수 있습니다. 크기를 늘려주세요.");
+        }
+
         if (CharacterManager.PlayerCharacterData.currentHp <= 0)
         {
             playerTarget = null;
             return;
         }
-        foreach (var hit in hits)
+
+        for (int i = 0; i < hitCount; i++)
         {
+            Collider hit = hits[i];
             if (hit.CompareTag("Player"))
             {
                 playerTarget = hit.transform; // 플레이어 발견 시 타겟 설정
-                
                 return;
             }
         }
@@ -219,18 +255,18 @@ public class BaseMonsterAI : MonoBehaviour
         Vector3 direction = (destination - transform.position).normalized;
 
         // 이동 처리
-        transform.position += direction * movementSpeed * Time.deltaTime;
+        transform.position += direction * (movementSpeed * Time.deltaTime);
 
         // 스무스 회전 처리
         Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
-        animator.SetBool("isWalking", true);
+        animator.SetBool(IsWalking, true);
     }
 
     // 공격 실행
     protected virtual void PerformAttack()
     {
-        animator.SetTrigger("Attack"); // 공격 애니메이션 실행
+        animator.SetTrigger(Attack); // 공격 애니메이션 실행
 
         // 애니메이션의 길이 가져오기
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -263,6 +299,9 @@ public class BaseMonsterAI : MonoBehaviour
     // 상태 전환
     protected virtual void SetState(AIState newState)
     {
+        // 죽음 상태면 상태전환 막기
+        if (currentState == AIState.Dead) return;
+        
         // 상태가 이미 동일하면 변경하지 않음
         if (currentState == newState) return;
 
@@ -285,9 +324,19 @@ public class BaseMonsterAI : MonoBehaviour
             case AIState.Attacking:
                 break;
             case AIState.Dead:
-                animator.SetTrigger("isDead");
+                StopAllActions();
+                animator.SetTrigger(IsDead);
                 break;
         }
+    }
+
+    protected void StopAllActions()
+    {
+        // 이동 및 애니메이션 동작 멈춤
+        animator.SetBool(IsWalking, false);
+        animator.ResetTrigger(nameof(Attack));
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
     }
 
     protected virtual IEnumerator SwitchStateAfterDelay(AIState newState, float delay)
@@ -305,9 +354,14 @@ public class BaseMonsterAI : MonoBehaviour
     
     IEnumerator OnDeathAnimationEnd(bool pooling)
     {
-        // // 몬스터 제거 처리
-        // col.enabled = false;
+        // 물리 연산 멈춤
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
+        
+        // 충돌체를 비활성화하지 않고 상호작용을 방지
+        col.isTrigger = true;
+        
         yield return new WaitForSeconds(1.5f);
         if (pooling)
         {
