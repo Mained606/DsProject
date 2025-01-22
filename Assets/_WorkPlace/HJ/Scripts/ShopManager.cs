@@ -40,10 +40,14 @@ public class ShopManager : BaseManager<ShopManager>
         }
 
         //구매
-        CharacterManager.PlayerCharacterData.UseGold(amount);
-        ItemManager.Instance.AddItemLogic(itemId, quantity);
+        //인벤토리에 자리가 있거나, 자리가 없을 경우 인벤토리에 추가할 수 있는 아이템인지 확인
+        if (InventoryManager.Instance.CanAddInventoryItem(itemId, quantity))
+        {
+            CharacterManager.PlayerCharacterData.UseGold(amount);
+            ItemManager.Instance.AddItemLogic(itemId, quantity);
 
-        Debug.Log($"{purchaseItem.name} 아이템 구매하고 남은 플레이어 소지금액: {PlayerMoney}");
+            Debug.Log($"{purchaseItem.name} 아이템 구매하고 남은 플레이어 소지금액: {PlayerMoney}");
+        }
     }
 
     //아이템 판매

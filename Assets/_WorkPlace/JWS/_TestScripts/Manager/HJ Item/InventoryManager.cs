@@ -166,7 +166,23 @@ public class InventoryManager : BaseManager<InventoryManager>
 
     public int GetRemainingInventory()
     {
-        return Mathf.Max(CurrentCapacity - inventory.Count, 0);
+        return Mathf.Max(0, CurrentCapacity - inventory.Count);
+    }
+
+    public bool CanAddInventoryItem(string itemId, int amount)
+    {
+        var existingItem = FindExistingItem(itemId);
+
+        if(GetRemainingInventory() > 0)
+        {
+            return true;
+        }
+        else if(existingItem != null && existingItem.isStackable && (existingItem.quantity + amount <= existingItem.maxStack))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public void ExpandInventory(int expandSize)
