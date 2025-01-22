@@ -24,6 +24,7 @@ public class CharacterData
     public float stamina;     // 최대 스태미나
     public float staminaCurrent; // 현재 스태미나
     public float staminaRecoveryRate; // 스태미나 회복 속도
+    public float mpRecoveryRate;    // 마나 회복 속도
     
     // 레벨과 경험치 관련 변수 추가
     public int level;             // 레벨
@@ -52,7 +53,7 @@ public class CharacterData
     private Dictionary<string, int> stats;
     private StatModifier basestatModifier = new StatModifier();
     
-    public event Action OnTakeDamage; // 피격 했는지 이벤트 전달
+    public event Action<Transform> OnTakeDamage; // 피격 했는지 이벤트 전달
 
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(string name, CharacterType type, GameObject prefab, 
@@ -71,6 +72,7 @@ public class CharacterData
         this.stamina = stamina;
         this.staminaCurrent = stamina; // 초기 스태미나는 최대 스태미나와 동일
         this.staminaRecoveryRate = staminaRecoveryRate;
+        this.mpRecoveryRate = mpRecoveryRate;
         this.statModifier = modifier != null ? modifier :basestatModifier;
         this.level = 1; // 초기 레벨은 1
         this.currentExperience = 0; // 초기 경험치는 0
@@ -220,11 +222,11 @@ public class CharacterData
     }
 
     // 피해를 입었을 때
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, Transform attacker = null)
     {
         currentHp = Mathf.Max(0, currentHp - damage);
         
-        OnTakeDamage?.Invoke();
+        OnTakeDamage?.Invoke(attacker);
     }
 
     // 회복
@@ -233,6 +235,27 @@ public class CharacterData
         currentHp += amount;
         currentHp = Mathf.Min(currentHp, maxHp);  // currentHp가 maxHp를 초과하지 않도록 처리
     }
+    private void AdjustMp(float amount)
+    {
+        // currentMp에 적용할 때만 float를 int로 변환
+        currentMp = Mathf.Clamp(currentMp + Mathf.RoundToInt(amount), 0, maxMp);
+    }
+
+    public void RegenerateMp()
+    {
+        AdjustMp(mpRecoveryRate); // mpRecoveryRate는 float로 유지
+    }
+
+    public void UseItemForMp(float recoveryAmount)
+    {
+        AdjustMp(recoveryAmount); // recoveryAmount는 float로 유지
+    }
+
+    public void UseMp(float amount)
+    {
+        AdjustMp(-amount); // amount는 float로 유지
+    }
+
 
     private void AdjustStamina(float amount)
     {

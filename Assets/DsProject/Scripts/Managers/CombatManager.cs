@@ -14,15 +14,16 @@ public class CombatManager : BaseManager<CombatManager>
         
         CharacterData attacker = isPlayerAttacking ? player : enemy;
         CharacterData defender = isPlayerAttacking ? enemy : player;
-        Transform targetTransform = isPlayerAttacking ? enemyTransform : GameManager.playerTransform;
+        Transform attackerTransform = isPlayerAttacking ? GameManager.playerTransform : enemyTransform;
+        Transform defenderTransform = isPlayerAttacking ? enemyTransform : GameManager.playerTransform;
 
         // 현재 타겟의 실제높이 계산을 위한부분
-        Collider collider = targetTransform.GetComponent<Collider>();
+        Collider collider = defenderTransform.GetComponent<Collider>();
         float characterHeight = collider != null ? collider.bounds.size.y : 0f;
-        float targetHeight = targetTransform.position.y + characterHeight;// ( (characterHeight == 0f ? 2f : characterHeight));
+        float targetHeight = defenderTransform.position.y + characterHeight;// ( (characterHeight == 0f ? 2f : characterHeight));
 
         // 현재 타겟의 실제높이 계산을 위한부분
-        Vector3 targetPosition = new Vector3(targetTransform.position.x, targetHeight, targetTransform.position.z);
+        Vector3 targetPosition = new Vector3(defenderTransform.position.x, targetHeight, defenderTransform.position.z);
 
         if (defender == null || defender.currentHp <= 0)
         {
@@ -33,7 +34,8 @@ public class CombatManager : BaseManager<CombatManager>
 
         int damage = CalculateDamage(attacker, defender);
 
-        defender.TakeDamage(damage);
+        defender.TakeDamage(damage, attackerTransform);
+        
 
         UIManager.DisplayPopupText(damage.ToString(), targetPosition, isPlayerAttacking ? MessageTag.적_피해 : MessageTag.플레이어_피해);
 
