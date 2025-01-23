@@ -13,6 +13,9 @@ public class QuestManager : BaseManager<QuestManager>
     public static List<Quest> CompletedQuests => Instance.completedQuests;
     public static NPCList NpcDatabase => Instance.npcDataList;
 
+    private int currentMainQuestIndex = 0;
+    public static int CurrentMainQuestIndex => Instance.currentMainQuestIndex;
+
 
     protected override void OnEnable()
     {
@@ -60,6 +63,13 @@ public class QuestManager : BaseManager<QuestManager>
         if (completedQuests.Exists(q => q.id == quest.id) && quest.questType == "메인퀘스트")
         {
             Debug.LogWarning($"[QuestManager] 완료된 메인 퀘스트 '{quest.id}'는 추가할 수 없습니다.");
+            return;
+        }
+        if (quest.questType == "메인퀘스트")
+        {
+            currentMainQuestIndex++;
+            if (currentMainQuestIndex > npcDataList.mainQuestNpcLists.Count)
+                Debug.LogError("더이상 메인퀘스트가 없습니다.");
             return;
         }
         questDatabase.Add(quest);
