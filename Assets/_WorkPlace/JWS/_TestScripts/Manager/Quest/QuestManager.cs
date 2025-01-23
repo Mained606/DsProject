@@ -26,8 +26,8 @@ public class QuestManager : BaseManager<QuestManager>
     {
         base.Start();
         GenerateData generater = new GenerateData();
-        questList.questList = generater.GenerateMainQuestLists();
-        questList.questList.AddRange(generater.GenerateQuestLists());
+        questList.mainQuestList = generater.GenerateMainQuestLists();
+        questList.questList = generater.GenerateQuestLists();
         generater.GenerateRandomNPCs(100, questList.questList, ItemManager.ItemDatabase, questList.questList, npcDataList);
         npcDatabase = npcDataList.npcLists;
     }

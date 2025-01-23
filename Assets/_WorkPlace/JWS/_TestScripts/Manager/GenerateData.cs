@@ -9,7 +9,7 @@ public class GenerateData
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void InitializeItems(ItemList ItemDatabase)
     {
-        InitializeItemDatabase(ItemDatabase.itemList);
+        //InitializeItemDatabase(ItemDatabase.itemList);
     }
 
     private void InitializeItemDatabase(List<Item> ItemDatabase)
