@@ -3,8 +3,10 @@ using UnityEngine;
 
 
 /// <summary>
-/// 01.21 희정 아이템 이펙트 항목 추가, 아이템 스탯 헤더 수정
-/// 01.22 아이템 복제, 스탯 복제 함수 수정, EquipmentSlot 무기, 장신구 추가
+/// 01.21 희정 아이템 이펙트 항목 추가, 아이템 스탯 헤더 수정n
+/// 01.22 아이템 복제, 스탯 복제 함수 수정
+/// 01.23 아이템 장착위치 enum에 방패 추가, 아이템 등급은 장착 아이템에만 적용, 아이템 생성자에 제작재료 타입 조건 추가,
+/// 양손검, 한손검 아이템 추가로 인해서 weapontype 변수 추가
 /// </summary>
 [Serializable]
 public class Item
@@ -12,9 +14,9 @@ public class Item
     [Header("공통 속성")]
     public string id;                      // 아이템 고유 ID
     public string name;                    // 아이템 이름
+    [TextArea(3, 10)]
     public string description;             // 아이템 설명
     public ItemType type;                  // 아이템 타입
-    public ItemGrade grade;                // 아이템 등급
     public int costValue;                  // 아이템 가격
     public int quantity;                   // 현재 소지 개수
     public int maxStack;                   // 최대 소지 가능 개수
@@ -27,7 +29,9 @@ public class Item
     [Header("스탯(장착아이템: 적용할 전체 값,\n 버프 물약: 해당하는 스탯만 값을 1로 설정)")]
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
     public Durability durability;          // 내구도
+    public ItemGrade grade;                // 아이템 등급
     public EquipmentSlot equipmentSlot;    // 장착 위치 (무기, 방어구 등)
+    public WeaponType weaponType;          // 무기 타입
 
     [Header("소모품 속성")]
     public ConsumableType consumableType;  // 소모품 타입
@@ -57,7 +61,7 @@ public class Item
             this.itemStat = new ItemStat(1, 1, 1, 1, 1); // 기본 스탯
             this.durability = new Durability(100);       // 기본 내구도
         }
-        else if (type == ItemType.소모품)
+        else if (type == ItemType.소모품 && type == ItemType.제작재료)
         {
             // 소모품 초기화
             this.effectAmount = 0;
@@ -203,9 +207,16 @@ public enum ItemType
     장신구        // Accessory
 }
 
+public enum WeaponType
+{
+    한손무기,
+    양손무기
+}
+
 // 장착 위치 Enum
 public enum EquipmentSlot
 {
+    방패,   // Shield
     머리,   // Head
     몸,     // Body
     손,     // Hand
