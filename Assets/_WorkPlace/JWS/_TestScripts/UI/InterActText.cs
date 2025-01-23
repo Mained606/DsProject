@@ -92,7 +92,10 @@ public class InterActText : MonoBehaviour
         ActivateCurrentIndex();
         if (currentIndex >= 0 && currentIndex < _rectTransforms.Length)
         {
-            if ( hasQuest && currentIndex == 0 ) _rectTransforms[currentIndex].GetChild(2).GetChild(1).gameObject.SetActive(true);
+            if (hasQuest && currentIndex == 0)
+            {
+                _rectTransforms[currentIndex].GetChild(2).GetChild(1).gameObject.SetActive(true);
+            }
             textMsg = _rectTransforms[currentIndex].GetChild(1).GetComponent<TextMeshProUGUI>();
         }
     }

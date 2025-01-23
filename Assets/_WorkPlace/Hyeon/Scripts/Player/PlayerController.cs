@@ -3,17 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEditor;
+using UnityEditor.Build.Pipeline;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 //using static Unity.Cinemachine.InputAxisControllerBase<T>;
 
 public class PlayerController : MonoBehaviour
 {
     #region ----------Variables----------
     public PlayerData playerData;
-    private float beforeHP;
     public PlayerCombat playerCombat;
+    [SerializeField] private float staminaRecoveryRate;
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
     private CharacterController characterController;
@@ -68,9 +70,14 @@ public class PlayerController : MonoBehaviour
     public bool isParry;
 
     [Header("디버그용")]
-    public bool isUseStamina;
-    public float staminaUseAmount;
-    public bool isEnoughMana;
+    [SerializeField] private bool CanSprint;
+    [SerializeField] private float staminaUseAmount;
+    [SerializeField] private float currentStamina;
+    [SerializeField] private bool isEnoughMana;
+    [SerializeField] private bool isRecovery;
+
+    private BasicTimer RecoveryTimer;
+    [SerializeField] private float RecoveryTime = 1f;
 
 
     #endregion
@@ -78,14 +85,12 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         GameManager.playerTransform = this.transform;
-        //playerData.OnTakeDamage += HitCheck;
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        //playerData.OnTakeDamage -= HitCheck;
+        if (playerData != null) playerData.OnTakeDamage -= HitCheck;
     }
-
 
     private void Start()
     {
@@ -97,7 +102,9 @@ public class PlayerController : MonoBehaviour
         CanUseSkill = true;
         CanParry = true;
         playerData = CharacterManager.PlayerCharacterData;
-        beforeHP = playerData.currentHp;
+        RecoveryTimer = new BasicTimer(RecoveryTime);
+
+        if (playerData != null) playerData.OnTakeDamage += HitCheck;
 
         ValueInitialize();
     }
@@ -105,11 +112,10 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         DeathCheck();
-        HitCheck();
         isGrounded = characterController.isGrounded;
-        isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
         playerAnimator.SetBool("Grounded", isGrounded);
 
+        RecoverStats();
         HandleGravity();
         avoidKeyInput();
 
@@ -159,11 +165,51 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void RunningCheck()
+    private void RunableCheck()
     {
         if (isSprinting)
         {
-            CharacterManager.PlayerCharacterData.UseStamina(staminaUseAmount);
+            currentStamina = playerData.staminaCurrent;
+            if (isRecovery && currentStamina > 10f)
+            {
+                CanSprint = true;
+                return;
+            }
+            else if (!isRecovery)
+            {
+                CanSprint = currentStamina >= staminaUseAmount ? true : false;
+                return;
+            }
+        }
+        else
+        {
+            CanSprint = false;
+        }
+    }
+
+    private void UsingStamina()
+    {
+        if (CanSprint && moveInput != Vector2.zero)
+        {
+            playerData.UseStamina(staminaUseAmount);
+        }
+    }
+
+    private void RecoverStats()
+    {
+        if (!CanSprint || moveInput == Vector2.zero)
+        {
+            playerData.RegenerateStamina();
+            isRecovery = true;
+        }
+        else
+        {
+            isRecovery = false;
+        }
+        if (!RecoveryTimer.IsRunning)
+        {
+            playerData.RegenerateMp();
+            TimerManager.Instance.StartTimer(RecoveryTimer);
         }
     }
 
@@ -331,8 +377,14 @@ public class PlayerController : MonoBehaviour
         }
 
         moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
+        isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
 
-        float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        direction = GetDirection(moveInput);
+        moveDirection = direction;
+        moveDirection.y = verticalVelocity.y;
+
+        RunableCheck();
+        float currentSpeed = CanSprint ? sprintSpeed : walkSpeed;
         if (isGliding)
         {
             currentSpeed = walkSpeed;
@@ -350,13 +402,8 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetFloat("Speed", currentSpeed);
         }
 
-        direction = GetDirection(moveInput);
-        
-        moveDirection = direction;
-        moveDirection.y = verticalVelocity.y;
-
         characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
-        RunningCheck();
+        UsingStamina();
 
         if (direction != Vector3.zero)
         {
@@ -723,31 +770,9 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     //
-    private void HitCheck()
+    private void HitCheck(Transform Attacker)
     {
-        // 이벤트 발생시 호출 함수
-        // 임시로 데미지 감지
-        if (beforeHP > playerData.currentHp + 10f)
-        {
-            playerAnimator.SetTrigger("Hit");
-        }
-        //Debug.Log("Hitcheck");
-        beforeHP = playerData.currentHp;
-        //bool isAnimating = animFinishCheck("Hit_F_2_InPlace");
-        //if (!isAnimating)
-        //{
-        //    CanMove = false;
-        //    CanAttack = false;
-        //    CanUseSkill = false;
-        //    return;
-        //}
-        //if(isAnimating && )
-        //{
-        //    CanMove = true;
-        //    CanAttack = true;
-        //    CanUseSkill = true;
-        //    return;
-        //}
+        playerAnimator.SetTrigger("Hit");
     }
 
     private void DeathCheck()

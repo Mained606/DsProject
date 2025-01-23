@@ -64,7 +64,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         playercharacterData = PlayerCharacterData;
         
         // 게임 시작시 강제 초기화 원하면 활성화
-        InitialCharacter();
+        //InitialCharacter();
     }
 
     private void Update()
@@ -97,6 +97,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.attackSpeed= 1.2f;
         PlayerCharacterData.stamina= 100f;
         PlayerCharacterData.staminaRecoveryRate = 1;
+        PlayerCharacterData.mpRecoveryRate = 1;
 
         // 레벨 초기화
         PlayerCharacterData.level = 1;
