@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sword : MonoBehaviour
+public class WeaponAttack : MonoBehaviour
 {
     private Collider swordCollider;
 
