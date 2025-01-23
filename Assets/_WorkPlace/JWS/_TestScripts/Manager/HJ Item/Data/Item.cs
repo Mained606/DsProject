@@ -94,6 +94,7 @@ public class Item
         newItem.sprite = this.sprite;
         newItem.dropChance = this.dropChance;
         newItem.equipmentSlot = this.equipmentSlot;
+        newItem.weaponType = this.weaponType;
         newItem.consumableType = this.consumableType;
         newItem.effectAmount = this.effectAmount;
         newItem.questId = this.questId;
