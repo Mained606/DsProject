@@ -570,4 +570,106 @@ public class BossData : MonsterData
     }
 }
 
+// 드래곤 관련
+[Serializable]
+public class DragonData
+{
+    public string characterName;
+    public GameObject prefab;
+    public int strength;       // 힘
+    public int agility;        // 민첩
+    public int vitality;       // 건강
+    public int intelligence;   // 지능
+
+    public float speed;        // 이동 속도
+    public float attackSpeed;  // 공격 속도
+
+    public int bondLevel;      // 유대 레벨
+    public int bondExperience; // 유대 경험치
+    public int[] bondThresholds; // 레벨 업에 필요한 유대 경험치
+
+    // 모디파이어
+    public DragonStatModifier statModifier;
+
+    public DragonData(string name, GameObject prefab, int strength, int agility, int vitality, int intelligence, float speed, float attackSpeed, int[] bondThresholds, DragonStatModifier modifier = null)
+    {
+        this.characterName = name;
+        this.prefab = prefab;
+        this.strength = strength;
+        this.agility = agility;
+        this.vitality = vitality;
+        this.intelligence = intelligence;
+        this.speed = speed;
+        this.attackSpeed = attackSpeed;
+        this.bondLevel = 1;
+        this.bondExperience = 0;
+        this.bondThresholds = bondThresholds;
+        this.statModifier = modifier ?? new DragonStatModifier();
+    }
+
+    // 물리 공격력 계산 (힘 + 민첩 기준)
+    public int CalculatePhysicalDamage(bool isCritical = false)
+    {
+        float baseDamage = (strength + agility) * statModifier.physicalDamageMultiplier;
+        if (isCritical)
+        {
+            baseDamage *= statModifier.criticalDamageMultiplier;
+        }
+        return Mathf.RoundToInt(baseDamage);
+    }
+
+    // 스킬 데미지 계산 (지능 + 건강 기준)
+    public int CalculateSkillDamage(float skillMultiplier)
+    {
+        float skillDamage = (intelligence + vitality) * statModifier.magicDamageMultiplier;
+        skillDamage *= skillMultiplier; // 스킬 배율 적용
+        skillDamage *= statModifier.skillBonusMultiplier; // 추가 보너스 배율 적용
+        return Mathf.RoundToInt(skillDamage);
+    }
+
+    // 유대 경험치 증가
+    public void IncreaseBondExperience(int amount)
+    {
+        bondExperience += amount;
+
+        while (bondLevel - 1 < bondThresholds.Length && bondExperience >= bondThresholds[bondLevel - 1])
+        {
+            bondExperience -= bondThresholds[bondLevel - 1];
+            LevelUpBond();
+        }
+    }
+
+    private void LevelUpBond()
+    {
+        bondLevel++;
+        strength += 2;
+        vitality += 3;
+        agility += 1;
+        intelligence += 1;
+        Debug.Log($"{characterName}의 유대 레벨이 {bondLevel}로 상승했습니다!");
+    }
+}
+
+[Serializable]
+public class DragonStatModifier
+{
+    public float physicalDamageMultiplier = 1.5f;  // 물리 공격력 배수
+    public float magicDamageMultiplier = 2.0f;     // 마법 데미지 배수
+    public float criticalDamageMultiplier = 2.0f;  // 크리티컬 데미지 배수
+    public float skillBonusMultiplier = 1.2f;      // 스킬 사용 시 추가 데미지 배수
+
+    // 클론 메서드
+    public DragonStatModifier Clone()
+    {
+        return new DragonStatModifier
+        {
+            physicalDamageMultiplier = this.physicalDamageMultiplier,
+            magicDamageMultiplier = this.magicDamageMultiplier,
+            criticalDamageMultiplier = this.criticalDamageMultiplier,
+            skillBonusMultiplier = this.skillBonusMultiplier,
+        };
+    }
+}
+
+
 
