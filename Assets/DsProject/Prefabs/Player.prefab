@@ -1084,6 +1084,7 @@ GameObject:
   - component: {fileID: 8543589942400925795}
   - component: {fileID: 6243912105908528203}
   - component: {fileID: 2716994649444407189}
+  - component: {fileID: 7633669963187817886}
   m_Layer: 0
   m_Name: Staff_Medium
   m_TagString: Untagged
@@ -1176,10 +1177,23 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.1, y: 1.3, z: 0.15}
   m_Center: {x: 0, y: 0.26, z: 0}
+--- !u!114 &7633669963187817886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 709067050839497266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toolTag: 
 --- !u!1 &746167499823399861
 GameObject:
   m_ObjectHideFlags: 0
@@ -2566,6 +2580,7 @@ GameObject:
   - component: {fileID: 2923973919700667975}
   - component: {fileID: 130465023974542337}
   - component: {fileID: 9109181084728799578}
+  - component: {fileID: 7200266327484286411}
   m_Layer: 0
   m_Name: Staff5_1_1
   m_TagString: Untagged
@@ -2658,10 +2673,23 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.05, y: 0.7, z: 0.1}
   m_Center: {x: 0, y: 0.26, z: 0}
+--- !u!114 &7200266327484286411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1223590886014512738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toolTag: 
 --- !u!1 &1319013561895098257
 GameObject:
   m_ObjectHideFlags: 0
@@ -5189,6 +5217,7 @@ GameObject:
   - component: {fileID: 7853481212090830968}
   - component: {fileID: 6192864000595569560}
   - component: {fileID: 338954232628491240}
+  - component: {fileID: 5981647405961899676}
   m_Layer: 0
   m_Name: Simple_Axe Variant
   m_TagString: Untagged
@@ -5281,10 +5310,23 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.35, y: 1.9, z: 0.14913216}
   m_Center: {x: 0.05, y: 0.55, z: -0.00000023975713}
+--- !u!114 &5981647405961899676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3241956855375083509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toolTag: 
 --- !u!1 &3354983704015538929
 GameObject:
   m_ObjectHideFlags: 0
@@ -5862,6 +5904,7 @@ GameObject:
   - component: {fileID: 5452081200301554919}
   - component: {fileID: 438076946574641249}
   - component: {fileID: 8504571374248471736}
+  - component: {fileID: 3807677298798281662}
   m_Layer: 0
   m_Name: Sword1_1_3
   m_TagString: Untagged
@@ -5958,6 +6001,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.1, y: 1, z: 0.09594023}
   m_Center: {x: -0.00000011920929, y: 0.27, z: 0.00000022578928}
+--- !u!114 &3807677298798281662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3623884625626497165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toolTag: 
 --- !u!1 &3745260774677652512
 GameObject:
   m_ObjectHideFlags: 0
@@ -7247,6 +7303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  toolTag: 
 --- !u!1 &4669055876699586869
 GameObject:
   m_ObjectHideFlags: 0
@@ -8838,7 +8895,7 @@ MonoBehaviour:
   CanMove: 0
   isGrounded: 0
   jumpHeight: 0.5
-  fallDamageThreshold: 5
+  fallDamageThreshold: 10
   fallDamageMultiplier: 5
   isFreefall: 0
   detectionRange: 2
@@ -8863,6 +8920,7 @@ MonoBehaviour:
   currentStamina: 0
   isEnoughMana: 0
   isRecovery: 0
+  CanWeaponSwitch: 0
   RecoveryTime: 1
 --- !u!143 &1098804586676782611
 CharacterController:
@@ -8924,10 +8982,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f852472c8e52d04288021cc49b40f7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sword: {fileID: 4616255806888308693}
+  weapon: {fileID: 522800090130027314}
+  weaponCollider: {fileID: 0}
   attackPerceptionRange: 2.5
   skillPerceptionRange: 5
   playerAnimator: {fileID: 5264475562808799088}
+  hasWeapon: 0
   inputReceived: 0
   targetRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &6176708764453778850
@@ -10520,6 +10580,7 @@ GameObject:
   - component: {fileID: 3892827750954911281}
   - component: {fileID: 6808700527072560716}
   - component: {fileID: 2629104190976261345}
+  - component: {fileID: 8677867369708142270}
   m_Layer: 0
   m_Name: Wand_Basic
   m_TagString: Untagged
@@ -10612,10 +10673,23 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.1, y: 0.7, z: 0.1}
   m_Center: {x: 0.02, y: 0.43, z: 0}
+--- !u!114 &8677867369708142270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8682709224346686013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toolTag: 
 --- !u!1 &8807987840144512144
 GameObject:
   m_ObjectHideFlags: 0
