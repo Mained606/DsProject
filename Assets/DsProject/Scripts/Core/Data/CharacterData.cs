@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+// 250123 11:20AM sohyeon 모든 캐릭터데이터에 mpRecoveryRate 초기화 부분 추가함!!
 // CharacterData 클래스 정의: 캐릭터의 스탯, 레벨, 경험치 등을 관리
 [Serializable]
 public class CharacterData
@@ -58,7 +59,7 @@ public class CharacterData
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(string name, CharacterType type, GameObject prefab, 
         int strength, int agility, int vitality, int intelligence, StatModifier modifier, float speed, 
-        float attackSpeed, float stamina, float staminaRecoveryRate)
+        float attackSpeed, float stamina, float staminaRecoveryRate, float mpRecoveryRate)
     {
         this.characterName = name;
         this.characterType = type;  // 타입 저장
@@ -376,7 +377,8 @@ public class CharacterData
             this.speed,
             this.attackSpeed,
             this.stamina,
-            this.staminaRecoveryRate
+            this.staminaRecoveryRate,
+            this.mpRecoveryRate
         );
     }
 }
@@ -417,8 +419,8 @@ public class PlayerData : CharacterData
     public int gold; // 골드 소지량
 
     public PlayerData(string name, GameObject prefab, int strength, int vitality, int agility, int intelligence,
-        float speed, float attackSpeed, float stamina, float staminaRecoveryRate)
-        : base(name, CharacterType.Player, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, stamina, staminaRecoveryRate)
+        float speed, float attackSpeed, float stamina, float staminaRecoveryRate, float mpRecoveryRate)
+        : base(name, CharacterType.Player, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, stamina, staminaRecoveryRate, mpRecoveryRate)
     {
         gold = 0; // 초기 골드는 0
     }
@@ -456,7 +458,8 @@ public class PlayerData : CharacterData
             this.speed,
             this.attackSpeed,
             this.stamina,
-            this.staminaRecoveryRate
+            this.staminaRecoveryRate,
+            this.mpRecoveryRate
             )
         {
             gold = this.gold,  // 골드 복사
@@ -484,9 +487,9 @@ public class MonsterData : CharacterData
     [HideInInspector] public GameObject instance;  // 생성된 몬스터 인스턴스를 저장할 필드
 
     public MonsterData(string name, CharacterType characterType, GameObject prefab, int strength, int vitality, int agility,
-        int intelligence, float speed, float attackSpeed, float stamina, float staminaRecoveryRate, List<string> dropItems,
+        int intelligence, float speed, float attackSpeed, float stamina, float staminaRecoveryRate, float mpRecoveryRate, List<string> dropItems,
         int experienceReward, int goldReward)
-        : base(name, CharacterType.Monster, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, stamina, staminaRecoveryRate)
+        : base(name, CharacterType.Monster, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, stamina, staminaRecoveryRate, mpRecoveryRate)
     {
         this.dropItems = new List<string>(dropItems);
         this.experienceReward = experienceReward;
@@ -506,6 +509,7 @@ public class MonsterData : CharacterData
             this.attackSpeed,
             this.stamina,
             this.staminaRecoveryRate,
+            this.mpRecoveryRate,
             this.dropItems,
             this.experienceReward,
             this.goldReward
@@ -523,10 +527,10 @@ public class BossData : MonsterData
 {
     public List<string> specialSkills; // 보스의 특수 스킬
     public BossData(string name, GameObject prefab, int strength, int vitality, int agility,
-        int intelligence, float speed, float attackSpeed, float stamina, float staminaRecoveryRate,
+        int intelligence, float speed, float attackSpeed, float stamina, float staminaRecoveryRate, float mpRecoveryRate,
         List<string> dropItems, int experienceReward, int goldReward, List<string> specialSkills)
         : base(name, CharacterType.Boss, prefab, strength, vitality, agility, intelligence, 
-            speed, attackSpeed, stamina, staminaRecoveryRate, dropItems, experienceReward, goldReward)
+            speed, attackSpeed, stamina, staminaRecoveryRate, mpRecoveryRate, dropItems, experienceReward, goldReward)
     {
         this.specialSkills = new List<string>(specialSkills);
     }
@@ -544,6 +548,7 @@ public class BossData : MonsterData
             this.attackSpeed,
             this.stamina,
             this.staminaRecoveryRate,
+            this.mpRecoveryRate,
             new List<string>(this.dropItems), // 드롭 아이템 복사
             this.experienceReward,
             this.goldReward,
