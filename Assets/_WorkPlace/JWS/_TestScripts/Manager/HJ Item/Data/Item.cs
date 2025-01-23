@@ -1,7 +1,11 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
+
+/// <summary>
+/// 01.21 희정 아이템 이펙트 항목 추가, 아이템 스탯 헤더 수정
+/// 01.22 아이템 복제, 스탯 복제 함수 수정, EquipmentSlot 무기, 장신구 추가
+/// </summary>
 [Serializable]
 public class Item
 {
@@ -18,8 +22,9 @@ public class Item
     public bool isStackable;               // 중첩 가능 여부
     public Sprite sprite;                  // 아이템 아이콘
     public float dropChance;               // 드랍 확률 (%)
+    public ItemEffect effect;              // 아이템 이펙트
 
-    [Header("장착용 속성")]
+    [Header("스탯(장착아이템: 적용할 전체 값,\n 버프 물약: 해당하는 스탯만 값을 1로 설정)")]
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
     public Durability durability;          // 내구도
     public EquipmentSlot equipmentSlot;    // 장착 위치 (무기, 방어구 등)
@@ -81,7 +86,14 @@ public class Item
         {
             newItem.durability = this.durability.Clone(); // 내구도도 복제
         }
+
         newItem.sprite = this.sprite;
+        newItem.dropChance = this.dropChance;
+        newItem.equipmentSlot = this.equipmentSlot;
+        newItem.consumableType = this.consumableType;
+        newItem.effectAmount = this.effectAmount;
+        newItem.questId = this.questId;
+
         return newItem;
     }
 
@@ -163,7 +175,20 @@ public class ItemStat
     // 복제 메서드
     public ItemStat Clone()
     {
-        return new ItemStat(Strength, Dexterity, Intelligence, Vitality, Luck);
+        ItemStat newStat = new ItemStat(Strength, Dexterity, Intelligence, Vitality, Luck);
+
+        newStat.MaxHealth = this.MaxHealth;
+        newStat.MaxMana = this.MaxMana;
+        newStat.PhysicalAttack = this.PhysicalAttack;
+        newStat.MagicAttack = this.MagicAttack;
+        newStat.PhysicalDefense = this.PhysicalDefense;
+        newStat.MagicDefense = this.MagicDefense;
+        
+        newStat.CriticalChance = this.CriticalChance;
+        newStat.AttackSpeed = this.AttackSpeed;
+        newStat.Evasion = this.Evasion;
+
+        return newStat;
     }
 }
 
@@ -184,7 +209,7 @@ public enum EquipmentSlot
     머리,   // Head
     몸,     // Body
     손,     // Hand
-    발      // Feet
+    발,     // Feet
 }
 
 // 소모품 타입 Enum

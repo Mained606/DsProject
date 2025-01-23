@@ -27,20 +27,20 @@ public class TitleStatusUI : MonoBehaviour
             switch (i)
             {
                 case 0:
-                    amount.text = $"{CharacterManager.PlayerCharacterData.currentHp} / {CharacterManager.PlayerCharacterData.maxHp}";
+                    amount.text = $"{CharacterManager.PlayerCharacterData.currentHp.ToString("F0")} / {CharacterManager.PlayerCharacterData.maxHp}";
                     result = (float)CharacterManager.PlayerCharacterData.currentHp /
                              (float)CharacterManager.PlayerCharacterData.maxHp;
                     fillbar.fillAmount = result;
                     
                     break;
                 case 1:
-                    amount.text = $"{CharacterManager.PlayerCharacterData.currentMp} / {CharacterManager.PlayerCharacterData.maxMp}";
+                    amount.text = $"{CharacterManager.PlayerCharacterData.currentMp.ToString("F0")} / {CharacterManager.PlayerCharacterData.maxMp}";
                     result = (float)CharacterManager.PlayerCharacterData.currentMp /
                              (float)CharacterManager.PlayerCharacterData.maxMp;
                     fillbar.fillAmount = result;
                     break;
                 case 2:
-                    amount.text = $"{CharacterManager.PlayerCharacterData.staminaCurrent} / {CharacterManager.PlayerCharacterData.stamina}";
+                    amount.text = $"{CharacterManager.PlayerCharacterData.staminaCurrent.ToString("F0")} / {CharacterManager.PlayerCharacterData.stamina}";
                     result = (float)CharacterManager.PlayerCharacterData.staminaCurrent /
                              (float)CharacterManager.PlayerCharacterData.stamina;
                     fillbar.fillAmount = result;
