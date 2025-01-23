@@ -297,6 +297,7 @@ MonoBehaviour:
     stamina: 0
     staminaCurrent: 0
     staminaRecoveryRate: 0
+    mpRecoveryRate: 0
     level: 0
     currentExperience: 0
     experienceToLevelUp: 0
@@ -312,8 +313,25 @@ MonoBehaviour:
     baseDamage: 0
     skills: []
     gold: 0
+  dragonData:
+    characterName: 
+    prefab: {fileID: 0}
+    strength: 0
+    agility: 0
+    vitality: 0
+    intelligence: 0
+    speed: 0
+    attackSpeed: 0
+    bondLevel: 0
+    bondExperience: 0
+    bondThresholds: 
+    statModifier:
+      physicalDamageMultiplier: 1.5
+      magicDamageMultiplier: 2
+      criticalDamageMultiplier: 2
+      skillBonusMultiplier: 1.2
   characterTemplates: {fileID: 11400000, guid: 091e7d62338046b4a8e7ccb7f2fb75c2, type: 2}
-  isInitialized: 1
+  isInitialized: 0
 --- !u!1 &3191311102163359365
 GameObject:
   m_ObjectHideFlags: 0
@@ -466,6 +484,63 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!1 &8530091019686272711
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7724740018593977126}
+  - component: {fileID: 7447877539478144867}
+  m_Layer: 0
+  m_Name: CameraManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7724740018593977126
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8530091019686272711}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4186157886206106995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7447877539478144867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8530091019686272711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72b4b53e65400884a9fab7a410442878, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentCameraType: 0
+  cameraPoses: []
+  orbitTarget: {fileID: 0}
+  orbitTargetOffset: {x: 0, y: 2.5, z: 0}
+  orbitDistance: 8
+  orbitSensitivity: {x: 10, y: 10}
+  orbitClamp: {x: 0.1, y: 89}
+  orbitYaw: 0
+  orbitPitch: 0
+  followTarget: {fileID: 0}
+  followOffset: {x: 0, y: 0}
+  mouseCursor: 0
+  mouseCursorVisible: 0
 --- !u!1 &8949811994207948533
 GameObject:
   m_ObjectHideFlags: 0
@@ -538,6 +613,7 @@ MonoBehaviour:
   interactTextUI: {fileID: 0}
   historyLog: {fileID: 0}
   historyWindow: {fileID: 0}
+  InventorytooltipWindow: {fileID: 0}
   questListParent: {fileID: 0}
 --- !u!1 &9088007830065972167
 GameObject:
@@ -629,6 +705,7 @@ Transform:
   - {fileID: 9116469620903117424}
   - {fileID: 5565525280491229948}
   - {fileID: 8950915773018575576}
+  - {fileID: 7724740018593977126}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8830547049108172490
