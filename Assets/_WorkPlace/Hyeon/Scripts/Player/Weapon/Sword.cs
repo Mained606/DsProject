@@ -5,6 +5,8 @@ public class Sword : MonoBehaviour
 {
     private Collider swordCollider;
 
+    public string toolTag;
+
     public HashSet<GameObject> DamagedTargets { get; set; } = new HashSet<GameObject>();
 
     private void Start()
@@ -14,6 +16,13 @@ public class Sword : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+
+        InteractableOb interactable = other.GetComponent<InteractableOb>();
+        if (interactable != null)
+        {
+            interactable.Interact(toolTag); // 상호작용 호출
+        }
+
         Debug.Log("Sword Trigger");
         if (!swordCollider.enabled) return;
         if (!DamagedTargets.Contains(other.gameObject))
