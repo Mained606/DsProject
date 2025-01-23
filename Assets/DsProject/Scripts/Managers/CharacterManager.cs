@@ -74,7 +74,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         
         // 게임 시작시 강제 초기화 원하면 활성화
         //InitialCharacter();
-        // InitialDragon();
+        //InitialDragon();
     }
 
     private void Update()

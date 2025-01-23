@@ -2,19 +2,34 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private Transform itemsParent;
+
     private Button[] buttons;
     private int currentButtonIndex = 0;
     private Dictionary<string, List<Item>> categorizedItems = new Dictionary<string, List<Item>>();
 
+   
+
     private void Awake()
     {
         buttons = transform.GetComponentsInChildren<Button>();
+        if (buttons != null && buttons.Length > 0)
+        {
+            Debug.Log($"버튼이 {buttons.Length}개 연결되었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("버튼이 연결되지 않았거나 배열이 비어있습니다.");
+        }
     }
+
+
 
     private void OnEnable()
     {
@@ -94,9 +109,13 @@ public class InventoryUI : MonoBehaviour
     private void CreateItemUI(Item item)
     {
         var inventoryItem = Instantiate(itemPrefab, itemsParent);
-        inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
-        if (item.sprite != null ) inventoryItem.GetComponentsInChildren<Image>()[1].sprite = item.sprite;
+        // -> 툴팁으로 따로 빼려고 임시로 주석 처리. 슬롯 자체에서 전부 보여줄거면 살리기
+       //  inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
+        if (item.sprite != null) inventoryItem.GetComponentsInChildren<Image>()[1].sprite = item.sprite;
         Debug.Log(item.ToStringTMPro());
+        inventoryItem.AddComponent<InventoryTooltip>();
+        inventoryItem.GetComponent<InventoryTooltip>().currentitem = item;
+
     }
 
     public void AddButtonListeners()
