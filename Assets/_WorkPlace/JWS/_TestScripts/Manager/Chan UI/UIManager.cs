@@ -194,8 +194,7 @@ public class UIManager : BaseManager<UIManager>
         subDisplay[0].text = title;
 
         // Check if it is a completed main quest
-        bool isCompletedMainQuest = quest.questType == "main" && QuestManager.CompletedQuests.Exists(q => q.id == quest.id);
-
+        bool isCompletedMainQuest = quest.questType == "메인퀘스트" && QuestManager.CompletedQuests.Exists(q => q.id == quest.id);
         if (isCompletedMainQuest)
         {
             SetupDialog(
