@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 public enum CameraType
@@ -21,6 +22,7 @@ public class CameraPose
 
 public class CameraManager : BaseManager<CameraManager>
 {
+    [SerializeField] private CameraType currentCameraType;
     [SerializeField] private CameraPose[] cameraPoses;
 
     [Header("오비트 설정")]
@@ -29,7 +31,6 @@ public class CameraManager : BaseManager<CameraManager>
     [SerializeField] private float orbitDistance = 8f;
     [SerializeField] private Vector2 orbitSensitivity = new Vector2(10f, 10f);
     [SerializeField] private Vector2 orbitClamp = new Vector2(0.1f, 90f);
-
     [SerializeField] private float orbitYaw = 0f;
     [SerializeField] private float orbitPitch = 0f;
 
@@ -37,8 +38,11 @@ public class CameraManager : BaseManager<CameraManager>
     [SerializeField] private Transform followTarget;
     [SerializeField] private Vector2 followOffset = new Vector2(0f, 0f);
 
-    [SerializeField] private CameraType currentCameraType;
+    [Header("마우스커서 설정")]
+    [SerializeField] private CursorLockMode mouseCursor;
+    [SerializeField] private bool mouseCursorVisible = false;
     private Camera mainCamera;
+
     public static Camera MainCamera => Instance.mainCamera;
 
     protected override void Awake()
@@ -47,10 +51,28 @@ public class CameraManager : BaseManager<CameraManager>
         mainCamera = Camera.main;
         InitCameraPoses();
         currentCameraType = CameraType.Orbit;
+        mouseCursor = CursorLockMode.Locked;
+        Cursor.lockState = mouseCursor;
+        Cursor.visible = mouseCursorVisible;
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            mouseCursorVisible = true;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftAlt))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            mouseCursorVisible = false;
+        }
+
+        if (mouseCursorVisible) return;
+
         switch (currentCameraType)
         {
             case CameraType.Orbit:
@@ -97,7 +119,22 @@ public class CameraManager : BaseManager<CameraManager>
         if (orbitTarget == null || mainCamera == null) return;
         Vector2 lookInput = InputManager.InputActions.actions["Look"].ReadValue<Vector2>();
 
+
+        float mouseWheelInput = Input.GetAxis("Mouse ScrollWheel");
+        if (mouseWheelInput != 0f)
+        {
+            orbitDistance = Mathf.Clamp(orbitDistance - mouseWheelInput, 2f, 12f);
+        }
+
         orbitYaw += lookInput.x * orbitSensitivity.x * Time.deltaTime;
+        if(orbitYaw >= 360f)
+        {
+            orbitYaw -= 360f;
+        }
+        else if(orbitYaw < 0f)
+        {
+            orbitYaw += 360f;
+        }
         orbitPitch -= lookInput.y * orbitSensitivity.y * Time.deltaTime;
         orbitPitch = Mathf.Clamp(orbitPitch, orbitClamp.x, orbitClamp.y);
         Vector3 targetPosition = orbitTarget.position + orbitTargetOffset;
@@ -149,7 +186,7 @@ public class CameraManager : BaseManager<CameraManager>
 
     private void OnDrawGizmos()
     {
-        if (currentCameraType == CameraType.Orbit && orbitTarget != null)
+        if (currentCameraType == CameraType.Orbit && orbitTarget != null && mainCamera != null)
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(orbitTarget.position, orbitDistance);
