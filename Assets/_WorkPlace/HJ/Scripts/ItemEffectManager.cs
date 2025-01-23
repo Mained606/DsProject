@@ -2,6 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// TODO
+/// 한손검은 방패와 같이 장착 가능, 양손검일 경우 방패와 같이 장착 불가능한 로직 수정
+/// </summary>
 public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
     #region Variables
