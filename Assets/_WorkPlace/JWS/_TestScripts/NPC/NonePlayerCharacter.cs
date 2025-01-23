@@ -38,7 +38,8 @@ public class NonePlayerCharacter : MonoBehaviour
         }
         if (isPlayerInRange && InputManager.InputActions.actions["Interact"].triggered)
         {
-            CameraManager.SetCameraTarget(transform);
+            // CameraManager.SetCameraTarget(transform);
+            QuestManager.Instance.UpdateQuestProgress( QuestConditionType.Meet, currentNPCData.id);
             Interact();
         }
     }

@@ -97,6 +97,7 @@ public class Reward
     public int quantity; // 아이템 개수
     public int experience; // 경험치 보상
     public int gold; // 골드 보상
+    public bool isReward;
 
     public Reward(string itemId, int quantity, int experience, int gold)
     {
@@ -104,6 +105,7 @@ public class Reward
         this.quantity = quantity;
         this.experience = experience;
         this.gold = gold;
+        this.isReward = false;
     }
 }
 
