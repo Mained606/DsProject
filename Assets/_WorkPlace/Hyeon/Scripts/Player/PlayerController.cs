@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     #region ----------Variables----------
     public PlayerData playerData;
     public PlayerCombat playerCombat;
+    private WeaponManager weapon;
     [SerializeField] private float staminaRecoveryRate;
 
     public PlayerState CurrentState { get; private set; } = PlayerState.PlayerIdle;
@@ -75,6 +76,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float currentStamina;
     [SerializeField] private bool isEnoughMana;
     [SerializeField] private bool isRecovery;
+    public bool CanWeaponSwitch;
 
     private BasicTimer RecoveryTimer;
     [SerializeField] private float RecoveryTime = 1f;
@@ -97,10 +99,13 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
         playerCombat = GetComponent<PlayerCombat>();
+        weapon = playerCombat.weapon;
+
         CanMove = true;
         CanAttack = true;
         CanUseSkill = true;
         CanParry = true;
+        CanWeaponSwitch = true;
         playerData = CharacterManager.PlayerCharacterData;
         RecoveryTimer = new BasicTimer(RecoveryTime);
 
@@ -614,7 +619,8 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("Climb", true);
         playerAnimator.SetBool("Jump", false);
         transform.position = climbStartPosition;
-        playerCombat.ToggleSwordVisible();
+        weapon.SwitchWeapon(-1);
+        CanWeaponSwitch = false;
         // Anim
     }
 
@@ -656,7 +662,11 @@ public class PlayerController : MonoBehaviour
             isClimb = false;
             CanMove = false;
             playerAnimator.SetBool("ClimbUp", true);
-            playerCombat.ToggleSwordVisible();
+
+            CanWeaponSwitch = true;
+
+            weapon.SwitchWeapon(-1, true);
+
             StartCoroutine(FinishingClimbing());
         }
         else
@@ -664,7 +674,9 @@ public class PlayerController : MonoBehaviour
             isClimb = false;
             playerAnimator.SetBool("Climb", false);
             Debug.Log("절벽타기 취소됨");
-            playerCombat.ToggleSwordVisible();
+            CanWeaponSwitch = true;
+
+            weapon.SwitchWeapon(-1, true);
         }
 
         // Anim
