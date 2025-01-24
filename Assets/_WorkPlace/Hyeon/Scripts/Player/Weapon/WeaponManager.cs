@@ -1,3 +1,4 @@
+using NUnit.Framework.Internal;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
@@ -5,10 +6,15 @@ using UnityEngine;
 public class WeaponManager : MonoBehaviour
 {
     [SerializeField] private List<GameObject> weapons;
-    private GameObject currentWeapon;
+    private GameObject currentWeaponOb;
     private int prevWeapon = -1;
 
     private int currentWeaponIndex = -1;
+
+    public string currentWeaponId;
+    [SerializeField] private ItemList weaponItemList;
+    private Item currentWeaponItem;
+    private ItemStat weaponItemStat;
 
     private void Start()
     {
@@ -24,6 +30,14 @@ public class WeaponManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.G))
         {
             SwitchToPreviousWeapon();
+        }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ItemManager.Instance.AddItemLogic("Weapon001");
+            ItemManager.Instance.AddItemLogic("Weapon002");
+            ItemManager.Instance.AddItemLogic("Main_Quest002");
+            ItemManager.Instance.AddItemLogic("Main_Quest003");
+            ItemManager.Instance.AddItemLogic("Main_Quest004");
         }
     }
 
@@ -66,8 +80,8 @@ public class WeaponManager : MonoBehaviour
     }
 
     public void SwitchWeapon(int index = -1, bool hasWeapon = false)
-    { 
-        currentWeapon = null;
+    {
+        currentWeaponOb = null;
 
         for (int i = 0; i < transform.childCount; i++)
         {
@@ -85,13 +99,33 @@ public class WeaponManager : MonoBehaviour
             // 활성화된 무기를 플레이어의 weaponCollider로 설정
             if (gob.activeSelf)
             {
-                currentWeapon = gob;
+                currentWeaponOb = gob;
                 prevWeapon = i;
                 GameManager.playerTransform.GetComponent<PlayerCombat>().weaponCollider = gob.GetComponent<Collider>();
+                if (currentWeaponItem != null)
+                {
+                    ItemEffectManager.Instance.UnequipmentEffect(currentWeaponItem);
+                    //ItemManager.Instance.AddItemLogic(currentWeaponId);
+                    currentWeaponItem = null;
+                    Debug.Log("해제");
+                }
+                currentWeaponId = gob.GetComponent<WeaponAttack>().weaponId;
+                if (currentWeaponId != "")
+                {
+                    InventoryManager.Instance.FindExistingItem(currentWeaponId);
+                    currentWeaponItem = InventoryManager.InventoryList[InventoryManager.Instance.selectedItem];
+                    ItemEffectManager.Instance.ApplyItemEffect(currentWeaponItem);
+                    Debug.Log("장착");
+                }
             }
         }
 
-        GameManager.playerTransform.GetComponent<PlayerCombat>().hasWeapon = currentWeapon == null? false : true;
+        GameManager.playerTransform.GetComponent<PlayerCombat>().hasWeapon = currentWeaponOb == null? false : true;
+
+    }
+
+    public void applyWeaponEffect()
+    {
 
     }
 }
