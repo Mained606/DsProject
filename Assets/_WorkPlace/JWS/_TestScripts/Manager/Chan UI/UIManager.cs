@@ -372,7 +372,6 @@ public class UIManager : BaseManager<UIManager>
                 UIClose();
                 break;
             case GameSystemState.Inventory:
-
                 ToggleInventory();
                 break;
             case GameSystemState.QuestReview:

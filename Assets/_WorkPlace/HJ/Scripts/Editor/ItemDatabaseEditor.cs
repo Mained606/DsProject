@@ -27,6 +27,13 @@ public class ItemDatabaseEditor : Editor
             AddNewItem();
         }
 
+        //전체 이펙트 초기화 버튼
+        if(GUILayout.Button("Initialize All Effects"))
+        {
+            ItemList itemList = (ItemList)target;
+            itemList.InitializeAllEffects();
+        }
+
 
         //아이템 리스트를 박스 안에 표시
         EditorGUILayout.BeginVertical("box"); //박스 시작
