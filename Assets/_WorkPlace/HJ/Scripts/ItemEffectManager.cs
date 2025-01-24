@@ -52,7 +52,6 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             {
                 UpdatePlayerStats(item.itemStat, -1);
                 equippedWeapon = null;
-                InventoryManager.Instance.AddItemLogic(item);
                 Debug.Log($"{item.name} 무기 해제");
             }
         }
@@ -62,7 +61,6 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             {
                 UpdatePlayerStats(item.itemStat, -1);
                 equippedAccessory = null;
-                InventoryManager.Instance.AddItemLogic(item);
                 Debug.Log($"{item.name} 장신구 해제");
             }
         }
@@ -74,7 +72,6 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
                 {
                     UpdatePlayerStats(item.itemStat, -1);
                     equippedArmors.Remove(item.equipmentSlot);
-                    InventoryManager.Instance.AddItemLogic(item);
                     Debug.Log($"{item.name} 방어구를 {item.equipmentSlot}에서 해제");
                 }
             }
@@ -133,21 +130,14 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
                 }
                 else if (item.weaponType == WeaponType.양손무기)
                 {
-                    if(equippedArmors.TryGetValue(EquipmentSlot.방패, out Item equippedShield) && equippedWeapon != null)
-                    {
-                        Debug.Log($"이미 무기와 방패가 장착되어 있음, {equippedWeapon.name}, {equippedShield.name} 장착 해제");
-                        UpdatePlayerStats(equippedWeapon.itemStat, -1);
-                        UpdatePlayerStats(equippedShield.itemStat, -1);
-                        equippedWeapon = item;
-                        equippedArmors.Remove(EquipmentSlot.방패);
-                    }
-                    else if (equippedWeapon != null)
+                    if (equippedWeapon != null)
                     {
                         Debug.Log($"이미 무기가 장착되어 있음, {equippedWeapon.name} 장착해제");
                         UpdatePlayerStats(equippedWeapon.itemStat, -1);
                         equippedWeapon = null;
                     }
-                    else if (equippedArmors.TryGetValue(EquipmentSlot.방패, out Item equippedItem))
+
+                    if (equippedArmors.TryGetValue(EquipmentSlot.방패, out Item equippedItem))
                     {
                         Debug.Log($"방패가 장착되어 있음, {equippedItem.name} 장착해제");
                         UpdatePlayerStats(equippedItem.itemStat, -1);
@@ -172,17 +162,19 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             }
             else if (item.type == ItemType.방어구)
             {
+                if (item.equipmentSlot == EquipmentSlot.방패 && equippedWeapon != null && equippedWeapon.weaponType == WeaponType.양손무기)
+                {
+                    Debug.Log($"무기 슬롯에 양손무기가 장착되어 있음, {equippedWeapon.name} 장착 해제");
+                    UpdatePlayerStats(equippedWeapon.itemStat, -1);
+                    equippedWeapon = null;
+                }
+
                 if (equippedArmors.TryGetValue(item.equipmentSlot, out Item equippedItem))
                 {
-                    if(item.equipmentSlot == EquipmentSlot.방패 && equippedWeapon != null && equippedWeapon.weaponType == WeaponType.양손무기)
-                    {
-                        Debug.Log($"무기 슬롯에 양손무기가 장착되어 있음, {equippedWeapon.name} 장착 해제");
-                        UpdatePlayerStats(equippedWeapon.itemStat, -1);
-                        equippedWeapon = null;
-                    }
-                    Debug.Log($"{item.equipmentSlot} 슬롯에 이미 방어구가 장착되어 있음, {equippedItem.name} 장착해제");
+                    Debug.Log($"{item.equipmentSlot} 슬롯에 이미 방어구가 장착되어 있음, {equippedItem.name} 장착 해제");
                     UpdatePlayerStats(equippedItem.itemStat, -1);
                 }
+
                 equippedArmors[item.equipmentSlot] = item;
                 Debug.Log($"{item.name} 방어구를 {item.equipmentSlot} 슬롯에 장착");
                 isEquipped = true;
