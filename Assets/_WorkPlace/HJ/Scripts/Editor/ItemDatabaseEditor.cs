@@ -27,6 +27,13 @@ public class ItemDatabaseEditor : Editor
             AddNewItem();
         }
 
+        //전체 이펙트 초기화 버튼
+        if(GUILayout.Button("Initialize All Effects"))
+        {
+            ItemList itemList = (ItemList)target;
+            itemList.InitializeAllEffects();
+        }
+
 
         //아이템 리스트를 박스 안에 표시
         EditorGUILayout.BeginVertical("box"); //박스 시작
@@ -81,6 +88,7 @@ public class ItemDatabaseEditor : Editor
         EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("isStackable"));
         EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("sprite"));
         EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("dropChance"));
+        EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("isQuestItem"));
 
         //아이템 타입
         ItemType itemType = (ItemType)itemProperty.FindPropertyRelative("type").enumValueIndex;
