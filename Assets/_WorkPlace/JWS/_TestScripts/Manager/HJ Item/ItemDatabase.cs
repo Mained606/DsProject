@@ -5,6 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// 01.23 희정 아이템 에디터에 아이템 초기화 버튼을 추가하기 위해서 아이템 초기화 함수 추가
+/// 01.24 전체 이펙트 초기화 함수 추가
 /// </summary>
 [CreateAssetMenu(fileName = "ItemList", menuName = "Ds Project/ItemList")]
 public class ItemList : ScriptableObject
@@ -20,6 +21,9 @@ public class ItemList : ScriptableObject
         {
             Item item = itemList[index];
 
+            item.effect.Initialize(item);
+
+            item.quantity = 0;
             item.maxStack = 1;
             item.isDiscardable = true;
             item.isStackable = false;
@@ -42,6 +46,14 @@ public class ItemList : ScriptableObject
             }
 
             EditorUtility.SetDirty(this); //변경 사항을 반영
+        }
+    }
+
+    public void InitializeAllEffects()
+    {
+        foreach(var item in itemList)
+        {
+            item.effect.Initialize(item);
         }
     }
 }

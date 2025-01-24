@@ -60,15 +60,11 @@ public class CameraManager : BaseManager<CameraManager>
     {
         if (Input.GetKeyDown(KeyCode.LeftAlt))
         {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            mouseCursorVisible = true;
+            CursorLock();
         }
         if (Input.GetKeyUp(KeyCode.LeftAlt))
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            mouseCursorVisible = false;
+            CursorUnLock();
         }
 
         if (mouseCursorVisible) return;
@@ -196,7 +192,37 @@ public class CameraManager : BaseManager<CameraManager>
         }
     }
 
+    public static void CursorLock()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        Instance.mouseCursorVisible = true;
+    }
+
+    public static void CursorUnLock()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        Instance.mouseCursorVisible = false;
+    }
+
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
+        // Default 상태를 제외한 모든 상태가 동일한 처리
+        if (newState == GameSystemState.Inventory ||
+            newState == GameSystemState.StatusUI ||
+            newState == GameSystemState.DialogueState ||
+            newState == GameSystemState.Pause ||
+            newState == GameSystemState.GameOver ||
+            newState == GameSystemState.QuestReview ||
+            newState == GameSystemState.PetInteraction)
+        {
+            CursorLock();
+        }
+        else
+        {
+            CursorUnLock();
+        }
     }
+
 }

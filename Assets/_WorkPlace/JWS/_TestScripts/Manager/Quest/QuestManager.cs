@@ -210,16 +210,12 @@ public class QuestManager : BaseManager<QuestManager>
         }
         if (quest.questType == "메인퀘스트" && mainQuestDatabase.Count > currentMainQuestIndex)
         {
-
             currentMainQuestIndex++;
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
         }
         if (quest.questType != "메인퀘스트")
         {
             quest.isCompleted = false;
-        }
-        else
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
         }
         UIManager.SystemGameMessage($"[QuestManager] 퀘스트 '{quest.name}' 보상이 지급되었습니다.", MessageTag.퀘스트);
         UIManager.Instance.QuestUpdate();
@@ -238,7 +234,6 @@ public class QuestManager : BaseManager<QuestManager>
             currentMainQuestIndex = index;
         }
     }
-
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
