@@ -1175,7 +1175,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 3
@@ -1193,6 +1193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponId: 
   toolTag: 
 --- !u!1 &746167499823399861
 GameObject:
@@ -2582,7 +2583,7 @@ GameObject:
   - component: {fileID: 9109181084728799578}
   - component: {fileID: 7200266327484286411}
   m_Layer: 0
-  m_Name: Staff5_1_1
+  m_Name: Staff_Basic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2671,7 +2672,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 3
@@ -2689,6 +2690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponId: 
   toolTag: 
 --- !u!1 &1319013561895098257
 GameObject:
@@ -5308,7 +5310,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 3
@@ -5326,7 +5328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toolTag: 
+  weaponId: Main_Quest002
+  toolTag: Axe
 --- !u!1 &3354983704015538929
 GameObject:
   m_ObjectHideFlags: 0
@@ -6013,6 +6016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponId: 
   toolTag: 
 --- !u!1 &3745260774677652512
 GameObject:
@@ -7303,6 +7307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponId: 
   toolTag: 
 --- !u!1 &4669055876699586869
 GameObject:
@@ -8243,6 +8248,45 @@ MonoBehaviour:
   - {fileID: 3241956855375083509}
   - {fileID: 3623884625626497165}
   - {fileID: 4616255806888308693}
+  currentWeaponId: 
+  weaponItemList:
+    id: 
+    name: 
+    description: 
+    type: 0
+    costValue: 0
+    quantity: 0
+    maxStack: 0
+    isDiscardable: 0
+    isStackable: 0
+    sprite: {fileID: 0}
+    dropChance: 0
+    effect:
+      effectType: 0
+      itemSize: 0
+      duration: 0
+      effectParticle: {fileID: 0}
+    itemStat:
+      Strength: 0
+      Dexterity: 0
+      Intelligence: 0
+      Vitality: 0
+      Luck: 0
+      MaxHealth: 0
+      MaxMana: 0
+      PhysicalAttack: 0
+      MagicAttack: 0
+      PhysicalDefense: 0
+      MagicDefense: 0
+      CriticalChance: 0
+      AttackSpeed: 0
+      Evasion: 0
+    grade: 0
+    equipmentSlot: 0
+    weaponType: 0
+    consumableType: 0
+    effectAmount: 0
+    questId: 
 --- !u!1 &5561973531846721551
 GameObject:
   m_ObjectHideFlags: 0
@@ -10671,7 +10715,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 3
@@ -10689,6 +10733,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponId: 
   toolTag: 
 --- !u!1 &8807987840144512144
 GameObject:

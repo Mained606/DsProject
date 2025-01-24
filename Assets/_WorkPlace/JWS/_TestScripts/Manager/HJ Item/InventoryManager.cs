@@ -11,6 +11,10 @@ public class InventoryManager : BaseManager<InventoryManager>
     public int CurrentCapacity { get; set; } = 30;   // 현재 수용량
     public bool IsCanUseInventory => inventory.Count < CurrentCapacity;
 
+    // sohyeon==================
+    public int selectedItem;
+    
+
     //public void AddItem(string itemId, int quantity = 1)
     //{
     //    if (!IsCanUseInventory) return;
@@ -45,8 +49,11 @@ public class InventoryManager : BaseManager<InventoryManager>
         }
     }
 
-    private Item FindExistingItem(string itemId)
+    public Item FindExistingItem(string itemId)
     {
+        // sohyeon====================
+        selectedItem = inventory.FindIndex(i => i.id == itemId);
+        // sohyeon====================
         return inventory.Find(i => i.id == itemId);
     }
 
