@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2373412}
   - component: {fileID: 2717089976238225374}
   - component: {fileID: 4068703497346986807}
-  - component: {fileID: 4993838365506025441}
+  - component: {fileID: 492701224002440051}
   m_Layer: 0
   m_Name: "\uAE34\uB098\uBB34"
   m_TagString: Untagged
@@ -144,8 +144,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!136 &4993838365506025441
-CapsuleCollider:
+--- !u!65 &492701224002440051
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -162,8 +162,6 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.104453325
-  m_Height: 1.6700724
-  m_Direction: 1
+  serializedVersion: 3
+  m_Size: {x: 0.20890623, y: 1.6700724, z: 0.20890665}
   m_Center: {x: 0.00000002980232, y: 0.8350361, z: -0.00000002980232}
