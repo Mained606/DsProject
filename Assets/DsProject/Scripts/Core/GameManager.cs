@@ -50,6 +50,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("모든 매니저가 준비 완료되었습니다. 게임 시작!");
         allManagersReady = true;
         OnAllManagersReadyEvent?.Invoke();
+        //GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
     }
     
     public bool CanChangeState()

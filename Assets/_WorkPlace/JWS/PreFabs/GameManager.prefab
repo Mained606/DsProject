@@ -1,5 +1,54 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &407484500963683100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2237320382750824172}
+  - component: {fileID: 9142890661352318038}
+  m_Layer: 0
+  m_Name: SpawnManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2237320382750824172
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407484500963683100}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4186157886206106995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9142890661352318038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407484500963683100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc643b69e52c8374bbafe70f6adda635, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnnerLists: {fileID: 11400000, guid: 16b3e90a743026c419436636e84c85bd, type: 2}
+  uiText: {fileID: 0}
+  npcSpawnerList: []
+  bossSpawnerList: []
+  monsterSpawnerList: []
 --- !u!1 &665065587615173674
 GameObject:
   m_ObjectHideFlags: 0
@@ -44,7 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03b9f8597b717243a1d5f4208357cb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemList: {fileID: 11400000, guid: 09486d49e48af1441bb7f646a326401c, type: 2}
+  itemList: {fileID: 11400000, guid: e09860bef067fec419f5d1ff9c24568f, type: 2}
   itemSpriteList: []
   dropItemPrefab: {fileID: 5829863160345447765, guid: 9f24f9f1556ad094489e3067284dc5e3, type: 3}
 --- !u!1 &668412533047110478
@@ -695,6 +744,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2237320382750824172}
   - {fileID: 6150670838661312333}
   - {fileID: 8590688364086715988}
   - {fileID: 506292599205915327}
