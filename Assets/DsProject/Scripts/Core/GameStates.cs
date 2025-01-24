@@ -18,5 +18,7 @@ public enum GameSystemState
     Training,         // 훈련 모드
     Cutscene,         // 컷씬 연출
     Pause,            // 일시정지
+    Play,             // 게임 진행
+    MainQuestPlay,    // 메인퀘스트 진행.
     GameOver          // 게임 종료
 }

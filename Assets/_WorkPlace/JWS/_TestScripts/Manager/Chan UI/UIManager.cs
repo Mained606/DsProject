@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -150,7 +149,7 @@ public class UIManager : BaseManager<UIManager>
             }
 
             bool isMainQuestAdded = false;
-
+            List<Quest> completQuest = new List<Quest>();
             foreach (var quest in QuestManager.QuestDatabase)
             {
                 GameObject questObjPrefab;
@@ -167,21 +166,39 @@ public class UIManager : BaseManager<UIManager>
                 var questObj = Instantiate(questObjPrefab, questListParent);
                 questObj.transform.SetSiblingIndex(quest.questType == "메인퀘스트" ? 0 : questListParent.childCount);
                 DisplayQuestTextAtPrefab(questObj, quest);
+                if (quest.isCompleted) completQuest.Add(quest);
+            }
+
+            foreach (var quest in completQuest)
+            {
+                if (quest.questType == "메인퀘스트")
+                {
+                    QuestManager.Instance.CompleteQuest(quest);
+                    //Destroy(gameObj, 2f);
+                }
             }
         }
     }
 
     private void DisplayQuestTextAtPrefab(GameObject gameObj, Quest quest)
     {
+        QuestDistanceCheck distanceCheck = gameObj.GetComponent<QuestDistanceCheck>();
         TextMeshProUGUI[] subDisplay = gameObj.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
-        string text = quest.description;
-        if (text.Length > 20)
+        if (distanceCheck == null)
         {
-            text = text.Substring(0, 20) + "...";
+            distanceCheck = gameObj.AddComponent<QuestDistanceCheck>();
         }
-        subDisplay[0].text = text;
-        subDisplay[2].text = quest.ToStringTMPro();
-        if (quest.isCompleted) { subDisplay[3].gameObject.SetActive(true); }
+        distanceCheck.SetQuest(quest);
+        if (subDisplay.Length > 0)
+        {
+            distanceCheck.SetUIText(subDisplay[0]);
+        }
+        if (quest.isCompleted && quest.questType != "메인퀘스트")
+        {
+            if (subDisplay.Length > 3)
+                subDisplay[3].gameObject.SetActive(true);
+        }
+        Canvas.ForceUpdateCanvases();
     }
 
     public void DisplayDialogWindow(NPCData nPCData)
@@ -212,7 +229,6 @@ public class UIManager : BaseManager<UIManager>
         acceptButton.onClick.RemoveAllListeners();
         subDisplay[0].text = title;
 
-        // Check if it is a completed main quest
         bool isCompletedMainQuest = quest.questType == "메인퀘스트" && QuestManager.CompletedQuests.Exists(q => q.id == quest.id);
         if (isCompletedMainQuest)
         {
@@ -247,7 +263,6 @@ public class UIManager : BaseManager<UIManager>
                 () => HandleQuest(quest, canAccept)
             );
         }
-        Debug.Log("Quest dialog setup complete.");
     }
 
     private void SetupDialog(Button button, TextMeshProUGUI display, string buttonText, string message, UnityEngine.Events.UnityAction onClickAction)

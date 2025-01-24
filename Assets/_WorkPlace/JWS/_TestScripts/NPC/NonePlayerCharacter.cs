@@ -94,6 +94,7 @@ public class NonePlayerCharacter : MonoBehaviour
                 interActText.InteractTextSetting(msg, 1);
                 break;
         }
+        Canvas.ForceUpdateCanvases();
     }
 
 
