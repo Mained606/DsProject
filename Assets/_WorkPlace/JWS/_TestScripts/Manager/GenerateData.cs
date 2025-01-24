@@ -119,7 +119,7 @@ public class GenerateData
                     { "location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "딸기밭 찾아가기", 1) },
                     { "Item_strawberry", new QuestCondition(QuestConditionType.Collect, "Item_strawberry", "딸기", 10) },
                     { "location_0022", new QuestCondition(QuestConditionType.Explore, "location_0022", "이상한 소리가 나는 장소", 1) },
-                    { "Item_egg", new QuestCondition(QuestConditionType.Collect, "Item_egg", "생명체 알", 1) }
+                    { "Main_Quest001", new QuestCondition(QuestConditionType.Collect, "Main_Quest001", "용의 알", 1) }
                 },
                 new List<Reward> { new Reward("Main_Quest001", 1, 15, 15) }),
 
@@ -138,7 +138,7 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
-                    { "Item_wood", new QuestCondition(QuestConditionType.Collect, "Item_wood", "나무", 5) }
+                    { "Quest001", new QuestCondition(QuestConditionType.Collect, "Quest001", "나뭇가지", 5) }
                 },
                 new List<Reward> { new Reward("Main_Quest001", 1, 30, 30) }),
 

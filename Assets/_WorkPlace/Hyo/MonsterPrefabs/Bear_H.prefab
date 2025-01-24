@@ -788,7 +788,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74828defe6b1a0340b0ce0e5caf0c8c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  patrolRange: 5
+  patrolRange: 7
   idleTime: 2
   turnSpeed: 10
   maxPatrolDistance: 50
@@ -796,6 +796,7 @@ MonoBehaviour:
   attackRange: 3
   currentState: 0
   spawnPosition: {x: 0, y: 0, z: 0}
+  respawn: 0
 --- !u!1 &2901057818819817089
 GameObject:
   m_ObjectHideFlags: 0
