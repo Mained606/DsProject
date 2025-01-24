@@ -32,13 +32,8 @@ public class ItemEffect
         }
     }
 
-    /// <summary>
-    /// TODO
-    /// 1. 이펙트 타입별로 파티클 프리팹 알아서 적용되도록(완료)
-    /// 2. 아이템 사이즈를 item에서 어떻게 받아올지 구상(완)
-    /// 3. 아이템 사이즈와 등급에 따라 duration을 얼마나 줄지 구상(완)
-    /// 4. 이펙트 초기화를 어느 시점에서 해야될지
-    /// </summary>
+
+
     public class MultiValue
     {
         public float bonusPercnetage;
