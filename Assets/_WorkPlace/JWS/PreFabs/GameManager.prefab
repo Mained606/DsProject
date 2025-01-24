@@ -48,7 +48,8 @@ MonoBehaviour:
   uiText: {fileID: 0}
   npcSpawnerList: []
   bossSpawnerList: []
-  monsterSpawnerList: []
+  monsterSpawnerList:
+  - {fileID: 0}
 --- !u!1 &665065587615173674
 GameObject:
   m_ObjectHideFlags: 0
@@ -93,7 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03b9f8597b717243a1d5f4208357cb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemList: {fileID: 11400000, guid: e09860bef067fec419f5d1ff9c24568f, type: 2}
+  itemList: {fileID: 11400000, guid: d35c1b77d43275845b0cc5ed52d3fb0c, type: 2}
   itemSpriteList: []
   dropItemPrefab: {fileID: 5829863160345447765, guid: 9f24f9f1556ad094489e3067284dc5e3, type: 3}
 --- !u!1 &668412533047110478
@@ -284,9 +285,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcDataList: {fileID: 11400000, guid: 397ab20920f93174ba9f960f1f3fed4b, type: 2}
-  questList: {fileID: 11400000, guid: f494a51bdc053ae44a026da2446126e4, type: 2}
   npcDatabase: []
   questDatabase: []
+  mainQuestDatabase: []
+  subQuestDatabase: []
   completedQuests: []
 --- !u!1 &3107391844861314812
 GameObject:
@@ -380,7 +382,7 @@ MonoBehaviour:
       criticalDamageMultiplier: 2
       skillBonusMultiplier: 1.2
   characterTemplates: {fileID: 11400000, guid: 091e7d62338046b4a8e7ccb7f2fb75c2, type: 2}
-  isInitialized: 0
+  isInitialized: 1
 --- !u!1 &3191311102163359365
 GameObject:
   m_ObjectHideFlags: 0
