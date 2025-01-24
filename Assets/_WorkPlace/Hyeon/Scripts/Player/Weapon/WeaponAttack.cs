@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class WeaponAttack : MonoBehaviour
 {
-    private Collider swordCollider;
+    private Collider weaponCollider;
+    public string weaponId;
 
     public string toolTag;
 
@@ -11,7 +12,7 @@ public class WeaponAttack : MonoBehaviour
 
     private void Start()
     {
-        swordCollider = GetComponentInParent<Collider>();
+        weaponCollider = GetComponentInParent<Collider>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -23,8 +24,8 @@ public class WeaponAttack : MonoBehaviour
             interactable.Interact(toolTag); // 상호작용 호출
         }
 
-        Debug.Log("Sword Trigger");
-        if (!swordCollider.enabled) return;
+        Debug.Log("Weapon Trigger");
+        if (!weaponCollider.enabled) return;
         if (!DamagedTargets.Contains(other.gameObject))
         {
             DamagedTargets.Add(other.gameObject);

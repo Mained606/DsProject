@@ -73,7 +73,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         dragonData = DragonData;
         
         // 게임 시작시 강제 초기화 원하면 활성화
-        //InitialCharacter();
+        InitialCharacter();
         //InitialDragon();
     }
 
