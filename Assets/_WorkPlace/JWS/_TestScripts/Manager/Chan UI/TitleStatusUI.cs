@@ -7,7 +7,7 @@ public class TitleStatusUI : MonoBehaviour
 
     private void Update()
     {
-        UpdateStatus();
+        UpdateStatus(); // -> 테스트 끝나면 다시 풀것 !
     }
 
     private void UpdateStatus()
