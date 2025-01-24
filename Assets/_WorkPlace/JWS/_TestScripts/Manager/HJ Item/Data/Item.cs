@@ -7,6 +7,7 @@ using UnityEngine;
 /// 01.22 아이템 복제, 스탯 복제 함수 수정
 /// 01.23 아이템 장착위치 enum에 방패 추가, 아이템 등급은 장착 아이템에만 적용, 아이템 생성자에 제작재료 타입 조건 추가,
 /// 양손검, 한손검 아이템 추가로 인해서 weapontype 변수 추가
+/// 01.24 퀘스트 아이템인지 확인하기 위한 변수 추가
 /// </summary>
 [Serializable]
 public class Item
@@ -25,6 +26,7 @@ public class Item
     public Sprite sprite;                  // 아이템 아이콘
     public float dropChance;               // 드랍 확률 (%)
     public ItemEffect effect;              // 아이템 이펙트
+    public bool isQuestItem;               // 퀘스트 아이템 여부
 
     [Header("스탯(장착아이템: 적용할 전체 값,\n 버프 물약: 해당하는 스탯만 값을 1로 설정)")]
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
@@ -91,6 +93,8 @@ public class Item
             newItem.durability = this.durability.Clone(); // 내구도도 복제
         }
 
+        newItem.effect = this.effect;
+        newItem.isQuestItem = this.isQuestItem;
         newItem.sprite = this.sprite;
         newItem.dropChance = this.dropChance;
         newItem.equipmentSlot = this.equipmentSlot;
