@@ -1,14 +1,15 @@
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
-using Unity.VisualScripting;
+using TMPro;
 
 public class InventoryUI : MonoBehaviour
 {
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private Transform itemsParent;
+    [SerializeField] private GameObject itemInfoObject;
+    [SerializeField] private TextMeshProUGUI[] itemInfoTextField;
+    [SerializeField] private Image itemInfoImageField;
 
     private Button[] buttons;
     private int currentButtonIndex = 0;
@@ -70,16 +71,16 @@ public class InventoryUI : MonoBehaviour
             Debug.LogWarning("버튼이 설정되지 않았거나 버튼 배열이 비어있습니다.");
             return;
         }
-        if (InventoryManager.InventoryList.Count == 0)
-        {
-            Debug.LogWarning("인벤토리가 비어있습니다.");
-            return;
-        }
-        if (!System.Enum.IsDefined(typeof(CategotyItemType), currentButtonIndex))
-        {
-            Debug.LogError($"유효하지 않은 카테고리 인덱스: {currentButtonIndex}");
-            return;
-        }
+        //if (InventoryManager.InventoryList.Count == 0)
+        //{
+        //    Debug.LogWarning("인벤토리가 비어있습니다.");
+        //    return;
+        //}
+        //if (!System.Enum.IsDefined(typeof(CategotyItemType), currentButtonIndex))
+        //{
+        //    Debug.LogError($"유효하지 않은 카테고리 인덱스: {currentButtonIndex}");
+        //    return;
+        //}
         switch (currentButtonIndex)
         {
             case 5:
@@ -133,13 +134,10 @@ public class InventoryUI : MonoBehaviour
     private void CreateItemUI(Item item)
     {
         var inventoryItem = Instantiate(itemPrefab, itemsParent);
-        // -> 툴팁으로 따로 빼려고 임시로 주석 처리. 슬롯 자체에서 전부 보여줄거면 살리기
-       //  inventoryItem.GetComponentInChildren<TextMeshProUGUI>().text = item.ToStringTMPro();
-        if (item.sprite != null) inventoryItem.GetComponentsInChildren<Image>()[1].sprite = item.sprite;
-        Debug.Log(item.ToStringTMPro());
-        inventoryItem.AddComponent<InventoryTooltip>();
-        inventoryItem.GetComponent<InventoryTooltip>().currentitem = item;
-
+        inventoryItem.GetComponent<InventoryTooltip>().currentItem = item;
+        inventoryItem.GetComponent<InventoryTooltip>().InventorytooltipWindow = itemInfoObject;
+        inventoryItem.GetComponent<InventoryTooltip>().textPoint = itemInfoTextField;
+        inventoryItem.GetComponent<InventoryTooltip>().ItemImage = itemInfoImageField;
     }
 
     public void AddButtonListeners()
