@@ -4,6 +4,7 @@ using UnityEngine;
 public class ItemEffectTest : MonoBehaviour
 {
     [SerializeField] private string test = "Weapon001";
+
     private void Update()
     {
        
@@ -11,6 +12,7 @@ public class ItemEffectTest : MonoBehaviour
         if(InputManager.InputActions.actions["SkillUI"].triggered)
         {
             ItemEffectManager.Instance.ApplyItemEffect(InventoryManager.InventoryList[0]);
+
             Debug.Log("K");
         }
 

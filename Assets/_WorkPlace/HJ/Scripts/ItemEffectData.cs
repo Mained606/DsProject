@@ -10,26 +10,34 @@ public class ItemEffect
     public float duration;              //아이템 지속 시간
     public GameObject effectParticle;   //이펙트 사용시 파티클 프리팹
 
+    [Header("초기화 해야하는 아이템은 체크 해제")]
+    public bool isAlreadyInitialize = false;
+
     //초기화
     public void Initialize(Item item)
     {
+        if (isAlreadyInitialize)
+            return;
+
         Debug.Log($"{item.name} 아이템 이펙트 초기화");
 
         SetEffectTypeByItemType(item);
         SetItemSize(item);
         AddEffectParticle();
-        if(effectType == EffectType.Equip)
+        if (effectType == EffectType.Equip)
         {
             ApplyGradeBonus(item);
         }
-        else if(effectType == EffectType.Hp || effectType == EffectType.Mp)
+        else if (effectType == EffectType.Hp || effectType == EffectType.Mp)
         {
             SetEffectAmount(item);
         }
-        else if(effectType == EffectType.Buff)
+        else if (effectType == EffectType.Buff)
         {
             SetAmountDuration(item);
         }
+
+        isAlreadyInitialize = true;
     }
 
 

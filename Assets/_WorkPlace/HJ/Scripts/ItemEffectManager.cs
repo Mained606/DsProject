@@ -202,7 +202,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"{item.name} 버프 아이템 사용, 효과량: {item.effectAmount}");
 
         //버프 지속시간
-        StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity));
+        StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
     }
 
     //플레이어 스탯 업데이트
@@ -229,13 +229,13 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     }
 
     //버프 지속시간 처리
-    private IEnumerator RemoveBuffAfterDuration(Item item, float duration)
+    private IEnumerator RemoveBuffAfterDuration(Item item, float duration, int amount)
     {
         yield return new WaitForSeconds(duration);
 
         //버프 스탯 해제
-        UpdatePlayerStats(item.itemStat, -1);
-        Debug.Log($"{item.name} 버프 효과 종료");
+        UpdatePlayerStats(item.itemStat, -amount);
+        Debug.Log($"{item.name} 버프 효과 해제, 효과량 {amount}");
     }
 
     private void PlayParticle(Item item)

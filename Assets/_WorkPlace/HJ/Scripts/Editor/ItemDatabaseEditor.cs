@@ -88,6 +88,7 @@ public class ItemDatabaseEditor : Editor
         EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("isStackable"));
         EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("sprite"));
         EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("dropChance"));
+        EditorGUILayout.PropertyField(itemProperty.FindPropertyRelative("isQuestItem"));
 
         //아이템 타입
         ItemType itemType = (ItemType)itemProperty.FindPropertyRelative("type").enumValueIndex;

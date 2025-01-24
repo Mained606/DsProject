@@ -36,13 +36,14 @@ public class ItemList : ScriptableObject
             }
             else if (item.type == ItemType.소모품 || item.type == ItemType.제작재료)
             {
-                item.effectAmount = 0;
                 item.maxStack = 99;  //소모품 기본 최대 스택
                 item.isStackable = true;
+                item.grade = ItemGrade.일반;
             }
             else if (item.type == ItemType.퀘스트)
             {
                 item.isDiscardable = false; //퀘스트 아이템은 버릴 수 없음
+                item.isQuestItem = true;
             }
 
             EditorUtility.SetDirty(this); //변경 사항을 반영
