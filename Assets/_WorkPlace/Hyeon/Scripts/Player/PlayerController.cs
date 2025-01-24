@@ -111,6 +111,7 @@ public class PlayerController : MonoBehaviour
 
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
 
+        playerAnimator.Play("Idle Walk Run Blend");
         ValueInitialize();
     }
 
@@ -397,7 +398,7 @@ public class PlayerController : MonoBehaviour
 
         if (moveInput == Vector2.zero)
         {
-            playerAnimator.SetFloat("MotionSpeed", 0);
+            playerAnimator.SetFloat("MotionSpeed", 1);
             playerAnimator.SetFloat("Speed", 0);
 
         }
