@@ -35,7 +35,7 @@ public class BaseMonsterAI : MonoBehaviour
     protected Rigidbody rb; // 몬스터의 물리 캐시
     protected MonsterData monsterData; // 몬스터 데이터
     
-    private bool respawn = false;
+    [SerializeField] private bool respawn = false;
     protected bool isAttacking = false; // 공격 중인지 여부 플래그
 
 
@@ -63,10 +63,11 @@ public class BaseMonsterAI : MonoBehaviour
             rb.isKinematic = false;
 
             // 상태 초기화
-            SetState(AIState.Idle);
             animator.SetBool(IsWalking, false);
             animator.ResetTrigger(IsDead);
             animator.ResetTrigger(Attack);
+            playerTarget = null;
+            currentState = AIState.Idle;
         }
     }
 
