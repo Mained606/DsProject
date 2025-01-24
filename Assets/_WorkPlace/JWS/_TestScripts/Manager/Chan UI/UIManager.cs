@@ -104,23 +104,6 @@ public class UIManager : BaseManager<UIManager>
         mainCanvas.SetActive(!mainCanvas.activeSelf);
     }
 
-    public void ToggleInventorytooltipWindow(Item item, bool ison )
-    {
-        if( ison )
-        {
-            InventorytooltipWindow.SetActive(true);
-            TextMeshProUGUI text = InventorytooltipWindow.GetComponentInChildren<TextMeshProUGUI>();
-            if( text != null )
-            {
-                text.text = item.ToStringTMPro();
-            }
-        }
-        else
-        {
-            InventorytooltipWindow.SetActive(false);
-        }
-    }
-
     public void InventoryUpdate()
     {
         if (InventoryUI != null && InventoryUI.gameObject.activeSelf)

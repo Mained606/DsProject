@@ -1,32 +1,36 @@
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventoryTooltip : MonoBehaviour
+public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public Item currentitem;
-    private Button Button;
+    public Item currentItem;
+    [NonSerialized] public GameObject InventorytooltipWindow;
+    [NonSerialized] public TextMeshProUGUI[] textPoint = new TextMeshProUGUI[3];
+    [NonSerialized] public Image ItemImage;
 
-    private void OnEnable()
+    private void Start()
     {
-        Button = GetComponent<Button>();
-
-        // 버튼 호버 이벤트 등록
-        EventTrigger trigger = Button.gameObject.GetComponent<EventTrigger>();
-        if (trigger == null)
+        InventorytooltipWindow.SetActive(false);
+        if (currentItem != null && currentItem.sprite != null)
         {
-            trigger = Button.gameObject.AddComponent<EventTrigger>();
+            this.transform.GetComponentsInChildren<Image>(true)[1].sprite = currentItem.sprite;
         }
-        trigger.triggers.Clear();
+    }
 
-        // PointerEnter (마우스 오버)
-        EventTrigger.Entry pointerEnter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
-        pointerEnter.callback.AddListener((data) => UIManager.Instance.ToggleInventorytooltipWindow(currentitem, true));
-        trigger.triggers.Add(pointerEnter);
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        InventorytooltipWindow.SetActive(true);
+        ItemImage.sprite = currentItem.sprite;
+        Debug.Log("rottt : " + textPoint.Length);
+        textPoint[1].text = currentItem.name;
+        textPoint[2].text = currentItem.ToStringTMPro();
+    }
 
-        // PointerExit (마우스 벗어남)
-        EventTrigger.Entry pointerExit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
-        pointerExit.callback.AddListener((data) => UIManager.Instance.ToggleInventorytooltipWindow(currentitem, false));
-        trigger.triggers.Add(pointerExit);
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        InventorytooltipWindow.SetActive(false);
     }
 }
