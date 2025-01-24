@@ -9,7 +9,7 @@ public class GenerateData
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void InitializeItems(ItemList ItemDatabase)
     {
-        InitializeItemDatabase(ItemDatabase.itemList);
+        //InitializeItemDatabase(ItemDatabase.itemList);
     }
 
     private void InitializeItemDatabase(List<Item> ItemDatabase)
@@ -100,26 +100,37 @@ public class GenerateData
                 {
                     { "location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "용사의 마지막 전투 장소", 1) }
                 },
-                new List<Reward> { new Reward("Item001", 1, 10, 10) }),
+                new List<Reward> { new Reward("Main_Quest001", 1, 10, 10) }),
+
+            // 1장 - 1: 마울로 향해
+            new Quest("메인퀘스트", "quest101-1", "마을을 찾아가기",
+                "마을을 찾아 이동하기.",
+                new Dictionary<string, QuestCondition>
+                {
+                    { "location_0011", new QuestCondition(QuestConditionType.Explore, "location_0011", "마을을 찾아가기", 1) }
+                },
+                new List<Reward> { new Reward("Main_Quest001", 1, 10, 10) }),
 
             // 2장: 소년과 숲 속의 발견
             new Quest("메인퀘스트", "quest102", "숲 속의 알",
                 "숲에서 딸기를 모으고, 이상한 소리를 따라 알을 발견하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "Item_strawberry", new QuestCondition(QuestConditionType.Collect, "Item_strawberry", "딸기", 5) },
-                    { "location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "이상한 소리가 나는 장소", 1) }
+                    { "location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "딸기밭 찾아가기", 1) },
+                    { "Item_strawberry", new QuestCondition(QuestConditionType.Collect, "Item_strawberry", "딸기", 10) },
+                    { "location_0022", new QuestCondition(QuestConditionType.Explore, "location_0022", "이상한 소리가 나는 장소", 1) },
+                    { "Item_egg", new QuestCondition(QuestConditionType.Collect, "Item_egg", "생명체 알", 1) }
                 },
-                new List<Reward> { new Reward("Item002", 1, 15, 15) }),
+                new List<Reward> { new Reward("Main_Quest001", 1, 15, 15) }),
 
             // 3장: 알에서 태어난 생명체
             new Quest("메인퀘스트", "quest103", "알의 신비",
-                "알에서 깨어난 생명체를 몰래 숲으로 데려가세요.",
+                "알에서 깨어난 생명체를 몰래 숨길곳으로 데려가세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "숲의 은신처", 1) }
+                    { "location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "알의 은신처", 1) }
                 },
-                new List<Reward> { new Reward("Item003", 1, 20, 20) }),
+                new List<Reward> { new Reward("Main_Quest001", 1, 20, 20) }),
 
             // 4장: 소년과 생물체의 우정
             new Quest("메인퀘스트", "quest104", "신비한 동물의 도움",
@@ -129,7 +140,7 @@ public class GenerateData
                     { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
                     { "Item_wood", new QuestCondition(QuestConditionType.Collect, "Item_wood", "나무", 5) }
                 },
-                new List<Reward> { new Reward("Item004", 1, 30, 30) }),
+                new List<Reward> { new Reward("Main_Quest001", 1, 30, 30) }),
 
             // 5장: 하급 마족의 위협
             new Quest("메인퀘스트", "quest105", "엄마를 지켜라",
@@ -138,17 +149,18 @@ public class GenerateData
                 {
                     { "Bear", new QuestCondition(QuestConditionType.Kill, "Bear", "하급 마족", 3) }
                 },
-                new List<Reward> { new Reward("Item005", 1, 40, 50) }),
+                new List<Reward> { new Reward("Main_Quest001", 1, 40, 50) }),
 
             // 6장: 숲 속에서 힘을 연마하다
             new Quest("메인퀘스트", "quest106", "새로운 힘",
                 "숲 속에서 나무와 돌을 공격하며 힘을 연마하세요.",
                 new Dictionary<string, QuestCondition>
                 {
+                    { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
                     { "Item_rock", new QuestCondition(QuestConditionType.Collect, "Item_rock", "돌", 5) },
                     { "Item_tree", new QuestCondition(QuestConditionType.Collect, "Item_tree", "나무", 5) }
                 },
-                new List<Reward> { new Reward("", 0, 50, 20) }),
+                new List<Reward> { new Reward("Main_Quest001", 0, 50, 20) }),
 
             // 7장: 엄마의 복수를 실행해라
             new Quest("메인퀘스트", "quest107", "홀로서기",
@@ -157,7 +169,7 @@ public class GenerateData
                 {
                     { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) }
                 },
-                new List<Reward> { new Reward("Item006", 1, 60, 60) }),
+                new List<Reward> { new Reward("Main_Quest001", 1, 60, 60) }),
 
             // 8장: 마을의 위험에 대비하라
             new Quest("메인퀘스트", "quest108", "강해지기 위한 연습",
@@ -166,7 +178,7 @@ public class GenerateData
                 {
                     { "location_005", new QuestCondition(QuestConditionType.Explore, "location_005", "위험구역", 1) }
                 },
-                new List<Reward> { new Reward("", 0, 70, 70) }),
+                new List<Reward> { new Reward("Main_Quest001", 0, 70, 70) }),
 
             // 9장: 마족과의 전투
             new Quest("메인퀘스트", "quest109", "마을을 지켜라",
@@ -176,7 +188,7 @@ public class GenerateData
                     { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) },
                     { "SlimRabbit", new QuestCondition(QuestConditionType.Kill, "SlimRabbit", "중급 관리자 모파안", 1) }
                 },
-                new List<Reward> { new Reward("Item007", 1, 80, 80) }),
+                new List<Reward> { new Reward("Main_Quest001", 1, 80, 80) }),
 
             // 10장: 새로운 여정의 시작
             new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
@@ -187,8 +199,8 @@ public class GenerateData
                 },
                 new List<Reward>
                 {
-                    new Reward("Item008", 1, 90, 90),
-                    new Reward("Item009", 1, 90, 90)
+                    new Reward("Main_Quest001", 1, 90, 90),
+                    new Reward("Main_Quest001", 1, 90, 90)
                 })
         };
         return questList;
@@ -202,11 +214,11 @@ public class GenerateData
                 "회복 포션 10개를 수집하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "Item001", new QuestCondition(QuestConditionType.Collect, "Item001", "회복 포션", 10) }
+                    { "Main_Quest001", new QuestCondition(QuestConditionType.Collect, "Item001", "회복 포션", 10) }
                 },
                 new List<Reward>
                 {
-                    new Reward("Item001", 5, 100, 50)
+                    new Reward("Main_Quest001", 5, 100, 50)
                 }),
 
             new Quest("서브퀘스트", "quest002", "철검 제작 재료 수집",

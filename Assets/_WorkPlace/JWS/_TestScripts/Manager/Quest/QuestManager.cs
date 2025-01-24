@@ -4,13 +4,20 @@ using System.Collections.Generic;
 public class QuestManager : BaseManager<QuestManager>
 {
     [SerializeField] private NPCList npcDataList;
-    [SerializeField] private QuestList questList;
+    // [SerializeField] private QuestList questList;
     [SerializeField] private List<NPCData> npcDatabase = new List<NPCData>();
     [SerializeField] private List<Quest> questDatabase = new List<Quest>();
+    [SerializeField] private List<Quest> mainQuestDatabase = new List<Quest>();
+    [SerializeField] private List<Quest> subQuestDatabase = new List<Quest>();
     [SerializeField] private List<Quest> completedQuests = new List<Quest>();
+    [SerializeField] private Dictionary<string, Vector3> questConditionPoint = new Dictionary<string, Vector3>();
 
     public static List<Quest> QuestDatabase => Instance.questDatabase;
     public static List<Quest> CompletedQuests => Instance.completedQuests;
+    public static Dictionary<string, Vector3> QuestConditionPoint => Instance.questConditionPoint;
+
+    public static Vector3 GetQuestConditionPoint(string point) => Instance.questConditionPoint[point];
+
     public static NPCList NpcDatabase => Instance.npcDataList;
 
     private int currentMainQuestIndex = 0;
@@ -26,10 +33,11 @@ public class QuestManager : BaseManager<QuestManager>
     {
         base.Start();
         GenerateData generater = new GenerateData();
-        questList.questList = generater.GenerateMainQuestLists();
-        questList.questList.AddRange(generater.GenerateQuestLists());
-        generater.GenerateRandomNPCs(100, questList.questList, ItemManager.ItemDatabase, questList.questList, npcDataList);
+        mainQuestDatabase = generater.GenerateMainQuestLists();
+        subQuestDatabase = generater.GenerateQuestLists();
+        generater.GenerateRandomNPCs(100, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
         npcDatabase = npcDataList.npcLists;
+        GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
     }
 
     public Quest GiveQuests()
@@ -63,13 +71,6 @@ public class QuestManager : BaseManager<QuestManager>
         if (completedQuests.Exists(q => q.id == quest.id) && quest.questType == "메인퀘스트")
         {
             Debug.LogWarning($"[QuestManager] 완료된 메인 퀘스트 '{quest.id}'는 추가할 수 없습니다.");
-            return;
-        }
-        if (quest.questType == "메인퀘스트")
-        {
-            currentMainQuestIndex++;
-            if (currentMainQuestIndex > npcDataList.mainQuestNpcLists.Count)
-                Debug.LogError("더이상 메인퀘스트가 없습니다.");
             return;
         }
         questDatabase.Add(quest);
@@ -207,19 +208,46 @@ public class QuestManager : BaseManager<QuestManager>
                 UIManager.SystemGameMessage($"[QuestManager] 골드 {reward.gold} 지급됨.", MessageTag.금화_획득);
             }
         }
+        if (quest.questType == "메인퀘스트" && mainQuestDatabase.Count > currentMainQuestIndex)
+        {
 
-        if (quest.questType != "메인퀘스트") quest.isCompleted = false;
+            currentMainQuestIndex++;
+        }
+        if (quest.questType != "메인퀘스트")
+        {
+            quest.isCompleted = false;
+        }
+        else
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
+        }
         UIManager.SystemGameMessage($"[QuestManager] 퀘스트 '{quest.name}' 보상이 지급되었습니다.", MessageTag.퀘스트);
         UIManager.Instance.QuestUpdate();
     }
 
     public Quest GenerateQuests()
     {
-        return questList.questList[Random.Range(0, questList.questList.Count)];
+        return subQuestDatabase[Random.Range(0, subQuestDatabase.Count)];
     }
 
-    protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
+    private void MainQuestSequenceStart(int index)
     {
+        if (index == 0 || (index > 0 && mainQuestDatabase[index-1].isCompleted))
+        {
+            AddQuest(mainQuestDatabase[index]);
+            currentMainQuestIndex = index;
+        }
+    }
 
+
+    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
+    {
+        switch(newState)
+        {
+            case GameSystemState.MainQuestPlay:
+                GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+                MainQuestSequenceStart(currentMainQuestIndex);
+                break;
+        }
     }
 }
