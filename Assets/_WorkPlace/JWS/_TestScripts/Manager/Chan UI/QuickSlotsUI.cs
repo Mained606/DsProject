@@ -14,7 +14,7 @@ public class QuickSlotsUI : MonoBehaviour
 
     private void Start()
     {
-        InitQuickSlotItems();
+        //InitQuickSlotItems();
         ItemManager.Instance.AddItemLogic(condition[0], 10);
         ItemManager.Instance.AddItemLogic(condition[1], 10);
         if (playerData == null) { playerData = CharacterManager.PlayerCharacterData; }
@@ -72,7 +72,7 @@ public class QuickSlotsUI : MonoBehaviour
         for (int i = 0; i < quickSlotTimer.Length; i++)
         {
             bool hasItem = InventoryManager.Instance.GetItemQuantity(condition[i]) > 0;
-            if (quickSlotItems[i] == null) quickSlotItems[i] = hasItem ? InventoryManager.Instance.FindInventoryItem(condition[i]) : null;
+            // if (quickSlotItems[i] == null) quickSlotItems[i] = hasItem ? InventoryManager.Instance.FindInventoryItem(condition[i]) : null;
             if (quickSlotsAnimator[i] != null)
             {
                 if (quickSlotTimer[i] != null && quickSlotTimer[i].IsRunning)
@@ -97,15 +97,15 @@ public class QuickSlotsUI : MonoBehaviour
     {
         if (isActive)
         {
+            if (quickSlotTimer[slotIndex] == null )
+            {
+                quickSlotTimer[slotIndex] = new BasicTimer(10f);
+            }
+
             quickSlotImages[slotIndex].enabled = true;
             quickSlotImages[slotIndex].fillAmount = quickSlotTimer[slotIndex].IsRunning  ? quickSlotTimer[slotIndex].RemainingPercent : 0;
             quickSlotText[slotIndex].transform.parent.gameObject.SetActive(true);
             quickSlotText[slotIndex].text = itemQuantity.ToString();
-
-            if (initializeTimer)
-            {
-                quickSlotTimer[slotIndex] = new BasicTimer(10f);
-            }
         }
         else
         {
@@ -115,4 +115,8 @@ public class QuickSlotsUI : MonoBehaviour
         }
     }
 
+    public void SetSlotItem(int index)
+    {
+        quickSlotItems[index] = InventoryManager.Instance.FindInventoryItem(condition[index]);
+    }
 }

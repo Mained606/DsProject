@@ -1,15 +1,18 @@
 using System;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public Item currentItem;
+    [NonSerialized] public Item currentItem;
     [NonSerialized] public GameObject InventorytooltipWindow;
     [NonSerialized] public TextMeshProUGUI[] textPoint = new TextMeshProUGUI[3];
     [NonSerialized] public Image ItemImage;
+
+    private string[] condition = { "Consumable001", "Consumable002" };
 
     private void Start()
     {
@@ -22,9 +25,13 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (currentItem.type == ItemType.소모품 && (currentItem.id == condition[0] || currentItem.id == condition[1]))
+        {
+            var ditem = transform.GetComponent<DraggableItem>();
+            if (ditem == null) { ditem = transform.AddComponent<DraggableItem>(); }
+        }
         InventorytooltipWindow.SetActive(true);
         ItemImage.sprite = currentItem.sprite;
-        Debug.Log("rottt : " + textPoint.Length);
         textPoint[1].text = currentItem.name;
         textPoint[2].text = currentItem.ToStringTMPro();
     }
@@ -33,4 +40,6 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     {
         InventorytooltipWindow.SetActive(false);
     }
+
+    public Item GetItem() => currentItem;
 }

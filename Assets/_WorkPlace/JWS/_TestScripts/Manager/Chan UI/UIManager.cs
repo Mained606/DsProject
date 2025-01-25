@@ -12,6 +12,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject damagePopUpPrefab;
     [SerializeField] private GameObject mainTitleButton;
     [SerializeField] private GameObject baseCanvas;
+    [SerializeField] private GameObject slotCanvas;
     [SerializeField] private GameObject mainCanvas;
     [SerializeField] private GameObject dialogWindow;
     [SerializeField] private GameObject questWindow;
