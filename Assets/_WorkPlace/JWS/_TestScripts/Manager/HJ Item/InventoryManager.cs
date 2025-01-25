@@ -57,6 +57,14 @@ public class InventoryManager : BaseManager<InventoryManager>
         return inventory.Find(i => i.id == itemId);
     }
 
+    /// JWS  /////////////////////////////////////////
+    public Item FindInventoryItem(string itemId)
+    {
+        return inventory.Find(i => i.id == itemId);
+    }
+    /// ///////////////////////////////////////////////
+
+
     private void HandleStackableItem(Item existingItem, Item addItem)
     {
         int totalQuantity = existingItem.quantity + addItem.quantity;
