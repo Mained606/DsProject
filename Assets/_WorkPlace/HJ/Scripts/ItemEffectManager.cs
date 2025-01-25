@@ -104,7 +104,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         }
 
         PlayParticle(item);
-        InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
+        // InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
     }
 
     //장착 아이템 효과
