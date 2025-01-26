@@ -13,7 +13,7 @@ public class TitleStatusUI : MonoBehaviour
     private void UpdateStatus()
     {
         transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = CharacterManager.PlayerCharacterData.characterName;
-        transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = $"Lv\n{CharacterManager.PlayerCharacterData.level}";
+        transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = $"{CharacterManager.PlayerCharacterData.level}";
         UpdateStatusBar();
     }
 

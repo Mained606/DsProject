@@ -1,14 +1,5 @@
-using NUnit.Framework.Constraints;
 using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using UnityEditor;
-using UnityEditor.Build.Pipeline;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
-//using static Unity.Cinemachine.InputAxisControllerBase<T>;
 
 public class PlayerController : MonoBehaviour
 {
@@ -481,6 +472,14 @@ public class PlayerController : MonoBehaviour
     // 키 활성화 변경
     private void avoidKeyInput()
     {
+        /////////////////////////////////////////////////////////////////////////////////
+        /// JWS 수정 UI오픈관련 키엑세스
+        if (UIManager.Instance.IsUIWindowOpen())
+        {
+            SetActionStates(false);
+        }
+        /////////////////////////////////////////////////////////////////////////////////
+
         switch (CanMove)
         {
             case true:
@@ -524,9 +523,21 @@ public class PlayerController : MonoBehaviour
                 InputManager.InputActions.actions["Parry"].Disable();
                 break;
         }
-
-
     }
+
+    /////////////////////////////////////////////////////////////////////////////////
+    /// JWS 수정 UI오픈관련 키엑세스
+    private void SetActionStates(bool state)
+    {
+        CanMove = state;
+        CanAttack = state;
+        CanUseSkill = state;
+        CanParry = state;
+        CanWeaponSwitch = state;
+        CanGliding = state;
+    }
+    /////////////////////////////////////////////////////////////////////////////////
+
 
     // 패링
     private void OnParry()
@@ -793,10 +804,15 @@ public class PlayerController : MonoBehaviour
         if(playerData.currentHp <= 0)
         {
             Debug.Log("Player Death");
-            CanMove = false;
-            CanAttack = false;
-            CanParry = false;
-            CanUseSkill = false;
+            /////////////////////////////////////////////////////////////////////////////////
+            /// JWS 수정 UI오픈관련 키엑세스
+            //CanMove = false;
+            //CanAttack = false;
+            //CanParry = false;
+            //CanUseSkill = false;
+            SetActionStates(false);
+            /////////////////////////////////////////////////////////////////////////////////
+
             // anim
         }
     }
