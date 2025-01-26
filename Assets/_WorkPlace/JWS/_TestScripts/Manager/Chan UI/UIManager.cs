@@ -68,6 +68,7 @@ public class UIManager : BaseManager<UIManager>
         else
         {
             InputManager.InputActions.actions["Interact"].Enable();
+            InputManager.InputActions.actions["Move"].Enable();
         }
     }
 
