@@ -100,7 +100,14 @@ public class GenerateData
                 {
                     { "location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "용사의 마지막 전투 장소", 1) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 1, 10, 10) }),
+                new List<Reward> 
+                {
+                    new Reward("Main_Quest001", 1, 10, 10),
+                    new Reward("Main_Quest002", 1, 10, 10),
+                    new Reward("Main_Quest003", 1, 10, 10),
+                    new Reward("Main_Quest004", 1, 10, 10),
+                    new Reward("Main_Quest005", 1, 10, 10)
+                }),
 
             // 1장 - 1: 마울로 향해
             new Quest("메인퀘스트", "quest101-1", "마을을 찾아가기",

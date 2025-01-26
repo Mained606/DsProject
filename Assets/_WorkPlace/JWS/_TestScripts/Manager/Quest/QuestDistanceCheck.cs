@@ -33,18 +33,11 @@ public class QuestDistanceCheck : MonoBehaviour
             if (keyWord.Contains("location"))
             {
                 distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord));
-                string color = GetDistanceColor(distance);
+                string color = QuestManager.GetDistanceColor(distance);
                 distanceColor = $"     <color={color}>{distance:F1}m</color>";
             }
         }
         distanceText.text = questDescription + distanceColor;
         Canvas.ForceUpdateCanvases();
-    }
-
-    private string GetDistanceColor(float distance)
-    {
-        if (distance < 60) return "green";
-        if (distance < 100) return "yellow";
-        return "red";
     }
 }

@@ -12,7 +12,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Image itemInfoImageField;
 
     private Button[] buttons;
-    private int currentButtonIndex = 0;
+    private int currentButtonIndex = 6;
     private Dictionary<string, List<Item>> categorizedItems = new Dictionary<string, List<Item>>();
 
    
@@ -30,21 +30,20 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-
-
     private void OnEnable()
     {
         AddButtonListeners();
+        OnButtonClick(currentButtonIndex);
     }
 
     private void OnDisable()
     {
         RemoveButtonListeners();
+        currentButtonIndex = 6;
     }
 
     private void Start()
     {
-        UpdateUI();
     }
 
     private void CategorizeItems()
@@ -71,32 +70,22 @@ public class InventoryUI : MonoBehaviour
             Debug.LogWarning("버튼이 설정되지 않았거나 버튼 배열이 비어있습니다.");
             return;
         }
-        //if (InventoryManager.InventoryList.Count == 0)
-        //{
-        //    Debug.LogWarning("인벤토리가 비어있습니다.");
-        //    return;
-        //}
-        //if (!System.Enum.IsDefined(typeof(CategotyItemType), currentButtonIndex))
-        //{
-        //    Debug.LogError($"유효하지 않은 카테고리 인덱스: {currentButtonIndex}");
-        //    return;
-        //}
         switch (currentButtonIndex)
         {
-            case 5:
+            case 7:
                 Debug.Log("제거 처리로직 필요");
                 break;
 
-            case 6:
+            case 8:
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
                 break;
 
-            case 7:
+            case 9:
                 Debug.Log("장착 처리로직 필요");
                 break;
 
             default:
-                if (currentButtonIndex >= 0 && currentButtonIndex < 5)
+                if (currentButtonIndex >= 0 && currentButtonIndex < 7)
                 {
                     string selectedTag = ((CategotyItemType)currentButtonIndex).ToString();
 
@@ -161,15 +150,22 @@ public class InventoryUI : MonoBehaviour
     private void OnButtonClick(int buttonIndex)
     {
         currentButtonIndex = buttonIndex;
+        if (currentButtonIndex >= 0 && currentButtonIndex < 7)
+        {
+            Animator buttonAnimator = buttons[buttonIndex].animator;
+            buttonAnimator.SetTrigger("Hover");
+        }
         UpdateUI();
     }
 }
 
 public enum CategotyItemType
 {
-    전체아이템,
-    무기아이템,    // 장비형 (예: 무기류)
-    방어아이템,    // 장비형 (예: 방어구류)
-    소비아이템,   // 소비형 (예: 포션류)
-    재료아이템,   // 재료형 (예: 비늘, 꽃 등)
+    무기,         // Weapon
+    방어구,       // Armor
+    소모품,       // Consumable
+    퀘스트,       // QuestItem
+    제작재료,     // Material
+    장신구,        // Accessory
+    전체아이템
 }

@@ -101,8 +101,8 @@ public class QuestManager : BaseManager<QuestManager>
         return quest;
     }
 
-    // TODO
-    // 모험, 처치, 만남떄 이곳을 호출하는부분 추가해줘야함.
+    //TODO
+    //모험, 처치, 만남떄 이곳을 호출하는부분 추가해줘야함.
     public void UpdateQuestProgress(QuestConditionType conditionType, string targetId, int quantity = 1)
     {
         for (int i = questDatabase.Count - 1; i >= 0; i--)
@@ -138,6 +138,50 @@ public class QuestManager : BaseManager<QuestManager>
         }
     }
 
+    //public void UpdateQuestProgress(QuestConditionType conditionType, string targetId, int quantity = 1)
+    //{
+    //    bool questUpdated = false;
+
+    //    for (int i = questDatabase.Count - 1; i >= 0; i--)
+    //    {
+    //        Quest quest = questDatabase[i];
+    //        if (quest.isCompleted) continue;
+
+    //        foreach (var conditionKeyValue in quest.requiredConditions)
+    //        {
+    //            var conditionId = conditionKeyValue.Key;
+    //            var condition = conditionKeyValue.Value;
+
+    //            if (condition.type == conditionType && condition.targetId == targetId)
+    //            {
+    //                if (!quest.progress.ContainsKey(conditionId))
+    //                {
+    //                    quest.progress[conditionId] = 0;
+    //                }
+
+    //                quest.progress[conditionId] += quantity;
+    //                if (quest.progress[conditionId] >= condition.requiredQuantity)
+    //                {
+    //                    quest.progress[conditionId] = condition.requiredQuantity;
+    //                    condition.isCompleted = true;
+    //                    UIManager.SystemGameMessage($"[QuestManager] 퀘스트 조건 '{condition.targetName}' 완료!", MessageTag.아이템_획득);
+    //                }
+    //            }
+    //        }
+
+    //        if (IsQuestCompleted(quest))
+    //        {
+    //            quest.isCompleted = true;
+    //            questUpdated = true;
+    //            UIManager.SystemGameMessage($"[QuestManager] 퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
+    //        }
+    //    }
+
+    //    if (questUpdated)
+    //    {
+    //        UIManager.Instance.QuestUpdate();
+    //    }
+    //}
 
     private bool IsQuestCompleted(Quest quest)
     {
@@ -233,6 +277,13 @@ public class QuestManager : BaseManager<QuestManager>
             AddQuest(mainQuestDatabase[index]);
             currentMainQuestIndex = index;
         }
+    }
+
+    public static string GetDistanceColor(float distance)
+    {
+        if (distance < 60) return "green";
+        if (distance < 100) return "yellow";
+        return "red";
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)

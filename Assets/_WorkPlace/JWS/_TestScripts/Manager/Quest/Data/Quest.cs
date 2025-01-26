@@ -33,6 +33,10 @@ public class Quest
         this.progress = new Dictionary<string, int>();
         this.rewards = rewards ?? new List<Reward>();
         this.acceptCount = 0;
+        foreach (string condition in requiredConditions.Keys)
+        {
+            this.progress.Add(condition, 0);
+        }
     }
 
     public string ToStringTMPro()
