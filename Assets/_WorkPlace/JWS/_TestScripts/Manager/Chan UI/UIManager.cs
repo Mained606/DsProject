@@ -20,6 +20,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
     [SerializeField] private GameObject InventorytooltipWindow;
+    [SerializeField] private GameObject characterStaus;
     [SerializeField] private Transform questListParent;
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -48,6 +49,7 @@ public class UIManager : BaseManager<UIManager>
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
         InventorytooltipWindow.SetActive(false);
+        characterStaus.SetActive(false);
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
@@ -104,6 +106,12 @@ public class UIManager : BaseManager<UIManager>
     public void ToggleQuestWindow()
     {
         questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
+        mainCanvas.SetActive(!mainCanvas.activeSelf);
+    }
+    
+    public void ToggleStatusWindow()
+    {
+        characterStaus.gameObject.SetActive(!characterStaus.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
     }
 
@@ -311,6 +319,7 @@ public class UIManager : BaseManager<UIManager>
         mainCanvas.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
+        characterStaus.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
     }
@@ -342,7 +351,7 @@ public class UIManager : BaseManager<UIManager>
 
     public bool IsUIWindowOpen()
     {
-        return dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf;
+        return characterStaus.activeSelf || dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
@@ -361,6 +370,10 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.QuestReview:
 
                 ToggleQuestWindow();
+                break;
+            case GameSystemState.StatusUI:
+
+                ToggleStatusWindow();
                 break;
         }
         #endregion
