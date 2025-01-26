@@ -35,12 +35,6 @@ public class QuestUI : MonoBehaviour
         }
 
         questInfo.gameObject.SetActive(false);
-
-        for (int i = 0; i < commentText.Length; i++)
-        {
-            if (i < 3) continue;
-            commentText[i].text = $"순번 : {i}";
-        }
         commentText[3].text = "현재 진행 챕터";
     }
 
