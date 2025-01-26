@@ -19,10 +19,10 @@ public class DropZone : MonoBehaviour, IDropHandler
             RectTransform rect = droppedObject.GetComponent<RectTransform>();
             if (rect != null)
             {
-                Item dropItem = droppedObject.GetComponent<InventoryTooltip>().GetItem();
-                if (dropItem != null )
+                string dropItem = droppedObject.GetComponent<InventoryTooltip>().currentItem.id;
+                if (dropItem != string.Empty && dropItem != "")
                 {
-                    switch ( dropItem.id )
+                    switch ( dropItem )
                     {
                         case "Consumable001":
                             quickSlotsUI.SetSlotItem(0);

@@ -11,15 +11,37 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     [NonSerialized] public GameObject InventorytooltipWindow;
     [NonSerialized] public TextMeshProUGUI[] textPoint = new TextMeshProUGUI[3];
     [NonSerialized] public Image ItemImage;
+    [NonSerialized] public TextMeshProUGUI amountCount;
+    private int preAmountCount = 0;
 
     private string[] condition = { "Consumable001", "Consumable002" };
 
     private void Start()
     {
         InventorytooltipWindow.SetActive(false);
+        amountCount = transform.GetComponentInChildren<TextMeshProUGUI>();
         if (currentItem != null && currentItem.sprite != null)
         {
             this.transform.GetComponentsInChildren<Image>(true)[1].sprite = currentItem.sprite;
+        }
+        if (currentItem.isStackable)
+        {
+            preAmountCount = currentItem.quantity;
+            amountCount.enabled = true;
+            amountCount.text = $"{currentItem.quantity}";
+        }
+        else
+        {
+            amountCount.enabled = false;
+        }
+    }
+
+    private void Update()
+    {
+        if (preAmountCount !=0 && preAmountCount != currentItem.quantity)
+        {
+            preAmountCount = currentItem.quantity;
+            amountCount.text = $"{currentItem.quantity}";
         }
     }
 

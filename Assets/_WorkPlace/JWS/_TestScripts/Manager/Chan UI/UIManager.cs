@@ -12,7 +12,6 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject damagePopUpPrefab;
     [SerializeField] private GameObject mainTitleButton;
     [SerializeField] private GameObject baseCanvas;
-    [SerializeField] private GameObject slotCanvas;
     [SerializeField] private GameObject mainCanvas;
     [SerializeField] private GameObject dialogWindow;
     [SerializeField] private GameObject questWindow;
@@ -56,18 +55,20 @@ public class UIManager : BaseManager<UIManager>
 
     private void Update()
     {
-        if (IsUIWindowOpen()/* || IsPointerOverUI()*/)
+        CheckInputStat();
+    }
+
+    private void CheckInputStat()
+    {
+        // if (IsUIWindowOpen() || IsPointerOverUI())
+        if (IsUIWindowOpen())
         {
-            InputManager.InputActions.actions["Attack"].Disable(); // UI가 열려 있을 때 공격 비활성화
-            InputManager.InputActions.actions["Interact"].Disable(); // UI가 열려 있을 때 공격 비활성화
+            InputManager.InputActions.actions["Interact"].Disable();
         }
         else
         {
-            InputManager.InputActions.actions["Interact"].Enable(); // UI가 열려 있을 때 공격 비활성화
-            InputManager.InputActions.actions["Attack"].Enable(); // UI가 닫혀 있을 때 공격 활성화
+            InputManager.InputActions.actions["Interact"].Enable();
         }
-        InputManager.InputActions.actions["Inventory"].Enable();
-        InputManager.InputActions.actions["Quest"].Enable();
     }
 
     private bool IsPointerOverUI()
@@ -324,8 +325,6 @@ public class UIManager : BaseManager<UIManager>
         var go = Instantiate(Instance.damagePopUpPrefab, finalPosition, Quaternion.identity);
         TextMeshProUGUI displayText = go.GetComponentInChildren<TextMeshProUGUI>();
         displayText.text = text;
-
-        Debug.Log("출력위치 : " + targetPosition);
         if (Instance.tagColors.TryGetValue(msgTag, out string colorCode))
         {
             if (ColorUtility.TryParseHtmlString(colorCode, out Color color))
