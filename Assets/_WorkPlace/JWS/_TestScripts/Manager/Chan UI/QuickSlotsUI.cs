@@ -1,6 +1,9 @@
+using System;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.PostProcessing.SubpixelMorphologicalAntialiasing;
 
 public class QuickSlotsUI : MonoBehaviour
 {
@@ -15,8 +18,6 @@ public class QuickSlotsUI : MonoBehaviour
     private void Start()
     {
         InitQuickSlotItems();
-        ItemManager.Instance.AddItemLogic(condition[0], 10);
-        ItemManager.Instance.AddItemLogic(condition[1], 10);
         if (playerData == null) { playerData = CharacterManager.PlayerCharacterData; }
     }
 
@@ -30,6 +31,21 @@ public class QuickSlotsUI : MonoBehaviour
         {
             TryUseQuickSlot(1);
         }
+        if (Input.GetKeyDown(KeyCode.F3))
+        {
+            ItemManager.Instance.AddItemLogic(condition[0], 1);
+        }
+        if (Input.GetKeyDown(KeyCode.F4))
+        {
+            ItemManager.Instance.AddItemLogic(condition[1], 1);
+        }
+        if (Input.GetKeyDown(KeyCode.F5))
+        {
+            playerData.currentHp = 1;
+            playerData.currentMp = 1;
+            playerData.staminaCurrent = 1;
+        }
+
         CheckQuickSlotItems();
     }
 
@@ -50,9 +66,7 @@ public class QuickSlotsUI : MonoBehaviour
 
     private void UsedQuickSlot(string itemType, int slotIndex)
     {
-        Debug.Log("아이템 사용하기 " + quickSlotTimer[slotIndex] == null + " , " + quickSlotTimer[slotIndex].IsRunning);
-        if (quickSlotTimer[slotIndex] == null || quickSlotTimer[slotIndex].IsRunning) return;
-        Debug.Log("아이템 사용하기 " + quickSlotTimer[slotIndex] == null + " , " + quickSlotTimer[slotIndex].IsRunning);
+        if (quickSlotItems[slotIndex] == null || quickSlotTimer[slotIndex] == null || quickSlotTimer[slotIndex].IsRunning) return;
         TimerManager.Instance.StartTimer(quickSlotTimer[slotIndex]);
         ItemManager.Instance.UseItem(InventoryManager.Instance.FindInventoryItem(itemType));
     }
@@ -61,9 +75,9 @@ public class QuickSlotsUI : MonoBehaviour
     {
         for (int i = 0; i < quickSlotItems.Length; i++)
         {
-            quickSlotItems[i] = InventoryManager.Instance.FindInventoryItem(condition[i]);
-            quickSlotTimer[i] = new BasicTimer(10f);
-            UpdateQuickSlotUI(i, quickSlotItems[i] != null, InventoryManager.Instance.GetItemQuantity(condition[i]), quickSlotTimer[i] == null);
+            quickSlotTimer[i] = null;
+            quickSlotItems[i] = null;
+            quickSlotText[i].text = string.Empty;
         }
     }
 
@@ -71,14 +85,13 @@ public class QuickSlotsUI : MonoBehaviour
     {
         for (int i = 0; i < quickSlotTimer.Length; i++)
         {
-            bool hasItem = InventoryManager.Instance.GetItemQuantity(condition[i]) > 0;
-            if (quickSlotItems[i] == null) quickSlotItems[i] = hasItem ? InventoryManager.Instance.FindInventoryItem(condition[i]) : null;
+            int quantiy = InventoryManager.Instance.GetItemQuantity(condition[i]);
+            bool hasItem = quickSlotItems[i] != null;
             if (quickSlotsAnimator[i] != null)
             {
                 if (quickSlotTimer[i] != null && quickSlotTimer[i].IsRunning)
                 {
                     quickSlotsAnimator[i].SetTrigger("Hover");
-                    UpdateQuickSlotUI(i, hasItem, InventoryManager.Instance.GetItemQuantity(condition[i]), false);
                     if (!hasItem)
                     {
                         TimerManager.Instance.StopTimer(quickSlotTimer[i]);
@@ -86,26 +99,23 @@ public class QuickSlotsUI : MonoBehaviour
                 }
                 else
                 {
-                    UpdateQuickSlotUI(i, hasItem, InventoryManager.Instance.GetItemQuantity(condition[i]), false);
                     quickSlotsAnimator[i].SetTrigger("Normal");
                 }
+                UpdateQuickSlotUI(i, hasItem, quantiy);
             }
         }
     }
 
-    private void UpdateQuickSlotUI(int slotIndex, bool isActive, int itemQuantity, bool initializeTimer)
+    private void UpdateQuickSlotUI(int slotIndex, bool isActive, int itemQuantity)
     {
         if (isActive)
         {
             quickSlotImages[slotIndex].enabled = true;
-            quickSlotImages[slotIndex].fillAmount = quickSlotTimer[slotIndex].IsRunning  ? quickSlotTimer[slotIndex].RemainingPercent : 0;
+            quickSlotImages[slotIndex].fillAmount = quickSlotTimer[slotIndex].IsRunning  ? 
+                quickSlotTimer[slotIndex].RemainingPercent :
+                itemQuantity > 0 ? 0 : 1;
             quickSlotText[slotIndex].transform.parent.gameObject.SetActive(true);
             quickSlotText[slotIndex].text = itemQuantity.ToString();
-
-            if (initializeTimer)
-            {
-                quickSlotTimer[slotIndex] = new BasicTimer(10f);
-            }
         }
         else
         {
@@ -115,4 +125,12 @@ public class QuickSlotsUI : MonoBehaviour
         }
     }
 
+    public void SetSlotItem(int index)
+    {
+        quickSlotItems[index] = InventoryManager.Instance.FindInventoryItem(condition[index]);
+        if (quickSlotTimer[index] == null)
+        {
+            quickSlotTimer[index] = new BasicTimer(10f);
+        }
+    }
 }
