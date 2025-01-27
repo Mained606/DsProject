@@ -7,12 +7,9 @@ public class ItemEffectTest : MonoBehaviour
 
     private void Update()
     {
-       
-
         if(InputManager.InputActions.actions["SkillUI"].triggered)
         {
             ItemEffectManager.Instance.ApplyItemEffect(InventoryManager.InventoryList[0]);
-
             Debug.Log("K");
         }
 

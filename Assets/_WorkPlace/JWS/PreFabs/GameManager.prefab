@@ -48,7 +48,8 @@ MonoBehaviour:
   uiText: {fileID: 0}
   npcSpawnerList: []
   bossSpawnerList: []
-  monsterSpawnerList: []
+  monsterSpawnerList:
+  - {fileID: 0}
 --- !u!1 &665065587615173674
 GameObject:
   m_ObjectHideFlags: 0
@@ -93,7 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03b9f8597b717243a1d5f4208357cb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemList: {fileID: 11400000, guid: e09860bef067fec419f5d1ff9c24568f, type: 2}
+  itemList: {fileID: 11400000, guid: d35c1b77d43275845b0cc5ed52d3fb0c, type: 2}
   itemSpriteList: []
   dropItemPrefab: {fileID: 5829863160345447765, guid: 9f24f9f1556ad094489e3067284dc5e3, type: 3}
 --- !u!1 &668412533047110478
@@ -284,9 +285,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcDataList: {fileID: 11400000, guid: 397ab20920f93174ba9f960f1f3fed4b, type: 2}
-  questList: {fileID: 11400000, guid: f494a51bdc053ae44a026da2446126e4, type: 2}
   npcDatabase: []
   questDatabase: []
+  mainQuestDatabase: []
+  subQuestDatabase: []
   completedQuests: []
 --- !u!1 &3107391844861314812
 GameObject:
@@ -380,7 +382,7 @@ MonoBehaviour:
       criticalDamageMultiplier: 2
       skillBonusMultiplier: 1.2
   characterTemplates: {fileID: 11400000, guid: 091e7d62338046b4a8e7ccb7f2fb75c2, type: 2}
-  isInitialized: 0
+  isInitialized: 1
 --- !u!1 &3191311102163359365
 GameObject:
   m_ObjectHideFlags: 0
@@ -412,6 +414,132 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1382931464070893441}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4068495315719351340
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5068997019622416361}
+  - component: {fileID: 5436737618429608641}
+  m_Layer: 0
+  m_Name: ItemEffectManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5068997019622416361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4068495315719351340}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4186157886206106995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5436737618429608641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4068495315719351340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45cfabb38512a85428d90ce04b6e97a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equippedWeapon:
+    id: 
+    name: 
+    description: 
+    type: 0
+    costValue: 0
+    quantity: 0
+    maxStack: 0
+    isDiscardable: 0
+    isStackable: 0
+    sprite: {fileID: 0}
+    dropChance: 0
+    effect:
+      effectType: 0
+      itemSize: 0
+      duration: 0
+      effectParticle: {fileID: 0}
+      isAlreadyInitialize: 0
+    isQuestItem: 0
+    itemStat:
+      Strength: 0
+      Dexterity: 0
+      Intelligence: 0
+      Vitality: 0
+      Luck: 0
+      MaxHealth: 0
+      MaxMana: 0
+      PhysicalAttack: 0
+      MagicAttack: 0
+      PhysicalDefense: 0
+      MagicDefense: 0
+      CriticalChance: 0
+      AttackSpeed: 0
+      Evasion: 0
+    grade: 0
+    equipmentSlot: 0
+    weaponType: 0
+    consumableType: 0
+    effectAmount: 0
+    questId: 
+  equippedAccessory:
+    id: 
+    name: 
+    description: 
+    type: 0
+    costValue: 0
+    quantity: 0
+    maxStack: 0
+    isDiscardable: 0
+    isStackable: 0
+    sprite: {fileID: 0}
+    dropChance: 0
+    effect:
+      effectType: 0
+      itemSize: 0
+      duration: 0
+      effectParticle: {fileID: 0}
+      isAlreadyInitialize: 0
+    isQuestItem: 0
+    itemStat:
+      Strength: 0
+      Dexterity: 0
+      Intelligence: 0
+      Vitality: 0
+      Luck: 0
+      MaxHealth: 0
+      MaxMana: 0
+      PhysicalAttack: 0
+      MagicAttack: 0
+      PhysicalDefense: 0
+      MagicDefense: 0
+      CriticalChance: 0
+      AttackSpeed: 0
+      Evasion: 0
+    grade: 0
+    equipmentSlot: 0
+    weaponType: 0
+    consumableType: 0
+    effectAmount: 0
+    questId: 
+  effectParticleDuration: 2
+  particlePositionOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &4242622423328597824
 GameObject:
   m_ObjectHideFlags: 0
@@ -458,6 +586,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: []
   maxCapacity: 99
+  selectedItem: 0
 --- !u!1 &8435481038192113703
 GameObject:
   m_ObjectHideFlags: 0
@@ -756,6 +885,7 @@ Transform:
   - {fileID: 5565525280491229948}
   - {fileID: 8950915773018575576}
   - {fileID: 7724740018593977126}
+  - {fileID: 5068997019622416361}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8830547049108172490

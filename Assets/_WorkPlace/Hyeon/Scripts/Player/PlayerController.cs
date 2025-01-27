@@ -1,14 +1,5 @@
-using NUnit.Framework.Constraints;
 using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using UnityEditor;
-using UnityEditor.Build.Pipeline;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
-//using static Unity.Cinemachine.InputAxisControllerBase<T>;
 
 public class PlayerController : MonoBehaviour
 {
@@ -123,7 +114,7 @@ public class PlayerController : MonoBehaviour
 
         RecoverStats();
         HandleGravity();
-        avoidKeyInput();
+        AvoidKeyInput();
 
 
         DetectCliff();
@@ -478,55 +469,121 @@ public class PlayerController : MonoBehaviour
         //isInvincible = false;
     }
 
+
+    //private bool uiCheck = false;
+    //// 키 활성화 변경
+    //private void avoidKeyInput()
+    //{
+    //    /////////////////////////////////////////////////////////////////////////////////
+    //    /// JWS 수정 UI오픈관련 키엑세스
+    //    if (uiCheck != UIManager.Instance.IsUIWindowOpen())
+    //    {
+    //        uiCheck = UIManager.Instance.IsUIWindowOpen();
+    //        SetActionStates(uiCheck);
+    //    }
+    //    /////////////////////////////////////////////////////////////////////////////////
+
+    //    switch (CanMove)
+    //    {
+    //        case true:
+    //            InputManager.InputActions.actions["Move"].Enable();
+    //            break;
+    //        case false:
+    //            InputManager.InputActions.actions["Move"].Disable();
+    //            break;
+    //    }
+
+    //    switch (CanAttack)
+    //    {
+    //        case true:
+    //            InputManager.InputActions.actions["Attack"].Enable();
+    //            break;
+    //        case false:
+    //            InputManager.InputActions.actions["Attack"].Disable();
+    //            break;
+    //    }
+
+    //    switch (CanUseSkill)
+    //    {
+    //        case true:
+    //            InputManager.InputActions.actions["PlayerSkill_1"].Enable();
+    //            InputManager.InputActions.actions["PlayerSkill_2"].Enable();
+    //            InputManager.InputActions.actions["PlayerSkill_3"].Enable();
+    //            break;
+    //        case false:
+    //            InputManager.InputActions.actions["PlayerSkill_1"].Disable();
+    //            InputManager.InputActions.actions["PlayerSkill_2"].Disable();
+    //            InputManager.InputActions.actions["PlayerSkill_3"].Disable();
+    //            break;
+    //    }
+
+    //    switch (CanParry)
+    //    {
+    //        case true:
+    //            InputManager.InputActions.actions["Parry"].Enable();
+    //            break;
+    //        case false:
+    //            InputManager.InputActions.actions["Parry"].Disable();
+    //            break;
+    //    }
+    //}
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///// JWS 수정 UI오픈관련 키엑세스
+    //private void SetActionStates(bool state)
+    //{
+    //    CanMove = state;
+    //    CanAttack = state;
+    //    CanUseSkill = state;
+    //    CanParry = state;
+    //    CanWeaponSwitch = state;
+    //    CanGliding = state;
+    //}
+    ///////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///// JWS 수정 UI오픈관련 키엑세스 2025.01.26 19:30  Start
+    ///////////////////////////////////////////////////////////////////////////////////
+    private bool uiCheck = false;
+
     // 키 활성화 변경
-    private void avoidKeyInput()
+    private void AvoidKeyInput()
     {
-        switch (CanMove)
+        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
         {
-            case true:
-                InputManager.InputActions.actions["Move"].Enable();
-                break;
-            case false:
-                InputManager.InputActions.actions["Move"].Disable();
-                break;
+            uiCheck = UIManager.Instance.IsUIWindowOpen();
+            SetActionStates(!uiCheck);
         }
-
-        switch (CanAttack)
-        {
-            case true:
-                InputManager.InputActions.actions["Attack"].Enable();
-                break;
-            case false:
-                InputManager.InputActions.actions["Attack"].Disable();
-                break;
-        }
-
-        switch (CanUseSkill)
-        {
-            case true:
-                InputManager.InputActions.actions["PlayerSkill_1"].Enable();
-                InputManager.InputActions.actions["PlayerSkill_2"].Enable();
-                InputManager.InputActions.actions["PlayerSkill_3"].Enable();
-                break;
-            case false:
-                InputManager.InputActions.actions["PlayerSkill_1"].Disable();
-                InputManager.InputActions.actions["PlayerSkill_2"].Disable();
-                InputManager.InputActions.actions["PlayerSkill_3"].Disable();
-                break;
-        }
-
-        switch (CanParry)
-        {
-            case true:
-                InputManager.InputActions.actions["Parry"].Enable();
-                break;
-            case false:
-                InputManager.InputActions.actions["Parry"].Disable();
-                break;
-        }
-
-
+        UpdateInputActions(CanMove, "Move");
+        UpdateInputActions(CanAttack, "Attack");
+        UpdateInputActions(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
+        UpdateInputActions(CanParry, "Parry");
     }
+
+    private void SetActionStates(bool state)
+    {
+        CanMove = state;
+        CanAttack = state;
+        CanUseSkill = state;
+        CanParry = state;
+        CanWeaponSwitch = state;
+        CanGliding = state;
+    }
+
+    private void UpdateInputActions(bool state, params string[] actions)
+    {
+        foreach (var action in actions)
+        {
+            if (state)
+                InputManager.InputActions.actions[action].Enable();
+            else
+                InputManager.InputActions.actions[action].Disable();
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///// JWS 수정 UI오픈관련 키엑세스 2025.01.26 19:30  End
+    ///////////////////////////////////////////////////////////////////////////////////
 
     // 패링
     private void OnParry()
@@ -793,10 +850,15 @@ public class PlayerController : MonoBehaviour
         if(playerData.currentHp <= 0)
         {
             Debug.Log("Player Death");
-            CanMove = false;
-            CanAttack = false;
-            CanParry = false;
-            CanUseSkill = false;
+            /////////////////////////////////////////////////////////////////////////////////
+            /// JWS 수정 UI오픈관련 키엑세스
+            //CanMove = false;
+            //CanAttack = false;
+            //CanParry = false;
+            //CanUseSkill = false;
+            SetActionStates(false);
+            /////////////////////////////////////////////////////////////////////////////////
+
             // anim
         }
     }
