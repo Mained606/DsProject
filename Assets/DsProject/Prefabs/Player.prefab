@@ -1193,7 +1193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: 
+  weaponId: Weapon002
   toolTag: 
 --- !u!1 &746167499823399861
 GameObject:
@@ -2690,7 +2690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: 
+  weaponId: Weapon002
   toolTag: 
 --- !u!1 &1319013561895098257
 GameObject:
@@ -6016,7 +6016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: 
+  weaponId: Main_Quest004
   toolTag: 
 --- !u!1 &3745260774677652512
 GameObject:
@@ -7307,7 +7307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: 
+  weaponId: Weapon001
   toolTag: 
 --- !u!1 &4669055876699586869
 GameObject:
@@ -8249,44 +8249,7 @@ MonoBehaviour:
   - {fileID: 3623884625626497165}
   - {fileID: 4616255806888308693}
   currentWeaponId: 
-  weaponItemList:
-    id: 
-    name: 
-    description: 
-    type: 0
-    costValue: 0
-    quantity: 0
-    maxStack: 0
-    isDiscardable: 0
-    isStackable: 0
-    sprite: {fileID: 0}
-    dropChance: 0
-    effect:
-      effectType: 0
-      itemSize: 0
-      duration: 0
-      effectParticle: {fileID: 0}
-    itemStat:
-      Strength: 0
-      Dexterity: 0
-      Intelligence: 0
-      Vitality: 0
-      Luck: 0
-      MaxHealth: 0
-      MaxMana: 0
-      PhysicalAttack: 0
-      MagicAttack: 0
-      PhysicalDefense: 0
-      MagicDefense: 0
-      CriticalChance: 0
-      AttackSpeed: 0
-      Evasion: 0
-    grade: 0
-    equipmentSlot: 0
-    weaponType: 0
-    consumableType: 0
-    effectAmount: 0
-    questId: 
+  weaponItemList: {fileID: 0}
 --- !u!1 &5561973531846721551
 GameObject:
   m_ObjectHideFlags: 0
@@ -8864,9 +8827,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5890909718689673670}
-  - component: {fileID: 3749553289701753187}
   - component: {fileID: 1098804586676782611}
   - component: {fileID: 6211557189889423590}
+  - component: {fileID: 3749553289701753187}
   - component: {fileID: 1205624006367007641}
   m_Layer: 3
   m_Name: Player
@@ -8891,81 +8854,6 @@ Transform:
   - {fileID: 1923360659147011416}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3749553289701753187
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6123863050184164686}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec4cfc05a2172f74b865b821d9b2d2d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerData:
-    characterName: 
-    characterType: 0
-    prefab: {fileID: 0}
-    strength: 0
-    agility: 0
-    vitality: 0
-    intelligence: 0
-    speed: 0
-    attackSpeed: 0
-    stamina: 0
-    staminaCurrent: 0
-    staminaRecoveryRate: 0
-    mpRecoveryRate: 0
-    level: 0
-    currentExperience: 0
-    experienceToLevelUp: 0
-    maxHp: 0
-    currentHp: 0
-    maxMp: 0
-    currentMp: 0
-    physicalDefense: 0
-    magicDefense: 0
-    physicalDamage: 0
-    magicDamage: 0
-    criticalChance: 0
-    baseDamage: 0
-    skills: []
-    gold: 0
-  playerCombat: {fileID: 0}
-  staminaRecoveryRate: 0.1
-  playerAnimator: {fileID: 5264475562808799088}
-  cameraTransform: {fileID: 0}
-  CanMove: 0
-  isGrounded: 0
-  jumpHeight: 0.5
-  fallDamageThreshold: 10
-  fallDamageMultiplier: 5
-  isFreefall: 0
-  detectionRange: 2
-  climbRange: 1
-  isClimb: 0
-  CanClimb: 0
-  climbEndCheckOffset: 0.7
-  isGliding: 0
-  CanGliding: 0
-  glidableHeight: 5
-  dodgeDist: 3
-  dodgeDuration: 0.3
-  isDodging: 0
-  CanAttack: 0
-  CanUseSkill: 0
-  CanParry: 0
-  isAttack: 0
-  isUseSkill: 0
-  isParry: 0
-  CanSprint: 0
-  staminaUseAmount: 0.1
-  currentStamina: 0
-  isEnoughMana: 0
-  isRecovery: 0
-  CanWeaponSwitch: 0
-  RecoveryTime: 1
 --- !u!143 &1098804586676782611
 CharacterController:
   m_ObjectHideFlags: 0
@@ -9014,6 +8902,98 @@ CapsuleCollider:
   m_Height: 1.4
   m_Direction: 1
   m_Center: {x: 0, y: 0.7, z: 0}
+--- !u!114 &3749553289701753187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6123863050184164686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec4cfc05a2172f74b865b821d9b2d2d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerData:
+    characterName: 
+    characterType: 0
+    characterPrefab: {fileID: 0}
+    level: 0
+    currentExperience: 0
+    experienceToLevelUp: 0
+    strength: 0
+    agility: 0
+    vitality: 0
+    intelligence: 0
+    maxHp: 0
+    currentHp: 0
+    hpRecoveryRate: 0
+    maxMp: 0
+    currentMp: 0
+    mpRecoveryRate: 0
+    stamina: 0
+    staminaCurrent: 0
+    staminaRecoveryRate: 0
+    moveSpeed: 0
+    attackSpeed: 0
+    attackRange: 0
+    physicalDefense: 0
+    magicDefense: 0
+    physicalDamage: 0
+    magicDamage: 0
+    criticalChance: 0
+    criticalDamage: 0
+    dodgeChance: 0
+    hasShield: 0
+    blockChance: 0
+    physicalDamageReduction: 0
+    magicDamageReduction: 0
+    statModifier:
+      vitalityMultiplier: 10
+      mpMultiplier: 5
+      levelMpBonus: 10
+      strengthMultiplier: 1.5
+      agilityMultiplier: 0.01
+      physicalResistanceMultiplier: 1
+      magicResistanceMultiplier: 2
+      intelligenceMultiplier: 1.5
+    skills: []
+    gold: 0
+  playerCombat: {fileID: 0}
+  staminaRecoveryRate: 0.1
+  playerAnimator: {fileID: 5264475562808799088}
+  cameraTransform: {fileID: 0}
+  CanMove: 0
+  isGrounded: 0
+  jumpHeight: 0.5
+  fallDamageThreshold: 10
+  fallDamageMultiplier: 5
+  isFreefall: 0
+  detectionRange: 2
+  climbRange: 1
+  isClimb: 0
+  CanClimb: 0
+  climbEndCheckOffset: 0.7
+  isGliding: 0
+  CanGliding: 0
+  glidableHeight: 5
+  dodgeDist: 3
+  dodgeDuration: 0.3
+  isDodging: 0
+  CanAttack: 0
+  CanUseSkill: 0
+  CanParry: 0
+  isAttack: 0
+  isUseSkill: 0
+  isParry: 0
+  CanSprint: 0
+  staminaUseAmount: 0.1
+  currentStamina: 0
+  isEnoughMana: 0
+  isRecovery: 0
+  CanWeaponSwitch: 0
+  RecoveryTime: 1
+  uiCheck: 0
 --- !u!114 &1205624006367007641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10733,7 +10713,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: 
+  weaponId: Main_Quest003
   toolTag: 
 --- !u!1 &8807987840144512144
 GameObject:

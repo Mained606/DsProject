@@ -77,6 +77,7 @@ public class PlayerCombat : MonoBehaviour
     private void PerformComboAttack()
     {
         controller.isAttack = true;
+        controller.SetState(PlayerState.Attack);
         closestMonster = GetClosestMonster(attackPerceptionRange);
         if (closestMonster != null)
         {
@@ -107,9 +108,7 @@ public class PlayerCombat : MonoBehaviour
                 SkillManager.Instance.ActivateSkill("Fire");
                 if (!SkillManager.Instance.isActivating)
                 {
-                    controller.CanMove = false;
-                    controller.CanAttack = false;
-                    controller.CanUseSkill = false;
+                    controller.isUseSkill = true;
                 }
             }
             else
@@ -141,7 +140,6 @@ public class PlayerCombat : MonoBehaviour
 
             if(normalizedTime >= 0.95f)
             {
-                controller.CanMove = true;
                 controller.isAttack = false;
             }
         }
@@ -157,9 +155,7 @@ public class PlayerCombat : MonoBehaviour
 
             if (normalizedTime >= 0.95f)
             {
-                controller.CanMove = true;
-                controller.CanAttack = true;   // 막았던 평타 키 활성화
-                controller.CanUseSkill = true;
+                controller.isUseSkill = false;
             }
         }
     }
