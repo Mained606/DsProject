@@ -37,7 +37,9 @@ public class WeaponAttack : MonoBehaviour
                 {
                     monsterHP = monster.currentHp;
                     // monster.TakeDamage(swordDamage);
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monster, other.transform, true);
+                    // 2025-01-27 HYO ProcessAttack 로직 변경으로 매개변수 마지막에 물리 공격인지 마법 공격인지 확인 추가 true = 마법데미지, false = 물리데미지 ---------------------------
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monster, other.transform, true, false);
+                    // -----------------------------------------------------------------------------------------------------------------------------------------------------
                     Debug.Log($"Damaged: {monster.characterName}, monsterHP: {monsterHP}, monsterCurrentHP: {monster.currentHp}");
                 }
             }

@@ -5,6 +5,8 @@ using UnityEngine;
 public class InventoryManager : BaseManager<InventoryManager>
 {
     [SerializeField] private List<Item> inventory = new List<Item>();
+    [SerializeField] private QuickSlotsUI quickSlotsUI;
+
     public static IReadOnlyList<Item> InventoryList => Instance.inventory;
 
     [SerializeField] private int maxCapacity = 99;  // 인벤토리 가방 최대수용량
@@ -13,7 +15,6 @@ public class InventoryManager : BaseManager<InventoryManager>
 
     // sohyeon==================
     public int selectedItem;
-    
 
     //public void AddItem(string itemId, int quantity = 1)
     //{
@@ -29,6 +30,8 @@ public class InventoryManager : BaseManager<InventoryManager>
     //        Debug.LogWarning($"[InventoryManager] 아이템 ID '{itemId}'를 데이터베이스에서 찾을 수 없습니다.");
     //    }
     //}
+
+    public static QuickSlotsUI QuickSlotsUI => Instance.quickSlotsUI;
 
     public void AddItemLogic(Item addItem)
     {
@@ -61,6 +64,14 @@ public class InventoryManager : BaseManager<InventoryManager>
     public Item FindInventoryItem(string itemId)
     {
         return inventory.Find(i => i.id == itemId);
+    }
+    /// ///////////////////////////////////////////////
+    
+    
+    /// JWS  /////////////////////////////////////////
+    public bool HasItem(string itemId)
+    {
+        return inventory.Find(i => i.id == itemId) != null;
     }
     /// ///////////////////////////////////////////////
 

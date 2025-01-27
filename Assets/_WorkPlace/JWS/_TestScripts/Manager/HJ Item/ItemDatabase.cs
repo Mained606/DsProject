@@ -12,8 +12,6 @@ public class ItemList : ScriptableObject
 {
     public List<Item> itemList = new List<Item>();
 
-
-
     //아이템 초기화 함수
     public void InitializeItem(int index)
     {

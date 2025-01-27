@@ -21,7 +21,8 @@ public class BaseMonsterAI : MonoBehaviour
 
     [Header("서치 & 공격 세팅")]
     public float searchRange = 7f; // 플레이어 탐지 범위
-    public float attackRange = 1.5f; // 공격 범위
+
+    protected float attackRange; // 공격 범위
     protected float attackCooldown; // 공격 쿨타임
 
     [SerializeField] protected AIState currentState = AIState.Idle; // 현재 AI 상태
@@ -48,8 +49,9 @@ public class BaseMonsterAI : MonoBehaviour
         monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
         if (monsterData != null) monsterData.OnTakeDamage += HandleTakeDamage;
 
-        if (monsterData != null) movementSpeed = monsterData.speed;
+        if (monsterData != null) movementSpeed = monsterData.moveSpeed;
         if (monsterData != null) attackCooldown = monsterData.attackSpeed;
+        if (monsterData != null) attackRange = monsterData.attackRange;
         
         SetNewPatrolTarget(); // 새로운 패트롤 목표 설정
         SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
@@ -302,9 +304,9 @@ public class BaseMonsterAI : MonoBehaviour
     }
 
     
-    private void ExecuteAttack()
+    protected virtual void ExecuteAttack()
     {
-        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false);
+        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false, false);
     }
     
     protected void SetNewPatrolTarget()
