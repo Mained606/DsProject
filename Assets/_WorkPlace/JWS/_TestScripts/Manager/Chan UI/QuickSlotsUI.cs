@@ -1,9 +1,6 @@
-using System;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.Rendering.PostProcessing.SubpixelMorphologicalAntialiasing;
 
 public class QuickSlotsUI : MonoBehaviour
 {
@@ -132,5 +129,10 @@ public class QuickSlotsUI : MonoBehaviour
         {
             quickSlotTimer[index] = new BasicTimer(10f);
         }
+    }
+
+    public bool GetQuicSlot(int index)
+    {
+        return quickSlotItems[index] != null;
     }
 }
