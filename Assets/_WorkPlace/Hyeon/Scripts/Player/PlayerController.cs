@@ -172,8 +172,11 @@ public class PlayerController : MonoBehaviour
     {
         if(playerData != null)
         {
-            walkSpeed = playerData.speed;
-            sprintSpeed = playerData.speed * 2f;
+            // 2025-01-27 HYO 캐릭터 데이터 변수명 변경으로 speed -> moveSpeed로 수정 및 스탯 확인용 ToString 디버그 호출
+            walkSpeed = playerData.moveSpeed;
+            sprintSpeed = playerData.moveSpeed * 2f;
+            Debug.Log(playerData.ToStringForTMPro());
+            //-----------------------------------------------------------------
         }
     }
 
