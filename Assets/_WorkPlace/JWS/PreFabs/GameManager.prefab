@@ -94,7 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03b9f8597b717243a1d5f4208357cb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemList: {fileID: 11400000, guid: d35c1b77d43275845b0cc5ed52d3fb0c, type: 2}
+  itemList: {fileID: 11400000, guid: a6828d70005f0b64783d5a4bc0c5a5b1, type: 2}
   itemSpriteList: []
   dropItemPrefab: {fileID: 5829863160345447765, guid: 9f24f9f1556ad094489e3067284dc5e3, type: 3}
 --- !u!1 &668412533047110478
@@ -338,30 +338,46 @@ MonoBehaviour:
   playercharacterData:
     characterName: 
     characterType: 0
-    prefab: {fileID: 0}
+    characterPrefab: {fileID: 0}
+    level: 0
+    currentExperience: 0
+    experienceToLevelUp: 0
     strength: 0
     agility: 0
     vitality: 0
     intelligence: 0
-    speed: 0
-    attackSpeed: 0
+    maxHp: 0
+    currentHp: 0
+    hpRecoveryRate: 0
+    maxMp: 0
+    currentMp: 0
+    mpRecoveryRate: 0
     stamina: 0
     staminaCurrent: 0
     staminaRecoveryRate: 0
-    mpRecoveryRate: 0
-    level: 0
-    currentExperience: 0
-    experienceToLevelUp: 0
-    maxHp: 0
-    currentHp: 0
-    maxMp: 0
-    currentMp: 0
+    moveSpeed: 0
+    attackSpeed: 0
+    attackRange: 0
     physicalDefense: 0
     magicDefense: 0
     physicalDamage: 0
     magicDamage: 0
     criticalChance: 0
-    baseDamage: 0
+    criticalDamage: 0
+    dodgeChance: 0
+    hasShield: 0
+    blockChance: 0
+    physicalDamageReduction: 0
+    magicDamageReduction: 0
+    statModifier:
+      vitalityMultiplier: 10
+      mpMultiplier: 5
+      levelMpBonus: 10
+      strengthMultiplier: 1.5
+      agilityMultiplier: 0.01
+      physicalResistanceMultiplier: 1
+      magicResistanceMultiplier: 2
+      intelligenceMultiplier: 1.5
     skills: []
     gold: 0
   dragonData:
@@ -458,86 +474,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45cfabb38512a85428d90ce04b6e97a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  equippedWeapon:
-    id: 
-    name: 
-    description: 
-    type: 0
-    costValue: 0
-    quantity: 0
-    maxStack: 0
-    isDiscardable: 0
-    isStackable: 0
-    sprite: {fileID: 0}
-    dropChance: 0
-    effect:
-      effectType: 0
-      itemSize: 0
-      duration: 0
-      effectParticle: {fileID: 0}
-      isAlreadyInitialize: 0
-    isQuestItem: 0
-    itemStat:
-      Strength: 0
-      Dexterity: 0
-      Intelligence: 0
-      Vitality: 0
-      Luck: 0
-      MaxHealth: 0
-      MaxMana: 0
-      PhysicalAttack: 0
-      MagicAttack: 0
-      PhysicalDefense: 0
-      MagicDefense: 0
-      CriticalChance: 0
-      AttackSpeed: 0
-      Evasion: 0
-    grade: 0
-    equipmentSlot: 0
-    weaponType: 0
-    consumableType: 0
-    effectAmount: 0
-    questId: 
-  equippedAccessory:
-    id: 
-    name: 
-    description: 
-    type: 0
-    costValue: 0
-    quantity: 0
-    maxStack: 0
-    isDiscardable: 0
-    isStackable: 0
-    sprite: {fileID: 0}
-    dropChance: 0
-    effect:
-      effectType: 0
-      itemSize: 0
-      duration: 0
-      effectParticle: {fileID: 0}
-      isAlreadyInitialize: 0
-    isQuestItem: 0
-    itemStat:
-      Strength: 0
-      Dexterity: 0
-      Intelligence: 0
-      Vitality: 0
-      Luck: 0
-      MaxHealth: 0
-      MaxMana: 0
-      PhysicalAttack: 0
-      MagicAttack: 0
-      PhysicalDefense: 0
-      MagicDefense: 0
-      CriticalChance: 0
-      AttackSpeed: 0
-      Evasion: 0
-    grade: 0
-    equipmentSlot: 0
-    weaponType: 0
-    consumableType: 0
-    effectAmount: 0
-    questId: 
   effectParticleDuration: 2
   particlePositionOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &4242622423328597824

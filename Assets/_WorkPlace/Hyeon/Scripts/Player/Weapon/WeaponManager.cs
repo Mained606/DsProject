@@ -129,104 +129,102 @@
 //}
 
 
-using System.Collections.Generic;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// JWS 수정                                                                                                            ///  
+/// 2025.01.27 17:20 인벤토리에서 더블클릭으로 무기 장착 시스템 완성                                                    ///  
+/// 이후 클릭이 아닌 소켓을 이용할때도 그대로 이용만 하면 됨.                                                           ///
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    [SerializeField] private List<GameObject> weapons;
-    private GameObject currentWeaponOb;
-    private int currentWeaponIndex = -1;
-    private int prevWeapon = -1;
-
-    public string currentWeaponId;
-    [SerializeField] private ItemList weaponItemList;
-    private Item currentWeaponItem;
+    private Transform weaponObjectPosition;
+    private GameObject currentWeaponObject = null;
 
     private void Start()
     {
         InitializeWeapons();
-        if (weapons.Count > 0) EquipWeapon(0); // 기본 무기 장착
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.H)) SwitchToNextWeapon();
-        if (Input.GetKeyDown(KeyCode.G)) SwitchToPreviousWeapon();
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.F12))
         {
-            var itemsToAdd = new[] { "Weapon001", "Weapon002", "Main_Quest002", "Main_Quest003", "Main_Quest004" };
+            var itemsToAdd = new[] { "Item_basicwand", "Item_middlewand", "Item_woodwand", "Item_axe", "Item_sword1", "Item_sword2"};
             foreach (var item in itemsToAdd) ItemManager.Instance.AddItemLogic(item);
         }
     }
 
     private void InitializeWeapons()
     {
-        foreach (var weapon in weapons) weapon.SetActive(false);
-    }
-
-    public void EquipWeapon(int index)
-    {
-        if (index < 0 || index >= weapons.Count)
+        if (weaponObjectPosition != null)
         {
-            Debug.LogWarning("Invalid weapon index");
-            return;
-        }
-
-        currentWeaponIndex = index;
-        SwitchWeapon(currentWeaponIndex);
-    }
-
-    public void SwitchToNextWeapon()
-    {
-        if (!CanSwitchWeapon()) return;
-        EquipWeapon((currentWeaponIndex + 1) % weapons.Count);
-    }
-
-    public void SwitchToPreviousWeapon()
-    {
-        if (!CanSwitchWeapon()) return;
-        EquipWeapon((currentWeaponIndex - 1 + weapons.Count) % weapons.Count);
-    }
-
-    private bool CanSwitchWeapon()
-    {
-        return GameManager.playerTransform.GetComponent<PlayerController>().CanWeaponSwitch && weapons.Count > 0;
-    }
-
-    public void SwitchWeapon(int index = -1, bool hasWeapon = false)
-    {
-        currentWeaponOb = null;
-
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            GameObject gob = transform.GetChild(i).gameObject;
-            gob.SetActive(index == i);
-
-            if (gob.activeSelf)
+            foreach (Transform transOb in weaponObjectPosition)
             {
-                currentWeaponOb = gob;
-                prevWeapon = i;
-
-                var playerCombat = GameManager.playerTransform.GetComponent<PlayerCombat>();
-                playerCombat.weaponCollider = gob.GetComponent<Collider>();
-
-                if (currentWeaponItem != null)
+                string objectName = transOb.name;
+                if (System.Enum.TryParse(objectName, out WeaponObjectName weaponName))
                 {
-                    ItemEffectManager.Instance.UnequipmentEffect(currentWeaponItem);
-                    currentWeaponItem = null;
+                    int index = (int)weaponName;
+                    transOb.SetSiblingIndex(index);
+                    Debug.Log($"'{objectName}'은 WeaponObjectName의 인덱스 {index}입니다.");
                 }
-
-                currentWeaponId = gob.GetComponent<WeaponAttack>()?.weaponId ?? "";
-
-                if (InventoryManager.Instance.HasItem(currentWeaponId))
+                else
                 {
-                    currentWeaponItem = InventoryManager.InventoryList[InventoryManager.Instance.selectedItem];
-                    ItemEffectManager.Instance.ApplyItemEffect(currentWeaponItem);
+                    transOb.SetSiblingIndex(weaponObjectPosition.childCount - 1);
+                    Debug.LogWarning($"'{objectName}'은 WeaponObjectName에 존재하지 않으므로 마지막으로 이동합니다.");
                 }
+                transOb.gameObject.SetActive(false);
             }
         }
+    }
 
-        GameManager.playerTransform.GetComponent<PlayerCombat>().hasWeapon = currentWeaponOb != null;
+    public void EquipWeapon(Item weaponItem = null)
+    {
+        if (weaponItem != null && weaponItem.equipmentSlot != EquipmentSlot.손)
+            return;
+        if (weaponItem == null)
+        {
+            currentWeaponObject.SetActive(false);
+            currentWeaponObject = null;
+        }
+        else
+        {
+            if (System.Enum.TryParse(weaponItem.id, out WeaponName weaponName))
+            {
+                SwitchWeapon((int)weaponName);
+            }
+            GameManager.playerTransform.GetComponent<PlayerCombat>().hasWeapon = true;
+        }
+    }
+
+    public void SwitchWeapon(int index = -1)
+    {
+        currentWeaponObject = transform.GetChild(index).gameObject;
+        currentWeaponObject.SetActive(true);
+        var playerCombat = GameManager.playerTransform.GetComponent<PlayerCombat>();
+        playerCombat.weaponCollider = currentWeaponObject.GetComponent<Collider>();
+    }
+
+    private enum WeaponObjectName
+    {
+        Staff_Basic,
+        Staff_Medium,
+        Wand_Basic,
+        Simple_Axe_Variant,
+        Sword1_1_3,
+        MoonSword_6b
+    }
+
+    private enum WeaponName
+    {
+        Item_basicwand,
+        Item_middlewand,
+        Item_woodwand,
+        Item_axe,
+        Item_sword1,
+        Item_sword2
     }
 }
+
+
