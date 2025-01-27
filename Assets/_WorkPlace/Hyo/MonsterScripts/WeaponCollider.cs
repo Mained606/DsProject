@@ -28,6 +28,7 @@ public class WeaponCollider : MonoBehaviour
                 monsterData,
                 transform.parent,
                 false
+                , false
             );
             
             // 충돌 처리 후 플래그 해제 (필요에 따라 설정)

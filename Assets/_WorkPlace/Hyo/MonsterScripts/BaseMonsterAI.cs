@@ -304,9 +304,9 @@ public class BaseMonsterAI : MonoBehaviour
     }
 
     
-    private void ExecuteAttack()
+    protected virtual void ExecuteAttack()
     {
-        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false);
+        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false, false);
     }
     
     protected void SetNewPatrolTarget()
