@@ -321,22 +321,30 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         }
     }
 
-    // 아이템 장착 해제
+    // 아이템기준 슬롯에서 아이템 장착 해제
     public void UnequipmentEffect(Item item)
     {
-        if (InventoryManager.Instance.GetRemainingInventory() <= 0) return;
+        if (equippedItems[item.equipmentSlot] != null && equippedItems[item.equipmentSlot] == item)
+        {
+            UnequipmentEffect(item.equipmentSlot);
+        }
+        else
+        {
+            Debug.LogWarning($"{item.name}이 {item.equipmentSlot}에 장착되어 있지 않습니다.");
+        }
+    }
 
-        if (equippedItems[item.equipmentSlot] != null && equippedItems[item.equipmentSlot] == item) // ContainsKey 불필요
+    // 슬롯기준 슬롯에서 아이템 장착 해제
+    public void UnequipmentEffect(EquipmentSlot equipmentSlot)
+    {
+        Item item = GetEquippedItem(equipmentSlot);
+        if (item != null)
         {
             UpdatePlayerStats(item.itemStat, -1);
             equippedItems[item.equipmentSlot] = null;
             item.isEquired = false;
             if (item.equipmentSlot == EquipmentSlot.손) weaponManager.EquipWeapon(null);
             Debug.Log($"{item.name}을 {item.equipmentSlot}에서 해제");
-        }
-        else
-        {
-            Debug.LogWarning($"{item.name}이 {item.equipmentSlot}에 장착되어 있지 않습니다.");
         }
     }
 
