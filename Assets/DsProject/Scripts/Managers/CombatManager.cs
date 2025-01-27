@@ -64,14 +64,14 @@ public class CombatManager : BaseManager<CombatManager>
     private int CalculateDamage(CharacterData attacker, CharacterData defender)
     {
         // 공격자의 물리 공격력, 방어자의 물리 방어력 계산 로직
-        int damage = attacker.physicalDamage - defender.physicalDefense;
+        float damage = attacker.physicalDamage - defender.physicalDefense;
 
         // 크리티컬 여부 체크
         bool isCritical = Random.value < attacker.criticalChance;
         damage = attacker.CalculateDamage(isCritical);
         
         // 데미지는 최소 0 이상
-        return Mathf.Max(0, damage);
+        return (int)Mathf.Max(0, damage);
     }
 
     // 몬스터 사망 처리
