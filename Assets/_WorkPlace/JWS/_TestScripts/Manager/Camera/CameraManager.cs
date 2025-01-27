@@ -257,11 +257,6 @@ public class CameraManager : BaseManager<CameraManager>
         Instance.mainCamera.transform.rotation = target.rotation * Quaternion.Euler(pose.rotation);
     }
 
-    public void SetFollowOffset(Vector2 offset)
-    {
-        followOffset = offset;
-    }
-
     private void HandlePoseTransition()
     {
         if (target == null || targetPoses == null || targetPoses.Count == 0) return;

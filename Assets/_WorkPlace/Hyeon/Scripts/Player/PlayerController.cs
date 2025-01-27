@@ -741,7 +741,8 @@ public class PlayerController : MonoBehaviour
 
             CanWeaponSwitch = true;
 
-            weapon.SwitchWeapon(-1, true);
+            // weapon.SwitchWeapon(-1, true);
+            weapon.SwitchWeapon(-1);
 
             StartCoroutine(FinishingClimbing());
         }
@@ -752,7 +753,8 @@ public class PlayerController : MonoBehaviour
             Debug.Log("절벽타기 취소됨");
             CanWeaponSwitch = true;
 
-            weapon.SwitchWeapon(-1, true);
+            //weapon.SwitchWeapon(-1, true);
+            weapon.SwitchWeapon(-1);
         }
 
         // Anim
