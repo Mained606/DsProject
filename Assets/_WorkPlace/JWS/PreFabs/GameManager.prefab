@@ -585,6 +585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: []
+  quickSlotsUI: {fileID: 0}
   maxCapacity: 99
   selectedItem: 0
 --- !u!1 &8435481038192113703
@@ -706,8 +707,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72b4b53e65400884a9fab7a410442878, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraPoseSetting: {fileID: 11400000, guid: 4f6d4f589fbfdb548aa72a8aad564faf, type: 2}
   currentCameraType: 0
+  currentTransitionType: 0
   cameraPoses: []
+  cameraTransitionList: []
+  target: {fileID: 0}
+  targetPoses: []
+  poseTransitionSpeed: 2
   orbitTarget: {fileID: 0}
   orbitTargetOffset: {x: 0, y: 2.5, z: 0}
   orbitDistance: 8
@@ -792,6 +799,8 @@ MonoBehaviour:
   historyLog: {fileID: 0}
   historyWindow: {fileID: 0}
   InventorytooltipWindow: {fileID: 0}
+  characterStaus: {fileID: 0}
+  quickSlot: {fileID: 0}
   questListParent: {fileID: 0}
 --- !u!1 &9088007830065972167
 GameObject:

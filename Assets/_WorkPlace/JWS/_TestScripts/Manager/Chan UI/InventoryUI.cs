@@ -44,6 +44,7 @@ public class InventoryUI : MonoBehaviour
 
     private void Start()
     {
+
     }
 
     private void CategorizeItems()
@@ -134,6 +135,11 @@ public class InventoryUI : MonoBehaviour
         for (int i = 0; i < buttons.Length; i++)
         {
             int index = i;
+            if (index >= 0 && index < 7)
+            {
+                Animator buttonAnimator = buttons[index].animator;
+                buttonAnimator.SetTrigger("Idle");
+            }
             buttons[i].onClick.RemoveAllListeners();
             buttons[i].onClick.AddListener(() => OnButtonClick(index));
         }
@@ -153,7 +159,7 @@ public class InventoryUI : MonoBehaviour
         if (currentButtonIndex >= 0 && currentButtonIndex < 7)
         {
             Animator buttonAnimator = buttons[buttonIndex].animator;
-            buttonAnimator.SetTrigger("Hover");
+            buttonAnimator.SetTrigger("Selected");
         }
         UpdateUI();
     }

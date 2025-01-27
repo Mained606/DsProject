@@ -13,7 +13,8 @@ public class Quest
     public string questType;
     public string name;
     public string description;
-    public string npcid;
+    public string targetID;
+    public string questGiver;
     public int acceptCount;
     [Header("퀘스트 상태정보")]
     public bool isCompleted;

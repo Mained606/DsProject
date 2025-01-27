@@ -11,7 +11,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     [NonSerialized] public GameObject InventorytooltipWindow;
     [NonSerialized] public TextMeshProUGUI[] textPoint = new TextMeshProUGUI[3];
     [NonSerialized] public Image ItemImage;
-    [NonSerialized] public TextMeshProUGUI amountCount;
+    [NonSerialized] public TextMeshProUGUI[] amountCount;
     private int preAmountCount = 0;
 
     private string[] condition = { "Consumable001", "Consumable002" };
@@ -19,7 +19,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     private void Start()
     {
         InventorytooltipWindow.SetActive(false);
-        amountCount = transform.GetComponentInChildren<TextMeshProUGUI>();
+        amountCount = transform.GetComponentsInChildren<TextMeshProUGUI>();
         if (currentItem != null && currentItem.sprite != null)
         {
             this.transform.GetComponentsInChildren<Image>(true)[1].sprite = currentItem.sprite;
@@ -27,12 +27,12 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         if (currentItem.isStackable)
         {
             preAmountCount = currentItem.quantity;
-            amountCount.enabled = true;
-            amountCount.text = $"{currentItem.quantity}";
+            amountCount[0].enabled = true;
+            amountCount[0].text = $"{currentItem.quantity}";
         }
         else
         {
-            amountCount.enabled = false;
+            amountCount[0].enabled = false;
         }
     }
 
@@ -41,7 +41,19 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         if (preAmountCount !=0 && preAmountCount != currentItem.quantity)
         {
             preAmountCount = currentItem.quantity;
-            amountCount.text = $"{currentItem.quantity}";
+            amountCount[0].text = $"{currentItem.quantity}";
+        }
+
+        if ((currentItem.id == condition[0] && InventoryManager.QuickSlotsUI.GetQuicSlot(0)) || 
+            ( currentItem.id == condition[1] && InventoryManager.QuickSlotsUI.GetQuicSlot(1)))
+        {
+
+            amountCount[1].enabled = true;
+            amountCount[1].text = "S";
+        }
+        else
+        {
+            amountCount[1].enabled = false;
         }
     }
 

@@ -1,29 +1,36 @@
-using UnityEditor;
+using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using static System.TimeZoneInfo;
+using Unity.VisualScripting;
 
-public enum CameraType
-{
-    Orbit,
-    Follow
-}
 
-[System.Serializable]
-public class CameraPose
-{
-    public Vector3 position;
-    public Vector3 rotation;
 
-    public CameraPose(Vector3 position, Vector3 rotation)
-    {
-        this.position = position;
-        this.rotation = rotation;
-    }
-}
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+public delegate void TransitionEvent();
 
 public class CameraManager : BaseManager<CameraManager>
 {
+    public event TransitionEvent OnTransitionStart;
+    public event TransitionEvent OnTransitionComplete;
+
+    [SerializeField] private CameraPoseSetting cameraPoseSetting;
     [SerializeField] private CameraType currentCameraType;
+    [SerializeField] private CameraTransitionType currentTransitionType;
     [SerializeField] private CameraPose[] cameraPoses;
+    [SerializeField] private List<CameraPoseList> cameraTransitionList;
+    private CameraTransitionType preTransitionType;
+
+    [Header("목표에따른 카멜포즈 전환 설정")]
+    [SerializeField] public Transform target;
+    [SerializeField] public List<CameraPose> targetPoses;
+    [SerializeField] private float poseTransitionSpeed = 2f;
+    private int currentPoseIndex = 0;
+    private float transitionProgress = 0f;
+    private bool isTransitionActive = false;
 
     [Header("오비트 설정")]
     [SerializeField] private Transform orbitTarget;
@@ -49,6 +56,11 @@ public class CameraManager : BaseManager<CameraManager>
     {
         base.Awake();
         mainCamera = Camera.main;
+
+        cameraPoses = cameraPoseSetting.poseList.ToArray();
+        cameraTransitionList = cameraPoseSetting.poseTransitionList;
+        targetPoses = cameraTransitionList.Find(list => list.transitionType == currentTransitionType)?.poseList;
+        preTransitionType = currentTransitionType;
         InitCameraPoses();
         currentCameraType = CameraType.Orbit;
         mouseCursor = CursorLockMode.Locked;
@@ -58,6 +70,12 @@ public class CameraManager : BaseManager<CameraManager>
 
     private void Update()
     {
+        if (isTransitionActive)
+        {
+            HandlePoseTransition();
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.LeftAlt))
         {
             CursorLock();
@@ -67,8 +85,18 @@ public class CameraManager : BaseManager<CameraManager>
             CursorUnLock();
         }
 
+        if (Input.GetKeyUp(KeyCode.F9))
+        {
+            StartTransition(orbitTarget, CameraTransitionType.Normal);
+        }
+
         if (mouseCursorVisible) return;
 
+        if (preTransitionType != currentTransitionType)
+        {
+            preTransitionType = currentTransitionType;
+            targetPoses = cameraTransitionList.Find(list => list.transitionType == currentTransitionType)?.poseList;
+        }
         switch (currentCameraType)
         {
             case CameraType.Orbit:
@@ -77,44 +105,91 @@ public class CameraManager : BaseManager<CameraManager>
             case CameraType.Follow:
                 UpdateFollowCamera();
                 break;
+            case CameraType.UIview:
+                UpdateUIviewCamera();
+                break;
         }
     }
 
     private void InitCameraPoses()
     {
-        cameraPoses = new CameraPose[System.Enum.GetValues(typeof(CameraType)).Length];
+        if (cameraPoseSetting.poseTransitionList == null || cameraPoseSetting.poseTransitionList.Count == 0)
+        {
+            cameraPoseSetting.poseTransitionList = new List<CameraPoseList>();
 
-        //cameraPoses[(int)CameraType.Main] = new CameraPose(
-        //    new Vector3(0, 3, 0.6f),
-        //    Vector3.zero
-        //);
+            foreach (CameraTransitionType transitionType in System.Enum.GetValues(typeof(CameraTransitionType)))
+            {
+                cameraPoseSetting.poseTransitionList.Add(new CameraPoseList
+                {
+                    transitionType = transitionType,
+                    poseList = GetDefaultPosesForType(transitionType)
+                });
+            }
+        }
 
-        //cameraPoses[(int)CameraType.Character] = new CameraPose(
-        //    new Vector3(0, 4.5f, -8),
-        //    new Vector3(10, 0, 0)
-        //);
+        if (cameraPoseSetting.poseList == null || cameraPoseSetting.poseList.Count == 0)
+        {
+            cameraPoses = new CameraPose[System.Enum.GetValues(typeof(CameraType)).Length];
 
-        //cameraPoses[(int)CameraType.LookCharacter] = new CameraPose(
-        //    new Vector3(0, 2.1f, 4.2f),
-        //    new Vector3(10, 180, 0)
-        //);
+            //cameraPoses[(int)CameraType.Main] = new CameraPose(
+            //    new Vector3(0, 3, 0.6f),
+            //    Vector3.zero,
+            //    Vector3.zero
+            //);
 
-        cameraPoses[(int)CameraType.Follow] = new CameraPose(
-            new Vector3(0, 9, -10),
-            new Vector3(30, 0, 0)
-        );
+            //cameraPoses[(int)CameraType.LookAt] = new CameraPose(
+            //    new Vector3(0, 2.1f, 4.2f),
+            //    new Vector3(10, 180, 0),
+            //    3f
+            //);
 
-        //cameraPoses[(int)CameraType.TopDown] = new CameraPose(
-        //    new Vector3(0, 15, 0),
-        //    new Vector3(90, 0, 0)
-        //);
+            cameraPoses[(int)CameraType.UIview] = new CameraPose(
+                new Vector3(0, 2.1f, 4.2f),
+                new Vector3(10, 180, 0),
+                3f
+            );
+
+            cameraPoses[(int)CameraType.Follow] = new CameraPose(
+                new Vector3(0, 9, -10),
+                new Vector3(30, 0, 0),
+                3f
+            );
+
+            cameraPoseSetting.poseList = cameraPoses.ToList();
+        }
+    }
+
+    private List<CameraPose> GetDefaultPosesForType(CameraTransitionType type)
+    {
+        switch (type)
+        {
+            case CameraTransitionType.UiView:
+                return new List<CameraPose>
+                {
+                    new CameraPose(new Vector3(0, 2.1f, 4.2f), new Vector3(10, 180, 0), 3f )
+                };
+
+            case CameraTransitionType.Follow:
+                return new List<CameraPose>
+                {
+                    new CameraPose(new Vector3(0, 9, -10), new Vector3(30, 0, 0), 3f )
+                };
+
+            case CameraTransitionType.Orbit:
+                return new List<CameraPose>
+                {
+                    new CameraPose(new Vector3(0, 9, -10), new Vector3(30, 0, 0), 3f )
+                };
+
+            default:
+                return new List<CameraPose>();
+        }
     }
 
     private void UpdateOrbitCamera()
     {
         if (orbitTarget == null || mainCamera == null) return;
         Vector2 lookInput = InputManager.InputActions.actions["Look"].ReadValue<Vector2>();
-
 
         float mouseWheelInput = Input.GetAxis("Mouse ScrollWheel");
         if (mouseWheelInput != 0f)
@@ -140,7 +215,6 @@ public class CameraManager : BaseManager<CameraManager>
         mainCamera.transform.rotation = rotation;
     }
 
-
     private void UpdateFollowCamera()
     {
         if (followTarget == null || MainCamera == null) return;
@@ -151,25 +225,33 @@ public class CameraManager : BaseManager<CameraManager>
         MainCamera.transform.rotation = Quaternion.Euler(pose.rotation);
     }
 
-    public static void SetCameraActive(Transform target, CameraType type)
+    private void UpdateUIviewCamera(Transform gobTarget = null)
+    {
+        if (orbitTarget == null || MainCamera == null) return;
+        if (gobTarget == null) gobTarget = orbitTarget;
+        Vector3 targetPosition = gobTarget.position;
+        CameraPose pose = cameraPoses[(int)CameraType.UIview];
+        Vector3 offsetPosition = gobTarget.rotation * pose.position;
+
+        MainCamera.transform.position = targetPosition + offsetPosition;
+        MainCamera.transform.rotation = gobTarget.rotation * Quaternion.Euler(pose.rotation);
+    }
+ 
+    public static void SetCameraActive(Transform target, CameraType nexttype)
     {
         if (Instance == null || Instance.mainCamera == null) return;
-
-        int index = (int)type;
-        Instance.currentCameraType = type;
-
-        if (type == CameraType.Orbit)
+        int index = (int)nexttype;
+        Instance.currentCameraType = nexttype;
+        if (nexttype == CameraType.Orbit)
         {
             Instance.orbitTarget = target;
             return;
         }
-
-        if (type == CameraType.Follow)
+        if (nexttype == CameraType.Follow)
         {
             Instance.followTarget = target;
             return;
         }
-
         CameraPose pose = Instance.cameraPoses[index];
         Instance.mainCamera.transform.position = target.position + target.rotation * pose.position;
         Instance.mainCamera.transform.rotation = target.rotation * Quaternion.Euler(pose.rotation);
@@ -180,15 +262,61 @@ public class CameraManager : BaseManager<CameraManager>
         followOffset = offset;
     }
 
-    private void OnDrawGizmos()
+    private void HandlePoseTransition()
     {
-        if (currentCameraType == CameraType.Orbit && orbitTarget != null && mainCamera != null)
-        {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(orbitTarget.position, orbitDistance);
+        if (target == null || targetPoses == null || targetPoses.Count == 0) return;
 
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(orbitTarget.position, mainCamera.transform.position);
+        if (transitionProgress == 0f)
+            OnTransitionStart?.Invoke(); // 트랜지션 시작 이벤트
+
+        CameraPose currentPose = targetPoses[currentPoseIndex];
+        CameraPose nextPose = targetPoses[(currentPoseIndex + 1) % targetPoses.Count];
+        transitionProgress += (Time.deltaTime * poseTransitionSpeed) / currentPose.transitionTime;
+
+        Vector3 interpolatedPosition = Vector3.Lerp(
+            target.position + currentPose.position,
+            target.position + nextPose.position,
+            transitionProgress);
+
+        Quaternion interpolatedRotation = Quaternion.Lerp(
+            Quaternion.Euler(currentPose.rotation),
+            Quaternion.Euler(nextPose.rotation),
+            transitionProgress);
+
+        mainCamera.transform.position = interpolatedPosition;
+        mainCamera.transform.rotation = interpolatedRotation;
+
+        if (transitionProgress >= 1f)
+        {
+            transitionProgress = 0f;
+            currentPoseIndex++;
+            if (currentPoseIndex >= targetPoses.Count)
+            {
+                isTransitionActive = false;
+                OnTransitionComplete?.Invoke(); // 트랜지션 완료 이벤트
+                currentCameraType = CameraType.Orbit;
+            }
+        }
+    }
+
+    public void StartTransition(Transform newTarget, CameraTransitionType transitionType = CameraTransitionType.Normal)
+    {
+        if (isTransitionActive) return;
+
+        switch (transitionType)
+        {
+            case CameraTransitionType.Normal:
+                target = newTarget;
+                targetPoses = cameraTransitionList.Find(list => list.transitionType == transitionType)?.poseList;
+                currentPoseIndex = 0;
+                transitionProgress = 0f;
+                isTransitionActive = true;
+                break;
+
+            case CameraTransitionType.Active:
+                // 예제 라인
+                // 여기에 활성화 전환에 대한 별도 로직 추가
+                break;
         }
     }
 
@@ -206,6 +334,29 @@ public class CameraManager : BaseManager<CameraManager>
         Instance.mouseCursorVisible = false;
     }
 
+    public void SaveCurrentPose()
+    {
+        if (target == null)
+        {
+            Debug.LogWarning("목표가 없습니다.");
+            return;
+        }
+        var poseList = cameraPoseSetting.poseTransitionList.Find(list => list.transitionType == currentTransitionType);
+        if (poseList == null)
+        {
+            Debug.LogWarning($"{currentTransitionType}에 대한 poseList가 존재하지 않습니다.");
+            return;
+        }
+        CameraPose newPose = new CameraPose(
+            mainCamera.transform.position - target.position,
+            mainCamera.transform.rotation.eulerAngles,
+            3f
+        );
+        poseList.poseList.Add(newPose);
+        Debug.Log($"{currentTransitionType}의 카메라포즈 저장완료");
+    }
+
+
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
         // Default 상태를 제외한 모든 상태가 동일한 처리
@@ -217,12 +368,107 @@ public class CameraManager : BaseManager<CameraManager>
             newState == GameSystemState.QuestReview ||
             newState == GameSystemState.PetInteraction)
         {
+            currentCameraType = CameraType.UIview;
+            UpdateUIviewCamera();
             CursorLock();
         }
         else
         {
             CursorUnLock();
+            currentCameraType = CameraType.Orbit;
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        if (currentCameraType == CameraType.Orbit && orbitTarget != null && mainCamera != null)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(orbitTarget.position, orbitDistance);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(orbitTarget.position, mainCamera.transform.position);
+        }
+    }
+}
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(CameraManager))]
+public class CameraManagerEditor : Editor
+{
+    private int selectedPoseIndex = 0;
+
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        CameraManager cameraManager = (CameraManager)target;
+
+        GUILayout.Space(10);
+        GUILayout.Label("Camera Pose Preview", EditorStyles.boldLabel);
+
+        if (cameraManager.targetPoses != null && cameraManager.targetPoses.Count > 0)
+        {
+            selectedPoseIndex = EditorGUILayout.IntSlider("Pose Index", selectedPoseIndex, 0, cameraManager.targetPoses.Count - 1);
+
+            if (GUILayout.Button("Preview Pose"))
+            {
+                CameraPose selectedPose = cameraManager.targetPoses[selectedPoseIndex];
+                CameraManager.MainCamera.transform.SetPositionAndRotation(
+                    cameraManager.target.position + selectedPose.position,
+                    Quaternion.Euler(selectedPose.rotation)
+                );
+                Debug.Log($"Previewing pose {selectedPoseIndex}");
+            }
+        }
+
+        if (GUILayout.Button("Save Current Pose"))
+        {
+            cameraManager.SaveCurrentPose();
+        }
+    }
+}
+#endif
+
+
+public enum CameraType
+{
+    Orbit,
+    Follow,
+    UIview,
+    NpcInteract,
+    Sideways,
+}
+
+public enum CameraTransitionType
+{
+    Normal,
+    Active,
+    Orbit,
+    Follow,
+    UiView,
+    NpcInteract,
+    Sideways,
+}
+
+[System.Serializable]
+public class CameraPose
+{
+    public Vector3 position;
+    public Vector3 rotation;
+    public float transitionTime;
+
+    public CameraPose(Vector3 position, Vector3 rotation, float transitionTime)
+    {
+        this.position = position;
+        this.rotation = rotation;
+        this.transitionTime = transitionTime;
+    }
+}
+
+[System.Serializable]
+public class CameraPoseList
+{
+    public CameraTransitionType transitionType;
+    public List<CameraPose> poseList;
 }

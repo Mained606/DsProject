@@ -21,6 +21,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject historyWindow;
     [SerializeField] private GameObject InventorytooltipWindow;
     [SerializeField] private GameObject characterStaus;
+    [SerializeField] private GameObject quickSlot;
     [SerializeField] private Transform questListParent;
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -89,30 +90,35 @@ public class UIManager : BaseManager<UIManager>
     {
         dialogWindow.SetActive(!dialogWindow.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
     }
 
     public void ToggleHistorylog()
     {
         historyWindow.SetActive(!historyWindow.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
     }
 
     public void ToggleInventory()
     {
         inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(true);
     }
 
     public void ToggleQuestWindow()
     {
         questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
     }
     
     public void ToggleStatusWindow()
     {
         characterStaus.gameObject.SetActive(!characterStaus.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
     }
 
     public void InventoryUpdate()
@@ -317,6 +323,7 @@ public class UIManager : BaseManager<UIManager>
     {
         EventSystem.current.SetSelectedGameObject(null);
         mainCanvas.SetActive(true);
+        quickSlot.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         characterStaus.SetActive(false);
