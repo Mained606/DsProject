@@ -34,6 +34,7 @@ public class Item
     public ItemGrade grade;                // 아이템 등급
     public EquipmentSlot equipmentSlot;    // 장착 위치 (무기, 방어구 등)
     public WeaponType weaponType;          // 무기 타입
+    public bool isEquired;                 // 장착여부
 
     [Header("소모품 속성")]
     public ConsumableType consumableType;  // 소모품 타입
@@ -62,8 +63,15 @@ public class Item
             // 장착 아이템 초기화
             this.itemStat = new ItemStat(1, 1, 1, 1, 1); // 기본 스탯
             this.durability = new Durability(100);       // 기본 내구도
+            this.isEquired = false;
         }
-        else if (type == ItemType.소모품 && type == ItemType.제작재료)
+        else if (type == ItemType.장신구)
+        {
+            // 퀘스트 아이템 초기화
+            this.isDiscardable = false; // 퀘스트 아이템은 버릴 수 없음
+            this.isEquired = false;
+        }
+        else if (type == ItemType.소모품 || type == ItemType.제작재료)
         {
             // 소모품 초기화
             this.effectAmount = 0;
@@ -209,7 +217,7 @@ public enum ItemType
     소모품,       // Consumable
     퀘스트,       // QuestItem
     제작재료,     // Material
-    장신구        // Accessory
+    장신구,        // Accessory
 }
 
 public enum WeaponType

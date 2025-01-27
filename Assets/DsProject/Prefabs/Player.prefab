@@ -1193,7 +1193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: Weapon002
+  weaponId: 
   toolTag: 
 --- !u!1 &746167499823399861
 GameObject:
@@ -2690,7 +2690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: Weapon002
+  weaponId: 
   toolTag: 
 --- !u!1 &1319013561895098257
 GameObject:
@@ -5221,7 +5221,7 @@ GameObject:
   - component: {fileID: 338954232628491240}
   - component: {fileID: 5981647405961899676}
   m_Layer: 0
-  m_Name: Simple_Axe Variant
+  m_Name: Simple_Axe_Variant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6016,7 +6016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: Main_Quest004
+  weaponId: 
   toolTag: 
 --- !u!1 &3745260774677652512
 GameObject:
@@ -7200,7 +7200,7 @@ GameObject:
   - component: {fileID: 3459172584739558993}
   - component: {fileID: 6003607676492173130}
   m_Layer: 0
-  m_Name: MoonSword 6b
+  m_Name: MoonSword_6b
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7307,8 +7307,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: Weapon001
-  toolTag: 
+  weaponId: 
+  toolTag: Pickaxe
 --- !u!1 &4669055876699586869
 GameObject:
   m_ObjectHideFlags: 0
@@ -8241,15 +8241,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8169b469a56a00c4082414b11c346e54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapons:
-  - {fileID: 1223590886014512738}
-  - {fileID: 709067050839497266}
-  - {fileID: 8682709224346686013}
-  - {fileID: 3241956855375083509}
-  - {fileID: 3623884625626497165}
-  - {fileID: 4616255806888308693}
-  currentWeaponId: 
-  weaponItemList: {fileID: 0}
 --- !u!1 &5561973531846721551
 GameObject:
   m_ObjectHideFlags: 0
@@ -8827,9 +8818,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5890909718689673670}
+  - component: {fileID: 3749553289701753187}
   - component: {fileID: 1098804586676782611}
   - component: {fileID: 6211557189889423590}
-  - component: {fileID: 3749553289701753187}
   - component: {fileID: 1205624006367007641}
   m_Layer: 3
   m_Name: Player
@@ -8854,54 +8845,6 @@ Transform:
   - {fileID: 1923360659147011416}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!143 &1098804586676782611
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6123863050184164686}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 1.4
-  m_Radius: 0.15
-  m_SlopeLimit: 60
-  m_StepOffset: 0.7
-  m_SkinWidth: 0.001
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.7, z: 0}
---- !u!136 &6211557189889423590
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6123863050184164686}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.2
-  m_Height: 1.4
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.7, z: 0}
 --- !u!114 &3749553289701753187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8994,6 +8937,54 @@ MonoBehaviour:
   CanWeaponSwitch: 0
   RecoveryTime: 1
   uiCheck: 0
+--- !u!143 &1098804586676782611
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6123863050184164686}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 1.4
+  m_Radius: 0.15
+  m_SlopeLimit: 60
+  m_StepOffset: 0.7
+  m_SkinWidth: 0.001
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0.7, z: 0}
+--- !u!136 &6211557189889423590
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6123863050184164686}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.2
+  m_Height: 1.4
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.7, z: 0}
 --- !u!114 &1205624006367007641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10713,7 +10704,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 163424a7c47f4624fb3f8b0e46b0aa3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponId: Main_Quest003
+  weaponId: 
   toolTag: 
 --- !u!1 &8807987840144512144
 GameObject:
