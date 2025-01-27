@@ -149,6 +149,10 @@ public class WeaponManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.F11))
+        {
+            ItemEffectManager.Instance.UnequipmentEffect(EquipmentSlot.손);
+        }
         if (Input.GetKeyDown(KeyCode.F12))
         {
             var itemsToAdd = new[] { "Item_basicwand", "Item_middlewand", "Item_woodwand", "Item_axe", "Item_sword1", "Item_sword2"};
