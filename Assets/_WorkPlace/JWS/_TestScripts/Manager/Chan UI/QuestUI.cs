@@ -185,7 +185,7 @@ public class QuestUI : MonoBehaviour
         }
 
         commentText[4].text = quest.name;
-        string giver = quest.questType == "메인퀘스트" ? "메인퀘스트" : quest.npcid.ToString();
+        string giver = quest.questType == "메인퀘스트" ? "메인퀘스트" : quest.targetID.ToString();
         commentText[5].text = $"의뢰인 : {giver}";
         commentText[6].text = quest.description;
 

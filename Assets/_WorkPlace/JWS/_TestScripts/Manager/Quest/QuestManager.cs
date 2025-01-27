@@ -52,7 +52,7 @@ public class QuestManager : BaseManager<QuestManager>
         var npc = npcDatabase.Find(n => n.id == npcId.ToString());
         if (quest != null && npc != null)
         {
-            quest.npcid = npcId;
+            quest.targetID = npcId;
         }
     }
 
@@ -274,6 +274,7 @@ public class QuestManager : BaseManager<QuestManager>
     {
         if (index == 0 || (index > 0 && mainQuestDatabase[index-1].isCompleted))
         {
+            mainQuestDatabase[index].questGiver = "메인퀘스터";
             AddQuest(mainQuestDatabase[index]);
             currentMainQuestIndex = index;
         }
