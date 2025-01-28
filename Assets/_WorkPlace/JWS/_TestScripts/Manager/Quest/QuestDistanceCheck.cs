@@ -30,7 +30,6 @@ public class QuestDistanceCheck : MonoBehaviour
 
             if (questCondition.isCompleted)
             {
-                CompassIndicater.RemoveTarget(QuestManager.GetQuestConditionPoint(keyWord));
                 continue;
             }
 

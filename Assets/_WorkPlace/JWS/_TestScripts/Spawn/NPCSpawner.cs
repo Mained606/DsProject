@@ -122,11 +122,10 @@ public class NPCSpawner : MonoBehaviour
 
     private Vector3 CalculateSpawnPosition()
     {
-        const int maxAttempts = 10; // 최대 재시도 횟수
+        const int maxAttempts = 10;
         int attempts = 0;
         Vector3 spawnPosition;
-        LayerMask obstacleMask = LayerMask.GetMask("Ground", "Ds Player", "Default", "Enemy");
-
+        LayerMask obstacleMask = LayerMask.GetMask("Ground", "Obstacle", "Wall");
         do
         {
             attempts++;
@@ -155,21 +154,28 @@ public class NPCSpawner : MonoBehaviour
             {
                 float terrainHeight = Terrain.activeTerrain.SampleHeight(spawnPosition);
                 spawnPosition.y = terrainHeight;
+                if (!IsOnTerrain(spawnPosition)) continue;
             }
 
-            bool hasCollision = Physics.CheckSphere(spawnPosition, 1f, obstacleMask);
-            Debug.Log($"스폰 위치: {spawnPosition}, 충돌 여부: {hasCollision}");
+            Collider[] colliders = Physics.OverlapSphere(spawnPosition, 1f, obstacleMask);
+
+            bool hasCollision = false;
+            foreach (Collider collider in colliders)
+            {
+                if (collider.gameObject == Terrain.activeTerrain?.gameObject) continue;
+                hasCollision = true;
+                break;
+            }
 
             if (!hasCollision)
             {
-                // 충돌이 없으면 유효한 위치 반환
                 return spawnPosition;
             }
 
         } while (attempts < maxAttempts);
+
         return spawnData.spawnPosition;
     }
-
 
     private bool IsOnTerrain(Vector3 position)
     {
@@ -184,6 +190,7 @@ public class NPCSpawner : MonoBehaviour
                position.z >= terrainPosition.z &&
                position.z <= terrainPosition.z + terrainData.size.z;
     }
+
 
     private void DisableActiveMonsters()
     {
@@ -202,16 +209,6 @@ public class NPCSpawner : MonoBehaviour
         ActiveObjectCount = 0;
     }
 
-    //private void OnTransformChildrenChanged()
-    //{
-    //    if (!isInitialized) return;
-
-    //    ActiveObjectCount = GetActiveObjectCount();
-    //    if (ActiveObjectCount == 0)
-    //    {
-    //        TimerManager.Instance.StartTimer(spawnDelayTimer);
-    //    }
-    //}
     private void OnTransformChanged()
     {
         if (!isInitialized) return;
