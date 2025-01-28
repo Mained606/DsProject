@@ -13,11 +13,12 @@ public class BaseMonsterAI : MonoBehaviour
     public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Stun, Dead }
 
     [Header("움직임 세팅")]
-    public float patrolRange = 4f; // 패트롤 범위 (몬스터가 움직일 수 있는 반경)
+    public float patrolRange = 10f; // 패트롤 범위 (몬스터가 움직일 수 있는 반경)
     public float idleTime = 2f; // 대기 상태에서 머무는 시간
     protected float movementSpeed; // 이동 속도
     public float turnSpeed = 10f;
     public float maxPatrolDistance = 10f; // 스폰 위치에서 최대 이동 가능 거리
+    public float arrivedDistance = 1f; // 도착 판정 거리 
 
     [Header("서치 & 공격 세팅")]
     public float searchRange = 7f; // 플레이어 탐지 범위
@@ -39,26 +40,9 @@ public class BaseMonsterAI : MonoBehaviour
     [SerializeField] private bool respawn = false;
     protected bool isAttacking = false; // 공격 중인지 여부 플래그
 
-
-    protected virtual void Start()
-    {
-        spawnPosition = transform.position; // 스폰 위치 저장
-        animator = GetComponent<Animator>();
-        col = GetComponent<Collider>();
-        rb = GetComponent<Rigidbody>();
-        monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
-        if (monsterData != null) monsterData.OnTakeDamage += HandleTakeDamage;
-
-        if (monsterData != null) movementSpeed = monsterData.moveSpeed;
-        if (monsterData != null) attackCooldown = monsterData.attackSpeed;
-        if (monsterData != null) attackRange = monsterData.attackRange;
-        
-        SetNewPatrolTarget(); // 새로운 패트롤 목표 설정
-        SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
-    }
-
     protected virtual void OnEnable()
     {
+        // 풀링 적용 후 리스폰 상태일 때 초기화
         if (respawn)
         {
             col.isTrigger = false;
@@ -78,24 +62,30 @@ public class BaseMonsterAI : MonoBehaviour
         if (monsterData != null) monsterData.OnTakeDamage -= HandleTakeDamage;
     }
     
-    // private void OnCollisionEnter(Collision collision)
-    // {
-    //     // 두 오브젝트가 모두 "Monster" 태그를 가진 경우 충돌 무시
-    //     if (collision.gameObject.CompareTag("Monster") && gameObject.CompareTag("Monster"))
-    //     {
-    //         Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
-    //     }
-    // }
+    protected virtual void Start()
+    {
+        spawnPosition = transform.position; // 스폰 위치 저장
+        animator = GetComponent<Animator>();
+        col = GetComponent<Collider>();
+        rb = GetComponent<Rigidbody>();
+        monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
+        
+        if (monsterData != null)
+        {
+            monsterData.OnTakeDamage += HandleTakeDamage;
+            movementSpeed = monsterData.moveSpeed;
+            attackCooldown = monsterData.attackSpeed;
+            attackRange = monsterData.attackRange;
+        }
+        
+        SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
+    }
     
     protected virtual void HandleTakeDamage(Transform attacker)
     {
         playerTarget = attacker;
-        
         SetState(AIState.Chasing);
-        
-        // 피격 애니메이션 실행
-        animator.SetTrigger(Hit);
-        
+        animator.SetTrigger(Hit); // 피격 애니메이션 실행
     }
     
     // MonsterData를 반환하는 메서드 추가
@@ -103,7 +93,7 @@ public class BaseMonsterAI : MonoBehaviour
     {
         return monsterData;
     }
-
+    
     protected virtual void FixedUpdate()
     {
         if (currentState == AIState.Dead) return; // 사망 상태에서는 동작하지 않음
@@ -139,191 +129,7 @@ public class BaseMonsterAI : MonoBehaviour
                 break;
         }
     }
-
-    protected virtual void HandleStunState()
-    {
-        // 패링 당한 후 효과 적용
-    }
-
-    // 대기 상태 처리
-    protected virtual void HandleIdleState()
-    {
-        if (playerTarget != null)
-        {
-            SetState(AIState.Chasing); // 플레이어가 발견되면 추적 상태로 전환
-            return;
-        }
-
-        animator.SetBool(IsWalking, false); // 대기 상태에서 걷는 애니메이션 비활성화
-        StartCoroutine(SwitchStateAfterDelay(AIState.Patrolling, idleTime)); // 일정 시간 후 패트롤 상태로 전환
-    }
-
-    // 패트롤 상태 처리
-    protected virtual void HandlePatrollingState()
-    {
-        if (playerTarget != null)
-        {
-            SetState(AIState.Chasing); // 플레이어가 발견되면 추적 상태로 전환
-            return;
-        }
-
-        MoveTowards(targetPosition); // 목표 위치로 이동
-
-        if (Vector3.Distance(transform.position, targetPosition) <= 0.1f)
-        {
-            SetState(AIState.Idle); // 목표 지점 도착 시 대기 상태로 전환
-        }
-    }
-
-    // 추적 상태 처리
-    protected virtual void HandleChasingState()
-    {
-        if (playerTarget == null || Vector3.Distance(transform.position, spawnPosition) > maxPatrolDistance)
-        {
-            playerTarget = null; // 플레이어를 잃거나 최대 이동 범위를 벗어난 경우
-            SetState(AIState.Returning); // 복귀 상태로 전환
-            return;
-        }
-
-        if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
-        {
-            SetState(AIState.Attacking); // 공격 범위에 들어오면 공격 상태로 전환
-        }
-        else
-        {
-            MoveTowards(playerTarget.position); // 플레이어 쪽으로 이동
-        }
-    }
-
-    // 공격 상태 처리
-    protected virtual void HandleAttackingState()
-    {
-        if (CharacterManager.PlayerCharacterData.currentHp <= 0 || playerTarget == null || Vector3.Distance(transform.position, playerTarget.position) > searchRange)
-        {
-            playerTarget = null;
-            SetState(AIState.Patrolling); // 플레이어가 범위를 벗어나면 패트롤 상태로 전환
-            return;
-        }
-
-        if (Vector3.Distance(transform.position, playerTarget.position) > attackRange)
-        {
-            SetState(AIState.Chasing); // 공격 범위를 벗어나면 추적 상태로 전환
-            return;
-        }
-        
-        //
-        if (attackCooldownTimer <= 0f)
-        {
-            PerformAttack(); // 공격 실행
-            attackCooldownTimer = attackCooldown; // 쿨타임 리셋
-        }
-        else
-        {
-            // 공격 쿨타임 동안 공격 애니메이션 유지
-            animator.SetBool(IsWalking, false); // 이동 멈추기
-        }
-    }
-
-    // 복귀 상태 처리
-    protected virtual void HandleReturningState()
-    {
-        MoveTowards(spawnPosition); // 스폰 위치로 돌아감
-
-        if (Vector3.Distance(transform.position, spawnPosition) <= 0.1f)
-        {
-            SetState(AIState.Patrolling); // 스폰 위치에 도달하면 패트롤 상태로 전환
-        }
-    }
-
-    // 플레이어 탐색
-    protected virtual void SearchForPlayer()
-    {
-        if (playerTarget != null) return;
-
-        Collider[] hits = new Collider[20]; // 배열 크기 설정
-        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hits);
-
-        if (hitCount == hits.Length)
-        {
-            Debug.LogWarning("탐지 배열 크기가 부족할 수 있습니다. 크기를 늘려주세요.");
-        }
-
-        if (CharacterManager.PlayerCharacterData.currentHp <= 0)
-        {
-            playerTarget = null;
-            return;
-        }
-
-        for (int i = 0; i < hitCount; i++)
-        {
-            Collider hit = hits[i];
-            if (hit.CompareTag("Player"))
-            {
-                playerTarget = hit.transform; // 플레이어 발견 시 타겟 설정
-                return;
-            }
-        }
-    }
-
-    // 목표 지점으로 이동
-    protected virtual void MoveTowards(Vector3 destination)
-    {
-        Vector3 direction = (destination - transform.position).normalized;
-
-        // 이동 처리
-        transform.position += direction * (movementSpeed * Time.deltaTime);
-
-        // 스무스 회전 처리
-        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
-        animator.SetBool(IsWalking, true);
-    }
-
-    // 공격 실행
-    protected virtual void PerformAttack()
-    {
-        if (isAttacking) return; // 이미 공격 중이라면 중복 공격 방지
-        
-        StopAllActions();
-        animator.SetTrigger(Attack); // 공격 애니메이션 실행
-
-        // 애니메이션의 길이 가져오기
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        float animationLength = stateInfo.length;
     
-        // 70% 지점에 맞춰 메서드 호출
-        Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
-        
-        StartCoroutine(ResetAttackState(animationLength));
-    }
-    
-    protected virtual IEnumerator ResetAttackState(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        isAttacking = false;
-    }
-
-    
-    protected virtual void ExecuteAttack()
-    {
-        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false, false);
-    }
-    
-    protected void SetNewPatrolTarget()
-    {
-        // 패트롤을 위한 새로운 목표 위치 설정
-        targetPosition = spawnPosition + new Vector3(
-            Random.Range(-patrolRange, patrolRange),
-            0f,
-            Random.Range(-patrolRange, patrolRange)
-        );
-    }
-
-    public void ChangeState(AIState newState)
-    {
-        SetState(newState);
-    }
-
     // 상태 전환
     protected virtual void SetState(AIState newState)
     {
@@ -359,7 +165,249 @@ public class BaseMonsterAI : MonoBehaviour
                 break;
         }
     }
+    
+    // 외부 호출용 함수
+    public void ChangeState(AIState newState)
+    {
+        SetState(newState);
+    }
+    
+    protected virtual void SetNewPatrolTarget()
+    {
+        // 패트롤을 위한 새로운 목표 위치 설정
+        bool validPositionFound = false;
+        int maxAttempts = 10;
+        int attempts = 0;
 
+        while (!validPositionFound && attempts < maxAttempts)
+        {
+            Vector3 randomPosition = spawnPosition + new Vector3(
+                Random.Range(-patrolRange, patrolRange),
+                0f,
+                Random.Range(-patrolRange, patrolRange)
+            );
+
+            if (Terrain.activeTerrain != null)
+            {
+                float terrainHeight = Terrain.activeTerrain.SampleHeight(randomPosition);
+                randomPosition.y = terrainHeight; 
+
+                if (IsOnTerrain(randomPosition))
+                {
+                    targetPosition = randomPosition;
+                    validPositionFound = true;
+                }
+            }
+            attempts++;
+        }
+
+        if (!validPositionFound)
+        {
+            Debug.LogWarning("위치를 지정할수 없어 스폰위치로 지정");
+            targetPosition = spawnPosition;
+        }
+    }
+    
+    private bool IsOnTerrain(Vector3 position)
+    {
+        Terrain terrain = Terrain.activeTerrain;
+        if (terrain == null) return false;
+
+        Vector3 terrainPosition = terrain.transform.position;
+        TerrainData terrainData = terrain.terrainData;
+
+        return position.x >= terrainPosition.x &&
+               position.x <= terrainPosition.x + terrainData.size.x &&
+               position.z >= terrainPosition.z &&
+               position.z <= terrainPosition.z + terrainData.size.z;
+    }
+    
+    // 대기 상태 처리
+    protected virtual void HandleIdleState()
+    {
+        if (playerTarget)
+        {
+            SetState(AIState.Chasing); // 플레이어가 발견되면 추적 상태로 전환
+            return;
+        }
+
+        animator.SetBool(IsWalking, false); // 대기 상태에서 걷는 애니메이션 비활성화
+        StartCoroutine(SwitchStateAfterDelay(AIState.Patrolling, idleTime)); // 일정 시간 후 패트롤 상태로 전환
+    }
+
+    // 패트롤 상태 처리
+    protected virtual void HandlePatrollingState()
+    {
+        if (playerTarget)
+        {
+            SetState(AIState.Chasing); // 플레이어가 발견되면 추적 상태로 전환
+            return;
+        }
+
+        MoveTowards(targetPosition); // 목표 위치로 이동
+
+        if (Vector3.Distance(transform.position, targetPosition) <= arrivedDistance)
+        {
+            SetState(AIState.Idle); // 목표 지점 도착 시 대기 상태로 전환
+        }
+    }
+
+    // 추적 상태 처리
+    protected virtual void HandleChasingState()
+    {
+        if (!playerTarget || Vector3.Distance(transform.position, spawnPosition) > maxPatrolDistance)
+        {
+            playerTarget = null; // 플레이어를 잃거나 최대 이동 범위를 벗어난 경우
+            SetState(AIState.Returning); // 복귀 상태로 전환
+            return;
+        }
+
+        if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+        {
+            SetState(AIState.Attacking); // 공격 범위에 들어오면 공격 상태로 전환
+        }
+        else
+        {
+            MoveTowards(playerTarget.position); // 플레이어 쪽으로 이동
+        }
+    }
+
+    // 공격 상태 처리
+    protected virtual void HandleAttackingState()
+    {
+        if (!playerTarget || Vector3.Distance(transform.position, spawnPosition) > maxPatrolDistance)
+        {
+            playerTarget = null; // 플레이어를 잃거나 최대 이동 범위를 벗어난 경우
+            SetState(AIState.Returning); // 복귀 상태로 전환
+            return;
+        }
+        
+        if (CharacterManager.PlayerCharacterData.currentHp <= 0 || !playerTarget)
+        {
+            playerTarget = null;
+            SetState(AIState.Patrolling); // 플레이어가 범위를 벗어나면 패트롤 상태로 전환
+            return;
+        }
+
+        if (Vector3.Distance(transform.position, playerTarget.position) > attackRange && !isAttacking)
+        {
+            SetState(AIState.Chasing); // 공격 범위를 벗어나면 추적 상태로 전환
+            return;
+        }
+        
+        //
+        if (attackCooldownTimer <= 0f && !isAttacking)
+        {
+            PerformAttack(); // 공격 실행
+            attackCooldownTimer = attackCooldown; // 쿨타임 리셋
+        }
+    }
+
+    // 복귀 상태 처리
+    protected virtual void HandleReturningState()
+    {
+        isAttacking = false;
+        
+        SearchForPlayer();
+        
+        if (playerTarget)
+        {
+            SetState(AIState.Chasing); // 플레이어가 발견되면 추적 상태로 전환
+            return;
+        }
+        
+        MoveTowards(spawnPosition); // 스폰 위치로 돌아감
+
+        if (Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance)
+        {
+            SetState(AIState.Patrolling); // 스폰 위치에 도달하면 패트롤 상태로 전환
+        }
+    }
+    
+    protected virtual void HandleStunState()
+    {
+        // 패링 당한 후 효과 적용
+    }
+
+
+    // 플레이어 탐색
+    protected virtual void SearchForPlayer()
+    {
+        if (playerTarget) return;
+
+        Collider[] hits = new Collider[30]; // 배열 크기 설정
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hits);
+
+        if (hitCount == hits.Length)
+        {
+            Debug.LogWarning("탐지 배열 크기가 부족할 수 있습니다. 크기를 늘려주세요.");
+        }
+
+        if (CharacterManager.PlayerCharacterData.currentHp <= 0)
+        {
+            playerTarget = null;
+            return;
+        }
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider hit = hits[i];
+            if (hit.CompareTag("Player"))
+            {
+                playerTarget = hit.transform; // 플레이어 발견 시 타겟 설정
+                return;
+            }
+        }
+    }
+
+    // 목표 지점으로 이동
+    protected virtual void MoveTowards(Vector3 destination)
+    {
+        Vector3 direction = (destination - transform.position).normalized;
+
+        // 이동 처리
+        transform.position += direction * (movementSpeed * Time.deltaTime);
+
+        // 스무스 회전 처리
+        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        
+        // 애니메이션 처리
+        animator.SetBool(IsWalking, true);
+    }
+
+    // 공격 실행
+    protected virtual void PerformAttack()
+    {
+        if (isAttacking) return; // 이미 공격 중이라면 중복 공격 방지
+        
+        StopAllActions();
+        animator.SetTrigger(Attack); // 공격 애니메이션 실행
+
+        // 애니메이션의 길이 가져오기
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        float animationLength = stateInfo.length;
+    
+        // 70% 지점에 맞춰 메서드 호출
+        Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
+        
+        // 공격 후 이동을 방지하는 상태로 설정
+        isAttacking = true;
+        StartCoroutine(ResetAttackState(animationLength));
+    }
+    
+    protected virtual IEnumerator ResetAttackState(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isAttacking = false;
+    }
+
+    
+    protected virtual void ExecuteAttack()
+    {
+        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false, false);
+    }
+    
     protected void StopAllActions()
     {
         // 이동 및 애니메이션 동작 멈춤
@@ -418,5 +466,8 @@ public class BaseMonsterAI : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+        
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(targetPosition, arrivedDistance);
     }
 }

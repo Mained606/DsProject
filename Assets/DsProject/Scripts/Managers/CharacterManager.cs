@@ -293,9 +293,9 @@ public class CharacterManager : BaseManager<CharacterManager>
         // 경험치와 골드 보상 처리
         if (PlayerCharacterData != null)
         {
-            PlayerCharacterData.AddExperience(monster.ExperienceReward);
-            PlayerCharacterData.AddGold(monster.GoldReward);
-            UIManager.SystemGameMessage($"{monster.characterName} 처치! 경험치 +{monster.ExperienceReward}, 골드 +{monster.GoldReward}", MessageTag.아이템_획득);
+            PlayerCharacterData.AddExperience(monster.experienceReward);
+            PlayerCharacterData.AddGold(monster.goldReward);
+            UIManager.SystemGameMessage($"{monster.characterName} 처치! 경험치 +{monster.experienceReward}, 골드 +{monster.goldReward}", MessageTag.아이템_획득);
         }
         
         // 아이템 드롭
