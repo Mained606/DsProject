@@ -64,6 +64,7 @@ public class Item
             this.itemStat = new ItemStat(1, 1, 1, 1, 1); // 기본 스탯
             this.durability = new Durability(100);       // 기본 내구도
             this.isEquired = false;
+            this.itemStat.Initialize();
         }
         else if (type == ItemType.장신구)
         {
@@ -117,12 +118,48 @@ public class Item
     // UI에 표시할 아이템 정보 (TextMeshPro 전용)
     public string ToStringTMPro()
     {
+        // 등급에 따른 색상 가져오기
         string gradeColor = GetGradeColor(grade);
-        string itemName = $"<b>이름 : <color={gradeColor}>{name}</color></b>";
-        string itemType = $"종류 : <i><color=#87CEEB>{type}</color></i> 등급 : <i><color={gradeColor}>{grade}</color></i>";
-        string itemDescription = $"<color=#FFFFFF>{description}</color>";
-        string itemQuantity = $"수량: <color=#00FF00>{quantity}/{maxStack}</color>";
-        return $"{itemName}\n{itemType}\n{itemDescription}\n{itemQuantity}";
+
+        // 기본 정보
+        // string itemName = $"<b>이름: <color={gradeColor}>{name}</color></b>";
+        string itemType = $"종류: <i><color=#87CEEB>{type}</color></i>    등급: <i><color={gradeColor}>{grade}</color></i>\n";
+        string itemDescription = $"<color=#FFFFFF>{description}</color>\n";
+        string itemQuantity = isStackable
+            ? $"수량: <color=#00FF00>{quantity}/{maxStack}</color>"
+            : "수량: <color=#FF0000>중첩 불가</color>";
+
+        // 장착 위치 및 무기 타입
+        string equipmentInfo = type == ItemType.무기 || type == ItemType.방어구 || type == ItemType.장신구
+            ? $"\n장착 위치: <color=#FFD700>{equipmentSlot}</color>" +
+              (type == ItemType.무기 ? $"    무기 타입: <color=#FFD700>{weaponType}</color>" : "")
+            : "";
+
+        // 소모품 효과량
+        string consumableInfo = type == ItemType.소모품
+            ? $"효과: <color=#00FF00>{effectAmount}</color>" +
+              (consumableType != ConsumableType.없음 ? $"    소모품 타입: <color=#FFD700>{consumableType}</color>" : "")
+            : "";
+
+        // 스탯 정보
+        string statInfo = itemStat != null
+            ? $"\n<b><color=#FFD700>[스탯 정보]</color></b>\n" +
+              (itemStat.Strength > 0 ? $"힘 : {itemStat.Strength}    " : "") +
+              (itemStat.Dexterity > 0 ? $"민첩 : {itemStat.Dexterity}    " : "") +
+              (itemStat.Intelligence > 0 ? $"지능 : {itemStat.Intelligence}    " : "") +
+              (itemStat.Vitality > 0 ? $"활력 : {itemStat.Vitality}    " : "") +
+              (itemStat.Luck > 0 ? $"운 : {itemStat.Luck}    " : "") +
+              (itemStat.PhysicalAttack > 0 ? $"\n물리 공격력 : {itemStat.PhysicalAttack}    " : "") +
+              (itemStat.MagicAttack > 0 ? $"마법 공격력 : {itemStat.MagicAttack}    " : "") +
+              (itemStat.PhysicalDefense > 0 ? $"물리 방어력 : {itemStat.PhysicalDefense}    " : "") +
+              (itemStat.MagicDefense > 0 ? $"\n마법 방어력 : {itemStat.MagicDefense}    " : "") +
+              (itemStat.CriticalChance > 0 ? $"치명타 확률 : {itemStat.CriticalChance}%    " : "") +
+              (itemStat.AttackSpeed > 0 ? $"공격 속도 : {itemStat.AttackSpeed}    " : "") +
+              (itemStat.Evasion > 0 ? $"\n회피율 : {itemStat.Evasion}%    " : "")
+            : "";
+
+        // 전체 문자열 조합
+        return $"{itemType}\n{itemDescription}\n{itemQuantity}\n{equipmentInfo}\n{consumableInfo}{statInfo}".Trim();
     }
 
     // 등급에 따른 색상 반환 메서드

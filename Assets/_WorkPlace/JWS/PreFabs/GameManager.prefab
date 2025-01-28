@@ -48,8 +48,7 @@ MonoBehaviour:
   uiText: {fileID: 0}
   npcSpawnerList: []
   bossSpawnerList: []
-  monsterSpawnerList:
-  - {fileID: 0}
+  monsterSpawnerList: []
 --- !u!1 &665065587615173674
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,9 +730,11 @@ MonoBehaviour:
   dialogWindow: {fileID: 0}
   questWindow: {fileID: 0}
   inventoryUI: {fileID: 0}
+  shopUI: {fileID: 0}
   interactTextUI: {fileID: 0}
   historyLog: {fileID: 0}
   historyWindow: {fileID: 0}
+  infoMessageWindow: {fileID: 0}
   InventorytooltipWindow: {fileID: 0}
   characterStaus: {fileID: 0}
   quickSlot: {fileID: 0}
@@ -818,19 +819,19 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2237320382750824172}
+  - {fileID: 7724740018593977126}
   - {fileID: 6150670838661312333}
+  - {fileID: 8950915773018575576}
   - {fileID: 8590688364086715988}
   - {fileID: 506292599205915327}
-  - {fileID: 8626998685004848140}
-  - {fileID: 1382931464070893441}
-  - {fileID: 50298690355487450}
-  - {fileID: 8252969194192692553}
-  - {fileID: 9116469620903117424}
-  - {fileID: 5565525280491229948}
-  - {fileID: 8950915773018575576}
-  - {fileID: 7724740018593977126}
   - {fileID: 5068997019622416361}
+  - {fileID: 8626998685004848140}
+  - {fileID: 8252969194192692553}
+  - {fileID: 5565525280491229948}
+  - {fileID: 1382931464070893441}
+  - {fileID: 2237320382750824172}
+  - {fileID: 50298690355487450}
+  - {fileID: 9116469620903117424}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8830547049108172490
