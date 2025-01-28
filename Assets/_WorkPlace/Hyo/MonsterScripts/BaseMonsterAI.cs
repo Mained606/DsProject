@@ -215,14 +215,15 @@ public class BaseMonsterAI : MonoBehaviour
         {
             Vector3 randomPosition = spawnPosition + new Vector3(
                 Random.Range(-patrolRange, patrolRange),
-                0f,
+                0f,  // Y 값은 나중에 계산
                 Random.Range(-patrolRange, patrolRange)
             );
 
-            if (Terrain.activeTerrain)
+            // 레이캐스트를 사용하여 랜덤 위치의 실제 y 값 얻기
+            RaycastHit hit;
+            if (Physics.Raycast(randomPosition + Vector3.up * 100f, Vector3.down, out hit, Mathf.Infinity))
             {
-                float terrainHeight = Terrain.activeTerrain.SampleHeight(randomPosition);
-                randomPosition.y = terrainHeight; 
+                randomPosition.y = hit.point.y;
 
                 // Y값이 지나치게 높은 값이 되지 않도록 보정
                 if (randomPosition.y < spawnPosition.y + 1f) // 지면과 너무 멀리 떨어지지 않도록 제한
@@ -234,6 +235,7 @@ public class BaseMonsterAI : MonoBehaviour
                     }
                 }
             }
+
             attempts++;
         }
 
@@ -243,7 +245,7 @@ public class BaseMonsterAI : MonoBehaviour
             targetPosition = spawnPosition;
         }
     }
-    
+
     private bool IsOnTerrain(Vector3 position)
     {
         Terrain terrain = Terrain.activeTerrain;
