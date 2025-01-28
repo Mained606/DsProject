@@ -88,8 +88,6 @@ public class CharacterManager : BaseManager<CharacterManager>
             
             playercharacterData = PlayerCharacterData;
             dragonData = DragonData;
-            
-            Debug.Log(isInitialized);
         }
     }
 
