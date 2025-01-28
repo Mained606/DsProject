@@ -209,14 +209,14 @@ public class QuestUI : MonoBehaviour
                     conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 <color=green>{condition.Value.requiredQuantity}</color>개 모으기   ({quest.progress[keyWord]} / {condition.Value.requiredQuantity})";
                     break;
                 case QuestConditionType.Meet:
-                    distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord));
+                    distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord).position);
                     conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 찾아가기   {distance}";
                     break;
                 case QuestConditionType.Kill:
                     conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 <color=green>{condition.Value.requiredQuantity}</color> 마리 처치하세요   ({quest.progress[keyWord]} / {condition.Value.requiredQuantity})";
                     break;
                 case QuestConditionType.Explore:
-                    distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord));
+                    distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord).position);
                     string color = QuestManager.GetDistanceColor(distance);
                     string distanceColor = $" <color={color}>{distance:F1}m</color>";
                     conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 찾아가기     {distanceColor}";

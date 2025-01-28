@@ -205,6 +205,7 @@ GameObject:
   m_Component:
   - component: {fileID: 50298690355487450}
   - component: {fileID: 1772654862862468149}
+  - component: {fileID: 3339144876902757818}
   m_Layer: 0
   m_Name: TimerManager
   m_TagString: Untagged
@@ -239,6 +240,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1721ae53e23eb8438af98232682e05d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3339144876902757818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1630219964918139139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aab2eb3d85be4ef40a7b8d01f057f84f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  compassBar: {fileID: 0}
+  compassMarkers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  markerPrefab: {fileID: 3310894502929711846, guid: 4daac7d8ac07d2248b9756d68e1f5e4b, type: 3}
+  player: {fileID: 0}
+  targets: []
+  compassWidth: 1000
+  markerSpacing: 250
+  maxVisibleDistance: 200
+  minDistanceForScaling: 50
+  nearColor: {r: 0, g: 1, b: 0, a: 1}
+  farColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &2881707320073850653
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,6 +689,8 @@ MonoBehaviour:
   followOffset: {x: 0, y: 0}
   mouseCursor: 0
   mouseCursorVisible: 0
+  playerLayerName: Ds Player
+  dragonLayerName: Dragon
 --- !u!1 &8949811994207948533
 GameObject:
   m_ObjectHideFlags: 0
