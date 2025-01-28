@@ -33,28 +33,55 @@ public class BaseMonsterAI : MonoBehaviour
     protected float attackCooldownTimer = 0f; // 공격 쿨타임 타이머
 
     protected Animator animator; // 애니메이터 캐시
-    protected Collider col; // 몬스터의 충돌체 캐시
-    protected Rigidbody rb; // 몬스터의 물리 캐시
+   
     protected MonsterData monsterData; // 몬스터 데이터
     
     [SerializeField] private bool respawn = false;
     protected bool isAttacking = false; // 공격 중인지 여부 플래그
-
+    
+    protected CharacterController characterController;
+    private Vector3 velocity;
+    private float gravity = -9.81f;
+    
     protected virtual void OnEnable()
     {
         // 풀링 적용 후 리스폰 상태일 때 초기화
         if (respawn)
         {
-            col.isTrigger = false;
-            rb.isKinematic = false;
-
             // 상태 초기화
             animator.SetBool(IsWalking, false);
             animator.ResetTrigger(IsDead);
             animator.ResetTrigger(Attack);
             playerTarget = null;
             currentState = AIState.Idle;
+            CheckLandingAndSetPatrolTarget();
         }
+    }
+    
+    protected void CheckLandingAndSetPatrolTarget()
+    {
+        if (characterController.isGrounded)
+        {
+            SetNewPatrolTarget(); // 착지 후 타겟 설정
+            SetState(AIState.Patrolling);
+        }
+        else
+        {
+            StartCoroutine(CheckForLanding()); // 착지 여부를 주기적으로 체크
+        }
+    }
+    
+    // 착지 여부를 주기적으로 체크
+    protected IEnumerator CheckForLanding()
+    {
+        while (!characterController.isGrounded)
+        {
+            yield return null; // 바닥에 닿을 때까지 대기
+        }
+    
+        // 착지 후 타겟 설정
+        SetNewPatrolTarget();
+        SetState(AIState.Patrolling); // 착지 후 패트롤 상태로 전환
     }
 
     protected virtual void OnDestroy()
@@ -66,8 +93,7 @@ public class BaseMonsterAI : MonoBehaviour
     {
         spawnPosition = transform.position; // 스폰 위치 저장
         animator = GetComponent<Animator>();
-        col = GetComponent<Collider>();
-        rb = GetComponent<Rigidbody>();
+        characterController = GetComponent<CharacterController>();
         monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
         
         if (monsterData != null)
@@ -78,7 +104,8 @@ public class BaseMonsterAI : MonoBehaviour
             attackRange = monsterData.attackRange;
         }
         
-        SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
+        // 착지 여부를 체크하는 메서드 호출
+        CheckLandingAndSetPatrolTarget();
     }
     
     protected virtual void HandleTakeDamage(Transform attacker)
@@ -97,8 +124,13 @@ public class BaseMonsterAI : MonoBehaviour
     protected virtual void FixedUpdate()
     {
         if (currentState == AIState.Dead) return; // 사망 상태에서는 동작하지 않음
+        
+        // 상시 중력 적용
+        HandleGravity();
 
         attackCooldownTimer -= Time.deltaTime; // 공격 쿨타임 감소
+        
+        
         SearchForPlayer(); // 플레이어 탐색
         
         // 상태 처리
@@ -187,15 +219,19 @@ public class BaseMonsterAI : MonoBehaviour
                 Random.Range(-patrolRange, patrolRange)
             );
 
-            if (Terrain.activeTerrain != null)
+            if (Terrain.activeTerrain)
             {
                 float terrainHeight = Terrain.activeTerrain.SampleHeight(randomPosition);
                 randomPosition.y = terrainHeight; 
 
-                if (IsOnTerrain(randomPosition))
+                // Y값이 지나치게 높은 값이 되지 않도록 보정
+                if (randomPosition.y < spawnPosition.y + 1f) // 지면과 너무 멀리 떨어지지 않도록 제한
                 {
-                    targetPosition = randomPosition;
-                    validPositionFound = true;
+                    if (IsOnTerrain(randomPosition)) // 목표 위치가 터레인 위인지 확인
+                    {
+                        targetPosition = randomPosition;
+                        validPositionFound = true;
+                    }
                 }
             }
             attempts++;
@@ -211,7 +247,7 @@ public class BaseMonsterAI : MonoBehaviour
     private bool IsOnTerrain(Vector3 position)
     {
         Terrain terrain = Terrain.activeTerrain;
-        if (terrain == null) return false;
+        if (!terrain) return false;
 
         Vector3 terrainPosition = terrain.transform.position;
         TerrainData terrainData = terrain.terrainData;
@@ -366,12 +402,15 @@ public class BaseMonsterAI : MonoBehaviour
         Vector3 direction = (destination - transform.position).normalized;
 
         // 이동 처리
-        transform.position += direction * (movementSpeed * Time.deltaTime);
+        Vector3 movement = direction * (movementSpeed * Time.deltaTime);
+
+        // CharacterController의 Move 메서드를 사용
+        characterController.Move(movement);
 
         // 스무스 회전 처리
         Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
-        
+
         // 애니메이션 처리
         animator.SetBool(IsWalking, true);
     }
@@ -413,8 +452,7 @@ public class BaseMonsterAI : MonoBehaviour
         // 이동 및 애니메이션 동작 멈춤
         animator.SetBool(IsWalking, false);
         animator.ResetTrigger(nameof(Attack));
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
+        characterController.Move(Vector3.zero); // 이동 멈춤
     }
 
     protected virtual IEnumerator SwitchStateAfterDelay(AIState newState, float delay)
@@ -432,20 +470,14 @@ public class BaseMonsterAI : MonoBehaviour
     
     IEnumerator OnDeathAnimationEnd(bool pooling)
     {
-        // 물리 연산 멈춤
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        rb.isKinematic = true;
-        
-        // 충돌체를 비활성화하지 않고 상호작용을 방지
-        col.isTrigger = true;
-        
+        characterController.Move(Vector3.zero); // 이동 정지
+
         yield return new WaitForSeconds(1.5f);
         if (pooling)
         {
             respawn = true;
             gameObject.SetActive(false);
-            
+
             // 데이터 초기화 부분
             monsterData.ResetDataByLevel();
         }
@@ -454,6 +486,23 @@ public class BaseMonsterAI : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+    
+    // 상시 중력 적용
+    protected virtual void HandleGravity()
+    {
+        if (!characterController.isGrounded)
+        {
+            velocity.y += gravity * Time.deltaTime;
+        }
+        else
+        {
+            velocity.y = 0;
+        }
+
+        // 이동 처리에 velocity 값 전달
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
     
     private void OnDrawGizmosSelected()
     {
@@ -469,5 +518,16 @@ public class BaseMonsterAI : MonoBehaviour
         
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(targetPosition, arrivedDistance);
+        
+        // 착지 여부 시각화
+        if (characterController.isGrounded)
+        {
+            Gizmos.color = Color.green; // 착지 시 초록색
+        }
+        else
+        {
+            Gizmos.color = Color.red; // 공중에 있을 때 빨간색
+        }
+        Gizmos.DrawWireSphere(transform.position, 1f); // 착지 상태 표시
     }
 }

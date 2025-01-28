@@ -122,20 +122,67 @@ public class NPCSpawner : MonoBehaviour
 
     private Vector3 CalculateSpawnPosition()
     {
-        switch (spawnData.spawnStyle)
+        const int maxAttempts = 10; // 최대 재시도 횟수
+        int attempts = 0;
+        Vector3 spawnPosition;
+        LayerMask obstacleMask = LayerMask.GetMask("Ground", "Ds Player", "Default", "Enemy");
+
+        do
         {
-            case SpawnStyle.BoxArea:
-                return spawnData.spawnPosition + new Vector3(
-                    Random.Range(-spawnData.spaawnSize.x, spawnData.spaawnSize.x),
-                    0,
-                    Random.Range(-spawnData.spaawnSize.y, spawnData.spaawnSize.y)
-                );
-            case SpawnStyle.CircleArea:
-                Vector2 randomCircle = Random.insideUnitCircle * (spawnData.spaawnSize.x + spawnData.spaawnSize.y);
-                return spawnData.spawnPosition + new Vector3(randomCircle.x, 0, randomCircle.y);
-            default:
-                return spawnData.spawnPosition;
-        }
+            attempts++;
+
+            switch (spawnData.spawnStyle)
+            {
+                case SpawnStyle.BoxArea:
+                    spawnPosition = spawnData.spawnPosition + new Vector3(
+                        Random.Range(-spawnData.spaawnSize.x, spawnData.spaawnSize.x),
+                        0,
+                        Random.Range(-spawnData.spaawnSize.y, spawnData.spaawnSize.y)
+                    );
+                    break;
+
+                case SpawnStyle.CircleArea:
+                    Vector2 randomCircle = Random.insideUnitCircle * Mathf.Min(spawnData.spaawnSize.x, spawnData.spaawnSize.y);
+                    spawnPosition = spawnData.spawnPosition + new Vector3(randomCircle.x, 0, randomCircle.y);
+                    break;
+
+                default:
+                    spawnPosition = spawnData.spawnPosition;
+                    break;
+            }
+
+            if (Terrain.activeTerrain != null)
+            {
+                float terrainHeight = Terrain.activeTerrain.SampleHeight(spawnPosition);
+                spawnPosition.y = terrainHeight;
+            }
+
+            bool hasCollision = Physics.CheckSphere(spawnPosition, 1f, obstacleMask);
+            Debug.Log($"스폰 위치: {spawnPosition}, 충돌 여부: {hasCollision}");
+
+            if (!hasCollision)
+            {
+                // 충돌이 없으면 유효한 위치 반환
+                return spawnPosition;
+            }
+
+        } while (attempts < maxAttempts);
+        return spawnData.spawnPosition;
+    }
+
+
+    private bool IsOnTerrain(Vector3 position)
+    {
+        Terrain terrain = Terrain.activeTerrain;
+        if (terrain == null) return false;
+
+        Vector3 terrainPosition = terrain.transform.position;
+        TerrainData terrainData = terrain.terrainData;
+
+        return position.x >= terrainPosition.x &&
+               position.x <= terrainPosition.x + terrainData.size.x &&
+               position.z >= terrainPosition.z &&
+               position.z <= terrainPosition.z + terrainData.size.z;
     }
 
     private void DisableActiveMonsters()

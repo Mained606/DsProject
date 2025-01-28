@@ -20,17 +20,17 @@ public class SlimeRabbitAI : BaseMonsterAI
 
     private void SetCollisionAndPhysics(bool enablePhysics)
     {
-        // 물리 충돌 및 물리 설정 변경
-        if (col != null)
-        {
-            col.isTrigger = !enablePhysics; // 충돌 여부 설정
-        }
-
-        if (rb != null)
-        {
-            rb.isKinematic = !enablePhysics; // Kinematic 설정
-            rb.collisionDetectionMode = enablePhysics ? CollisionDetectionMode.ContinuousDynamic : CollisionDetectionMode.Discrete;
-        }
+        // // 물리 충돌 및 물리 설정 변경
+        // if (col)
+        // {
+        //     col.isTrigger = !enablePhysics; // 충돌 여부 설정
+        // }
+        //
+        // if (rb)
+        // {
+        //     rb.isKinematic = !enablePhysics; // Kinematic 설정
+        //     rb.collisionDetectionMode = enablePhysics ? CollisionDetectionMode.ContinuousDynamic : CollisionDetectionMode.Discrete;
+        // }
     }
 
     private IEnumerator ReEnablePhysics()
