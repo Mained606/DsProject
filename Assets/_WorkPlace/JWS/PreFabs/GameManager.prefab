@@ -253,20 +253,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   compassBar: {fileID: 0}
-  compassMarkers:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  markerPrefab: {fileID: 3310894502929711846, guid: 4daac7d8ac07d2248b9756d68e1f5e4b, type: 3}
-  player: {fileID: 0}
-  targets: []
-  compassWidth: 1000
-  markerSpacing: 250
-  maxVisibleDistance: 200
-  minDistanceForScaling: 50
-  nearColor: {r: 0, g: 1, b: 0, a: 1}
-  farColor: {r: 1, g: 0, b: 0, a: 1}
+  markerPrefab: {fileID: 8074778755176054646, guid: 4daac7d8ac07d2248b9756d68e1f5e4b, type: 3}
 --- !u!1 &2881707320073850653
 GameObject:
   m_ObjectHideFlags: 0

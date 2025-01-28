@@ -12,8 +12,7 @@ public class CompassIndicater : MonoBehaviour
     private List<Transform> targets;
 
     private List<RectTransform> activeMarkers = new List<RectTransform>();
-    private float compassWidth = 1000f;
-    //private float markerSpacing = 250f;
+    private float compassWidth = 2000f;
 
     private float maxVisibleDistance = 200f;
     private float minDistanceForScaling = 50f;
@@ -24,6 +23,7 @@ public class CompassIndicater : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(this.gameObject);
+        compassBar.transform.parent.gameObject.SetActive(true);
         compassMarkers = new RectTransform[compassBar.childCount];
         for (int i = 0; i < compassBar.childCount; i++)
         {
@@ -50,8 +50,8 @@ public class CompassIndicater : MonoBehaviour
     {
         for (int i = 0; i < compassMarkers.Length; i++)
         {
-            float positionX = (i - 2) * (compassWidth / 4);
-            compassMarkers[i].anchoredPosition = new Vector2(positionX, 0);
+            float positionX = (i - 6) * (compassWidth / 12);
+            compassMarkers[i].anchoredPosition = new Vector2(positionX, -3.73f);
         }
     }
 
@@ -72,14 +72,14 @@ public class CompassIndicater : MonoBehaviour
 
         for (int i = 0; i < compassMarkers.Length; i++)
         {
-            float angleOffset = (i * 90f) - playerRotationY;
+            float angleOffset = (i * (360f / compassMarkers.Length)) - playerRotationY;
             float normalizedOffset = angleOffset / 360f;
             float markerX = normalizedOffset * compassWidth;
-
             markerX = Mathf.Repeat(markerX + compassWidth / 2, compassWidth) - compassWidth / 2;
             compassMarkers[i].anchoredPosition = new Vector2(markerX, compassMarkers[i].anchoredPosition.y);
         }
     }
+
 
     void UpdateTargetMarkers()
     {
@@ -98,17 +98,20 @@ public class CompassIndicater : MonoBehaviour
             markerX = Mathf.Repeat(markerX + compassWidth / 2, compassWidth) - compassWidth / 2;
             marker.anchoredPosition = new Vector2(markerX, marker.anchoredPosition.y);
 
-            TextMeshProUGUI distanceText = marker.GetComponentInChildren<TextMeshProUGUI>();
-            if (distanceText != null)
-            {
-                distanceText.text = distance.ToString("N0") + "m";
-            }
+            TextMeshProUGUI[] distanceText = marker.GetComponentsInChildren<TextMeshProUGUI>();
 
             Color markerColor = Color.Lerp(nearColor, farColor, Mathf.Clamp01(distance / maxVisibleDistance));
-            marker.GetComponent<UnityEngine.UI.Image>().color = markerColor;
+            marker.GetChild(0).GetComponent<UnityEngine.UI.Image>().color = markerColor;
+            if (distanceText != null)
+            {
+                distanceText[1].color = markerColor;
+                distanceText[1].text = distance.ToString("N0") + "m";
+                distanceText[0].faceColor = markerColor;
+                distanceText[0].text = target.name;
+            }
 
             float scale = Mathf.Clamp(1f - (distance - minDistanceForScaling) / (maxVisibleDistance - minDistanceForScaling), 0.5f, 1f);
-            marker.localScale = Vector3.one * scale;
+            marker.GetChild(0).localScale = Vector3.one * scale;
 
             marker.gameObject.SetActive(distance <= maxVisibleDistance);
         }
@@ -131,5 +134,10 @@ public class CompassIndicater : MonoBehaviour
             Instance.activeMarkers.RemoveAt(index);
             Instance.targets.RemoveAt(index);
         }
+    }
+
+    private void OnDisable()
+    {
+        compassBar.transform.parent.gameObject.SetActive(false);
     }
 }
