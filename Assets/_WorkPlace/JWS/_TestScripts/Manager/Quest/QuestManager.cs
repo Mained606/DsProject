@@ -60,22 +60,21 @@ public class QuestManager : BaseManager<QuestManager>
     {
         if (questDatabase.Exists(q => q.questType == "메인퀘스트"))
         {
-            UIManager.Instance.TogglinfoMessageWindow($"이미 진행 중인 메인 퀘스트가 있습니다.");
+            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"이미 진행 중인 메인 퀘스트가 있습니다.");
             return;
         }
         if (questDatabase.Exists(q => q.id == quest.id))
         {
-            UIManager.Instance.TogglinfoMessageWindow($"퀘스트 '{quest.id}'는 이미 등록되어 있습니다.");
+            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"퀘스트 '{quest.id}'는 이미 등록되어 있습니다.");
             return;
         }
         if (completedQuests.Exists(q => q.id == quest.id) && quest.questType == "메인퀘스트")
         {
-            UIManager.Instance.TogglinfoMessageWindow($"완료된 메인 퀘스트 '{quest.id}'는 추가할 수 없습니다.");
+            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"완료된 메인 퀘스트 '{quest.id}'는 추가할 수 없습니다.");
             return;
         }
         questDatabase.Add(quest);
         UIManager.Instance.QuestUpdate();
-        UIManager.Instance.TogglinfoMessageWindow($"{quest.questType} {quest.name} 퀘스특 활성화 되었습니다. ");
     }
 
     public void RemoveQuest(string questId)
@@ -135,6 +134,7 @@ public class QuestManager : BaseManager<QuestManager>
                 quest.isCompleted = true;
                 UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
                 UIManager.Instance.QuestUpdate();
+                GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"퀘스트 '{quest.name}' 완료!");
             }
         }
     }
@@ -233,6 +233,7 @@ public class QuestManager : BaseManager<QuestManager>
             mainQuestDatabase[index].questGiver = "메인퀘스터";
             AddQuest(mainQuestDatabase[index]);
             currentMainQuestIndex = index;
+            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"{mainQuestDatabase[index].questType} {mainQuestDatabase[index].name} 퀘스트가 활성화 되었습니다. ");
         }
     }
 

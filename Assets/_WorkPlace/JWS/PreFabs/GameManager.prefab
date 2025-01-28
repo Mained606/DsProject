@@ -667,8 +667,8 @@ MonoBehaviour:
   poseTransitionSpeed: 2
   orbitTarget: {fileID: 0}
   orbitTargetOffset: {x: 0, y: 2.5, z: 0}
-  orbitDistance: 8
-  orbitSensitivity: {x: 10, y: 10}
+  orbitDistance: 12
+  orbitSensitivity: {x: 7, y: 7}
   orbitClamp: {x: 0.1, y: 89}
   orbitYaw: 0
   orbitPitch: 0

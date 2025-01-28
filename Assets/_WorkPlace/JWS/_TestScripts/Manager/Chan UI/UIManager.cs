@@ -80,7 +80,11 @@ public class UIManager : BaseManager<UIManager>
             InputManager.InputActions.actions["Interact"].Enable();
             InputManager.InputActions.actions["Move"].Enable();
         }
-        if (infoMessageWindow.activeSelf && Input.anyKey) TogglinfoMessageWindow("");
+        if (infoMessageWindow.activeSelf && Input.GetMouseButtonDown(1))
+        {
+            TogglinfoMessageWindow("");
+            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+        }
     }
 
     private bool IsPointerOverUI()

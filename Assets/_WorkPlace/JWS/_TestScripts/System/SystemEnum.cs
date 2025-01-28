@@ -1,82 +1,257 @@
-/*using System;
-using System.Collections.Generic;
-
-namespace JWS
+public enum RandomName
 {
-    public enum GameSystemState
-    {
-        None,
-
-        // 메뉴 관련 구성
-        MainMenu,
-        SubMenu,
-        Loading,
-
-        // 게임 진행 관련 구성
-        Exploration,
-        Combat,
-
-        // 게임 내 UI 관련 구성
-        Inventory,
-        GamePause,
-        GameOver,
-        EtcUIInteraction,
-
-        // 이벤트 혹은 컨텐츠 진행 관련 구성
-        Dialogue,
-        Cutscene,
-
-        // 아이템 관련 구성
-        ItemCollected,
-        ItemRemoved,
-        ItemUsed,
-        ItemEquipped,
-        ItemUnequipped,
-        ItemDropped,
-
-        // 퀘스트 관련 구성
-        QuestAccepted,
-        QuestUpdated,
-    }
-
-    public enum SystemType
-    {
-        None,
-        CharacterManager,
-        PlayerManager,
-        EnemyManager,
-        AIManager,
-        CombatManager,
-        ItemManager,
-        InventoryManager,
-        QuestManager,
-        UIManager,
-        DialogueManager
-    }
-
-    public enum ParameterType
-    {
-        None,             // 파라미터 없음
-        SerializedData,   // JSON 데이터
-        DirectReference   // Unity 오브젝트 참조
-    }
-
-    [Serializable]
-    public class SystemLogic
-    {
-        public SystemType SystemName;        // 필수: 로직이 속한 시스템 이름
-        public string Logic;                // 필수: 실행할 함수 이름
-        public string ParameterType; // 선택: 함수에 전달할 매개변수의 타입 (None, SerializedData, DirectReference)
-        public string Parameters;           // 선택: JSON 데이터 (ParameterType이 SerializedData일 때 사용)
-        public string LogicDescription;     // 선택: 로직 설명
-    }
-
-    [Serializable]
-    public class StateData
-    {
-        public GameSystemState StateName;          // 상태 이름
-        public string TransitionCondition;         // 상태 전환 조건 (문자열 기반 커스텀 로직 가능)
-        public List<SystemLogic> SystemLogics;     // 상태와 연결된 시스템 로직 목록
-    }
-
-}*/
+    Alex,
+    Max,
+    Finn,
+    Jack,
+    Ryan,
+    Luke,
+    Noah,
+    Liam,
+    Cole,
+    Jace,
+    Levi,
+    Owen,
+    Theo,
+    Nate,
+    Milo,
+    Zane,
+    Eli,
+    Ezra,
+    Caleb,
+    Troy,
+    Jude,
+    Reid,
+    Beau,
+    Dean,
+    Kyle,
+    Mark,
+    Glen,
+    Sean,
+    Seth,
+    Drew,
+    Cody,
+    Clay,
+    Wade,
+    Neil,
+    Ross,
+    Paul,
+    Joel,
+    Erik,
+    Jake,
+    Todd,
+    Blake,
+    Chase,
+    Bryce,
+    Grant,
+    Logan,
+    Felix,
+    Jasper,
+    Simon,
+    Oscar,
+    Hugo,
+    Daryl,
+    Travis,
+    Xavier,
+    Cedric,
+    Silas,
+    Elias,
+    Micah,
+    Jonas,
+    Victor,
+    Adrian,
+    Marcus,
+    Jason,
+    Damien,
+    Elliot,
+    Conrad,
+    Curtis,
+    Roland,
+    Arthur,
+    Warren,
+    Lionel,
+    Cedrick,
+    Everett,
+    Dexter,
+    Malcom,
+    Myles,
+    Weston,
+    Ethan,
+    Benjamin,
+    Gabriel,
+    Samuel,
+    Aiden,
+    Isaiah,
+    Nathaniel,
+    Joshua,
+    Anthony,
+    Elijah,
+    Jonathan,
+    Matthew,
+    William,
+    Zachary,
+    Nicholas,
+    Christopher,
+    Alexander,
+    Andrew,
+    Henry,
+    Charlie,
+    Sebastian,
+    Dominic,
+    Theodore,
+    Christian,
+    Vincent,
+    Jeremiah,
+    Harrison,
+    Spencer,
+    Cameron,
+    Roman,
+    Mason,
+    Brandon,
+    Tyler,
+    Jordan,
+    Hudson,
+    Parker,
+    Graham,
+    Cooper,
+    Sawyer,
+    Carter,
+    Bennett,
+    Grayson,
+    Hunter,
+    Brooks,
+    Landon,
+    Ryder,
+    Emmett,
+    Barrett,
+    Anderson,
+    Frederick,
+    Maximilian,
+    Leonardo,
+    Alistair,
+    Hamilton,
+    Jefferson,
+    Kensington,
+    Remington,
+    Livingston,
+    Montgomery,
+    Franklin,
+    Kingsley,
+    Preston,
+    Sullivan,
+    Ellington,
+    Brighton,
+    Emerson,
+    Whitaker,
+    Langston,
+    Fletcher,
+    Sterling,
+    Thornton,
+    Warrington,
+    Beckett,
+    Calloway,
+    Somerset,
+    Fitzpatrick,
+    Rockwell,
+    Bannister,
+    Winchester,
+    Arlington,
+    Carrington,
+    Stafford,
+    Willoughby,
+    Lexington,
+    Ashworth,
+    Worthington,
+    Huntington,
+    Minjae,    // Minjae
+    Seojun,    // Seojun
+    Dohyeon,   // Dohyeon
+    Jihoo,     // Jihoo
+    Yejun,     // Yejun
+    Hajun,     // Hajun
+    Junwoo,    // Junwoo
+    Siwoo,     // Siwoo
+    Minseong,  // Minseong
+    Seunghyun, // Seunghyun
+    Yujun,     // Yujun
+    Taeyoon,   // Taeyoon
+    Jihoon,    // Jihoon
+    Seojin,    // Seojin
+    Hyeonu,    // Hyeonu
+    Jihan,     // Jihan
+    Doyoon,    // Doyoon
+    Junseo,    // Junseo
+    Suhyeon,   // Suhyeon
+    Jaeyoon,   // Jaeyoon
+    Mingyu,    // Mingyu
+    Seongmin,  // Seongmin
+    Taemin,    // Taemin
+    Woojin,    // Woojin
+    Minho,     // Minho
+    Donghyun,  // Donghyun
+    Hangyeol,  // Hangyeol
+    Jimin,     // Jimin
+    Kyungmin,  // Kyungmin
+    Jungmin,   // Jungmin
+    Wonjun,    // Wonjun
+    Taehyun,   // Taehyun
+    Yoonho,    // Yoonho
+    Jaemin,    // Jaemin
+    Seonghun,  // Seonghun
+    Seoyul,    // Seoyul
+    Seungho,   // Seungho
+    Hyeonjun,  // Hyeonjun
+    Dokyung,   // Dokyung
+    Junghoon,  // Junghoon
+    Kyumin,    // Kyumin
+    Jihwan,    // Jihwan
+    Yoonjae,   // Yoonjae
+    Taekyung,  // Taekyung
+    Junhyuk,   // Junhyuk
+    Youngmin,  // Youngmin
+    Sihyun,    // Sihyun
+    Minwook,   // Minwook
+    Wooseok,   // Wooseok
+    Hyeonseong, // Hyeonseong
+    Taewoo,    // Taewoo
+    Jiwan,     // Jiwan
+    Seongjun,  // Seongjun
+    Junho,     // Junho
+    Minchan,   // Minchan
+    Seokhyun,  // Seokhyun
+    Jaeha,     // Jaeha
+    Dongwoo,   // Dongwoo
+    Seongwoo,  // Seongwoo
+    Hanseo,    // Hanseo
+    Taewoong,  // Taewoong
+    Jiho,      // Jiho
+    Harin,     // Harin
+    Jaehyun,   // Jaehyun
+    Inho,      // Inho
+    Sihu,      // Sihu
+    Gunwoo,    // Gunwoo
+    Yuchan,    // Yuchan
+    Seungwoo,  // Seungwoo
+    Minhyeok,  // Minhyeok
+    Kyuhyun,   // Kyuhyun
+    Jaewoo,    // Jaewoo
+    Hyunseo,   // Hyunseo
+    Seonwoo,   // Seonwoo
+    Kyungjun,  // Kyungjun
+    Junyoung,  // Junyoung
+    Wonhyeok,  // Wonhyeok
+    Taewon,    // Taewon
+    Minjaehoon,// Minjaehoon
+    Dokyungsu, // Dokyungsu
+    Jungseungmin, // Jungseungmin
+    Parkseongjun, // Parkseongjun
+    Kimtaeyoon, // Kimtaeyoon
+    Leejunhyuk, // Leejunhyuk
+    Choijihwan, // Choijihwan
+    Handonghyun, // Handonghyun
+    Ohseungho,  // Ohseungho
+    Jangminhyuk, // Jangminhyuk
+    Yoonhyunwoo, // Yoonhyunwoo
+    Haminseok, // Haminseok
+    Sindoyoon // Sindoyoon
+}
