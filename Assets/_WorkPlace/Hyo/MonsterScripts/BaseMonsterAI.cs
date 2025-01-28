@@ -13,11 +13,12 @@ public class BaseMonsterAI : MonoBehaviour
     public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Stun, Dead }
 
     [Header("움직임 세팅")]
-    public float patrolRange = 4f; // 패트롤 범위 (몬스터가 움직일 수 있는 반경)
+    public float patrolRange = 10f; // 패트롤 범위 (몬스터가 움직일 수 있는 반경)
     public float idleTime = 2f; // 대기 상태에서 머무는 시간
     protected float movementSpeed; // 이동 속도
     public float turnSpeed = 10f;
     public float maxPatrolDistance = 10f; // 스폰 위치에서 최대 이동 가능 거리
+    public float arrivedDistance = 1f; // 도착 판정 거리 
 
     [Header("서치 & 공격 세팅")]
     public float searchRange = 7f; // 플레이어 탐지 범위
@@ -39,28 +40,9 @@ public class BaseMonsterAI : MonoBehaviour
     [SerializeField] private bool respawn = false;
     protected bool isAttacking = false; // 공격 중인지 여부 플래그
 
-
-    protected virtual void Start()
-    {
-        spawnPosition = transform.position; // 스폰 위치 저장
-        animator = GetComponent<Animator>();
-        col = GetComponent<Collider>();
-        rb = GetComponent<Rigidbody>();
-        monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
-        if (monsterData != null)
-        {
-            monsterData.OnTakeDamage += HandleTakeDamage;
-            movementSpeed = monsterData.moveSpeed;
-            attackCooldown = monsterData.attackSpeed;
-            attackRange = monsterData.attackRange;
-        }
-        
-        // SetNewPatrolTarget(); // 새로운 패트롤 목표 설정
-        SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
-    }
-
     protected virtual void OnEnable()
     {
+        // 풀링 적용 후 리스폰 상태일 때 초기화
         if (respawn)
         {
             col.isTrigger = false;
@@ -80,15 +62,30 @@ public class BaseMonsterAI : MonoBehaviour
         if (monsterData != null) monsterData.OnTakeDamage -= HandleTakeDamage;
     }
     
+    protected virtual void Start()
+    {
+        spawnPosition = transform.position; // 스폰 위치 저장
+        animator = GetComponent<Animator>();
+        col = GetComponent<Collider>();
+        rb = GetComponent<Rigidbody>();
+        monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
+        
+        if (monsterData != null)
+        {
+            monsterData.OnTakeDamage += HandleTakeDamage;
+            movementSpeed = monsterData.moveSpeed;
+            attackCooldown = monsterData.attackSpeed;
+            attackRange = monsterData.attackRange;
+        }
+        
+        SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
+    }
+    
     protected virtual void HandleTakeDamage(Transform attacker)
     {
         playerTarget = attacker;
-        
         SetState(AIState.Chasing);
-        
-        // 피격 애니메이션 실행
-        animator.SetTrigger(Hit);
-        
+        animator.SetTrigger(Hit); // 피격 애니메이션 실행
     }
     
     // MonsterData를 반환하는 메서드 추가
@@ -96,7 +93,7 @@ public class BaseMonsterAI : MonoBehaviour
     {
         return monsterData;
     }
-
+    
     protected virtual void FixedUpdate()
     {
         if (currentState == AIState.Dead) return; // 사망 상태에서는 동작하지 않음
@@ -132,12 +129,99 @@ public class BaseMonsterAI : MonoBehaviour
                 break;
         }
     }
-
-    protected virtual void HandleStunState()
+    
+    // 상태 전환
+    protected virtual void SetState(AIState newState)
     {
-        // 패링 당한 후 효과 적용
-    }
+        if (isAttacking && currentState == AIState.Attacking) return;
+        
+        // 죽음 상태면 상태전환 막기
+        if (currentState == AIState.Dead) return;
+        
+        // 상태가 이미 동일하면 변경하지 않음
+        if (currentState == newState) return;
 
+        currentState = newState;
+
+        // 상태별 초기화
+        switch (currentState)
+        {
+            case AIState.Patrolling:
+                SetNewPatrolTarget();
+                break;
+            case AIState.Idle:
+                break;
+            case AIState.Returning:
+                GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
+                break;
+            case AIState.Chasing:
+                GameStateMachine.Instance.ChangeState(GameSystemState.Combat);
+                break;
+            case AIState.Attacking:
+                break;
+            case AIState.Dead:
+                StopAllActions();
+                animator.SetTrigger(IsDead);
+                break;
+        }
+    }
+    
+    // 외부 호출용 함수
+    public void ChangeState(AIState newState)
+    {
+        SetState(newState);
+    }
+    
+    protected virtual void SetNewPatrolTarget()
+    {
+        // 패트롤을 위한 새로운 목표 위치 설정
+        bool validPositionFound = false;
+        int maxAttempts = 10;
+        int attempts = 0;
+
+        while (!validPositionFound && attempts < maxAttempts)
+        {
+            Vector3 randomPosition = spawnPosition + new Vector3(
+                Random.Range(-patrolRange, patrolRange),
+                0f,
+                Random.Range(-patrolRange, patrolRange)
+            );
+
+            if (Terrain.activeTerrain != null)
+            {
+                float terrainHeight = Terrain.activeTerrain.SampleHeight(randomPosition);
+                randomPosition.y = terrainHeight; 
+
+                if (IsOnTerrain(randomPosition))
+                {
+                    targetPosition = randomPosition;
+                    validPositionFound = true;
+                }
+            }
+            attempts++;
+        }
+
+        if (!validPositionFound)
+        {
+            Debug.LogWarning("위치를 지정할수 없어 스폰위치로 지정");
+            targetPosition = spawnPosition;
+        }
+    }
+    
+    private bool IsOnTerrain(Vector3 position)
+    {
+        Terrain terrain = Terrain.activeTerrain;
+        if (terrain == null) return false;
+
+        Vector3 terrainPosition = terrain.transform.position;
+        TerrainData terrainData = terrain.terrainData;
+
+        return position.x >= terrainPosition.x &&
+               position.x <= terrainPosition.x + terrainData.size.x &&
+               position.z >= terrainPosition.z &&
+               position.z <= terrainPosition.z + terrainData.size.z;
+    }
+    
     // 대기 상태 처리
     protected virtual void HandleIdleState()
     {
@@ -162,7 +246,7 @@ public class BaseMonsterAI : MonoBehaviour
 
         MoveTowards(targetPosition); // 목표 위치로 이동
 
-        if (Vector3.Distance(transform.position, targetPosition) <= 0.1f)
+        if (Vector3.Distance(transform.position, targetPosition) <= arrivedDistance)
         {
             SetState(AIState.Idle); // 목표 지점 도착 시 대기 상태로 전환
         }
@@ -207,7 +291,6 @@ public class BaseMonsterAI : MonoBehaviour
 
         if (Vector3.Distance(transform.position, playerTarget.position) > attackRange && !isAttacking)
         {
-            Debug.Log("공격 범위 벗어나서 추격");
             SetState(AIState.Chasing); // 공격 범위를 벗어나면 추적 상태로 전환
             return;
         }
@@ -235,11 +318,17 @@ public class BaseMonsterAI : MonoBehaviour
         
         MoveTowards(spawnPosition); // 스폰 위치로 돌아감
 
-        if (Vector3.Distance(transform.position, spawnPosition) <= 0.1f)
+        if (Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance)
         {
             SetState(AIState.Patrolling); // 스폰 위치에 도달하면 패트롤 상태로 전환
         }
     }
+    
+    protected virtual void HandleStunState()
+    {
+        // 패링 당한 후 효과 적용
+    }
+
 
     // 플레이어 탐색
     protected virtual void SearchForPlayer()
@@ -282,6 +371,8 @@ public class BaseMonsterAI : MonoBehaviour
         // 스무스 회전 처리
         Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        
+        // 애니메이션 처리
         animator.SetBool(IsWalking, true);
     }
 
@@ -317,57 +408,6 @@ public class BaseMonsterAI : MonoBehaviour
         CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false, false);
     }
     
-    protected virtual void SetNewPatrolTarget()
-    {
-        // 패트롤을 위한 새로운 목표 위치 설정
-        targetPosition = spawnPosition + new Vector3(
-            Random.Range(-patrolRange, patrolRange),
-            0f,
-            Random.Range(-patrolRange, patrolRange)
-        );
-    }
-    
-    public void ChangeState(AIState newState)
-    {
-        SetState(newState);
-    }
-
-    // 상태 전환
-    protected virtual void SetState(AIState newState)
-    {
-        if (isAttacking && currentState == AIState.Attacking) return;
-        
-        // 죽음 상태면 상태전환 막기
-        if (currentState == AIState.Dead) return;
-        
-        // 상태가 이미 동일하면 변경하지 않음
-        if (currentState == newState) return;
-
-        currentState = newState;
-
-        // 상태별 초기화
-        switch (currentState)
-        {
-            case AIState.Patrolling:
-                SetNewPatrolTarget();
-                break;
-            case AIState.Idle:
-                break;
-            case AIState.Returning:
-                GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
-                break;
-            case AIState.Chasing:
-                GameStateMachine.Instance.ChangeState(GameSystemState.Combat);
-                break;
-            case AIState.Attacking:
-                break;
-            case AIState.Dead:
-                StopAllActions();
-                animator.SetTrigger(IsDead);
-                break;
-        }
-    }
-
     protected void StopAllActions()
     {
         // 이동 및 애니메이션 동작 멈춤
