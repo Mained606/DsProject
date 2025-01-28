@@ -277,14 +277,7 @@ public class CharacterData
 
         UpdateDerivedStats();
     }
-
-    // 크리티컬 여부를 판단하여 데미지 반환
-    // 변경 필요 아직 수정중 - 2025-01-26
-    public float CalculateDamage(bool isCritical)
-    {
-        return isCritical ? physicalDamage * criticalDamage : physicalDamage; // 크리티컬이면 데미지 2배, 아니면 기본 데미지
-    }
-
+    
     // 특정 스텟 증가 함수
     public void ModifyStat(StatType statType, int amount)
     {

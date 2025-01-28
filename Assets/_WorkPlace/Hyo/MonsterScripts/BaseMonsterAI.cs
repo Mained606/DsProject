@@ -311,12 +311,51 @@ public class BaseMonsterAI : MonoBehaviour
     
     protected void SetNewPatrolTarget()
     {
-        // 패트롤을 위한 새로운 목표 위치 설정
-        targetPosition = spawnPosition + new Vector3(
-            Random.Range(-patrolRange, patrolRange),
-            0f,
-            Random.Range(-patrolRange, patrolRange)
-        );
+        int maxAttempts = 10; // 유효한 패트롤 지점을 찾기 위한 최대 시도 횟수
+        int attempts = 0; // 현재 시도 횟수
+        bool validTargetFound = false;
+
+        while (!validTargetFound && attempts < maxAttempts)
+        {
+            // 랜덤 오프셋 생성
+            Vector3 randomOffset = new Vector3(
+                Random.Range(-patrolRange, patrolRange),
+                0f,
+                Random.Range(-patrolRange, patrolRange)
+            );
+
+            // 새로운 타겟 위치 계산
+            Vector3 potentialTarget = spawnPosition + randomOffset;
+
+            // 지형 높이 동기화 (Raycast 사용)
+            if (Physics.Raycast(potentialTarget + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 20f))
+            {
+                potentialTarget.y = hit.point.y;
+
+                // 장애물 체크: 이동 불가능한 지역인지 확인
+                if (!Physics.CheckSphere(potentialTarget, 0.5f, LayerMask.GetMask("Obstacle")))
+                {
+                    // 유효한 위치로 확인되면 타겟 설정
+                    targetPosition = potentialTarget;
+                    validTargetFound = true;
+                }
+            }
+
+            attempts++;
+        }
+
+        // 유효한 타겟을 찾지 못했을 경우 스폰 위치로 복귀
+        if (!validTargetFound)
+        {
+            targetPosition = spawnPosition;
+            Debug.LogWarning($"유효한 패트롤 타겟을 찾지 못해 스폰 위치({spawnPosition})로 복귀합니다.");
+        }
+        // // 패트롤을 위한 새로운 목표 위치 설정
+        // targetPosition = spawnPosition + new Vector3(
+        //     Random.Range(-patrolRange, patrolRange),
+        //     0f,
+        //     Random.Range(-patrolRange, patrolRange)
+        // );
     }
 
     public void ChangeState(AIState newState)
