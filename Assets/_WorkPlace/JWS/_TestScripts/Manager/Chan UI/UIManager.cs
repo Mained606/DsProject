@@ -48,6 +48,7 @@ public class UIManager : BaseManager<UIManager>
         MainButtonUI = mainTitleButton.GetComponent<MainButtonUI>();
         InteractPopupUI = interactTextUI.GetComponent<InteractPopupUI>();
         mainCanvas.SetActive(true);
+        mainTitleButton.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         shopUI.SetActive(false);
@@ -199,7 +200,6 @@ public class UIManager : BaseManager<UIManager>
                 if (quest.questType == "메인퀘스트")
                 {
                     QuestManager.Instance.CompleteQuest(quest);
-                    //Destroy(gameObj, 2f);
                 }
             }
         }
