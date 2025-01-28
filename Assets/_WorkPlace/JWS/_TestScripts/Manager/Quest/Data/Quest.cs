@@ -13,7 +13,8 @@ public class Quest
     public string questType;
     public string name;
     public string description;
-    public string npcid;
+    public string targetID;
+    public string questGiver;
     public int acceptCount;
     [Header("퀘스트 상태정보")]
     public bool isCompleted;
@@ -140,11 +141,4 @@ public enum QuestConditionType
     Explore,  // 지역 탐험
     Kill,     // 몬스터 처치
     Meet      // NPC 만남
-}
-
-[CreateAssetMenu(fileName = "QuestList", menuName = "Ds Project/QuestList")]
-public class QuestList : ScriptableObject
-{
-    public List<Quest> mainQuestList = new List<Quest>();
-    public List<Quest> questList = new List<Quest>();
 }

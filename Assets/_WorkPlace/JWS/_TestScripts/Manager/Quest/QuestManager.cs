@@ -35,7 +35,7 @@ public class QuestManager : BaseManager<QuestManager>
         GenerateData generater = new GenerateData();
         mainQuestDatabase = generater.GenerateMainQuestLists();
         subQuestDatabase = generater.GenerateQuestLists();
-        generater.GenerateRandomNPCs(100, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
+        generater.GenerateRandomNPCs(20, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
         npcDatabase = npcDataList.npcLists;
         GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
     }
@@ -52,7 +52,7 @@ public class QuestManager : BaseManager<QuestManager>
         var npc = npcDatabase.Find(n => n.id == npcId.ToString());
         if (quest != null && npc != null)
         {
-            quest.npcid = npcId;
+            quest.targetID = npcId;
         }
     }
 
@@ -274,6 +274,7 @@ public class QuestManager : BaseManager<QuestManager>
     {
         if (index == 0 || (index > 0 && mainQuestDatabase[index-1].isCompleted))
         {
+            mainQuestDatabase[index].questGiver = "메인퀘스터";
             AddQuest(mainQuestDatabase[index]);
             currentMainQuestIndex = index;
         }

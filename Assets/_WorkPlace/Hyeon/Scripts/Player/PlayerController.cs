@@ -108,6 +108,21 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        ////////////////////////////////////////////////////////////
+        // if (uiCheck != UIManager.Instance.IsUIWindowOpen())
+        // {
+        //     uiCheck = UIManager.Instance.IsUIWindowOpen();
+        // }
+        // if (uiCheck) return;
+        // UI 켜져있을때 플레이어의 행동을 막기위한 추가 확인조건
+        /// JWS 2025.01.27 13:00 수정
+
+        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
+        {
+            uiCheck = UIManager.Instance.IsUIWindowOpen();
+        }
+        if (uiCheck) return;
+        
         DeathCheck();
         isGrounded = characterController.isGrounded;
         playerAnimator.SetBool("Grounded", isGrounded);
@@ -157,8 +172,11 @@ public class PlayerController : MonoBehaviour
     {
         if(playerData != null)
         {
-            walkSpeed = playerData.speed;
-            sprintSpeed = playerData.speed * 2f;
+            // 2025-01-27 HYO 캐릭터 데이터 변수명 변경으로 speed -> moveSpeed로 수정 및 스탯 확인용 ToString 디버그 호출
+            walkSpeed = playerData.moveSpeed;
+            sprintSpeed = playerData.moveSpeed * 2f;
+            Debug.Log(playerData.ToStringForTMPro());
+            //-----------------------------------------------------------------
         }
     }
 
@@ -545,16 +563,16 @@ public class PlayerController : MonoBehaviour
     ///////////////////////////////////////////////////////////////////////////////////
     ///// JWS 수정 UI오픈관련 키엑세스 2025.01.26 19:30  Start
     ///////////////////////////////////////////////////////////////////////////////////
-    private bool uiCheck = false;
+    public bool uiCheck = false;
 
     // 키 활성화 변경
     private void AvoidKeyInput()
     {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-            SetActionStates(!uiCheck);
-        }
+        //if (uiCheck != UIManager.Instance.IsUIWindowOpen())
+        //{
+        //    uiCheck = UIManager.Instance.IsUIWindowOpen();
+        //    SetActionStates(!uiCheck);
+        //}
         UpdateInputActions(CanMove, "Move");
         UpdateInputActions(CanAttack, "Attack");
         UpdateInputActions(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
@@ -723,7 +741,8 @@ public class PlayerController : MonoBehaviour
 
             CanWeaponSwitch = true;
 
-            weapon.SwitchWeapon(-1, true);
+            // weapon.SwitchWeapon(-1, true);
+            weapon.SwitchWeapon(-1);
 
             StartCoroutine(FinishingClimbing());
         }
@@ -734,7 +753,8 @@ public class PlayerController : MonoBehaviour
             Debug.Log("절벽타기 취소됨");
             CanWeaponSwitch = true;
 
-            weapon.SwitchWeapon(-1, true);
+            //weapon.SwitchWeapon(-1, true);
+            weapon.SwitchWeapon(-1);
         }
 
         // Anim

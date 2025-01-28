@@ -26,6 +26,7 @@ public class DropZone : MonoBehaviour, IDropHandler
                     {
                         case "Consumable001":
                             quickSlotsUI.SetSlotItem(0);
+
                             break;
                         case "Consumable002":
                             quickSlotsUI.SetSlotItem(1);

@@ -48,8 +48,7 @@ MonoBehaviour:
   uiText: {fileID: 0}
   npcSpawnerList: []
   bossSpawnerList: []
-  monsterSpawnerList:
-  - {fileID: 0}
+  monsterSpawnerList: []
 --- !u!1 &665065587615173674
 GameObject:
   m_ObjectHideFlags: 0
@@ -94,7 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03b9f8597b717243a1d5f4208357cb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemList: {fileID: 11400000, guid: d35c1b77d43275845b0cc5ed52d3fb0c, type: 2}
+  itemList: {fileID: 11400000, guid: a6828d70005f0b64783d5a4bc0c5a5b1, type: 2}
   itemSpriteList: []
   dropItemPrefab: {fileID: 5829863160345447765, guid: 9f24f9f1556ad094489e3067284dc5e3, type: 3}
 --- !u!1 &668412533047110478
@@ -338,30 +337,46 @@ MonoBehaviour:
   playercharacterData:
     characterName: 
     characterType: 0
-    prefab: {fileID: 0}
+    characterPrefab: {fileID: 0}
+    level: 0
+    currentExperience: 0
+    experienceToLevelUp: 0
     strength: 0
     agility: 0
     vitality: 0
     intelligence: 0
-    speed: 0
-    attackSpeed: 0
+    maxHp: 0
+    currentHp: 0
+    hpRecoveryRate: 0
+    maxMp: 0
+    currentMp: 0
+    mpRecoveryRate: 0
     stamina: 0
     staminaCurrent: 0
     staminaRecoveryRate: 0
-    mpRecoveryRate: 0
-    level: 0
-    currentExperience: 0
-    experienceToLevelUp: 0
-    maxHp: 0
-    currentHp: 0
-    maxMp: 0
-    currentMp: 0
+    moveSpeed: 0
+    attackSpeed: 0
+    attackRange: 0
     physicalDefense: 0
     magicDefense: 0
     physicalDamage: 0
     magicDamage: 0
     criticalChance: 0
-    baseDamage: 0
+    criticalDamage: 0
+    dodgeChance: 0
+    hasShield: 0
+    blockChance: 0
+    physicalDamageReduction: 0
+    magicDamageReduction: 0
+    statModifier:
+      vitalityMultiplier: 10
+      mpMultiplier: 5
+      levelMpBonus: 10
+      strengthMultiplier: 1.5
+      agilityMultiplier: 0.01
+      physicalResistanceMultiplier: 1
+      magicResistanceMultiplier: 2
+      intelligenceMultiplier: 1.5
     skills: []
     gold: 0
   dragonData:
@@ -458,86 +473,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45cfabb38512a85428d90ce04b6e97a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  equippedWeapon:
-    id: 
-    name: 
-    description: 
-    type: 0
-    costValue: 0
-    quantity: 0
-    maxStack: 0
-    isDiscardable: 0
-    isStackable: 0
-    sprite: {fileID: 0}
-    dropChance: 0
-    effect:
-      effectType: 0
-      itemSize: 0
-      duration: 0
-      effectParticle: {fileID: 0}
-      isAlreadyInitialize: 0
-    isQuestItem: 0
-    itemStat:
-      Strength: 0
-      Dexterity: 0
-      Intelligence: 0
-      Vitality: 0
-      Luck: 0
-      MaxHealth: 0
-      MaxMana: 0
-      PhysicalAttack: 0
-      MagicAttack: 0
-      PhysicalDefense: 0
-      MagicDefense: 0
-      CriticalChance: 0
-      AttackSpeed: 0
-      Evasion: 0
-    grade: 0
-    equipmentSlot: 0
-    weaponType: 0
-    consumableType: 0
-    effectAmount: 0
-    questId: 
-  equippedAccessory:
-    id: 
-    name: 
-    description: 
-    type: 0
-    costValue: 0
-    quantity: 0
-    maxStack: 0
-    isDiscardable: 0
-    isStackable: 0
-    sprite: {fileID: 0}
-    dropChance: 0
-    effect:
-      effectType: 0
-      itemSize: 0
-      duration: 0
-      effectParticle: {fileID: 0}
-      isAlreadyInitialize: 0
-    isQuestItem: 0
-    itemStat:
-      Strength: 0
-      Dexterity: 0
-      Intelligence: 0
-      Vitality: 0
-      Luck: 0
-      MaxHealth: 0
-      MaxMana: 0
-      PhysicalAttack: 0
-      MagicAttack: 0
-      PhysicalDefense: 0
-      MagicDefense: 0
-      CriticalChance: 0
-      AttackSpeed: 0
-      Evasion: 0
-    grade: 0
-    equipmentSlot: 0
-    weaponType: 0
-    consumableType: 0
-    effectAmount: 0
-    questId: 
   effectParticleDuration: 2
   particlePositionOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &4242622423328597824
@@ -585,6 +520,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory: []
+  quickSlotsUI: {fileID: 0}
   maxCapacity: 99
   selectedItem: 0
 --- !u!1 &8435481038192113703
@@ -706,8 +642,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72b4b53e65400884a9fab7a410442878, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraPoseSetting: {fileID: 11400000, guid: 4f6d4f589fbfdb548aa72a8aad564faf, type: 2}
   currentCameraType: 0
+  currentTransitionType: 0
   cameraPoses: []
+  cameraTransitionList: []
+  target: {fileID: 0}
+  targetPoses: []
+  poseTransitionSpeed: 2
   orbitTarget: {fileID: 0}
   orbitTargetOffset: {x: 0, y: 2.5, z: 0}
   orbitDistance: 8
@@ -788,10 +730,14 @@ MonoBehaviour:
   dialogWindow: {fileID: 0}
   questWindow: {fileID: 0}
   inventoryUI: {fileID: 0}
+  shopUI: {fileID: 0}
   interactTextUI: {fileID: 0}
   historyLog: {fileID: 0}
   historyWindow: {fileID: 0}
+  infoMessageWindow: {fileID: 0}
   InventorytooltipWindow: {fileID: 0}
+  characterStaus: {fileID: 0}
+  quickSlot: {fileID: 0}
   questListParent: {fileID: 0}
 --- !u!1 &9088007830065972167
 GameObject:
@@ -873,19 +819,19 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2237320382750824172}
+  - {fileID: 7724740018593977126}
   - {fileID: 6150670838661312333}
+  - {fileID: 8950915773018575576}
   - {fileID: 8590688364086715988}
   - {fileID: 506292599205915327}
-  - {fileID: 8626998685004848140}
-  - {fileID: 1382931464070893441}
-  - {fileID: 50298690355487450}
-  - {fileID: 8252969194192692553}
-  - {fileID: 9116469620903117424}
-  - {fileID: 5565525280491229948}
-  - {fileID: 8950915773018575576}
-  - {fileID: 7724740018593977126}
   - {fileID: 5068997019622416361}
+  - {fileID: 8626998685004848140}
+  - {fileID: 8252969194192692553}
+  - {fileID: 5565525280491229948}
+  - {fileID: 1382931464070893441}
+  - {fileID: 2237320382750824172}
+  - {fileID: 50298690355487450}
+  - {fileID: 9116469620903117424}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8830547049108172490
