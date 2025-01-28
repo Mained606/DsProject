@@ -12,7 +12,7 @@ public class CompassIndicater : MonoBehaviour
     private List<Transform> targets;
 
     private List<RectTransform> activeMarkers = new List<RectTransform>();
-    private float compassWidth = 2000f;
+    private float compassWidth = 1600f;
 
     private float maxVisibleDistance = 200f;
     private float minDistanceForScaling = 50f;
@@ -134,10 +134,5 @@ public class CompassIndicater : MonoBehaviour
             Instance.activeMarkers.RemoveAt(index);
             Instance.targets.RemoveAt(index);
         }
-    }
-
-    private void OnDisable()
-    {
-        compassBar.transform.parent.gameObject.SetActive(false);
     }
 }
