@@ -221,7 +221,7 @@ public class BaseMonsterAI : MonoBehaviour
 
             // 레이캐스트를 사용하여 랜덤 위치의 실제 y 값 얻기
             RaycastHit hit;
-            if (Physics.Raycast(randomPosition + Vector3.up * 100f, Vector3.down, out hit, Mathf.Infinity))
+            if (Physics.Raycast(randomPosition + Vector3.up * 10f, Vector3.down, out hit, Mathf.Infinity))
             {
                 randomPosition.y = hit.point.y;
 
@@ -521,15 +521,15 @@ public class BaseMonsterAI : MonoBehaviour
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(targetPosition, arrivedDistance);
         
-        // 착지 여부 시각화
-        if (characterController.isGrounded)
-        {
-            Gizmos.color = Color.green; // 착지 시 초록색
-        }
-        else
-        {
-            Gizmos.color = Color.red; // 공중에 있을 때 빨간색
-        }
-        Gizmos.DrawWireSphere(transform.position, 1f); // 착지 상태 표시
+        // // 착지 여부 시각화
+        // if (characterController.isGrounded)
+        // {
+        //     Gizmos.color = Color.green; // 착지 시 초록색
+        // }
+        // else
+        // {
+        //     Gizmos.color = Color.red; // 공중에 있을 때 빨간색
+        // }
+        // Gizmos.DrawWireSphere(transform.position, 1f); // 착지 상태 표시
     }
 }
