@@ -35,9 +35,9 @@ public class CameraManager : BaseManager<CameraManager>
     [Header("오비트 설정")]
     [SerializeField] private Transform orbitTarget;
     [SerializeField] private Vector3 orbitTargetOffset = new Vector3(0f, 2.5f, 0f);
-    [SerializeField] private float orbitDistance = 8f;
-    [SerializeField] private Vector2 orbitSensitivity = new Vector2(10f, 10f);
-    [SerializeField] private Vector2 orbitClamp = new Vector2(0.1f, 90f);
+    [SerializeField] private float orbitDistance = 12f;
+    [SerializeField] private Vector2 orbitSensitivity = new Vector2(7f, 7f);
+    [SerializeField] private Vector2 orbitClamp = new Vector2(0.1f, 89f);
     [SerializeField] private float orbitYaw = 0f;
     [SerializeField] private float orbitPitch = 0f;
 
@@ -399,43 +399,6 @@ public class CameraManager : BaseManager<CameraManager>
         Debug.Log($"{currentTransitionType}의 카메라포즈 저장완료");
     }
 
-
-    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
-    {
-        switch (newState)
-        {
-            case GameSystemState.Shopping:
-                PlayerVisible(false);
-                HandleShoppingState(additionalData);
-                break;
-
-            case GameSystemState.InfoMessage:
-                CursorLock();
-                break;
-
-            case GameSystemState.StatusUI:
-                isStatusUI = true;
-                PlayerVisible(false);
-                HandleUIviewState();
-                CursorLock();
-                break;
-
-            case GameSystemState.Inventory:
-            case GameSystemState.DialogueState:
-            case GameSystemState.Pause:
-            case GameSystemState.GameOver:
-            case GameSystemState.QuestReview:
-            case GameSystemState.PetInteraction:
-                PlayerVisible(true);
-                HandleUIviewState();
-                break;
-
-            default:
-                HandleDefaultState();
-                break;
-        }
-    }
-
     // 상태 처리 메서드
     private void HandleShoppingState(object data)
     {
@@ -489,6 +452,42 @@ public class CameraManager : BaseManager<CameraManager>
         targetCamera.cullingMask |= layerMask;
     }
 
+    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
+    {
+        switch (newState)
+        {
+            case GameSystemState.Shopping:
+                PlayerVisible(false);
+                HandleShoppingState(additionalData);
+                break;
+
+            case GameSystemState.InfoMessage:
+                CursorLock();
+                break;
+
+            case GameSystemState.StatusUI:
+                isStatusUI = true;
+                PlayerVisible(false);
+                HandleUIviewState();
+                CursorLock();
+                break;
+
+            case GameSystemState.Inventory:
+            case GameSystemState.DialogueState:
+            case GameSystemState.Pause:
+            case GameSystemState.GameOver:
+            case GameSystemState.QuestReview:
+            case GameSystemState.PetInteraction:
+                PlayerVisible(true);
+                HandleUIviewState();
+                break;
+
+            default:
+                HandleDefaultState();
+                break;
+        }
+    }
+
     private void OnDrawGizmos()
     {
         if (currentCameraType == CameraType.Orbit && orbitTarget != null && mainCamera != null)
@@ -500,87 +499,4 @@ public class CameraManager : BaseManager<CameraManager>
             Gizmos.DrawLine(orbitTarget.position, mainCamera.transform.position);
         }
     }
-}
-
-#if UNITY_EDITOR
-[CustomEditor(typeof(CameraManager))]
-public class CameraManagerEditor : Editor
-{
-    private int selectedPoseIndex = 0;
-
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-
-        CameraManager cameraManager = (CameraManager)target;
-
-        GUILayout.Space(10);
-        GUILayout.Label("Camera Pose Preview", EditorStyles.boldLabel);
-
-        if (cameraManager.targetPoses != null && cameraManager.targetPoses.Count > 0)
-        {
-            selectedPoseIndex = EditorGUILayout.IntSlider("Pose Index", selectedPoseIndex, 0, cameraManager.targetPoses.Count - 1);
-
-            if (GUILayout.Button("Preview Pose"))
-            {
-                CameraPose selectedPose = cameraManager.targetPoses[selectedPoseIndex];
-                CameraManager.MainCamera.transform.SetPositionAndRotation(
-                    cameraManager.target.position + selectedPose.position,
-                    Quaternion.Euler(selectedPose.rotation)
-                );
-                Debug.Log($"Previewing pose {selectedPoseIndex}");
-            }
-        }
-
-        if (GUILayout.Button("Save Current Pose"))
-        {
-            cameraManager.SaveCurrentPose();
-        }
-    }
-}
-#endif
-
-
-public enum CameraType
-{
-    Orbit,
-    Follow,
-    UIview,
-    NpcInteract,
-    Sideways,
-    LookAt,
-    Main
-}
-
-public enum CameraTransitionType
-{
-    Normal,
-    Active,
-    Orbit,
-    Follow,
-    UiView,
-    NpcInteract,
-    Sideways,
-}
-
-[System.Serializable]
-public class CameraPose
-{
-    public Vector3 position;
-    public Vector3 rotation;
-    public float transitionTime;
-
-    public CameraPose(Vector3 position, Vector3 rotation, float transitionTime)
-    {
-        this.position = position;
-        this.rotation = rotation;
-        this.transitionTime = transitionTime;
-    }
-}
-
-[System.Serializable]
-public class CameraPoseList
-{
-    public CameraTransitionType transitionType;
-    public List<CameraPose> poseList;
 }
