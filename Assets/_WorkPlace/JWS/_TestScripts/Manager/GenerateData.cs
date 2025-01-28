@@ -103,11 +103,7 @@ public class GenerateData
                 },
                 new List<Reward> 
                 {
-                    new Reward("Main_Quest001", 1, 10, 10),
-                    new Reward("Main_Quest002", 1, 10, 10),
-                    new Reward("Main_Quest003", 1, 10, 10),
-                    new Reward("Main_Quest004", 1, 10, 10),
-                    new Reward("Main_Quest005", 1, 10, 10)
+                    new Reward("Item_egg", 1, 10, 10),
                 }),
 
             // 1장 - 1: 마울로 향해
@@ -117,7 +113,7 @@ public class GenerateData
                 {
                     { "location_0011", new QuestCondition(QuestConditionType.Explore, "location_0011", "마을을 찾아가기", 1) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 1, 10, 10) }),
+                new List<Reward> { new Reward("Item_egg", 1, 10, 10) }),
 
             // 2장: 소년과 숲 속의 발견
             new Quest("메인퀘스트", "quest102", "숲 속의 알",
@@ -127,9 +123,9 @@ public class GenerateData
                     { "location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "딸기밭 찾아가기", 1) },
                     { "Item_strawberry", new QuestCondition(QuestConditionType.Collect, "Item_strawberry", "딸기", 10) },
                     { "location_0022", new QuestCondition(QuestConditionType.Explore, "location_0022", "이상한 소리가 나는 장소", 1) },
-                    { "Main_Quest001", new QuestCondition(QuestConditionType.Collect, "Main_Quest001", "용의 알", 1) }
+                    { "Item_egg", new QuestCondition(QuestConditionType.Collect, "Item_egg", "용의 알", 1) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 1, 15, 15) }),
+                new List<Reward> { new Reward("Item_healthpotion", 1, 15, 15) }),
 
             // 3장: 알에서 태어난 생명체
             new Quest("메인퀘스트", "quest103", "알의 신비",
@@ -138,7 +134,7 @@ public class GenerateData
                 {
                     { "location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "알의 은신처", 1) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 1, 20, 20) }),
+                new List<Reward> { new Reward("Item_healthpotion", 1, 20, 20) }),
 
             // 4장: 소년과 생물체의 우정
             new Quest("메인퀘스트", "quest104", "신비한 동물의 도움",
@@ -146,9 +142,9 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
-                    { "Quest001", new QuestCondition(QuestConditionType.Collect, "Quest001", "나뭇가지", 5) }
+                    { "Item_branch", new QuestCondition(QuestConditionType.Collect, "Item_branch", "나뭇가지", 5) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 1, 30, 30) }),
+                new List<Reward> { new Reward("Item_healthpotion", 1, 30, 30) }),
 
             // 5장: 하급 마족의 위협
             new Quest("메인퀘스트", "quest105", "엄마를 지켜라",
@@ -157,7 +153,7 @@ public class GenerateData
                 {
                     { "Bear", new QuestCondition(QuestConditionType.Kill, "Bear", "하급 마족", 3) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 1, 40, 50) }),
+                new List<Reward> { new Reward("Item_healthpotion", 1, 40, 50) }),
 
             // 6장: 숲 속에서 힘을 연마하다
             new Quest("메인퀘스트", "quest106", "새로운 힘",
@@ -168,7 +164,7 @@ public class GenerateData
                     { "Item_rock", new QuestCondition(QuestConditionType.Collect, "Item_rock", "돌", 5) },
                     { "Item_tree", new QuestCondition(QuestConditionType.Collect, "Item_tree", "나무", 5) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 0, 50, 20) }),
+                new List<Reward> { new Reward("Item_healthpotion", 0, 50, 20) }),
 
             // 7장: 엄마의 복수를 실행해라
             new Quest("메인퀘스트", "quest107", "홀로서기",
@@ -177,7 +173,7 @@ public class GenerateData
                 {
                     { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 1, 60, 60) }),
+                new List<Reward> { new Reward("Item_healthpotion", 1, 60, 60) }),
 
             // 8장: 마을의 위험에 대비하라
             new Quest("메인퀘스트", "quest108", "강해지기 위한 연습",
@@ -186,7 +182,7 @@ public class GenerateData
                 {
                     { "location_005", new QuestCondition(QuestConditionType.Explore, "location_005", "위험구역", 1) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 0, 70, 70) }),
+                new List<Reward> { new Reward("Item_healthpotion", 0, 70, 70) }),
 
             // 9장: 마족과의 전투
             new Quest("메인퀘스트", "quest109", "마을을 지켜라",
@@ -196,7 +192,7 @@ public class GenerateData
                     { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) },
                     { "SlimRabbit", new QuestCondition(QuestConditionType.Kill, "SlimRabbit", "중급 관리자 모파안", 1) }
                 },
-                new List<Reward> { new Reward("Main_Quest001", 1, 80, 80) }),
+                new List<Reward> { new Reward("Item_healthpotion", 1, 80, 80) }),
 
             // 10장: 새로운 여정의 시작
             new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
@@ -207,8 +203,8 @@ public class GenerateData
                 },
                 new List<Reward>
                 {
-                    new Reward("Main_Quest001", 1, 90, 90),
-                    new Reward("Main_Quest001", 1, 90, 90)
+                    new Reward("Item_healthpotion", 1, 90, 90),
+                    new Reward("Item_healthpotion", 1, 90, 90)
                 })
         };
         return questList;
@@ -222,256 +218,12 @@ public class GenerateData
                 "회복 포션 10개를 수집하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "Main_Quest001", new QuestCondition(QuestConditionType.Collect, "Item001", "회복 포션", 10) }
+                    { "Item_healthpotion", new QuestCondition(QuestConditionType.Collect, "Item_healthpotion", "회복 포션", 10) }
                 },
                 new List<Reward>
                 {
-                    new Reward("Main_Quest001", 5, 100, 50)
+                    new Reward("Item_healthpotion", 10, 100, 50)
                 }),
-
-            new Quest("서브퀘스트", "quest002", "철검 제작 재료 수집",
-                "철검 제작을 위한 재료를 수집하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item021", new QuestCondition(QuestConditionType.Collect, "Item021", "철광석", 1) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item002", 1, 200, 100)
-                }),
-
-            new Quest("서브퀘스트", "quest003", "가죽 갑옷 제작",
-                "가죽 갑옷 제작을 위한 재료를 모으세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item025", new QuestCondition(QuestConditionType.Collect, "Item025", "가죽", 3) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item005", 1, 150, 80)
-                }),
-
-            new Quest("서브퀘스트", "quest004", "수정 조각 탐사",
-                "숲에서 수정 조각을 찾아보세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item022", new QuestCondition(QuestConditionType.Collect, "Item022", "수정 조각", 2) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 300, 200)
-                }),
-
-            new Quest("서브퀘스트", "quest006", "늑대 사냥",
-                "숲 속에서 늑대 5마리를 처치하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "monster002", new QuestCondition(QuestConditionType.Kill, "monster002", "숲 늑대", 5) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 100, 50)
-                }),
-
-            new Quest("서브퀘스트", "quest007", "마나 포션 전달",
-                "상인에게 마나 포션 5개를 전달하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item002", new QuestCondition(QuestConditionType.Collect, "Item002", "마나 포션", 5) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item004", 2, 200, 100)
-                }),
-
-            new Quest("서브퀘스트", "quest008", "강철 방패 제작",
-                "강철 방패를 제작하기 위한 재료를 모으세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item026", new QuestCondition(QuestConditionType.Collect, "Item026", "강철 조각", 1) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item008", 1, 300, 150)
-                }),
-
-
-            new Quest("서브퀘스트", "quest009", "불꽃의 결정 탐사",
-                "불꽃의 결정을 수집하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item026", new QuestCondition(QuestConditionType.Collect, "Item026", "불꽃의 결정", 3) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 400, 200)
-                }),
-
-            new Quest("서브퀘스트", "quest016", "유령 몬스터 처치",
-                "유령 몬스터 10마리를 처치하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "monster006", new QuestCondition(QuestConditionType.Kill, "monster006", "유령 몬스터", 10) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 150, 50)
-                }),
-
-            new Quest("서브퀘스트", "quest017", "전설의 증표 회수",
-                "전설의 증표를 회수하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item050", new QuestCondition(QuestConditionType.Collect, "Item050", "전설의 증표", 1) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 800, 500)
-                }),
-
-            new Quest("서브퀘스트", "quest001", "회복 포션 수집",
-                "회복 포션 10개를 수집하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item001", new QuestCondition(QuestConditionType.Collect, "Item001", "회복 포션", 10) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item001", 5, 100, 50)
-                }),
-
-            new Quest("서브퀘스트", "quest002", "철검 제작 재료 수집",
-                "철검 제작을 위한 재료를 수집하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item021", new QuestCondition(QuestConditionType.Collect, "Item021", "철광석", 1) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item002", 1, 200, 100)
-                }),
-
-            new Quest("서브퀘스트", "quest003", "가죽 갑옷 제작",
-                "가죽 갑옷 제작을 위한 재료를 모으세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item025", new QuestCondition(QuestConditionType.Collect, "Item025", "가죽", 3)}
-                },
-                new List<Reward>
-                {
-                    new Reward("Item005", 1, 150, 80)
-                }),
-
-            new Quest("서브퀘스트", "quest004", "수정 조각 탐사",
-                "숲에서 수정 조각을 찾아보세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item022", new QuestCondition(QuestConditionType.Collect, "Item022", "수정 조각", 2) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 300, 200) // 경험치 300, 골드 200 보상
-                }),
-
-            new Quest("서브퀘스트", "quest005", "유령의 눈 회수",
-                "유령의 눈 2개를 회수하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item023", new QuestCondition(QuestConditionType.Collect, "Item023", "유령의 눈", 2) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 250, 150) // 경험치 250, 골드 150 보상
-                }),
-
-            new Quest("서브퀘스트", "quest006", "늑대 사냥",
-                "숲 속에서 늑대 5마리를 처치하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "monster002", new QuestCondition(QuestConditionType.Kill, "monster002", "숲 늑대", 5) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 100, 50) // 경험치 100, 골드 50 보상
-                }),
-
-            new Quest("서브퀘스트", "quest007", "마나 포션 전달",
-                "상인에게 마나 포션 5개를 전달하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item002", new QuestCondition(QuestConditionType.Collect, "Item002", "마나 포션", 5) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item004", 2, 200, 100) // 마나 회복 아이템 2개, 경험치 200, 골드 100 보상
-                }),
-
-            new Quest("서브퀘스트", "quest008", "강철 방패 제작",
-                "강철 방패를 제작하기 위한 재료를 모으세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item026", new QuestCondition(QuestConditionType.Collect, "Item026", "강철 조각", 1) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item008", 1, 300, 150) // 강철 방패 1개, 경험치 300, 골드 150 보상
-                }),
-
-            new Quest("서브퀘스트", "quest009", "불꽃의 결정 탐사",
-                "불꽃의 결정을 수집하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item026", new QuestCondition(QuestConditionType.Collect, "Item026", "불꽃의 결정", 3) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 400, 200) // 경험치 400, 골드 200 보상
-                }),
-
-            new Quest("서브퀘스트", "quest010", "고블린의 손도끼 회수",
-                "고블린의 손도끼를 회수하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item049", new QuestCondition(QuestConditionType.Collect, "Item049", "고블린의 손도끼", 1) }
-                },
-                new List<Reward>
-                {
-                    new Reward("Item001", 2, 100, 50) // 회복 포션 2개, 경험치 100, 골드 50 보상
-                }),
-
-            new Quest("서브퀘스트", "quest012", "황금 가루 수집",
-                "황금 가루를 2개 수집하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item030", new QuestCondition(QuestConditionType.Collect, "Item030", "황금 가루", 2) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 200, 100) // 경험치 200, 골드 100 보상
-                }),
-
-            new Quest("서브퀘스트", "quest016", "유령 몬스터 처치",
-                "유령 몬스터 10마리를 처치하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "monster006", new QuestCondition(QuestConditionType.Kill, "monster006", "유령 몬스터", 10) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 150, 50) // 경험치 150, 골드 50 보상
-                }),
-
-            new Quest("서브퀘스트", "quest020", "약초 수집",
-                "치료제를 만들기 위한 약초를 수집하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "Item_101", new QuestCondition(QuestConditionType.Collect, "Item_101", "약초", 5) }
-                },
-                new List<Reward>
-                {
-                    new Reward("", 0, 50, 20) // 경험치 50, 골드 20 보상
-                })
-
 
         };
         return questList;
