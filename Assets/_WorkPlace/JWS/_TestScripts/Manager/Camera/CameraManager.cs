@@ -290,6 +290,7 @@ public class CameraManager : BaseManager<CameraManager>
                 isTransitionActive = false;
                 OnTransitionComplete?.Invoke(); // 트랜지션 완료 이벤트
                 currentCameraType = CameraType.Orbit;
+                target = null;
             }
         }
     }
@@ -354,25 +355,67 @@ public class CameraManager : BaseManager<CameraManager>
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-        // Default 상태를 제외한 모든 상태가 동일한 처리
-        if (newState == GameSystemState.Inventory ||
-            newState == GameSystemState.StatusUI ||
-            newState == GameSystemState.DialogueState ||
-            newState == GameSystemState.Pause ||
-            newState == GameSystemState.GameOver ||
-            newState == GameSystemState.QuestReview ||
-            newState == GameSystemState.PetInteraction)
+        switch (newState)
         {
-            currentCameraType = CameraType.UIview;
-            UpdateUIviewCamera();
-            CursorLock();
+            case GameSystemState.Shopping:
+                HandleShoppingState(additionalData);
+                break;
+
+            case GameSystemState.InfoMessage:
+                CursorLock();
+                break;
+
+            case GameSystemState.Inventory:
+            case GameSystemState.StatusUI:
+            case GameSystemState.DialogueState:
+            case GameSystemState.Pause:
+            case GameSystemState.GameOver:
+            case GameSystemState.QuestReview:
+            case GameSystemState.PetInteraction:
+                HandleUIviewState();
+                break;
+
+            default:
+                HandleDefaultState();
+                break;
+        }
+    }
+
+    // 상태 처리 메서드
+    private void HandleShoppingState(object data)
+    {
+        NPCData npcData = data as NPCData;
+        HandleUIviewState(npcData?.currentNPC.transform);
+    }
+
+    private void HandleUIviewState(Transform cameraTarget = null)
+    {
+        currentCameraType = CameraType.UIview;
+        if (cameraTarget != null)
+        {
+            UpdateUIviewCamera(cameraTarget);
+            if (GameManager.playerTransform != null)
+            {
+                if (!GameManager.PlayerVisible(false)) Debug.LogError("플레어이 비저플 이상");
+            }
         }
         else
         {
-            CursorUnLock();
-            currentCameraType = CameraType.Orbit;
+            UpdateUIviewCamera();
+        }
+        CursorLock();
+    }
+
+    private void HandleDefaultState()
+    {
+        CursorUnLock();
+        currentCameraType = CameraType.Orbit;
+        if (GameManager.playerTransform != null)
+        {
+            if (!GameManager.PlayerVisible(true)) Debug.LogError("플레어이 비저플 이상");
         }
     }
+
 
     private void OnDrawGizmos()
     {

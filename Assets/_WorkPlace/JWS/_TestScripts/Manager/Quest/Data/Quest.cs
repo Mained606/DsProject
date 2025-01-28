@@ -142,10 +142,3 @@ public enum QuestConditionType
     Kill,     // 몬스터 처치
     Meet      // NPC 만남
 }
-
-[CreateAssetMenu(fileName = "QuestList", menuName = "Ds Project/QuestList")]
-public class QuestList : ScriptableObject
-{
-    public List<Quest> mainQuestList = new List<Quest>();
-    public List<Quest> questList = new List<Quest>();
-}
