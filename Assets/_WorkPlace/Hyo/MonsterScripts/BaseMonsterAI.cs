@@ -47,13 +47,15 @@ public class BaseMonsterAI : MonoBehaviour
         col = GetComponent<Collider>();
         rb = GetComponent<Rigidbody>();
         monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
-        if (monsterData != null) monsterData.OnTakeDamage += HandleTakeDamage;
-
-        if (monsterData != null) movementSpeed = monsterData.moveSpeed;
-        if (monsterData != null) attackCooldown = monsterData.attackSpeed;
-        if (monsterData != null) attackRange = monsterData.attackRange;
+        if (monsterData != null)
+        {
+            monsterData.OnTakeDamage += HandleTakeDamage;
+            movementSpeed = monsterData.moveSpeed;
+            attackCooldown = monsterData.attackSpeed;
+            attackRange = monsterData.attackRange;
+        }
         
-        SetNewPatrolTarget(); // 새로운 패트롤 목표 설정
+        // SetNewPatrolTarget(); // 새로운 패트롤 목표 설정
         SetState(AIState.Patrolling); // 초기 상태를 패트롤로 설정
     }
 
@@ -77,15 +79,6 @@ public class BaseMonsterAI : MonoBehaviour
     {
         if (monsterData != null) monsterData.OnTakeDamage -= HandleTakeDamage;
     }
-    
-    // private void OnCollisionEnter(Collision collision)
-    // {
-    //     // 두 오브젝트가 모두 "Monster" 태그를 가진 경우 충돌 무시
-    //     if (collision.gameObject.CompareTag("Monster") && gameObject.CompareTag("Monster"))
-    //     {
-    //         Physics.IgnoreCollision(collision.collider, GetComponent<Collider>());
-    //     }
-    // }
     
     protected virtual void HandleTakeDamage(Transform attacker)
     {
@@ -148,7 +141,7 @@ public class BaseMonsterAI : MonoBehaviour
     // 대기 상태 처리
     protected virtual void HandleIdleState()
     {
-        if (playerTarget != null)
+        if (playerTarget)
         {
             SetState(AIState.Chasing); // 플레이어가 발견되면 추적 상태로 전환
             return;
@@ -161,7 +154,7 @@ public class BaseMonsterAI : MonoBehaviour
     // 패트롤 상태 처리
     protected virtual void HandlePatrollingState()
     {
-        if (playerTarget != null)
+        if (playerTarget)
         {
             SetState(AIState.Chasing); // 플레이어가 발견되면 추적 상태로 전환
             return;
@@ -178,7 +171,7 @@ public class BaseMonsterAI : MonoBehaviour
     // 추적 상태 처리
     protected virtual void HandleChasingState()
     {
-        if (playerTarget == null || Vector3.Distance(transform.position, spawnPosition) > maxPatrolDistance)
+        if (!playerTarget || Vector3.Distance(transform.position, spawnPosition) > maxPatrolDistance)
         {
             playerTarget = null; // 플레이어를 잃거나 최대 이동 범위를 벗어난 경우
             SetState(AIState.Returning); // 복귀 상태로 전환
@@ -198,35 +191,48 @@ public class BaseMonsterAI : MonoBehaviour
     // 공격 상태 처리
     protected virtual void HandleAttackingState()
     {
-        if (CharacterManager.PlayerCharacterData.currentHp <= 0 || playerTarget == null || Vector3.Distance(transform.position, playerTarget.position) > searchRange)
+        if (!playerTarget || Vector3.Distance(transform.position, spawnPosition) > maxPatrolDistance)
+        {
+            playerTarget = null; // 플레이어를 잃거나 최대 이동 범위를 벗어난 경우
+            SetState(AIState.Returning); // 복귀 상태로 전환
+            return;
+        }
+        
+        if (CharacterManager.PlayerCharacterData.currentHp <= 0 || !playerTarget)
         {
             playerTarget = null;
             SetState(AIState.Patrolling); // 플레이어가 범위를 벗어나면 패트롤 상태로 전환
             return;
         }
 
-        if (Vector3.Distance(transform.position, playerTarget.position) > attackRange)
+        if (Vector3.Distance(transform.position, playerTarget.position) > attackRange && !isAttacking)
         {
+            Debug.Log("공격 범위 벗어나서 추격");
             SetState(AIState.Chasing); // 공격 범위를 벗어나면 추적 상태로 전환
             return;
         }
         
         //
-        if (attackCooldownTimer <= 0f)
+        if (attackCooldownTimer <= 0f && !isAttacking)
         {
             PerformAttack(); // 공격 실행
             attackCooldownTimer = attackCooldown; // 쿨타임 리셋
-        }
-        else
-        {
-            // 공격 쿨타임 동안 공격 애니메이션 유지
-            animator.SetBool(IsWalking, false); // 이동 멈추기
         }
     }
 
     // 복귀 상태 처리
     protected virtual void HandleReturningState()
     {
+        isAttacking = false;
+        
+        SearchForPlayer();
+        
+        if (playerTarget)
+        {
+            SetState(AIState.Chasing); // 플레이어가 발견되면 추적 상태로 전환
+            return;
+        }
+        
         MoveTowards(spawnPosition); // 스폰 위치로 돌아감
 
         if (Vector3.Distance(transform.position, spawnPosition) <= 0.1f)
@@ -238,9 +244,9 @@ public class BaseMonsterAI : MonoBehaviour
     // 플레이어 탐색
     protected virtual void SearchForPlayer()
     {
-        if (playerTarget != null) return;
+        if (playerTarget) return;
 
-        Collider[] hits = new Collider[20]; // 배열 크기 설정
+        Collider[] hits = new Collider[30]; // 배열 크기 설정
         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hits);
 
         if (hitCount == hits.Length)
@@ -294,6 +300,8 @@ public class BaseMonsterAI : MonoBehaviour
         // 70% 지점에 맞춰 메서드 호출
         Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
         
+        // 공격 후 이동을 방지하는 상태로 설정
+        isAttacking = true;
         StartCoroutine(ResetAttackState(animationLength));
     }
     
@@ -309,55 +317,16 @@ public class BaseMonsterAI : MonoBehaviour
         CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monsterData, transform, false, false);
     }
     
-    protected void SetNewPatrolTarget()
+    protected virtual void SetNewPatrolTarget()
     {
-        int maxAttempts = 10; // 유효한 패트롤 지점을 찾기 위한 최대 시도 횟수
-        int attempts = 0; // 현재 시도 횟수
-        bool validTargetFound = false;
-
-        while (!validTargetFound && attempts < maxAttempts)
-        {
-            // 랜덤 오프셋 생성
-            Vector3 randomOffset = new Vector3(
-                Random.Range(-patrolRange, patrolRange),
-                0f,
-                Random.Range(-patrolRange, patrolRange)
-            );
-
-            // 새로운 타겟 위치 계산
-            Vector3 potentialTarget = spawnPosition + randomOffset;
-
-            // 지형 높이 동기화 (Raycast 사용)
-            if (Physics.Raycast(potentialTarget + Vector3.up * 10f, Vector3.down, out RaycastHit hit, 20f))
-            {
-                potentialTarget.y = hit.point.y;
-
-                // 장애물 체크: 이동 불가능한 지역인지 확인
-                if (!Physics.CheckSphere(potentialTarget, 0.5f, LayerMask.GetMask("Obstacle")))
-                {
-                    // 유효한 위치로 확인되면 타겟 설정
-                    targetPosition = potentialTarget;
-                    validTargetFound = true;
-                }
-            }
-
-            attempts++;
-        }
-
-        // 유효한 타겟을 찾지 못했을 경우 스폰 위치로 복귀
-        if (!validTargetFound)
-        {
-            targetPosition = spawnPosition;
-            Debug.LogWarning($"유효한 패트롤 타겟을 찾지 못해 스폰 위치({spawnPosition})로 복귀합니다.");
-        }
-        // // 패트롤을 위한 새로운 목표 위치 설정
-        // targetPosition = spawnPosition + new Vector3(
-        //     Random.Range(-patrolRange, patrolRange),
-        //     0f,
-        //     Random.Range(-patrolRange, patrolRange)
-        // );
+        // 패트롤을 위한 새로운 목표 위치 설정
+        targetPosition = spawnPosition + new Vector3(
+            Random.Range(-patrolRange, patrolRange),
+            0f,
+            Random.Range(-patrolRange, patrolRange)
+        );
     }
-
+    
     public void ChangeState(AIState newState)
     {
         SetState(newState);
