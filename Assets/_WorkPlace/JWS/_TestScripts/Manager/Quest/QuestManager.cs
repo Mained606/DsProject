@@ -10,13 +10,13 @@ public class QuestManager : BaseManager<QuestManager>
     [SerializeField] private List<Quest> mainQuestDatabase = new List<Quest>();
     [SerializeField] private List<Quest> subQuestDatabase = new List<Quest>();
     [SerializeField] private List<Quest> completedQuests = new List<Quest>();
-    [SerializeField] private Dictionary<string, Vector3> questConditionPoint = new Dictionary<string, Vector3>();
+    [SerializeField] private Dictionary<string, Transform> questConditionPoint = new Dictionary<string, Transform>();
 
     public static List<Quest> QuestDatabase => Instance.questDatabase;
     public static List<Quest> CompletedQuests => Instance.completedQuests;
-    public static Dictionary<string, Vector3> QuestConditionPoint => Instance.questConditionPoint;
+    public static Dictionary<string, Transform> QuestConditionPoint => Instance.questConditionPoint;
 
-    public static Vector3 GetQuestConditionPoint(string point) => Instance.questConditionPoint[point];
+    public static Transform GetQuestConditionPoint(string point) => Instance.questConditionPoint[point];
 
     public static NPCList NpcDatabase => Instance.npcDataList;
 
@@ -137,51 +137,6 @@ public class QuestManager : BaseManager<QuestManager>
             }
         }
     }
-
-    //public void UpdateQuestProgress(QuestConditionType conditionType, string targetId, int quantity = 1)
-    //{
-    //    bool questUpdated = false;
-
-    //    for (int i = questDatabase.Count - 1; i >= 0; i--)
-    //    {
-    //        Quest quest = questDatabase[i];
-    //        if (quest.isCompleted) continue;
-
-    //        foreach (var conditionKeyValue in quest.requiredConditions)
-    //        {
-    //            var conditionId = conditionKeyValue.Key;
-    //            var condition = conditionKeyValue.Value;
-
-    //            if (condition.type == conditionType && condition.targetId == targetId)
-    //            {
-    //                if (!quest.progress.ContainsKey(conditionId))
-    //                {
-    //                    quest.progress[conditionId] = 0;
-    //                }
-
-    //                quest.progress[conditionId] += quantity;
-    //                if (quest.progress[conditionId] >= condition.requiredQuantity)
-    //                {
-    //                    quest.progress[conditionId] = condition.requiredQuantity;
-    //                    condition.isCompleted = true;
-    //                    UIManager.SystemGameMessage($"[QuestManager] 퀘스트 조건 '{condition.targetName}' 완료!", MessageTag.아이템_획득);
-    //                }
-    //            }
-    //        }
-
-    //        if (IsQuestCompleted(quest))
-    //        {
-    //            quest.isCompleted = true;
-    //            questUpdated = true;
-    //            UIManager.SystemGameMessage($"[QuestManager] 퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
-    //        }
-    //    }
-
-    //    if (questUpdated)
-    //    {
-    //        UIManager.Instance.QuestUpdate();
-    //    }
-    //}
 
     private bool IsQuestCompleted(Quest quest)
     {

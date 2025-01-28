@@ -28,11 +28,16 @@ public class QuestDistanceCheck : MonoBehaviour
             string keyWord = condition.Key;
             QuestCondition questCondition = condition.Value;
 
-            if (questCondition.isCompleted) continue;
+            if (questCondition.isCompleted)
+            {
+                CompassIndicater.RemoveTarget(QuestManager.GetQuestConditionPoint(keyWord));
+                continue;
+            }
 
             if (keyWord.Contains("location"))
             {
-                distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord));
+                CompassIndicater.AddTarget(QuestManager.GetQuestConditionPoint(keyWord));
+                distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord).position);
                 string color = QuestManager.GetDistanceColor(distance);
                 distanceColor = $"     <color={color}>{distance:F1}m</color>";
             }
