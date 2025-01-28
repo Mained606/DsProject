@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     private bool allManagersReady = false;
     
     public static Transform playerTransform;
+    public static Transform DragonTransform;
     
     public static event Action OnAllManagersReadyEvent;
 
