@@ -9,84 +9,9 @@ public class GenerateData
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void InitializeItems(ItemList ItemDatabase)
     {
-        //InitializeItemDatabase(ItemDatabase.itemList);
     }
 
-    private void InitializeItemDatabase(List<Item> ItemDatabase)
-    {
-        // 메인퀘스트 아이템
-        ItemDatabase.Add(new Item("Main_Quest001", "용사의 검의 조각", "용사가 남긴 검의 한 조각입니다.", ItemType.퀘스트, ItemGrade.희귀));
-        ItemDatabase.Add(new Item("Main_Quest002", "신비한 알", "숲에서 발견한 신비로운 생물체의 알입니다.", ItemType.퀘스트, ItemGrade.전설));
-        ItemDatabase.Add(new Item("Main_Quest003", "도끼", "나무를 자르는 데 필요한 기본 도구입니다.", ItemType.제작재료, ItemGrade.일반));
-        ItemDatabase.Add(new Item("Main_Quest004", "나무완드", "나무로 만든 간단한 마법 지팡이입니다.", ItemType.장신구, ItemGrade.고급));
-        ItemDatabase.Add(new Item("Main_Quest005", "수련용 검", "초보 전사가 사용하는 기본 검입니다.", ItemType.무기, ItemGrade.일반));
-        ItemDatabase.Add(new Item("Main_Quest006", "빛의 폭발 스킬북", "빛의 폭발 스킬을 해금할 수 있는 아이템입니다.", ItemType.퀘스트, ItemGrade.희귀));
-        ItemDatabase.Add(new Item("Main_Quest007", "회복의 반지", "자동 체력 회복 효과를 제공하는 반지입니다.", ItemType.장신구, ItemGrade.전설));
-        ItemDatabase.Add(new Item("Main_Quest008", "마왕의 위치 단서", "마왕의 성으로 가는 길에 대한 단서가 담긴 지도입니다.", ItemType.퀘스트, ItemGrade.에픽));
-        ItemDatabase.Add(new Item("Main_Quest009", "초급 공격 스크롤", "초급 공격 스킬을 배우는 데 필요한 스크롤입니다.", ItemType.퀘스트, ItemGrade.고급));
-        ItemDatabase.Add(new Item("Main_Quest010", "전설의 증표", "전설적인 전사가 남긴 증표입니다.", ItemType.퀘스트, ItemGrade.전설));
-
-        // 퀘스트아이템
-        ItemDatabase.Add(new Item("Quest041", "마법 보석", "희귀한 퀘스트 아이템입니다.", ItemType.퀘스트, ItemGrade.희귀, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest042", "보물 지도", "숨겨진 보물의 위치를 알려줍니다.", ItemType.퀘스트, ItemGrade.희귀, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest043", "황금 열쇠", "특정한 문을 열 수 있는 열쇠입니다.", ItemType.퀘스트, ItemGrade.고급, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest044", "잃어버린 편지", "누군가에게 전달해야 할 편지입니다.", ItemType.퀘스트, ItemGrade.일반, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest045", "잃어버린 반지", "귀중한 반지로 보입니다.", ItemType.퀘스트, ItemGrade.희귀, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest046", "고대 유물", "고대의 비밀을 담고 있는 유물입니다.", ItemType.퀘스트, ItemGrade.전설, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest047", "영혼의 수정", "영혼이 깃든 희귀한 수정입니다.", ItemType.퀘스트, ItemGrade.희귀, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest048", "고대 열쇠", "고대 유적의 문을 여는 열쇠입니다.", ItemType.퀘스트, ItemGrade.희귀, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest049", "고블린의 손도끼", "고블린에게서 빼앗은 도끼입니다.", ItemType.퀘스트, ItemGrade.고급, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Quest050", "전설의 증표", "전설적인 전사의 증표입니다.", ItemType.퀘스트, ItemGrade.전설, 1, 1, false, true));
-
-        // 소비아이템
-        ItemDatabase.Add(new Item("Item001", "회복 포션", "체력을 회복합니다.", ItemType.소모품, ItemGrade.일반, 10, 99, true, true));
-        ItemDatabase.Add(new Item("Item002", "마나 포션", "마나를 회복합니다.", ItemType.소모품, ItemGrade.일반, 5, 99, true, true));
-        ItemDatabase.Add(new Item("Item003", "힘의 물약", "일시적으로 힘을 증가시킵니다.", ItemType.소모품, ItemGrade.고급, 3, 99, true, true));
-        ItemDatabase.Add(new Item("Item004", "속도의 물약", "일시적으로 이동 속도를 증가시킵니다.", ItemType.소모품, ItemGrade.고급, 2, 99, true, true));
-        ItemDatabase.Add(new Item("Item005", "생명의 물약", "생명력을 회복합니다.", ItemType.소모품, ItemGrade.희귀, 8, 99, true, true));
-        ItemDatabase.Add(new Item("Item006", "저항의 물약", "상태 이상 저항력을 증가시킵니다.", ItemType.소모품, ItemGrade.희귀, 4, 99, true, true));
-        ItemDatabase.Add(new Item("Item007", "정화의 물약", "중독과 같은 상태 이상을 제거합니다.", ItemType.소모품, ItemGrade.희귀, 3, 99, true, true));
-        ItemDatabase.Add(new Item("Item008", "폭발 물약", "적에게 큰 피해를 입히는 물약입니다.", ItemType.소모품, ItemGrade.희귀, 2, 99, true, true));
-        ItemDatabase.Add(new Item("Item009", "독 물약", "적을 중독시키는 물약입니다.", ItemType.소모품, ItemGrade.고급, 6, 99, true, true));
-        ItemDatabase.Add(new Item("Item010", "체력의 물약", "체력을 대폭 회복합니다.", ItemType.소모품, ItemGrade.희귀, 5, 99, true, true));
-        ItemDatabase.Add(new Item("Item011", "힘의 묘약", "힘을 영구적으로 증가시킵니다.", ItemType.소모품, ItemGrade.에픽, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item012", "마력의 묘약", "마력을 영구적으로 증가시킵니다.", ItemType.소모품, ItemGrade.에픽, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item013", "불멸의 묘약", "불멸의 효과를 제공합니다.", ItemType.소모품, ItemGrade.신화, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item014", "투명 물약", "일정 시간 동안 투명 상태를 유지합니다.", ItemType.소모품, ItemGrade.고급, 3, 99, true, true));
-        ItemDatabase.Add(new Item("Item015", "공격력 증가 물약", "공격력을 일시적으로 증가시킵니다.", ItemType.소모품, ItemGrade.고급, 4, 99, true, true));
-        ItemDatabase.Add(new Item("Item016", "방어력 증가 물약", "방어력을 일시적으로 증가시킵니다.", ItemType.소모품, ItemGrade.고급, 4, 99, true, true));
-        ItemDatabase.Add(new Item("Item017", "치유 포션", "즉각적으로 체력을 회복합니다.", ItemType.소모품, ItemGrade.일반, 10, 99, true, true));
-        ItemDatabase.Add(new Item("Item018", "속성 강화 물약", "특정 속성을 강화합니다.", ItemType.소모품, ItemGrade.희귀, 3, 99, true, true));
-        ItemDatabase.Add(new Item("Item019", "신속 물약", "캐릭터의 행동 속도를 증가시킵니다.", ItemType.소모품, ItemGrade.고급, 2, 99, true, true));
-        ItemDatabase.Add(new Item("Item020", "전투 포션", "전투 능력을 강화합니다.", ItemType.소모품, ItemGrade.희귀, 1, 1, false, true));
-
-        // 재료아이템
-        ItemDatabase.Add(new Item("Item021", "용의 비늘", "희귀한 용의 비늘입니다.", ItemType.제작재료, ItemGrade.희귀, 1, 99, true, true));
-        ItemDatabase.Add(new Item("Item022", "수정 조각", "희귀한 수정 조각입니다.", ItemType.제작재료, ItemGrade.희귀, 1, 99, true, true));
-        ItemDatabase.Add(new Item("Item023", "유령의 눈", "유령으로부터 얻은 희귀한 재료입니다.", ItemType.제작재료, ItemGrade.희귀, 1, 99, true, true));
-        ItemDatabase.Add(new Item("Item024", "거미의 독", "거미로부터 채취한 독입니다.", ItemType.제작재료, ItemGrade.희귀, 1, 99, true, true));
-        ItemDatabase.Add(new Item("Item025", "늑대의 송곳니", "늑대의 날카로운 송곳니입니다.", ItemType.제작재료, ItemGrade.희귀, 1, 99, true, true));
-        ItemDatabase.Add(new Item("Item026", "불꽃의 결정", "불의 정령으로부터 얻은 결정입니다.", ItemType.제작재료, ItemGrade.희귀, 1, 99, true, true));
-        ItemDatabase.Add(new Item("Item027", "마법의 잉크", "마법 주문을 쓰는 데 필요한 잉크입니다.", ItemType.제작재료, ItemGrade.고급, 1, 99, true, true));
-        ItemDatabase.Add(new Item("Item028", "고대 석판", "고대의 비밀이 새겨진 석판입니다.", ItemType.제작재료, ItemGrade.전설, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item029", "은 조각", "은으로 만든 작은 조각입니다.", ItemType.제작재료, ItemGrade.고급, 1, 99, true, true));
-        ItemDatabase.Add(new Item("Item030", "황금 가루", "희귀한 황금 가루입니다.", ItemType.제작재료, ItemGrade.희귀, 1, 99, true, true));
-
-        // 장착아이템
-        ItemDatabase.Add(new Item("Item031", "철검", "기본적인 검입니다.", ItemType.무기, ItemGrade.일반, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item032", "강철 방패", "적의 공격을 막아주는 강철 방패입니다.", ItemType.방어구, ItemGrade.고급, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item033", "가죽 갑옷", "기본적인 방어구입니다.", ItemType.방어구, ItemGrade.일반, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item034", "은검", "은으로 제작된 검입니다.", ItemType.무기, ItemGrade.희귀, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item035", "룬검", "마법의 룬이 새겨진 검입니다.", ItemType.무기, ItemGrade.에픽, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item036", "마법 망토", "마법 방어력을 증가시키는 망토입니다.", ItemType.방어구, ItemGrade.에픽, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item037", "기사의 갑옷", "기사들이 사용하는 고급 방어구입니다.", ItemType.방어구, ItemGrade.희귀, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item038", "전설의 검", "전설적인 전사들이 사용했던 검입니다.", ItemType.무기, ItemGrade.전설, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item039", "고대 방패", "고대 문양이 새겨진 방패입니다.", ItemType.방어구, ItemGrade.전설, 1, 1, false, true));
-        ItemDatabase.Add(new Item("Item040", "마법 검", "마법 공격력을 가진 검입니다.", ItemType.무기, ItemGrade.희귀, 1, 1, false, true));
-    }
-
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+       //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 퀘스트 관련 제너레이터.
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public List<Quest> GenerateMainQuestLists()
@@ -102,7 +27,7 @@ public class GenerateData
                 },
                 new List<Reward> 
                 {
-                    new Reward("Item_egg", 1, 10, 10),
+                    new Reward("용의알", 1, 10, 10),
                 }),
 
             // 1장 - 1: 마울로 향해
@@ -112,7 +37,7 @@ public class GenerateData
                 {
                     { "location_0011", new QuestCondition(QuestConditionType.Explore, "location_0011", "마을을 찾아가기", 1) }
                 },
-                new List<Reward> { new Reward("Item_egg", 1, 10, 10) }),
+                new List<Reward> { new Reward("소형 체력포션", 1, 10, 10) }),
 
             // 2장: 소년과 숲 속의 발견
             new Quest("메인퀘스트", "quest102", "숲 속의 알",
@@ -120,11 +45,11 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "딸기밭 찾아가기", 1) },
-                    { "Item_strawberry", new QuestCondition(QuestConditionType.Collect, "Item_strawberry", "딸기", 10) },
+                    { "딸기", new QuestCondition(QuestConditionType.Collect, "딸기", "딸기", 10) },
                     { "location_0022", new QuestCondition(QuestConditionType.Explore, "location_0022", "이상한 소리가 나는 장소", 1) },
-                    { "Item_egg", new QuestCondition(QuestConditionType.Collect, "Item_egg", "용의 알", 1) }
+                    { "용의알", new QuestCondition(QuestConditionType.Collect, "용의알", "용의 알", 1) }
                 },
-                new List<Reward> { new Reward("Item_healthpotion", 1, 15, 15) }),
+                new List<Reward> { new Reward("소형 체력포션", 1, 15, 15) }),
 
             // 3장: 알에서 태어난 생명체
             new Quest("메인퀘스트", "quest103", "알의 신비",
@@ -133,7 +58,7 @@ public class GenerateData
                 {
                     { "location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "알의 은신처", 1) }
                 },
-                new List<Reward> { new Reward("Item_healthpotion", 1, 20, 20) }),
+                new List<Reward> { new Reward("소형 체력포션", 1, 20, 20) }),
 
             // 4장: 소년과 생물체의 우정
             new Quest("메인퀘스트", "quest104", "신비한 동물의 도움",
@@ -141,9 +66,9 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
-                    { "Item_branch", new QuestCondition(QuestConditionType.Collect, "Item_branch", "나뭇가지", 5) }
+                    { "나뭇가지", new QuestCondition(QuestConditionType.Collect, "Item_branch", "나뭇가지", 5) }
                 },
-                new List<Reward> { new Reward("Item_healthpotion", 1, 30, 30) }),
+                new List<Reward> { new Reward("소형 체력포션", 1, 30, 30) }),
 
             // 5장: 하급 마족의 위협
             new Quest("메인퀘스트", "quest105", "엄마를 지켜라",
@@ -152,7 +77,7 @@ public class GenerateData
                 {
                     { "Bear", new QuestCondition(QuestConditionType.Kill, "Bear", "하급 마족", 3) }
                 },
-                new List<Reward> { new Reward("Item_healthpotion", 1, 40, 50) }),
+                new List<Reward> { new Reward("소형 체력포션", 1, 40, 50) }),
 
             // 6장: 숲 속에서 힘을 연마하다
             new Quest("메인퀘스트", "quest106", "새로운 힘",
@@ -160,10 +85,10 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
-                    { "Item_rock", new QuestCondition(QuestConditionType.Collect, "Item_rock", "돌", 5) },
-                    { "Item_tree", new QuestCondition(QuestConditionType.Collect, "Item_tree", "나무", 5) }
+                    { "돌", new QuestCondition(QuestConditionType.Collect, "돌", "돌", 5) },
+                    { "나무", new QuestCondition(QuestConditionType.Collect, "나무", "나무", 5) }
                 },
-                new List<Reward> { new Reward("Item_healthpotion", 0, 50, 20) }),
+                new List<Reward> { new Reward("소형 체력포션", 0, 50, 20) }),
 
             // 7장: 엄마의 복수를 실행해라
             new Quest("메인퀘스트", "quest107", "홀로서기",
@@ -172,7 +97,7 @@ public class GenerateData
                 {
                     { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) }
                 },
-                new List<Reward> { new Reward("Item_healthpotion", 1, 60, 60) }),
+                new List<Reward> { new Reward("소형 체력포션", 1, 60, 60) }),
 
             // 8장: 마을의 위험에 대비하라
             new Quest("메인퀘스트", "quest108", "강해지기 위한 연습",
@@ -181,7 +106,7 @@ public class GenerateData
                 {
                     { "location_005", new QuestCondition(QuestConditionType.Explore, "location_005", "위험구역", 1) }
                 },
-                new List<Reward> { new Reward("Item_healthpotion", 0, 70, 70) }),
+                new List<Reward> { new Reward("소형 체력포션", 0, 70, 70) }),
 
             // 9장: 마족과의 전투
             new Quest("메인퀘스트", "quest109", "마을을 지켜라",
@@ -191,7 +116,7 @@ public class GenerateData
                     { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) },
                     { "SlimRabbit", new QuestCondition(QuestConditionType.Kill, "SlimRabbit", "중급 관리자 모파안", 1) }
                 },
-                new List<Reward> { new Reward("Item_healthpotion", 1, 80, 80) }),
+                new List<Reward> { new Reward("소형 체력포션", 1, 80, 80) }),
 
             // 10장: 새로운 여정의 시작
             new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
@@ -202,8 +127,8 @@ public class GenerateData
                 },
                 new List<Reward>
                 {
-                    new Reward("Item_healthpotion", 1, 90, 90),
-                    new Reward("Item_healthpotion", 1, 90, 90)
+                    new Reward("소형 체력포션", 1, 90, 90),
+                    new Reward("소형 체력포션", 1, 90, 90)
                 })
         };
         return questList;
@@ -213,15 +138,15 @@ public class GenerateData
     {
         List<Quest> questList = new List<Quest>
         {
-            new Quest("서브퀘스트", "quest001", "회복 포션 수집",
+            new Quest("서브퀘스트", "소형체력포션", "회복 포션 수집",
                 "회복 포션 10개를 수집하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "Item_healthpotion", new QuestCondition(QuestConditionType.Collect, "Item_healthpotion", "회복 포션", 10) }
+                    { "소형체력포션", new QuestCondition(QuestConditionType.Collect, "소형체력포션", "회복 포션", 10) }
                 },
                 new List<Reward>
                 {
-                    new Reward("Item_healthpotion", 10, 100, 50)
+                    new Reward("소형 체력포션", 10, 100, 50)
                 }),
 
         };
