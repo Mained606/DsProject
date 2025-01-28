@@ -10,7 +10,6 @@ public class CharacterStatusUI : MonoBehaviour
     [SerializeField] private Transform character_Stat;
     [SerializeField] private Transform statsNamePosition;
     [SerializeField] private Transform statsValuePosition;
-    [SerializeField] private Image characterImage;
     private TextMeshProUGUI[] statsNames;
     private string[] defaultNames;
     private TextMeshProUGUI[] statsValues;
@@ -75,11 +74,11 @@ public class CharacterStatusUI : MonoBehaviour
         switch (chraterType)
         {
             case CharType.Player:
-                characterImage.sprite = ItemManager.Instance.GetItemSprite("캐릭터");
+                CameraManager.Instance.HandleUIviewState(GameManager.playerTransform);
                 GetPlayerStatsValue();
                 break;
             case CharType.Dragon:
-                characterImage.sprite = ItemManager.Instance.GetItemSprite("미르");
+                CameraManager.Instance.HandleUIviewState(GameManager.DragonTransform);
                 GetDragonStatsValue();
                 break;
         }

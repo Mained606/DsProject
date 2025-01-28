@@ -1,3 +1,4 @@
+using System.Xml.Serialization;
 using UnityEngine;
 
 public class DragonController : MonoBehaviour
@@ -19,6 +20,11 @@ public class DragonController : MonoBehaviour
     public float rotationSpeed = 5f;     // 회전 속도
 
     private Vector3 offset;              // 플레이어와의 상대 위치
+
+    private void OnEnable()
+    {
+        GameManager.DragonTransform = transform;
+    }
 
     void Start()
     {
