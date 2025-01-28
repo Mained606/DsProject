@@ -454,6 +454,11 @@ public class BaseMonsterAI : MonoBehaviour
         // 이동 및 애니메이션 동작 멈춤
         animator.SetBool(IsWalking, false);
         animator.ResetTrigger(nameof(Attack));
+        
+        Vector3 direction = (playerTarget.position - transform.position).normalized;
+        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        
         characterController.Move(Vector3.zero); // 이동 멈춤
     }
 
