@@ -6,7 +6,7 @@ public class QuestLocation : MonoBehaviour
     {
         if (!QuestManager.QuestConditionPoint.ContainsKey(this.gameObject.name))
         {
-            QuestManager.QuestConditionPoint.Add(this.gameObject.name, this.transform.position);
+            QuestManager.QuestConditionPoint.Add(this.gameObject.name, this.transform);
         }
         else
         {
