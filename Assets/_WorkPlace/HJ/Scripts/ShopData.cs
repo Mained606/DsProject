@@ -1,4 +1,3 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -20,7 +19,6 @@ public class ShopData
 
     public void Initialize()
     {
-        Debug.Log("상점 초기화");
         UpdateAvailableItems();
     }
 
