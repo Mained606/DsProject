@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using static System.TimeZoneInfo;
-using Unity.VisualScripting;
-
+using System;
+using Unity.Cinemachine;
 
 
 #if UNITY_EDITOR
@@ -14,6 +13,7 @@ public delegate void TransitionEvent();
 
 public class CameraManager : BaseManager<CameraManager>
 {
+    #region 변수선언
     public event TransitionEvent OnTransitionStart;
     public event TransitionEvent OnTransitionComplete;
 
@@ -49,13 +49,20 @@ public class CameraManager : BaseManager<CameraManager>
     [SerializeField] private CursorLockMode mouseCursor;
     [SerializeField] private bool mouseCursorVisible = false;
     private Camera mainCamera;
-
+    private Camera portraitCamera;
+    public string playerLayerName = "Ds Player";
+    public string dragonLayerName = "Dragon";
+    private int playerLayerMask, dragonLayerMask;
+    private bool isStatusUI = false;
     public static Camera MainCamera => Instance.mainCamera;
+    #endregion
 
     protected override void Awake()
     {
         base.Awake();
         mainCamera = Camera.main;
+        portraitCamera = mainCamera.transform.GetChild(0).GetComponent<Camera>();
+        portraitCamera.gameObject.SetActive(false);
 
         cameraPoses = cameraPoseSetting.poseList.ToArray();
         cameraTransitionList = cameraPoseSetting.poseTransitionList;
@@ -66,6 +73,9 @@ public class CameraManager : BaseManager<CameraManager>
         mouseCursor = CursorLockMode.Locked;
         Cursor.lockState = mouseCursor;
         Cursor.visible = mouseCursorVisible;
+
+        playerLayerMask = 1 << LayerMask.NameToLayer(playerLayerName);
+        dragonLayerMask = 1 << LayerMask.NameToLayer(dragonLayerName);
     }
 
     private void Update()
@@ -127,24 +137,24 @@ public class CameraManager : BaseManager<CameraManager>
             }
         }
 
-        if (cameraPoseSetting.poseList == null || cameraPoseSetting.poseList.Count == 0)
-        {
+        //if (cameraPoseSetting.poseList == null || cameraPoseSetting.poseList.Count == 0)
+        //{
             cameraPoses = new CameraPose[System.Enum.GetValues(typeof(CameraType)).Length];
 
-            //cameraPoses[(int)CameraType.Main] = new CameraPose(
-            //    new Vector3(0, 3, 0.6f),
-            //    Vector3.zero,
-            //    Vector3.zero
-            //);
+            cameraPoses[(int)CameraType.Main] = new CameraPose(
+                new Vector3(0, 3, 0.6f),
+                Vector3.zero,
+                3f
+            );
 
-            //cameraPoses[(int)CameraType.LookAt] = new CameraPose(
-            //    new Vector3(0, 2.1f, 4.2f),
-            //    new Vector3(10, 180, 0),
-            //    3f
-            //);
+            cameraPoses[(int)CameraType.LookAt] = new CameraPose(
+                new Vector3(1.8f, 2.4f, 4f),
+                new Vector3(10, 180, 0),
+                3f
+            );
 
             cameraPoses[(int)CameraType.UIview] = new CameraPose(
-                new Vector3(0, 2.1f, 4.2f),
+                new Vector3(1.8f, 2.4f, 4f),
                 new Vector3(10, 180, 0),
                 3f
             );
@@ -156,7 +166,7 @@ public class CameraManager : BaseManager<CameraManager>
             );
 
             cameraPoseSetting.poseList = cameraPoses.ToList();
-        }
+        //}
     }
 
     private List<CameraPose> GetDefaultPosesForType(CameraTransitionType type)
@@ -228,15 +238,51 @@ public class CameraManager : BaseManager<CameraManager>
     private void UpdateUIviewCamera(Transform gobTarget = null)
     {
         if (orbitTarget == null || MainCamera == null) return;
-        if (gobTarget == null) gobTarget = orbitTarget;
+        if (gobTarget == null)
+        {
+            gobTarget = orbitTarget;
+        }
+
         Vector3 targetPosition = gobTarget.position;
         CameraPose pose = cameraPoses[(int)CameraType.UIview];
         Vector3 offsetPosition = gobTarget.rotation * pose.position;
+        
+        if (gobTarget != orbitTarget)
+        {
+            targetPosition.y -= isStatusUI ? 1 : 0.5f;
+        }
 
         MainCamera.transform.position = targetPosition + offsetPosition;
         MainCamera.transform.rotation = gobTarget.rotation * Quaternion.Euler(pose.rotation);
+
+        if (isStatusUI)
+        {
+            if (gobTarget == orbitTarget) SetPortraitActive(isStatusUI);
+            else SetPortraitActive(isStatusUI, false);
+        }
+        else if (portraitCamera.gameObject.activeSelf)
+        {
+            SetPortraitActive(isStatusUI);
+        }
     }
- 
+
+
+    private void SetPortraitActive(bool isActive, bool isPlayer = true)
+    {
+        if (!isActive)
+        {
+            DisableLayer(portraitCamera, playerLayerMask);
+            DisableLayer(portraitCamera, dragonLayerMask);
+            portraitCamera.gameObject.SetActive(false);
+            return;
+        }
+
+        EnableLayer(portraitCamera, isPlayer ? playerLayerMask : dragonLayerMask);
+        DisableLayer(portraitCamera, isPlayer ? dragonLayerMask : playerLayerMask);
+        portraitCamera.gameObject.SetActive(true);
+    }
+
+
     public static void SetCameraActive(Transform target, CameraType nexttype)
     {
         if (Instance == null || Instance.mainCamera == null) return;
@@ -255,11 +301,6 @@ public class CameraManager : BaseManager<CameraManager>
         CameraPose pose = Instance.cameraPoses[index];
         Instance.mainCamera.transform.position = target.position + target.rotation * pose.position;
         Instance.mainCamera.transform.rotation = target.rotation * Quaternion.Euler(pose.rotation);
-    }
-
-    public void SetFollowOffset(Vector2 offset)
-    {
-        followOffset = offset;
     }
 
     private void HandlePoseTransition()
@@ -295,6 +336,7 @@ public class CameraManager : BaseManager<CameraManager>
                 isTransitionActive = false;
                 OnTransitionComplete?.Invoke(); // 트랜지션 완료 이벤트
                 currentCameraType = CameraType.Orbit;
+                target = null;
             }
         }
     }
@@ -319,6 +361,7 @@ public class CameraManager : BaseManager<CameraManager>
                 break;
         }
     }
+
 
     public static void CursorLock()
     {
@@ -359,24 +402,91 @@ public class CameraManager : BaseManager<CameraManager>
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-        // Default 상태를 제외한 모든 상태가 동일한 처리
-        if (newState == GameSystemState.Inventory ||
-            newState == GameSystemState.StatusUI ||
-            newState == GameSystemState.DialogueState ||
-            newState == GameSystemState.Pause ||
-            newState == GameSystemState.GameOver ||
-            newState == GameSystemState.QuestReview ||
-            newState == GameSystemState.PetInteraction)
+        switch (newState)
         {
-            currentCameraType = CameraType.UIview;
-            UpdateUIviewCamera();
-            CursorLock();
+            case GameSystemState.Shopping:
+                PlayerVisible(false);
+                HandleShoppingState(additionalData);
+                break;
+
+            case GameSystemState.InfoMessage:
+                CursorLock();
+                break;
+
+            case GameSystemState.StatusUI:
+                isStatusUI = true;
+                PlayerVisible(false);
+                HandleUIviewState();
+                CursorLock();
+                break;
+
+            case GameSystemState.Inventory:
+            case GameSystemState.DialogueState:
+            case GameSystemState.Pause:
+            case GameSystemState.GameOver:
+            case GameSystemState.QuestReview:
+            case GameSystemState.PetInteraction:
+                PlayerVisible(true);
+                HandleUIviewState();
+                break;
+
+            default:
+                HandleDefaultState();
+                break;
+        }
+    }
+
+    // 상태 처리 메서드
+    private void HandleShoppingState(object data)
+    {
+        NPCData npcData = data as NPCData;
+        HandleUIviewState(npcData?.currentNPC.transform);
+    }
+
+    public void HandleUIviewState(Transform cameraTarget = null)
+    {
+        currentCameraType = CameraType.UIview;
+        if (cameraTarget != null)
+        {
+            UpdateUIviewCamera(cameraTarget);
+            PlayerVisible(false);
         }
         else
         {
-            CursorUnLock();
-            currentCameraType = CameraType.Orbit;
+            UpdateUIviewCamera();
         }
+        CursorLock();
+    }
+
+    private void HandleDefaultState()
+    {
+        CursorUnLock();
+        currentCameraType = CameraType.Orbit;
+        PlayerVisible(true);
+    }
+
+    private void PlayerVisible(bool visible)
+    {
+        if (visible)
+        {
+            EnableLayer(MainCamera, playerLayerMask);
+            EnableLayer(MainCamera, dragonLayerMask);
+        }
+        else
+        {
+            DisableLayer(MainCamera, playerLayerMask);
+            DisableLayer(MainCamera, dragonLayerMask);
+        }
+    }
+
+    public void DisableLayer(Camera targetCamera, LayerMask layerMask)
+    {
+        targetCamera.cullingMask &= ~layerMask;
+    }
+
+    public void EnableLayer(Camera targetCamera, LayerMask layerMask)
+    {
+        targetCamera.cullingMask |= layerMask;
     }
 
     private void OnDrawGizmos()
@@ -438,6 +548,8 @@ public enum CameraType
     UIview,
     NpcInteract,
     Sideways,
+    LookAt,
+    Main
 }
 
 public enum CameraTransitionType
