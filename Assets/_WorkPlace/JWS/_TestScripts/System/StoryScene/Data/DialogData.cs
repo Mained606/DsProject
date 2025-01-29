@@ -10,9 +10,10 @@ public class DialogData
 [System.Serializable]
 public class CharacterMoveData
 {
+    public string charStoryNPC;  // 타겟 트랜스폼
     public Vector3 startPosition; // 시작 위치
     public Vector3 endPosition;   // 목표 위치
-    public float moveSpeed = 2f;  // 이동 속도
+    public float moveSpeed = 0.2f;  // 이동 속도
     public bool shouldMove;       // 이동 여부
 }
 

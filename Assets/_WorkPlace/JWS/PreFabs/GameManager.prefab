@@ -96,6 +96,11 @@ MonoBehaviour:
   itemList: {fileID: 11400000, guid: a6828d70005f0b64783d5a4bc0c5a5b1, type: 2}
   itemSpriteList: []
   dropItemPrefab: {fileID: 5829863160345447765, guid: 9f24f9f1556ad094489e3067284dc5e3, type: 3}
+  ItemEffectPrefab:
+  - {fileID: 6532625474870085665, guid: f3b22b81d58646d48bfdbc15c881cf48, type: 3}
+  - {fileID: 7823327091382468809, guid: bd329c39434b274478563aaeb58d4323, type: 3}
+  - {fileID: 6331275906715107345, guid: a67f46416ee8ebd4a893b3ae465afc08, type: 3}
+  - {fileID: 6331275906715107345, guid: 44545d2ae115d314197058f7c8b41220, type: 3}
 --- !u!1 &668412533047110478
 GameObject:
   m_ObjectHideFlags: 0

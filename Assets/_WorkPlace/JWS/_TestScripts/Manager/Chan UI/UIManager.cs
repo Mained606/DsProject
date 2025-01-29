@@ -148,7 +148,6 @@ public class UIManager : BaseManager<UIManager>
         infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
         if (infoMessageWindow.gameObject.activeSelf)
         {
-            Debug.Log("토글 : " + message);
             infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
         }
     }

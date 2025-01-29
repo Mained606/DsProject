@@ -20,3 +20,13 @@ public enum CharacterActionType
     Attack,
     Emote
 }
+
+public enum StoryEventType
+{
+    FadeScreen,
+    PlaySound,
+    CameraShake,
+    CameraTransit,
+    DisplayDialog,
+    MoveCharacter
+}
