@@ -5221,7 +5221,7 @@ GameObject:
   - component: {fileID: 338954232628491240}
   - component: {fileID: 5981647405961899676}
   m_Layer: 0
-  m_Name: Simple_Axe Variant
+  m_Name: Simple_Axe_Variant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7200,7 +7200,7 @@ GameObject:
   - component: {fileID: 3459172584739558993}
   - component: {fileID: 6003607676492173130}
   m_Layer: 0
-  m_Name: MoonSword 6b
+  m_Name: MoonSword_6b
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7308,7 +7308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponId: 
-  toolTag: 
+  toolTag: Pickaxe
 --- !u!1 &4669055876699586869
 GameObject:
   m_ObjectHideFlags: 0
@@ -8241,52 +8241,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8169b469a56a00c4082414b11c346e54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapons:
-  - {fileID: 1223590886014512738}
-  - {fileID: 709067050839497266}
-  - {fileID: 8682709224346686013}
-  - {fileID: 3241956855375083509}
-  - {fileID: 3623884625626497165}
-  - {fileID: 4616255806888308693}
-  currentWeaponId: 
-  weaponItemList:
-    id: 
-    name: 
-    description: 
-    type: 0
-    costValue: 0
-    quantity: 0
-    maxStack: 0
-    isDiscardable: 0
-    isStackable: 0
-    sprite: {fileID: 0}
-    dropChance: 0
-    effect:
-      effectType: 0
-      itemSize: 0
-      duration: 0
-      effectParticle: {fileID: 0}
-    itemStat:
-      Strength: 0
-      Dexterity: 0
-      Intelligence: 0
-      Vitality: 0
-      Luck: 0
-      MaxHealth: 0
-      MaxMana: 0
-      PhysicalAttack: 0
-      MagicAttack: 0
-      PhysicalDefense: 0
-      MagicDefense: 0
-      CriticalChance: 0
-      AttackSpeed: 0
-      Evasion: 0
-    grade: 0
-    equipmentSlot: 0
-    weaponType: 0
-    consumableType: 0
-    effectAmount: 0
-    questId: 
 --- !u!1 &5561973531846721551
 GameObject:
   m_ObjectHideFlags: 0
@@ -8906,30 +8860,46 @@ MonoBehaviour:
   playerData:
     characterName: 
     characterType: 0
-    prefab: {fileID: 0}
+    characterPrefab: {fileID: 0}
+    level: 0
+    currentExperience: 0
+    experienceToLevelUp: 0
     strength: 0
     agility: 0
     vitality: 0
     intelligence: 0
-    speed: 0
-    attackSpeed: 0
+    maxHp: 0
+    currentHp: 0
+    hpRecoveryRate: 0
+    maxMp: 0
+    currentMp: 0
+    mpRecoveryRate: 0
     stamina: 0
     staminaCurrent: 0
     staminaRecoveryRate: 0
-    mpRecoveryRate: 0
-    level: 0
-    currentExperience: 0
-    experienceToLevelUp: 0
-    maxHp: 0
-    currentHp: 0
-    maxMp: 0
-    currentMp: 0
+    moveSpeed: 0
+    attackSpeed: 0
+    attackRange: 0
     physicalDefense: 0
     magicDefense: 0
     physicalDamage: 0
     magicDamage: 0
     criticalChance: 0
-    baseDamage: 0
+    criticalDamage: 0
+    dodgeChance: 0
+    hasShield: 0
+    blockChance: 0
+    physicalDamageReduction: 0
+    magicDamageReduction: 0
+    statModifier:
+      vitalityMultiplier: 10
+      mpMultiplier: 5
+      levelMpBonus: 10
+      strengthMultiplier: 1.5
+      agilityMultiplier: 0.01
+      physicalResistanceMultiplier: 1
+      magicResistanceMultiplier: 2
+      intelligenceMultiplier: 1.5
     skills: []
     gold: 0
   playerCombat: {fileID: 0}
@@ -8966,6 +8936,7 @@ MonoBehaviour:
   isRecovery: 0
   CanWeaponSwitch: 0
   RecoveryTime: 1
+  uiCheck: 0
 --- !u!143 &1098804586676782611
 CharacterController:
   m_ObjectHideFlags: 0

@@ -16,11 +16,14 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject dialogWindow;
     [SerializeField] private GameObject questWindow;
     [SerializeField] private GameObject inventoryUI;
+    [SerializeField] private GameObject shopUI;
     [SerializeField] private GameObject interactTextUI;
     [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
+    [SerializeField] private GameObject infoMessageWindow;
     [SerializeField] private GameObject InventorytooltipWindow;
     [SerializeField] private GameObject characterStaus;
+    [SerializeField] private GameObject quickSlot;
     [SerializeField] private Transform questListParent;
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -33,6 +36,7 @@ public class UIManager : BaseManager<UIManager>
     public static MainButtonUI MainButtonUI;
     public static InteractPopupUI InteractPopupUI;
     public static HistoryUI HistoryUI;
+    public static ShopUI ShopUI;
     public static HistoryWindowUI HistoryWindowUI;
 
     protected override void OnEnable()
@@ -44,8 +48,11 @@ public class UIManager : BaseManager<UIManager>
         MainButtonUI = mainTitleButton.GetComponent<MainButtonUI>();
         InteractPopupUI = interactTextUI.GetComponent<InteractPopupUI>();
         mainCanvas.SetActive(true);
+        mainTitleButton.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
+        shopUI.SetActive(false);
+        infoMessageWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
         InventorytooltipWindow.SetActive(false);
@@ -53,6 +60,7 @@ public class UIManager : BaseManager<UIManager>
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
+        ShopUI = shopUI.GetComponent<ShopUI>();
     }
 
     private void Update()
@@ -72,6 +80,11 @@ public class UIManager : BaseManager<UIManager>
             InputManager.InputActions.actions["Interact"].Enable();
             InputManager.InputActions.actions["Move"].Enable();
         }
+        if (infoMessageWindow.activeSelf && Input.GetMouseButtonDown(1))
+        {
+            TogglinfoMessageWindow("");
+            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+        }
     }
 
     private bool IsPointerOverUI()
@@ -89,30 +102,53 @@ public class UIManager : BaseManager<UIManager>
     {
         dialogWindow.SetActive(!dialogWindow.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
     }
 
     public void ToggleHistorylog()
     {
         historyWindow.SetActive(!historyWindow.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
     }
 
     public void ToggleInventory()
     {
         inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(true);
     }
 
     public void ToggleQuestWindow()
     {
         questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
     }
     
     public void ToggleStatusWindow()
     {
         characterStaus.gameObject.SetActive(!characterStaus.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
+    }
+        
+    public void TogglShopWindow(NPCData nPCData)
+    {
+        shopUI.gameObject.SetActive(!shopUI.gameObject.activeSelf);
+        mainCanvas.SetActive(!mainCanvas.activeSelf);
+        quickSlot.SetActive(false);
+        if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
+    }
+
+    public void TogglinfoMessageWindow(string message)
+    {
+        infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
+        if (infoMessageWindow.gameObject.activeSelf)
+        {
+            Debug.Log("토글 : " + message);
+            infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
+        }
     }
 
     public void InventoryUpdate()
@@ -168,7 +204,6 @@ public class UIManager : BaseManager<UIManager>
                 if (quest.questType == "메인퀘스트")
                 {
                     QuestManager.Instance.CompleteQuest(quest);
-                    //Destroy(gameObj, 2f);
                 }
             }
         }
@@ -317,9 +352,12 @@ public class UIManager : BaseManager<UIManager>
     {
         EventSystem.current.SetSelectedGameObject(null);
         mainCanvas.SetActive(true);
+        quickSlot.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         characterStaus.SetActive(false);
+        shopUI.SetActive(false);
+        infoMessageWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
     }
@@ -351,12 +389,13 @@ public class UIManager : BaseManager<UIManager>
 
     public bool IsUIWindowOpen()
     {
-        return characterStaus.activeSelf || dialogWindow.activeSelf || questWindow.activeSelf || inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf;
+        return shopUI.activeSelf || characterStaus.activeSelf || dialogWindow.activeSelf || questWindow.activeSelf || 
+            inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf || infoMessageWindow.gameObject.activeSelf;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-        UIClose();
+        if (newState != GameSystemState.InfoMessage) UIClose();
         #region Delete
 
         switch (newState)
@@ -368,12 +407,18 @@ public class UIManager : BaseManager<UIManager>
                 ToggleInventory();
                 break;
             case GameSystemState.QuestReview:
-
                 ToggleQuestWindow();
                 break;
             case GameSystemState.StatusUI:
-
                 ToggleStatusWindow();
+                break;
+            case GameSystemState.Shopping:
+                NPCData npcData = additionalData as NPCData;
+                TogglShopWindow(npcData);
+                break;
+            case GameSystemState.InfoMessage:
+                string message = additionalData as string;
+                TogglinfoMessageWindow(message);
                 break;
         }
         #endregion

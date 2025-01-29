@@ -74,7 +74,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         
         // 게임 시작시 강제 초기화 원하면 활성화
         InitialCharacter();
-        //InitialDragon();
+        // InitialDragon();
     }
 
     private void Update()
@@ -88,8 +88,6 @@ public class CharacterManager : BaseManager<CharacterManager>
             
             playercharacterData = PlayerCharacterData;
             dragonData = DragonData;
-            
-            Debug.Log(isInitialized);
         }
     }
 
@@ -103,16 +101,19 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.statModifier = new StatModifier();
         
         PlayerCharacterData.characterName = "Hero";
-        PlayerCharacterData.prefab= null; // 플레이어 프리팹 (Unity 에디터에서 할당 가능)
-        PlayerCharacterData.strength= 10;
-        PlayerCharacterData.vitality= 15;
-        PlayerCharacterData.agility= 8;
-        PlayerCharacterData.intelligence= 12;
-        PlayerCharacterData.speed= 5.0f;
-        PlayerCharacterData.attackSpeed= 1.2f;
-        PlayerCharacterData.stamina= 100f;
+        PlayerCharacterData.characterPrefab = null; // 플레이어 프리팹 (Unity 에디터에서 할당 가능)
+        PlayerCharacterData.strength = 10;
+        PlayerCharacterData.vitality = 15;
+        PlayerCharacterData.agility = 8;
+        PlayerCharacterData.intelligence = 12;
+        PlayerCharacterData.moveSpeed = 5.0f;
+        PlayerCharacterData.attackSpeed = 1.2f;
+        PlayerCharacterData.stamina = 100f;
         PlayerCharacterData.staminaRecoveryRate = 0.1f;
         PlayerCharacterData.mpRecoveryRate = 1;
+        
+        // 파생 스탯 계산
+        PlayerCharacterData.UpdateDerivedStats();
 
         // 레벨 초기화
         PlayerCharacterData.level = 1;
@@ -126,10 +127,8 @@ public class CharacterManager : BaseManager<CharacterManager>
         playercharacterData.currentMp = PlayerCharacterData.maxMp;
         PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
 
-        // 파생 스탯 계산
-        PlayerCharacterData.UpdateDerivedStats();
         
-        Debug.Log(PlayerCharacterData.ToStringForTMPro());
+        // Debug.Log(PlayerCharacterData.ToStringForTMPro());
     }
     
     public void InitialDragon()
@@ -189,7 +188,7 @@ public class CharacterManager : BaseManager<CharacterManager>
     {
         // 템플릿에서 이름에 해당하는 캐릭터 데이터 검색
         MonsterData template = characterTemplates.monsters.Find(c => c.characterName == Name);
-        Debug.Log(template.ToStringForTMPro() + "몬스터 생성 전 스텟");
+        // Debug.Log(template.ToStringForTMPro() + "몬스터 생성 전 스텟");
 
         // 템플릿을 메모리에서 복제 (독립적인 인스턴스 생성)
         MonsterData cloned = template.Clone();
@@ -235,7 +234,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         if (monster != null)
         {
             Debug.Log($"몬스터 '{monster.characterName}' 생성 완료. 스폰 위치: {spawnPosition}");
-            GameObject monsterInstance = Instantiate(monster.prefab, spawnPosition, Quaternion.identity);
+            GameObject monsterInstance = Instantiate(monster.characterPrefab, spawnPosition, Quaternion.identity);
             // 생성된 인스턴스를 MonsterData에 연결
             monster.instance = monsterInstance;
             // 필요한 컴포넌트 추가 및 초기화
@@ -253,7 +252,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         MonsterData monster = CreateCharacterFromTemplate(templateName);
         if (monster != null)
         {
-            GameObject monsterInstance = Instantiate(monster.prefab, parent);
+            GameObject monsterInstance = Instantiate(monster.characterPrefab, parent);
             monster.instance = monsterInstance;
             var testComponent = monsterInstance.AddComponent<Test1>();
             testComponent.monster = monster;
