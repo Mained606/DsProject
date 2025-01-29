@@ -26,7 +26,7 @@ public class CameraEffectData
 
     public bool enableZoom;  // 줌 효과 사용 여부
     public float zoomAmount = 5f; // 줌 강도
-    public float zoomSpeed = 2f;  // 줌 속도
+    public float zoomSpeed = 5f;  // 줌 속도
 }
 
 [System.Serializable]
