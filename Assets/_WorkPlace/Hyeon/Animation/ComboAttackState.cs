@@ -37,22 +37,21 @@ public class ComboAttackState : StateMachineBehaviour
             combat.weaponCollider.enabled = true;
             Debug.Log("🔪 무기 콜라이더 활성화!");
         }
+        combat?.LookEnemy();
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         SetCombatComponent(animator);
-
         if (stateInfo.normalizedTime >= 0.5f)
         {
             if (!isPressedAttackKey && InputManager.InputActions.actions["Attack"].triggered)
             {
+                isPressedAttackKey = true;
                 Debug.LogWarning("🟢 다음 콤보로 전환 요청");
                 animator.SetTrigger("NextCombo");
-                isPressedAttackKey = true;
             }
         }
-
         InputManager.InputActions.actions["Move"].Disable();
         InputManager.InputActions.actions["Jump"].Disable();
     }
