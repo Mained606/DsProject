@@ -9,7 +9,11 @@ public enum StoryState
 
 public enum SequenceTriggerType
 {
-    None, OnDialogEnd, OnCharacterMove, OnAnimationEnd, OnInteraction
+    None, 
+    OnDialogEnd, 
+    OnCharacterMove, 
+    OnAnimationEnd, 
+    OnInteraction
 }
 
 public enum CharacterActionType
@@ -19,4 +23,29 @@ public enum CharacterActionType
     Run,
     Attack,
     Emote
+}
+
+public enum StoryEventType
+{
+    FadeScreen,
+    PlaySound,
+    CameraShake,
+    CameraTransit,
+    DisplayDialog,
+    MoveCharacter,
+    PlayerSpeeches,
+}
+
+public enum FaceShapeType
+{
+    Blink,
+    Mouth_A,
+    Mouth_I,
+    Mouth_U,
+    Mouth_E,
+    Mouth_O,
+    Joy,
+    Angry,
+    Sorrow,
+    Fun
 }

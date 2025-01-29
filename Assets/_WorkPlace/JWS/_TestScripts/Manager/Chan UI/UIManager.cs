@@ -100,18 +100,27 @@ public class UIManager : BaseManager<UIManager>
         return results.Count > 0;
     }
 
-    public void ToggleDialog()
+    public void ToggleDialog( bool isOn = false)
     {
-        dialogWindow.SetActive(!dialogWindow.activeSelf);
-        mainCanvas.SetActive(!mainCanvas.activeSelf);
-        quickSlot.SetActive(false);
+        if (isOn)
+        {
+            dialogWindow.SetActive(true);
+            mainCanvas.SetActive(false);
+            quickSlot.SetActive(false);
+        }
+        else
+        {
+            dialogWindow.SetActive(!dialogWindow.activeSelf);
+            mainCanvas.SetActive(!mainCanvas.activeSelf);
+            quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
+        }
     }
 
     public void ToggleHistorylog()
     {
         historyWindow.SetActive(!historyWindow.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
-        quickSlot.SetActive(false);
+        quickSlot.SetActive(true);
     }
 
     public void ToggleInventory()
@@ -125,14 +134,14 @@ public class UIManager : BaseManager<UIManager>
     {
         questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
-        quickSlot.SetActive(false);
+        quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
     }
 
     public void ToggleStatusWindow()
     {
         characterStaus.gameObject.SetActive(!characterStaus.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
-        quickSlot.SetActive(false);
+        quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
     }
 
     public void TogglShopWindow(NPCData nPCData)
@@ -148,7 +157,6 @@ public class UIManager : BaseManager<UIManager>
         infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
         if (infoMessageWindow.gameObject.activeSelf)
         {
-            Debug.Log("토글 : " + message);
             infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
         }
     }
