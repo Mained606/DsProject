@@ -27,11 +27,6 @@ public class PlayerAnimatorHandler : MonoBehaviour
         { FaceShapeType.Fun, 0.5f }
     };
 
-    private void Awake()
-    {
-        animator = GetComponent<Animator>();
-    }
-
     private void OnEnable()
     {
         if (alphabetDictionary == null) LoadGameStateData();
@@ -119,10 +114,10 @@ public class PlayerAnimatorHandler : MonoBehaviour
         ChangeBlendShape(FaceShapeType.Joy, 0);
     }
 
-    public IEnumerator SpeechAnimateText(TextMeshProUGUI subDisplay, string comment, FaceShapeType faceType = FaceShapeType.Fun, float delay = 0.001f)
+    public IEnumerator SpeechAnimateText(TextMeshProUGUI subDisplay, string comment, FaceShapeType faceType = FaceShapeType.Blink, float delay = 0.01f)
     {
         subDisplay.text = "";
-        ChangeBlendShape(faceType, 100);
+        SetLookAt(Camera.main.transform, true);
         foreach (char c in comment)
         {
             string key = c.ToString().ToUpper();
@@ -135,7 +130,7 @@ public class PlayerAnimatorHandler : MonoBehaviour
         }
         SetSpeechShape(0f, 0f, 0f, 0f, 0f);
         yield return new WaitForSeconds(0.5f);
-        ChangeBlendShape(faceType, 0);
+        SetLookAt(null, false);
     }
 
     private IEnumerator AnimateFace(FaceShapeType type, float value, float durate = 0f)
@@ -172,8 +167,10 @@ public class PlayerAnimatorHandler : MonoBehaviour
 
     private void OnAnimatorIK(int layerIndex)
     {
+        Debug.Log("들어왔나?");
         if (animator == null ) return;
 
+        Debug.Log("들어왔나?");
         if (isLookAt && lookAtTarget != null)
         {
             animator.SetLookAtWeight(headIKWeight, 0.5f, 0.6f, 0.8f, 0.5f);

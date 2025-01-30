@@ -34,7 +34,7 @@ public class StorySceneManager : MonoBehaviour
         bgmSource = gameObject.AddComponent<AudioSource>();
         sfxSource = gameObject.AddComponent<AudioSource>();
         sequenceList = new List<SequenceData>(storySequenceCollection.sequences);
-        playerAnimatorHandler = CameraManager.Instance.transform.GetComponent<PlayerAnimatorHandler>();
+        playerAnimatorHandler = GameManager.playerTransform.GetComponentInChildren<PlayerAnimatorHandler>();
         display = UIManager.Instance.DisplaySpeechWindow.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
     }
 
@@ -205,7 +205,7 @@ public class StorySceneManager : MonoBehaviour
         Vector3 moveDirection = (endPos - startPos).normalized;
 
         float distanceToTarget = Vector3.Distance(character.position, endPos);
-        while (distanceToTarget > 0.1f)
+        while (distanceToTarget > 0.3f)
         {
             animator.SetFloat("MotionSpeed", 1);
             animator.SetFloat("Speed", speed * 1.5f);

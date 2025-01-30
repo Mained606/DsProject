@@ -237,15 +237,18 @@ public class CameraManager : BaseManager<CameraManager>
 
     private void UpdateUIviewCamera(Transform gobTarget = null)
     {
+        bool isPlayer = false;
         if (orbitTarget == null || MainCamera == null) return;
         if (gobTarget == null)
         {
+            isPlayer= true;
             gobTarget = orbitTarget;
         }
 
         Vector3 targetPosition = gobTarget.position;
         CameraPose pose = cameraPoses[(int)CameraType.UIview];
-        Vector3 offsetPosition = gobTarget.rotation * pose.position;
+        Vector3 offsetPosition = gobTarget.rotation * pose.position + 
+            (isPlayer ? Vector3.zero : new Vector3(0, 0.6f, 0));
         
         if (gobTarget != orbitTarget)
         {
