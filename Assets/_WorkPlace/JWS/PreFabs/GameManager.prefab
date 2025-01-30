@@ -95,7 +95,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemList: {fileID: 11400000, guid: a6828d70005f0b64783d5a4bc0c5a5b1, type: 2}
   itemSpriteList: []
-  dropItemPrefab: {fileID: 5829863160345447765, guid: 9f24f9f1556ad094489e3067284dc5e3, type: 3}
+  dropItemPrefab: {fileID: 2939739869623886801, guid: 715466210aec975499f1a467f1c14bc4, type: 3}
+  dropItemDestroyTime: 180
   ItemEffectPrefab:
   - {fileID: 6532625474870085665, guid: f3b22b81d58646d48bfdbc15c881cf48, type: 3}
   - {fileID: 7823327091382468809, guid: bd329c39434b274478563aaeb58d4323, type: 3}
@@ -401,6 +402,7 @@ MonoBehaviour:
     gold: 0
   dragonData:
     characterName: 
+    characterType: 0
     prefab: {fileID: 0}
     strength: 0
     agility: 0
@@ -408,14 +410,18 @@ MonoBehaviour:
     intelligence: 0
     speed: 0
     attackSpeed: 0
+    attackRange: 0
     bondLevel: 0
     bondExperience: 0
     bondThresholds: 
     statModifier:
-      physicalDamageMultiplier: 1.5
-      magicDamageMultiplier: 2
-      criticalDamageMultiplier: 2
-      skillBonusMultiplier: 1.2
+      strengthMultiplier: 1.5
+      agilityMultiplier: 0.01
+      intelligenceMultiplier: 1.5
+    physicalDamage: 0
+    magicDamage: 0
+    criticalChance: 0
+    criticalDamage: 0
   characterTemplates: {fileID: 11400000, guid: 091e7d62338046b4a8e7ccb7f2fb75c2, type: 2}
   isInitialized: 1
 --- !u!1 &3191311102163359365

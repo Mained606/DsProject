@@ -8,7 +8,10 @@ public class ItemManager : BaseManager<ItemManager>
     [SerializeField] private ItemList itemList;
     [SerializeField] private List<Sprite> itemSpriteList = new List<Sprite>();
     [SerializeField] private GameObject dropItemPrefab;
+    [SerializeField] private float dropItemDestroyTime = 180f;      // 드랍아이템 사라지는 시간.
     [SerializeField] private GameObject[] ItemEffectPrefab;
+
+    public static float DropItemDestroyTime => Instance.dropItemDestroyTime;
 
 
     public static List<Item> ItemDatabase => Instance.itemList.itemList;
