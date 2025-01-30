@@ -722,6 +722,9 @@ public class DragonData
         magicDamage = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier, 1f)); // 기본값을 1f로 설정
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f); // 민첩성에 따른 크리티컬 확률
         criticalDamage = 1.5f; // 크리티컬 데미지 배율 예시 (게임에 맞게 수정 가능)
+        
+        // 레벨 업 종료
+        isLevelingUp = false;
     }
     
     // 유대 경험치 증가
