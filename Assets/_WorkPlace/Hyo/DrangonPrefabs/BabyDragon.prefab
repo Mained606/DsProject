@@ -1488,6 +1488,7 @@ MonoBehaviour:
     criticalChance: 0
     criticalDamage: 0
   firePoint: {fileID: 914667545543988445}
+  isMoving: 0
   followDistance: 3
   teleportDistance: 10
   followSpeed: 5
@@ -1497,8 +1498,8 @@ MonoBehaviour:
   meleeRange: 1
   maxDistanceFromPlayer: 15
   fireballPrefab: {fileID: 478066477400670348, guid: f1ce9a5f250e288449f4dbd4206d3345, type: 3}
-  skillCooldown: 8
-  rangedCooldown: 4
+  skillCooldown: 60
+  rangedCooldown: 10
   currentTarget:
     characterName: 
     characterType: 0
@@ -1547,6 +1548,7 @@ MonoBehaviour:
     goldReward: 0
     instance: {fileID: 0}
   currentTargetTransform: {fileID: 0}
+  currentState: 0
 --- !u!1 &6947217215586214734
 GameObject:
   m_ObjectHideFlags: 0
