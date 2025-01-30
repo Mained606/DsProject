@@ -1,6 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum DragonState
+{
+    Idle,
+    Moving,
+    MeleeAttack,
+    RangedAttack,
+    SkillAttack,
+    BuffSkill
+}
+
 public class DragonController : MonoBehaviour
 {
     private static readonly int TurnDirection = Animator.StringToHash("turnDirection");
@@ -17,7 +27,7 @@ public class DragonController : MonoBehaviour
     [Header("Follow Settings")]
     public float followDistance = 3f;      // 플레이어와 유지할 거리
     public float teleportDistance = 10f;   // 순간이동할 거리
-    public float followSpeed = 5f;         // 따라다니는 속도
+    public float followSpeed;         // 따라다니는 속도
     public float hoverHeight = 2f;         // 플레이어 위로 떠 있을 높이
     public float rotationSpeed = 5f;       // 회전 속도
 
@@ -26,15 +36,15 @@ public class DragonController : MonoBehaviour
     // ===== 전투 관련 필드 =====
     [Header("Combat Settings")]
     public float detectRange = 10f;        // 전투 시, 주변 몬스터 탐색 범위
-    public float meleeRange = 1f;          // 근접 공격 범위
+    public float meleeRange;          // 근접 공격 범위
     public float maxDistanceFromPlayer = 15f; // 플레이어로부터 이만큼 멀어지면 타겟 해제 & 순간이동
     
     private float meleeCooldown;  // 근접 공격 쿨타임
     [SerializeField] private GameObject fireballPrefab; // 파이어볼 프리팹
 
-    // 간단한 쿨다운 예시
-    public float skillCooldown = 8f;       // 스킬 쿨다운
-    public float rangedCooldown = 4f;      // 원거리 공격(파이어볼) 쿨다운
+    //쿨다운
+    [SerializeField] public float skillCooldown = 60f;       // 스킬 쿨다운
+    [SerializeField] public float rangedCooldown = 10f;      // 원거리 공격(파이어볼) 쿨다운
 
     private float skillTimer = 0f;
     private float rangedTimer = 0f;
@@ -43,8 +53,12 @@ public class DragonController : MonoBehaviour
     [SerializeField] private MonsterData currentTarget = null;
     [SerializeField] private Transform currentTargetTransform = null;
 
-    // 우선순위: 1. 스킬 > 2. 파이어볼 > 3. 근접 공격
-    // 스킬 / 원거리 공격 / 근접 공격 메서드는 아직 구현 전이라면 스텁(빈 함수)으로 둬도 됩니다.
+    // 드래곤의 상태를 나타내는 변수 추가
+    [SerializeField] private DragonState currentState = DragonState.Idle;
+    
+    private bool IsMeleeOnCooldown() => (meleeCooldown > 0f);
+    private bool IsSkillOnCooldown() => (skillTimer > 0f);
+    private bool IsRangedOnCooldown() => (rangedTimer > 0f);
 
     private void OnEnable()
     {
@@ -89,6 +103,8 @@ public class DragonController : MonoBehaviour
         // 플레이어와 초기 상대 위치 설정
         offset = new Vector3(0, hoverHeight, -followDistance);
         lastPlayerPosition = player.position; // 초기 위치 저장
+        meleeRange = dragonData.attackRange;
+        followSpeed = dragonData.speed;
     }
 
     private void Update()
@@ -122,6 +138,7 @@ public class DragonController : MonoBehaviour
             currentTargetTransform = null;
             // 플레이어 옆으로 순간이동
             transform.position = player.position + offset;
+            currentState = DragonState.Moving;
             return;
         }
 
@@ -135,28 +152,39 @@ public class DragonController : MonoBehaviour
         if (currentTarget == null)
         {
             FollowPlayerLogic();
+            currentState = DragonState.Moving;
             return;
         }
 
         // 공격 우선순위 1) 스킬, 2) 원거리 공격(파이어볼), 3) 근접 공격
         if (!IsSkillOnCooldown())
         {
-            UseSkillAttack();
+            if (currentState == DragonState.Moving || currentState == DragonState.Idle)
+            {
+                currentState = DragonState.SkillAttack;
+                UseSkillAttack();
+            }
         }
         else if (!IsRangedOnCooldown())
         {
-            UseRangedAttack();
+            if (currentState == DragonState.Moving || currentState == DragonState.Idle)
+            {
+                currentState = DragonState.RangedAttack;
+                UseRangedAttack();
+            }
         }
-        else
+        else if (!IsMeleeOnCooldown())
         {
-            // 타겟 위치로 이동(근접 공격 등을 위해)
-            MoveTowardTarget(currentTargetTransform);
-            UseMeleeAttack();
+            if (currentState == DragonState.Moving || currentState == DragonState.Idle)
+            {
+                currentState = DragonState.MeleeAttack;
             
+                // 타겟 위치로 이동(근접 공격 등을 위해)
+                MoveTowardTarget(currentTargetTransform);
+            }
         }
     }
-
-
+    
     // 주변에서 가장 가까운 몬스터를 찾아서 타겟 설정
     private void FindNearestTarget()
     {
@@ -208,6 +236,8 @@ public class DragonController : MonoBehaviour
         float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
         if (distanceToTarget > meleeRange)
         {
+            currentState = DragonState.Moving;
+        
             // target 쪽으로 이동
             Vector3 dir = (targetTransform.position - transform.position).normalized;
             Vector3 movePos = transform.position + dir * (followSpeed * Time.deltaTime);
@@ -219,7 +249,7 @@ public class DragonController : MonoBehaviour
 
             // 회전 (Y축만 회전하도록 수정)
             Quaternion lookRot = Quaternion.LookRotation(dir, Vector3.up);
-        
+    
             // Y축 회전만 적용하고, 나머지 X, Z 회전은 그대로 유지
             transform.rotation = Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f);
 
@@ -228,64 +258,83 @@ public class DragonController : MonoBehaviour
         }
         else
         {
-            // 이미 충분히 가까우면 이동 중지
+            // 이미 충분히 가까우면 공격
             animator.SetBool(IsMoving, false);
+        
+            // 밀리 어택 상태로 진입하고, 공격을 수행
+            if (!IsMeleeOnCooldown())
+            {
+                currentState = DragonState.MeleeAttack;
+                UseMeleeAttack();
+            }
+            else
+            {
+                currentState = DragonState.Idle;
+            }
         }
     }
-
-
-
+    
     #region 공격 메서드(스킬, 원거리, 근접)
 
     // 1) 스킬 공격 (우선순위 1위)
     private void UseSkillAttack()
     {
-        Debug.Log("[드래곤] 스킬 공격 발사!");
-        // 여기에 SkillManager를 통해 스킬 발사하는 로직 추가
-        // 예) SkillManager.Instance.CastDragonSkill(someSkillId, currentTargetTransform);
+        if (!IsSkillOnCooldown())
+        {
+            Debug.Log("[드래곤] 스킬 공격 발사!");
+            // 여기에 SkillManager를 통해 스킬 발사하는 로직 추가
+            // 예) SkillManager.Instance.CastDragonSkill(someSkillId, currentTargetTransform);
 
-        // 스킬 쿨다운 시작
-        skillTimer = skillCooldown;
+            // 스킬 쿨다운 시작
+            skillTimer = skillCooldown;
+
+            currentState = DragonState.Idle;
+        }
     }
 
     // 2) 원거리 공격(파이어볼) (우선순위 2위)
     private void UseRangedAttack()
     {
-        if (fireballPrefab != null && currentTarget != null)
+        if (fireballPrefab != null && currentTarget != null && !IsRangedOnCooldown())
         {
-            
             Transform targetPos = currentTargetTransform; // 타겟의 위치로 향하게 설정
-            
+        
             animator.SetTrigger("isRangedAttack");
-            
+        
             // 파이어볼 인스턴스화
             GameObject fireball = Instantiate(fireballPrefab, firePoint.position, Quaternion.identity);
 
             // 파이어볼에 대한 초기화
             FireballController fireballController = fireball.GetComponent<FireballController>();
             fireballController.Initialize(targetPos, dragonData, currentTarget);
-            
+        
             // 원거리 공격 쿨다운 시작
             rangedTimer = rangedCooldown;
+        
+            // 현재 상태를 Idle로 설정
+            currentState = DragonState.Idle;
         }
-    } 
+    }
     
     // 3) 근접 공격 (우선순위 3위)
     private void UseMeleeAttack()
     {
-        // 어택 스피드 기반 쿨타임 체크
         if (meleeCooldown <= 0f)
         {
+            Debug.Log("Melee Attack Executed!");
             animator.SetTrigger("isMeleeAttack");
-            
+
             // CombatManager 호출 등을 통해 실제 근접 공격 처리 (필요에 따라)
             CombatManager.Instance.ProcessDragonAttack(dragonData, currentTarget, currentTargetTransform, false);
+
             // 공격 후 쿨타임 갱신
             meleeCooldown = dragonData.attackSpeed;  // 다시 어택 스피드에 맞춰 쿨타임 설정
+
+            currentState = DragonState.Idle;
         }
     }
     #endregion
-
+    
     // 쿨다운 시간 갱신
     private void UpdateCooldowns()
     {
@@ -296,24 +345,20 @@ public class DragonController : MonoBehaviour
             if (meleeCooldown < 0f) meleeCooldown = 0f;
         }
 
-        // 기존의 스킬 및 원거리 공격 쿨타임도 갱신
+        // 스킬 쿨다운 갱신
         if (skillTimer > 0f)
         {
             skillTimer -= Time.deltaTime;
             if (skillTimer < 0f) skillTimer = 0f;
         }
 
+        // 원거리 공격 쿨다운 갱신
         if (rangedTimer > 0f)
         {
             rangedTimer -= Time.deltaTime;
             if (rangedTimer < 0f) rangedTimer = 0f;
         }
     }
-
-    // 스킬 쿨다운 여부
-    private bool IsSkillOnCooldown() => (skillTimer > 0f);
-    private bool IsRangedOnCooldown() => (rangedTimer > 0f);
-
     #endregion
 
     #region 플레이어 따라다니기 로직 (기존 로직 유지/보완)
@@ -354,11 +399,15 @@ public class DragonController : MonoBehaviour
         {
             isMoving = playerIsMoving;
             animator.SetBool(IsMoving, isMoving);
+
+            // 상태 변경
+            currentState = isMoving ? DragonState.Moving : DragonState.Idle;
         }
 
-        // 플레이어의 현재 위치 저장
+        // 플레이어의 현재 위치 저장 (이것은 상태 변경 후 마지막으로 해야 함)
         lastPlayerPosition = player.position;
     }
+
 
     private void RotateTowardsPlayer()
     {

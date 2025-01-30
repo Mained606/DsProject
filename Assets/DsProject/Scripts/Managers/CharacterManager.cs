@@ -144,7 +144,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         dragonData.intelligence = 6;
         dragonData.speed = 5.0f;
         dragonData.attackSpeed = 3f;
-        dragonData.attackRange = 1.5f;
+        dragonData.attackRange = 2.5f;
 
         // 유대 레벨 초기화
         dragonData.bondLevel = 1;
