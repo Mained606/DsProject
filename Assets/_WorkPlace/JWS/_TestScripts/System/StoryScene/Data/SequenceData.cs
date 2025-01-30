@@ -9,7 +9,7 @@ public class SequenceData : ScriptableObject
     public int sequenceCount;
 
     [Header("스토리 타겟설정")]
-    public Transform targetObject;
+    public string targetObject;
 
     [Header("기본 카메라 모드설정")]
     public CameraType cameraType;
