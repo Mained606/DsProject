@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using System;
-using Unity.Cinemachine;
 
 
 #if UNITY_EDITOR
@@ -33,7 +31,6 @@ public class CameraManager : BaseManager<CameraManager>
     private bool isTransitionActive = false;
 
     [Header("오비트 설정")]
-    [SerializeField] private Transform orbitTarget;
     [SerializeField] private Vector3 orbitTargetOffset = new Vector3(0f, 2.5f, 0f);
     [SerializeField] private float orbitDistance = 12f;
     [SerializeField] private Vector2 orbitSensitivity = new Vector2(7f, 7f);
@@ -42,12 +39,19 @@ public class CameraManager : BaseManager<CameraManager>
     [SerializeField] private float orbitPitch = 0f;
 
     [Header("팔로우 설정")]
-    [SerializeField] private Transform followTarget;
     [SerializeField] private Vector2 followOffset = new Vector2(0f, 0f);
 
     [Header("마우스커서 설정")]
     [SerializeField] private CursorLockMode mouseCursor;
     [SerializeField] private bool mouseCursorVisible = false;
+
+    // 컬링부분 체크중.
+    private Transform player, orbitTarget, followTarget; // 플레이어 오브젝트
+    [SerializeField] private Color highlightColor = Color.yellow; // 하이라이트 색상
+    [SerializeField] private float outlineWidth = 2.0f; // 하이라이트 두께
+    private SkinnedMeshRenderer playerRenderer;
+    private bool isPlayerHidden = false; // 플레이어가 가려졌는지 여부
+
     private Camera mainCamera;
     private Camera portraitCamera;
     public string playerLayerName = "Ds Player";
@@ -74,6 +78,8 @@ public class CameraManager : BaseManager<CameraManager>
         Cursor.lockState = mouseCursor;
         Cursor.visible = mouseCursorVisible;
 
+        player = orbitTarget = followTarget = GameManager.playerTransform;
+        playerRenderer = player.GetChild(0).GetChild(1).GetComponentInChildren<SkinnedMeshRenderer>();
         playerLayerMask = 1 << LayerMask.NameToLayer(playerLayerName);
         dragonLayerMask = 1 << LayerMask.NameToLayer(dragonLayerName);
     }
@@ -119,6 +125,7 @@ public class CameraManager : BaseManager<CameraManager>
                 UpdateUIviewCamera();
                 break;
         }
+        // CheckPlayerVisibility();
     }
 
     private void InitCameraPoses()
@@ -488,6 +495,42 @@ public class CameraManager : BaseManager<CameraManager>
             default:
                 HandleDefaultState();
                 break;
+        }
+    }
+
+    private void CheckPlayerVisibility()
+    {
+        Vector3 cameraPosition = mainCamera.transform.position;
+        Vector3 directionToPlayer = player.position - cameraPosition;
+        float distanceToPlayer = directionToPlayer.magnitude;
+
+        // Raycast로 카메라와 플레이어 사이 장애물 확인
+        if (Physics.Raycast(cameraPosition, directionToPlayer.normalized, out RaycastHit hit, distanceToPlayer))
+        {
+            if (hit.transform != player) // 플레이어가 아닌 다른 오브젝트가 먼저 감지됨
+            {
+                if (!isPlayerHidden)
+                {
+                    ApplyHighlight(true);
+                    isPlayerHidden = true;
+                }
+                return;
+            }
+        }
+
+        if (isPlayerHidden)
+        {
+            ApplyHighlight(false);
+            isPlayerHidden = false;
+        }
+    }
+
+    private void ApplyHighlight(bool enable)
+    {
+        foreach (var material in playerRenderer.materials)
+        {
+            material.SetFloat("_OutlineWidth", enable ? outlineWidth : 0f);
+            material.SetColor("_OutlineColor", highlightColor);
         }
     }
 
