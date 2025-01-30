@@ -391,17 +391,16 @@ public class CharacterData
             "<color=magenta>Critical Chance:</color> {17}%\n" +
             "<color=teal>Dodge Chance:</color> {18}%\n" +
             "<color=teal>Block Chance:</color> {19}%\n" +
-            "<color=black>Base Damage:</color> {20}\n" +
+            "<color=yellow>Attack Speed:</color> {20}\n" +
             "<color=teal>Speed:</color> {21}\n" +
-            "<color=yellow>Attack Speed:</color> {22}\n" +
-            "<color=orange>Current Experience:</color> {23}\n" +
-            "<color=orange>Experience To Level Up:</color> {24}\n" +
-            "<color=cyan>Shield Status:</color> {25}\n" +
-            "<color=lime>HP Recovery Rate:</color> {26}\n" + // 체력 회복 속도 추가
-            "<color=lime>MP Recovery Rate:</color> {27}\n" + // MP 회복 속도 추가
-            "<color=lime>Stamina Recovery Rate:</color> {28}\n" + // 스태미너 회복 속도 추가
-            "<color=teal>Physical Damage Reduction:</color> {29}%\n" + // 물리 피해 감소율 추가
-            "<color=teal>Magic Damage Reduction:</color> {30}%", // 마법 피해 감소율 추가
+            "<color=orange>Current Experience:</color> {22}\n" +
+            "<color=orange>Experience To Level Up:</color> {23}\n" +
+            "<color=cyan>Shield Status:</color> {24}\n" +
+            "<color=lime>HP Recovery Rate:</color> {25}\n" +
+            "<color=lime>MP Recovery Rate:</color> {26}\n" +
+            "<color=lime>Stamina Recovery Rate:</color> {27}\n" +
+            "<color=teal>Physical Damage Reduction:</color> {28}%\n" +
+            "<color=teal>Magic Damage Reduction:</color> {29}%",
             characterName, // 0
             level, // 1
             strength, // 2
@@ -422,17 +421,16 @@ public class CharacterData
             criticalChance * 100, // 17
             dodgeChance * 100, // 18
             blockChance * 100, // 19
-            physicalDamage, // 20
+            attackSpeed, // 20
             moveSpeed, // 21
-            attackSpeed, // 22
-            currentExperience, // 23
-            experienceToLevelUp, // 24
-            hasShield ? "<color=green>Equipped</color>" : "<color=red>Not Equipped</color>", // 25
-            hpRecoveryRate, // 26
-            mpRecoveryRate, // 27
-            staminaRecoveryRate, // 28
-            physicalDamageReduction * 100, // 29
-            magicDamageReduction * 100 // 30
+            currentExperience, // 22
+            experienceToLevelUp, // 23
+            hasShield ? "<color=green>Equipped</color>" : "<color=red>Not Equipped</color>", // 24
+            hpRecoveryRate, // 25
+            mpRecoveryRate, // 26
+            staminaRecoveryRate, // 27
+            physicalDamageReduction * 100, // 28
+            magicDamageReduction * 100 // 29
         );
         return baseInfo;
     }
