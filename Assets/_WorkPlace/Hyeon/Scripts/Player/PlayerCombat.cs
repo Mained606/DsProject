@@ -67,6 +67,8 @@ public class PlayerCombat : MonoBehaviour
 
         HandleAttackInput();
         HandleSkillInput();
+
+        // 2025.01.29 JWS 주석처리 사용안해서
         // AttackFinishedCheck();
         SkillFinishedCheck();
     }
@@ -77,6 +79,8 @@ public class PlayerCombat : MonoBehaviour
         if (InputManager.InputActions.actions["Attack"].triggered && CanReceiveInput && hasWeapon)
         {
             Debug.Log("Attack");
+
+            // 2025.01.29 JWS 주석처리 사용안해서
             //inputReceived = true;
 
             PerformComboAttack();
@@ -123,15 +127,21 @@ public class PlayerCombat : MonoBehaviour
 
     ////////////////////////////////////////////////////////////
     ///// JWS 2025.01.29 12:00 수정
+    //private void PerformComboAttack()
+    //{
+    //    controller.isAttack = true;
+    //    closestMonster = GetClosestMonster(attackPerceptionRange);
+    //    if (closestMonster != null)
+    //    {
+    //        //Debug.Log("Closest Monster: " + closestMonster.name);
+    //        LookEnemy();
+    //    }
+    //    playerAnimator.SetTrigger("NextCombo");
+    //}
     private void PerformComboAttack()
     {
         controller.isAttack = true;
-        closestMonster = GetClosestMonster(attackPerceptionRange);
-        if (closestMonster != null)
-        {
-            //Debug.Log("Closest Monster: " + closestMonster.name);
-            LookEnemy();
-        }
+        LookEnemy();
         playerAnimator.SetTrigger("NextCombo");
     }
 
@@ -226,13 +236,26 @@ public class PlayerCombat : MonoBehaviour
         return closestTransform;
     }
 
-    private void LookEnemy()
+    ////////////////////////////////////////////////////////////
+    ///// JWS 2025.01.29 12:00 수정
+    //private void LookEnemy()
+    //{
+    //    Vector3 dir = (closestMonster.position - transform.position).normalized;
+    //    dir.y = 0f;
+    //    targetRotation = Quaternion.LookRotation(dir);
+    //    controller.transform.rotation = targetRotation;
+    //}
+
+    public void LookEnemy()
     {
+        closestMonster = GetClosestMonster(attackPerceptionRange);
+        if (closestMonster == null) { return; }
         Vector3 dir = (closestMonster.position - transform.position).normalized;
         dir.y = 0f;
         targetRotation = Quaternion.LookRotation(dir);
         controller.transform.rotation = targetRotation;
     }
+    ////////////////////////////////////////////////////////////
 
     private void OnDrawGizmosSelected()
     {

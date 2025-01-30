@@ -134,7 +134,6 @@ public class QuestManager : BaseManager<QuestManager>
                 quest.isCompleted = true;
                 UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
                 UIManager.Instance.QuestUpdate();
-                GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"퀘스트 '{quest.name}' 완료!");
             }
         }
     }
@@ -233,7 +232,6 @@ public class QuestManager : BaseManager<QuestManager>
             mainQuestDatabase[index].questGiver = "메인퀘스터";
             AddQuest(mainQuestDatabase[index]);
             currentMainQuestIndex = index;
-            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"{mainQuestDatabase[index].questType} {mainQuestDatabase[index].name} 퀘스트가 활성화 되었습니다. ");
         }
     }
 
