@@ -110,7 +110,7 @@ public class BaseMonsterAI : MonoBehaviour
     
     protected virtual void HandleTakeDamage(Transform attacker)
     {
-        playerTarget = attacker;
+        if (attacker.CompareTag("Player")) playerTarget = attacker;
         SetState(AIState.Chasing);
         animator.SetTrigger(Hit); // 피격 애니메이션 실행
     }
