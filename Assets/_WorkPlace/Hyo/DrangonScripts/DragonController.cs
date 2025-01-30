@@ -22,7 +22,7 @@ public class DragonController : MonoBehaviour
     private Animator animator;             // 용의 애니메이터
     [SerializeField] private Transform firePoint;           // 파이어 포인트
     private Vector3 lastPlayerPosition;    // 플레이어의 마지막 위치
-    private bool isMoving;                 // 현재 이동 중인지 상태
+    [SerializeField] private bool isMoving;                 // 현재 이동 중인지 상태
 
     [Header("Follow Settings")]
     public float followDistance = 3f;      // 플레이어와 유지할 거리
@@ -120,6 +120,8 @@ public class DragonController : MonoBehaviour
         else
         {
             // 전투 상태가 아닐 때는 플레이어를 따라감
+            currentTarget = null;
+            currentTargetTransform = null;
             FollowPlayerLogic();
         }
     }
@@ -138,21 +140,25 @@ public class DragonController : MonoBehaviour
             currentTargetTransform = null;
             // 플레이어 옆으로 순간이동
             transform.position = player.position + offset;
-            currentState = DragonState.Moving;
+            currentState = DragonState.Idle;
             return;
         }
 
         // 현재 타겟이 없거나 이미 죽었으면 새로운 타겟을 찾는다
         if (currentTarget == null || currentTarget.currentHp <= 0)
         {
+            currentTarget = null;
+            currentTargetTransform = null;
+            currentState = DragonState.Idle;
+            
             FindNearestTarget();
         }
 
         // 타겟이 존재하지 않으면 공격 불가 -> 그대로 종료
         if (currentTarget == null)
         {
+            currentState = DragonState.Idle;
             FollowPlayerLogic();
-            currentState = DragonState.Moving;
             return;
         }
 
