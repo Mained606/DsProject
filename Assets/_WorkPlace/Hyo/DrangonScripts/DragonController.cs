@@ -211,13 +211,17 @@ public class DragonController : MonoBehaviour
             // target 쪽으로 이동
             Vector3 dir = (targetTransform.position - transform.position).normalized;
             Vector3 movePos = transform.position + dir * (followSpeed * Time.deltaTime);
-            // 살짝 높이를 유지(hoverHeight)하려면 아래처럼 Y값만 변경
-            movePos.y = player.position.y + hoverHeight; 
+
+            // Y축을 고정하고, 플레이어의 Y축 + hoverHeight를 유지하도록 설정
+            movePos.y = transform.position.y; // 기존 높이를 유지
+
             transform.position = movePos;
 
-            // 회전
+            // 회전 (Y축만 회전하도록 수정)
             Quaternion lookRot = Quaternion.LookRotation(dir, Vector3.up);
-            transform.rotation = Quaternion.Lerp(transform.rotation, lookRot, rotationSpeed * Time.deltaTime);
+        
+            // Y축 회전만 적용하고, 나머지 X, Z 회전은 그대로 유지
+            transform.rotation = Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f);
 
             // 애니메이터 상태도 갱신 가능
             animator.SetBool(IsMoving, true);
@@ -228,6 +232,8 @@ public class DragonController : MonoBehaviour
             animator.SetBool(IsMoving, false);
         }
     }
+
+
 
     #region 공격 메서드(스킬, 원거리, 근접)
 
