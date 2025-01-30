@@ -155,6 +155,7 @@ public class WeaponManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.F12))
         {
+            Debug.Log("F12");
             var itemsToAdd = new[] { "Item_basicwand", "Item_middlewand", "Item_woodwand", "Item_axe", "Item_sword1", "Item_sword2"};
             foreach (var item in itemsToAdd) ItemManager.Instance.AddItemLogic(item);
         }

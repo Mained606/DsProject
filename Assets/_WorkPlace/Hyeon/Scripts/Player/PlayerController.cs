@@ -116,11 +116,11 @@ public class PlayerController : MonoBehaviour
         // UI 켜져있을때 플레이어의 행동을 막기위한 추가 확인조건
         /// JWS 2025.01.27 13:00 수정
 
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-        }
-        if (uiCheck) return;
+        //if (uiCheck != UIManager.Instance.IsUIWindowOpen())
+        //{
+        //    uiCheck = UIManager.Instance.IsUIWindowOpen();
+        //}
+        //if (uiCheck) return;
         
         DeathCheck();
         HitFinishedCheck();
@@ -814,7 +814,7 @@ public class PlayerController : MonoBehaviour
 
             CanWeaponSwitch = true;
 
-            weapon.SwitchWeapon(-1, true);
+            weapon.SwitchWeapon(-1);
 
             StartCoroutine(FinishingClimbing());
         }
@@ -825,7 +825,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("절벽타기 취소됨");
             CanWeaponSwitch = true;
 
-            weapon.SwitchWeapon(-1, true);
+            weapon.SwitchWeapon(-1);
             //SetState(PlayerState.Idle);
         }
 
