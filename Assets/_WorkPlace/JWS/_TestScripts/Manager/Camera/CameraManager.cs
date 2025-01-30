@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using static System.TimeZoneInfo;
-using Unity.VisualScripting;
-
+using System;
+using Unity.Cinemachine;
 
 
 #if UNITY_EDITOR
@@ -14,6 +13,7 @@ public delegate void TransitionEvent();
 
 public class CameraManager : BaseManager<CameraManager>
 {
+    #region 변수선언
     public event TransitionEvent OnTransitionStart;
     public event TransitionEvent OnTransitionComplete;
 
@@ -35,9 +35,9 @@ public class CameraManager : BaseManager<CameraManager>
     [Header("오비트 설정")]
     [SerializeField] private Transform orbitTarget;
     [SerializeField] private Vector3 orbitTargetOffset = new Vector3(0f, 2.5f, 0f);
-    [SerializeField] private float orbitDistance = 8f;
-    [SerializeField] private Vector2 orbitSensitivity = new Vector2(10f, 10f);
-    [SerializeField] private Vector2 orbitClamp = new Vector2(0.1f, 90f);
+    [SerializeField] private float orbitDistance = 12f;
+    [SerializeField] private Vector2 orbitSensitivity = new Vector2(7f, 7f);
+    [SerializeField] private Vector2 orbitClamp = new Vector2(0.1f, 89f);
     [SerializeField] private float orbitYaw = 0f;
     [SerializeField] private float orbitPitch = 0f;
 
@@ -49,13 +49,20 @@ public class CameraManager : BaseManager<CameraManager>
     [SerializeField] private CursorLockMode mouseCursor;
     [SerializeField] private bool mouseCursorVisible = false;
     private Camera mainCamera;
-
+    private Camera portraitCamera;
+    public string playerLayerName = "Ds Player";
+    public string dragonLayerName = "Dragon";
+    private int playerLayerMask, dragonLayerMask;
+    private bool isStatusUI = false;
     public static Camera MainCamera => Instance.mainCamera;
+    #endregion
 
     protected override void Awake()
     {
         base.Awake();
         mainCamera = Camera.main;
+        portraitCamera = mainCamera.transform.GetChild(0).GetComponent<Camera>();
+        portraitCamera.gameObject.SetActive(false);
 
         cameraPoses = cameraPoseSetting.poseList.ToArray();
         cameraTransitionList = cameraPoseSetting.poseTransitionList;
@@ -66,6 +73,9 @@ public class CameraManager : BaseManager<CameraManager>
         mouseCursor = CursorLockMode.Locked;
         Cursor.lockState = mouseCursor;
         Cursor.visible = mouseCursorVisible;
+
+        playerLayerMask = 1 << LayerMask.NameToLayer(playerLayerName);
+        dragonLayerMask = 1 << LayerMask.NameToLayer(dragonLayerName);
     }
 
     private void Update()
@@ -127,24 +137,24 @@ public class CameraManager : BaseManager<CameraManager>
             }
         }
 
-        if (cameraPoseSetting.poseList == null || cameraPoseSetting.poseList.Count == 0)
-        {
+        //if (cameraPoseSetting.poseList == null || cameraPoseSetting.poseList.Count == 0)
+        //{
             cameraPoses = new CameraPose[System.Enum.GetValues(typeof(CameraType)).Length];
 
-            //cameraPoses[(int)CameraType.Main] = new CameraPose(
-            //    new Vector3(0, 3, 0.6f),
-            //    Vector3.zero,
-            //    Vector3.zero
-            //);
+            cameraPoses[(int)CameraType.Main] = new CameraPose(
+                new Vector3(0, 3, 0.6f),
+                Vector3.zero,
+                3f
+            );
 
-            //cameraPoses[(int)CameraType.LookAt] = new CameraPose(
-            //    new Vector3(0, 2.1f, 4.2f),
-            //    new Vector3(10, 180, 0),
-            //    3f
-            //);
+            cameraPoses[(int)CameraType.LookAt] = new CameraPose(
+                new Vector3(1.8f, 2.4f, 4f),
+                new Vector3(10, 180, 0),
+                3f
+            );
 
             cameraPoses[(int)CameraType.UIview] = new CameraPose(
-                new Vector3(0, 2.1f, 4.2f),
+                new Vector3(1.8f, 2.4f, 4f),
                 new Vector3(10, 180, 0),
                 3f
             );
@@ -156,7 +166,7 @@ public class CameraManager : BaseManager<CameraManager>
             );
 
             cameraPoseSetting.poseList = cameraPoses.ToList();
-        }
+        //}
     }
 
     private List<CameraPose> GetDefaultPosesForType(CameraTransitionType type)
@@ -228,15 +238,51 @@ public class CameraManager : BaseManager<CameraManager>
     private void UpdateUIviewCamera(Transform gobTarget = null)
     {
         if (orbitTarget == null || MainCamera == null) return;
-        if (gobTarget == null) gobTarget = orbitTarget;
+        if (gobTarget == null)
+        {
+            gobTarget = orbitTarget;
+        }
+
         Vector3 targetPosition = gobTarget.position;
         CameraPose pose = cameraPoses[(int)CameraType.UIview];
         Vector3 offsetPosition = gobTarget.rotation * pose.position;
+        
+        if (gobTarget != orbitTarget)
+        {
+            targetPosition.y -= isStatusUI ? 1 : 0.5f;
+        }
 
         MainCamera.transform.position = targetPosition + offsetPosition;
         MainCamera.transform.rotation = gobTarget.rotation * Quaternion.Euler(pose.rotation);
+
+        if (isStatusUI)
+        {
+            if (gobTarget == orbitTarget) SetPortraitActive(isStatusUI);
+            else SetPortraitActive(isStatusUI, false);
+        }
+        else if (portraitCamera.gameObject.activeSelf)
+        {
+            SetPortraitActive(isStatusUI);
+        }
     }
- 
+
+
+    private void SetPortraitActive(bool isActive, bool isPlayer = true)
+    {
+        if (!isActive)
+        {
+            DisableLayer(portraitCamera, playerLayerMask);
+            DisableLayer(portraitCamera, dragonLayerMask);
+            portraitCamera.gameObject.SetActive(false);
+            return;
+        }
+
+        EnableLayer(portraitCamera, isPlayer ? playerLayerMask : dragonLayerMask);
+        DisableLayer(portraitCamera, isPlayer ? dragonLayerMask : playerLayerMask);
+        portraitCamera.gameObject.SetActive(true);
+    }
+
+
     public static void SetCameraActive(Transform target, CameraType nexttype)
     {
         if (Instance == null || Instance.mainCamera == null) return;
@@ -316,6 +362,7 @@ public class CameraManager : BaseManager<CameraManager>
         }
     }
 
+
     public static void CursorLock()
     {
         Cursor.lockState = CursorLockMode.None;
@@ -352,35 +399,6 @@ public class CameraManager : BaseManager<CameraManager>
         Debug.Log($"{currentTransitionType}의 카메라포즈 저장완료");
     }
 
-
-    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
-    {
-        switch (newState)
-        {
-            case GameSystemState.Shopping:
-                HandleShoppingState(additionalData);
-                break;
-
-            case GameSystemState.InfoMessage:
-                CursorLock();
-                break;
-
-            case GameSystemState.Inventory:
-            case GameSystemState.StatusUI:
-            case GameSystemState.DialogueState:
-            case GameSystemState.Pause:
-            case GameSystemState.GameOver:
-            case GameSystemState.QuestReview:
-            case GameSystemState.PetInteraction:
-                HandleUIviewState();
-                break;
-
-            default:
-                HandleDefaultState();
-                break;
-        }
-    }
-
     // 상태 처리 메서드
     private void HandleShoppingState(object data)
     {
@@ -388,16 +406,13 @@ public class CameraManager : BaseManager<CameraManager>
         HandleUIviewState(npcData?.currentNPC.transform);
     }
 
-    private void HandleUIviewState(Transform cameraTarget = null)
+    public void HandleUIviewState(Transform cameraTarget = null)
     {
         currentCameraType = CameraType.UIview;
         if (cameraTarget != null)
         {
             UpdateUIviewCamera(cameraTarget);
-            if (GameManager.playerTransform != null)
-            {
-                if (!GameManager.PlayerVisible(false)) Debug.LogError("플레어이 비저플 이상");
-            }
+            PlayerVisible(false);
         }
         else
         {
@@ -410,12 +425,68 @@ public class CameraManager : BaseManager<CameraManager>
     {
         CursorUnLock();
         currentCameraType = CameraType.Orbit;
-        if (GameManager.playerTransform != null)
+        PlayerVisible(true);
+    }
+
+    private void PlayerVisible(bool visible)
+    {
+        if (visible)
         {
-            if (!GameManager.PlayerVisible(true)) Debug.LogError("플레어이 비저플 이상");
+            EnableLayer(MainCamera, playerLayerMask);
+            EnableLayer(MainCamera, dragonLayerMask);
+        }
+        else
+        {
+            DisableLayer(MainCamera, playerLayerMask);
+            DisableLayer(MainCamera, dragonLayerMask);
         }
     }
 
+    public void DisableLayer(Camera targetCamera, LayerMask layerMask)
+    {
+        targetCamera.cullingMask &= ~layerMask;
+    }
+
+    public void EnableLayer(Camera targetCamera, LayerMask layerMask)
+    {
+        targetCamera.cullingMask |= layerMask;
+    }
+
+    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
+    {
+        switch (newState)
+        {
+            case GameSystemState.Shopping:
+                PlayerVisible(false);
+                HandleShoppingState(additionalData);
+                break;
+
+            case GameSystemState.InfoMessage:
+                CursorLock();
+                break;
+
+            case GameSystemState.StatusUI:
+                isStatusUI = true;
+                PlayerVisible(false);
+                HandleUIviewState();
+                CursorLock();
+                break;
+
+            case GameSystemState.Inventory:
+            case GameSystemState.DialogueState:
+            case GameSystemState.Pause:
+            case GameSystemState.GameOver:
+            case GameSystemState.QuestReview:
+            case GameSystemState.PetInteraction:
+                PlayerVisible(true);
+                HandleUIviewState();
+                break;
+
+            default:
+                HandleDefaultState();
+                break;
+        }
+    }
 
     private void OnDrawGizmos()
     {
@@ -428,85 +499,4 @@ public class CameraManager : BaseManager<CameraManager>
             Gizmos.DrawLine(orbitTarget.position, mainCamera.transform.position);
         }
     }
-}
-
-#if UNITY_EDITOR
-[CustomEditor(typeof(CameraManager))]
-public class CameraManagerEditor : Editor
-{
-    private int selectedPoseIndex = 0;
-
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-
-        CameraManager cameraManager = (CameraManager)target;
-
-        GUILayout.Space(10);
-        GUILayout.Label("Camera Pose Preview", EditorStyles.boldLabel);
-
-        if (cameraManager.targetPoses != null && cameraManager.targetPoses.Count > 0)
-        {
-            selectedPoseIndex = EditorGUILayout.IntSlider("Pose Index", selectedPoseIndex, 0, cameraManager.targetPoses.Count - 1);
-
-            if (GUILayout.Button("Preview Pose"))
-            {
-                CameraPose selectedPose = cameraManager.targetPoses[selectedPoseIndex];
-                CameraManager.MainCamera.transform.SetPositionAndRotation(
-                    cameraManager.target.position + selectedPose.position,
-                    Quaternion.Euler(selectedPose.rotation)
-                );
-                Debug.Log($"Previewing pose {selectedPoseIndex}");
-            }
-        }
-
-        if (GUILayout.Button("Save Current Pose"))
-        {
-            cameraManager.SaveCurrentPose();
-        }
-    }
-}
-#endif
-
-
-public enum CameraType
-{
-    Orbit,
-    Follow,
-    UIview,
-    NpcInteract,
-    Sideways,
-}
-
-public enum CameraTransitionType
-{
-    Normal,
-    Active,
-    Orbit,
-    Follow,
-    UiView,
-    NpcInteract,
-    Sideways,
-}
-
-[System.Serializable]
-public class CameraPose
-{
-    public Vector3 position;
-    public Vector3 rotation;
-    public float transitionTime;
-
-    public CameraPose(Vector3 position, Vector3 rotation, float transitionTime)
-    {
-        this.position = position;
-        this.rotation = rotation;
-        this.transitionTime = transitionTime;
-    }
-}
-
-[System.Serializable]
-public class CameraPoseList
-{
-    public CameraTransitionType transitionType;
-    public List<CameraPose> poseList;
 }

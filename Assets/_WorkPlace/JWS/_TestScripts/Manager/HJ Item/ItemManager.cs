@@ -8,6 +8,8 @@ public class ItemManager : BaseManager<ItemManager>
     [SerializeField] private ItemList itemList;
     [SerializeField] private List<Sprite> itemSpriteList = new List<Sprite>();
     [SerializeField] private GameObject dropItemPrefab;
+    [SerializeField] private GameObject[] ItemEffectPrefab;
+
 
     public static List<Item> ItemDatabase => Instance.itemList.itemList;
     private Dictionary<string, Sprite> itemSpriteDictionary = new Dictionary<string, Sprite>(); // 스프라이트 딕셔너리
@@ -15,12 +17,16 @@ public class ItemManager : BaseManager<ItemManager>
     protected override void Awake()
     {
         base.Awake();
+        ItemGenerater itemGenerater = new ItemGenerater();
+        // itemList.itemList.Clear();
         Addressables.LoadAssetsAsync<Sprite>("ItemSprites", sprite =>
         {
             if (!itemSpriteDictionary.ContainsKey(sprite.name))
             {
                 itemSpriteDictionary[sprite.name] = sprite; // 스프라이트 딕셔너리에 추가
                 itemSpriteList.Add(sprite); // 스프라이트 리스트에도 추가
+                // Item item = itemGenerater.GenerateItem(sprite.name);
+                // if (item != null) itemList.itemList.Add(item);
             }
         }).Completed += handle =>
         {

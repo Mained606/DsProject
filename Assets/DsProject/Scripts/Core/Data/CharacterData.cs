@@ -277,14 +277,7 @@ public class CharacterData
 
         UpdateDerivedStats();
     }
-
-    // 크리티컬 여부를 판단하여 데미지 반환
-    // 변경 필요 아직 수정중 - 2025-01-26
-    public float CalculateDamage(bool isCritical)
-    {
-        return isCritical ? physicalDamage * criticalDamage : physicalDamage; // 크리티컬이면 데미지 2배, 아니면 기본 데미지
-    }
-
+    
     // 특정 스텟 증가 함수
     public void ModifyStat(StatType statType, int amount)
     {
@@ -491,8 +484,8 @@ public class PlayerData : CharacterData
 public class MonsterData : CharacterData
 {
     public List<string> dropItems = new List<string>(); // 드롭 아이템
-    public int ExperienceReward { get; private set; } // 경험치 보상
-    public int GoldReward { get; private set; }       // 골드 보상
+    public int experienceReward; // 경험치 보상
+    public int goldReward;       // 골드 보상
     [HideInInspector] public GameObject instance;  // 생성된 몬스터 인스턴스를 저장할 필드
 
     public MonsterData(
@@ -515,8 +508,8 @@ public class MonsterData : CharacterData
         : base(name, CharacterType.Monster, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate)
     {
         this.dropItems = new List<string>(dropItems);
-        ExperienceReward = Mathf.Max(0, experienceReward); // 음수 값 방지
-        GoldReward = Mathf.Max(0, goldReward);             // 음수 값 방지
+        this.experienceReward = experienceReward;
+        this.goldReward = goldReward;
     }
     public new MonsterData Clone()
     {
@@ -535,8 +528,8 @@ public class MonsterData : CharacterData
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
             new List<string>(this.dropItems), // 드롭 아이템 복사
-            this.ExperienceReward,
-            this.GoldReward
+            this.experienceReward,
+            this.goldReward
         );
 
         return clone;
@@ -549,8 +542,8 @@ public class MonsterData : CharacterData
             "<color=red>Experience Reward:</color> {0}\n" +
             "<color=yellow>Gold Reward:</color> {1}\n" +
             "<color=lime>Drop Items:</color> {2}\n",
-            ExperienceReward,                // 0: 경험치 보상
-            GoldReward,                      // 1: 골드 보상
+            experienceReward,                // 0: 경험치 보상
+            goldReward,                      // 1: 골드 보상
             string.Join(", ", dropItems)     // 2: 드롭 아이템 목록
         );
 
@@ -605,8 +598,8 @@ public class BossData : MonsterData
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
             new List<string>(this.dropItems), // 드롭 아이템 복사
-            this.ExperienceReward,
-            this.GoldReward,
+            this.experienceReward,
+            this.goldReward,
             new List<string>(this.SpecialSkills) // 특수 스킬 복사
         );
 
