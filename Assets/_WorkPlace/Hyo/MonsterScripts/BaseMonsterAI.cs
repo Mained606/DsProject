@@ -79,9 +79,11 @@ public class BaseMonsterAI : MonoBehaviour
     // 착지 여부를 주기적으로 체크
     protected IEnumerator CheckForLanding()
     {
+        WaitForFixedUpdate wait = new WaitForFixedUpdate(); // FixedUpdate 주기마다 실행
+        
         while (!characterController.isGrounded)
         {
-            yield return null; // 바닥에 닿을 때까지 대기
+            yield return wait; // FixedUpdate 이후에만 체크하여 불필요한 연산 감소
         }
     
         // 착지 후 타겟 설정
@@ -255,18 +257,35 @@ public class BaseMonsterAI : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(randomPosition + Vector3.up * 10f, Vector3.down, out hit, Mathf.Infinity))
             {
-                randomPosition.y = hit.point.y;
+                float groundY = hit.point.y;
 
-                // Y값이 지나치게 높은 값이 되지 않도록 보정
-                if (randomPosition.y < spawnPosition.y + 1f) // 지면과 너무 멀리 떨어지지 않도록 제한
+                // 높이 제한을 더 유연하게 조정 (너무 높거나 낮은 곳 피함)
+                if (groundY < spawnPosition.y + 2f && groundY > spawnPosition.y - 3f) 
                 {
-                    if (IsOnTerrain(randomPosition)) // 목표 위치가 터레인 위인지 확인
+                    if (IsOnTerrain(randomPosition))
                     {
-                        targetPosition = randomPosition;
+                        targetPosition = new Vector3(randomPosition.x, groundY, randomPosition.z);
                         validPositionFound = true;
                     }
                 }
             }
+            
+            // --- 2025-02-01 04:17 Hyo 수정된 코드 충분히 테스트 후 문제 없을 시 삭제 처리 -----------------------------
+            // if (Physics.Raycast(randomPosition + Vector3.up * 10f, Vector3.down, out hit, Mathf.Infinity))
+            // {
+            //     randomPosition.y = hit.point.y;
+            //
+            //     // Y값이 지나치게 높은 값이 되지 않도록 보정
+            //     if (randomPosition.y < spawnPosition.y + 1f) // 지면과 너무 멀리 떨어지지 않도록 제한
+            //     {
+            //         if (IsOnTerrain(randomPosition)) // 목표 위치가 터레인 위인지 확인
+            //         {
+            //             targetPosition = randomPosition;
+            //             validPositionFound = true;
+            //         }
+            //     }
+            // }
+            // ----------------------------------------------------------------------------------------------------
 
             attempts++;
         }
