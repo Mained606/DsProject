@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3336410}
   - component: {fileID: 2342004}
   - component: {fileID: 3222050135467265680}
+  - component: {fileID: -4157950287594824687}
   m_Layer: 0
   m_Name: "\uB098\uBB34\uC870\uAC011"
   m_TagString: Untagged
@@ -27,13 +28,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 151444}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalRotation: {x: -0, y: -0, z: 0.25835305, w: 0.96605057}
+  m_LocalPosition: {x: -0.89, y: 2.402, z: -1}
   m_LocalScale: {x: 7, y: 7, z: 7}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 29.945}
 --- !u!33 &3336410
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -96,7 +97,7 @@ Rigidbody:
   m_GameObject: {fileID: 151444}
   serializedVersion: 4
   m_Mass: 5
-  m_Drag: 1
+  m_Drag: 2
   m_AngularDrag: 1
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -114,3 +115,26 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!136 &-4157950287594824687
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 151444}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.052226447
+  m_Height: 0.1670072
+  m_Direction: 1
+  m_Center: {x: -0.052226312, y: 0.08350345, z: 0.0039736764}

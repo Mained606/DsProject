@@ -69,6 +69,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isEnoughMana;
     [SerializeField] private bool isRecovery;
     [SerializeField] private bool isHit;
+    public bool onParry;
     public bool CanWeaponSwitch;
 
     private BasicTimer RecoveryTimer;
@@ -132,9 +133,8 @@ public class PlayerController : MonoBehaviour
         HandleGravity();
         AvoidKeyInput();
 
-
-        DetectCliff();
-        UpdateClimbState();
+        //DetectCliff();
+        //UpdateClimbState();
         if (!isDodging)
         {
             ControlMovement();
@@ -143,8 +143,8 @@ public class PlayerController : MonoBehaviour
             OnParry();
         }
 
-        CanGlidingCheck();
-        OnGliding();
+        //CanGlidingCheck();
+        //OnGliding();
 
         switch (currentState)
         {
@@ -369,7 +369,7 @@ public class PlayerController : MonoBehaviour
             {
                 SetState(PlayerState.Idle);
             }
-            else if (isGrounded && isMove)
+            else if (isGrounded && isMove && !isParry)
             {
                 SetState(PlayerState.Move);
 
@@ -399,26 +399,21 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    private bool animFinishCheck(string animName)
+    AnimatorStateInfo stateInfo;
+    AnimatorClipInfo[] clipInfo;
+    AnimationClip currentClip;
+
+    private bool AnimFinishCheck()
     {
-        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        AnimatorClipInfo[] clipInfo = playerAnimator.GetCurrentAnimatorClipInfo(0);
-        AnimationClip currentClip = clipInfo[0].clip;
+        stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
         float normalize = stateInfo.normalizedTime;
-        if(currentClip.name.Contains(animName))
+        if (normalize >= 0.95f)
         {
-            if (normalize >= 0.95f)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return true;
         }
         else
         {
-            return true;
+            return false;
         }
     }
 
@@ -637,11 +632,11 @@ public class PlayerController : MonoBehaviour
     // 키 활성화 변경
     private void AvoidKeyInput()
     {
-        //if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        //{
-        //    uiCheck = UIManager.Instance.IsUIWindowOpen();
-        //    SetActionStates(!uiCheck);
-        //}
+        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
+        {
+            uiCheck = UIManager.Instance.IsUIWindowOpen();
+            SetActionStates(!uiCheck);
+        }
         UpdateInputActions(CanMove, "Move");
         UpdateInputActions(CanAttack, "Attack");
         UpdateInputActions(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
@@ -675,38 +670,35 @@ public class PlayerController : MonoBehaviour
     // 패링
     private void OnParry()
     {
-        if (InputManager.InputActions.actions["Parry"].triggered)
+        if (InputManager.InputActions.actions["Parry"].triggered && CanParry)
         {
             playerAnimator.SetTrigger("Parry");
             isParry = true;
         }
-        //AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        //AnimatorClipInfo[] clipInfo = playerAnimator.GetCurrentAnimatorClipInfo(0);
-        //if (clipInfo.Length > 0)
-        //{
-        //    AnimationClip currentClip = clipInfo[0].clip;
-        //    if (currentClip.name == "Parry")
-        //    {
-        //        //SetState(PlayerState.Parry);
-        //        float normalizedTime = stateInfo.normalizedTime;
-        //        if (normalizedTime < 0.2f)
-        //        {
-        //            // TODO
-        //        }
-        //        if(normalizedTime > 0.95f)
-        //        {
-        //            isParry = false;
-        //            //SetState(PlayerState.Idle);
-        //        }
-        //    }
-
-        //}
-        if (animFinishCheck("Parry"))
+        if (isParry)
         {
-            isParry = false;
+            ParryCheck();
+            if (AnimFinishCheck())
+            {
+                isParry = false;
+                onParry = false;
+            }
         }
+    }
 
+    private void ParryCheck()
+    {
+        stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+        float normalized = stateInfo.normalizedTime;
 
+        if (normalized >= 0.2f && normalized <= 0.5f)
+        {
+            onParry = true;
+        }
+        else
+        {
+            onParry = false;
+        }
     }
 
     #region ---------------Climb---------------
@@ -934,9 +926,15 @@ public class PlayerController : MonoBehaviour
     //
     private void HitCheck(Transform Attacker)
     {
-        playerAnimator.SetTrigger("Hit");
-        isHit = true;
-        //SetState(PlayerState.Hit);
+        if (onParry)
+        {
+            Debug.LogWarning("Parring!!!");
+        }
+        else
+        {
+            playerAnimator.SetTrigger("Hit");
+            isHit = true;
+        }
     }
 
     private void HitFinishedCheck()
@@ -944,7 +942,7 @@ public class PlayerController : MonoBehaviour
         if (currentState != PlayerState.Hit)
             return;
 
-        if (animFinishCheck("Hit_F_2_InPlace"))
+        if (isHit && AnimFinishCheck())
         {
             isHit = false;
         }
