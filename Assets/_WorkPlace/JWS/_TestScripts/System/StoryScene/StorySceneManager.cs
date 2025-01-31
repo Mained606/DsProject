@@ -34,7 +34,7 @@ public class StorySceneManager : MonoBehaviour
         bgmSource = gameObject.AddComponent<AudioSource>();
         sfxSource = gameObject.AddComponent<AudioSource>();
         sequenceList = new List<SequenceData>(storySequenceCollection.sequences);
-        playerAnimatorHandler = GameManager.playerTransform.GetComponentInChildren<PlayerAnimatorHandler>();
+        playerAnimatorHandler = CameraManager.Instance.transform.GetComponent<PlayerAnimatorHandler>();
         display = UIManager.Instance.DisplaySpeechWindow.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
     }
 

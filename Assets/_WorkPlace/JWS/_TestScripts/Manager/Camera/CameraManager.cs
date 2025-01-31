@@ -78,14 +78,18 @@ public class CameraManager : BaseManager<CameraManager>
         Cursor.lockState = mouseCursor;
         Cursor.visible = mouseCursorVisible;
 
-        player = orbitTarget = followTarget = GameManager.playerTransform;
-        playerRenderer = player.GetChild(0).GetChild(1).GetComponentInChildren<SkinnedMeshRenderer>();
+
+        //playerRenderer = player.GetChild(0).GetChild(1).GetComponentInChildren<SkinnedMeshRenderer>();
         playerLayerMask = 1 << LayerMask.NameToLayer(playerLayerName);
         dragonLayerMask = 1 << LayerMask.NameToLayer(dragonLayerName);
     }
 
     private void Update()
     {
+        if (orbitTarget == null || followTarget == null)
+        {
+            orbitTarget = followTarget = GameManager.playerTransform;
+        }
         if (isTransitionActive)
         {
             HandlePoseTransition();
