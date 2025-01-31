@@ -12,7 +12,7 @@ public class GolemAI : BaseMonsterAI
     }
     protected override void PerformAttack()
     {
-        if (isAttacking) return; // 이미 공격 중이라면 중복 공격 방지
+        if (isAttacking || isStunned) return; // 이미 공격 중이거나 스턴 상태면 공격 방지
         
         // 물리 처리 방식
         StopAllActions();

@@ -27,6 +27,7 @@ public class BaseMonsterAI : MonoBehaviour
     protected float attackRange; // 공격 범위
     protected float attackCooldown; // 공격 쿨타임
     protected float attackCooldownTimer = 0f; // 공격 쿨타임 타이머
+    public float hitStateDuration = 0.7f;
 
     [SerializeField] protected AIState currentState = AIState.Idle; // 현재 AI 상태
     [SerializeField] protected Vector3 spawnPosition; // 스폰 위치
@@ -46,7 +47,7 @@ public class BaseMonsterAI : MonoBehaviour
     protected CharacterController characterController;
     private Vector3 velocity;
     private float gravity = -9.81f;
-    
+
     protected virtual void OnEnable()
     {
         // 풀링 적용 후 리스폰 상태일 때 초기화
@@ -169,11 +170,8 @@ public class BaseMonsterAI : MonoBehaviour
     // 상태 전환
     protected virtual void SetState(AIState newState)
     {
-        // 죽음 상태면 상태전환 막기
-        if (currentState == AIState.Dead) return;
-        
-        // 스턴 상태면 상태전환 막기
-        if (isStunned) return; 
+        // 죽음 상태나 스턴이면 상태전환 막기
+        if (currentState == AIState.Dead || isStunned) return;
         
         // 공격중일 때 상태 전환을 막지만 예외적으로 스턴, 히트, 데드 상태로는 전환 가능
         if (isAttacking && newState != AIState.Stun && newState != AIState.Hit && newState != AIState.Dead) return;
@@ -214,10 +212,7 @@ public class BaseMonsterAI : MonoBehaviour
         // 현재 공격 중이었다면 모든 것을 취소
         if (isAttacking)
         {
-            isAttacking = false; // 공격 중지
             StopAllActions(); // 이동 및 행동 중지
-            StopAllCoroutines(); // 모든 코루틴 정지 (공격 지연 같은 것 포함)
-            CancelInvoke(nameof(ExecuteAttack)); 
         }
 
         animator.SetTrigger(Hit); // 피격 애니메이션 실행
@@ -227,7 +222,7 @@ public class BaseMonsterAI : MonoBehaviour
     
     protected IEnumerator RecoverFromHit()
     {
-        yield return new WaitForSeconds(0.5f); // 피격 상태 유지 시간
+        yield return new WaitForSeconds(hitStateDuration); // 피격 상태 유지 시간
         
         if (!isStunned)
         {
@@ -469,9 +464,7 @@ public class BaseMonsterAI : MonoBehaviour
     // 공격 실행
     protected virtual void PerformAttack()
     {
-        if (isStunned) return; // 스턴 상태일 경우 공격 중지
-        
-        if (isAttacking) return; // 이미 공격 중이라면 중복 공격 방지
+        if (isAttacking || isStunned) return; // 이미 공격 중이거나 스턴 상태면 공격 방지
         
         StopAllActions();
         animator.SetTrigger(Attack); // 공격 애니메이션 실행
@@ -505,11 +498,22 @@ public class BaseMonsterAI : MonoBehaviour
         animator.SetBool(IsWalking, false);
         animator.ResetTrigger(Attack);
         
-        Vector3 direction = (playerTarget.position - transform.position).normalized;
-        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        // 공격 중이라면 즉시 취소
+        isAttacking = false;
+        StopAllCoroutines(); // 공격 코루틴 정지
+        CancelInvoke(nameof(ExecuteAttack)); // 공격 실행 취소
         
-        characterController.Move(Vector3.zero); // 이동 멈춤
+        // 중력 및 이동을 완전히 멈추도록 velocity 초기화
+        velocity = Vector3.zero;
+        characterController.Move(Vector3.zero);
+        
+        // 현재 방향을 고정 (불필요한 회전 방지)
+        if (playerTarget)
+        {
+            Vector3 direction = (playerTarget.position - transform.position).normalized;
+            Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        }
     }
     
     protected IEnumerator RecoverFromStun()
