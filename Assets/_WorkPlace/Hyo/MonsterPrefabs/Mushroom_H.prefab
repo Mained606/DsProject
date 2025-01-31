@@ -76,9 +76,11 @@ MonoBehaviour:
   maxPatrolDistance: 50
   arrivedDistance: 1
   searchRange: 8
+  hitStateDuration: 2
   currentState: 0
   spawnPosition: {x: 0, y: 0, z: 0}
   respawn: 0
+  stunDuration: 5
 --- !u!143 &1847688059845651123
 CharacterController:
   m_ObjectHideFlags: 0

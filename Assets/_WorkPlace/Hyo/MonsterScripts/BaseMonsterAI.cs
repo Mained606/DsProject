@@ -47,6 +47,8 @@ public class BaseMonsterAI : MonoBehaviour
     protected CharacterController characterController;
     private Vector3 velocity;
     private float gravity = -9.81f;
+    
+    private Coroutine hitCoroutine; // 현재 실행 중인 코루틴을 저장
 
     protected virtual void OnEnable()
     {
@@ -119,7 +121,21 @@ public class BaseMonsterAI : MonoBehaviour
     {
         if (attacker.CompareTag("Player")) playerTarget = attacker;
         
-        SetState(AIState.Hit);
+        // 현재 상태가 Hit이더라도 다시 피격 상태로 전환 가능하도록 변경
+        if (currentState == AIState.Hit)
+        {
+            RestartHitAnimation(); 
+        }
+        else
+        {
+            SetState(AIState.Hit);
+        }
+    }
+    
+    protected void RestartHitAnimation()
+    {
+        animator.ResetTrigger(Hit); // 기존 트리거를 초기화
+        animator.SetTrigger(Hit); // 다시 트리거를 활성화하여 애니메이션을 재생
     }
     
     // MonsterData를 반환하는 메서드 추가
@@ -211,20 +227,25 @@ public class BaseMonsterAI : MonoBehaviour
     
     protected virtual void HandleHitState()
     {
-        // 현재 공격 중이었다면 모든 것을 취소
-        if (isAttacking)
+        if (isAttacking) StopAllActions();
+    
+        RestartHitAnimation(); // 피격 애니메이션 강제 재시작
+        
+        // 실행 중인 코루틴이 있다면 먼저 중지
+        if (hitCoroutine != null)
         {
-            StopAllActions(); // 이동 및 행동 중지
+            StopCoroutine(hitCoroutine);
         }
 
-        animator.SetTrigger(Hit); // 피격 애니메이션 실행
-        
-        StartCoroutine(RecoverFromHit());
+        // 새로운 코루틴 실행 및 저장
+        hitCoroutine = StartCoroutine(RecoverFromHit());
     }
     
     protected IEnumerator RecoverFromHit()
     {
         yield return new WaitForSeconds(hitStateDuration); // 피격 상태 유지 시간
+        
+        hitCoroutine = null; // 완료 후 참조 해제
         
         if (!isStunned)
         {
@@ -407,7 +428,7 @@ public class BaseMonsterAI : MonoBehaviour
         
         MoveTowards(spawnPosition); // 스폰 위치로 돌아감
 
-        if (Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance)
+        if (Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance * 1.1f)
         {
             SetState(AIState.Patrolling); // 스폰 위치에 도달하면 패트롤 상태로 전환
         }
@@ -538,6 +559,13 @@ public class BaseMonsterAI : MonoBehaviour
     {
         yield return new WaitForSeconds(stunDuration);
         isStunned = false;
+        
+        // 몬스터가 이미 죽었으면 Dead 상태로 변경
+        if (monsterData.currentHp <= 0)
+        {
+            SetState(AIState.Dead);
+            yield break; // 상태 변경 후 즉시 코루틴 종료
+        }
     
         if (playerTarget && Vector3.Distance(transform.position, playerTarget.position) <= searchRange)
         {
