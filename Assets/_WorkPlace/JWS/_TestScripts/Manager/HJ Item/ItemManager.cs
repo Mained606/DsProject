@@ -8,6 +8,11 @@ public class ItemManager : BaseManager<ItemManager>
     [SerializeField] private ItemList itemList;
     [SerializeField] private List<Sprite> itemSpriteList = new List<Sprite>();
     [SerializeField] private GameObject dropItemPrefab;
+    [SerializeField] private float dropItemDestroyTime = 180f;      // 드랍아이템 사라지는 시간.
+    [SerializeField] private GameObject[] ItemEffectPrefab;
+
+    public static float DropItemDestroyTime => Instance.dropItemDestroyTime;
+
 
     public static List<Item> ItemDatabase => Instance.itemList.itemList;
     private Dictionary<string, Sprite> itemSpriteDictionary = new Dictionary<string, Sprite>(); // 스프라이트 딕셔너리
@@ -15,12 +20,16 @@ public class ItemManager : BaseManager<ItemManager>
     protected override void Awake()
     {
         base.Awake();
+        ItemGenerater itemGenerater = new ItemGenerater();
+        // itemList.itemList.Clear();
         Addressables.LoadAssetsAsync<Sprite>("ItemSprites", sprite =>
         {
             if (!itemSpriteDictionary.ContainsKey(sprite.name))
             {
                 itemSpriteDictionary[sprite.name] = sprite; // 스프라이트 딕셔너리에 추가
                 itemSpriteList.Add(sprite); // 스프라이트 리스트에도 추가
+                // Item item = itemGenerater.GenerateItem(sprite.name);
+                // if (item != null) itemList.itemList.Add(item);
             }
         }).Completed += handle =>
         {
@@ -31,6 +40,14 @@ public class ItemManager : BaseManager<ItemManager>
         {
             GenerateData generateData = new GenerateData();
             generateData.InitializeItems(itemList);
+        }
+        foreach (var item in itemList.itemList)
+        {
+            if (item.quantity == 0 ) item.quantity = 1;
+            if (item.type == ItemType.무기 || item.type == ItemType.방어구)
+            {
+                item.itemStat.Initialize();
+            }
         }
     }
 
@@ -112,6 +129,35 @@ public class ItemManager : BaseManager<ItemManager>
         // TODO
         // 추가 드롭 연출(필요 시)
         // CreateDroppedItemInWorld(item, quantity); ; 이런식의 연결함수 구현이 필요.
+    }
+
+    //아이템 구매
+    public void PurchaseItem(Item buyItem, int quantity = 1)
+    {
+        int amount = buyItem.costValue * quantity;
+        Debug.Log("플레이어 : " + amount + " , " + buyItem.costValue + " , " + quantity);
+        if (CharacterManager.PlayerCharacterData.gold < amount)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, "보유한 금액 부족합니다.", true);
+            return;
+        }
+        if (InventoryManager.Instance.CanAddInventoryItem(buyItem.id, quantity) && CharacterManager.PlayerCharacterData.UseGold(amount))
+        {
+            AddItemLogic(buyItem.id, quantity);
+        }
+    }
+
+    public void SellItem(Item selltem, float valueReductionRate, int quantity = 1)
+    {
+        int totalQuantity = InventoryManager.InventoryList.Where(i => i.id == selltem.id).Sum(i => i.quantity);
+        if (totalQuantity < quantity)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, "아이템 수량 부족.", true);
+            return;
+        }
+        int amount = ((int)(selltem.costValue * valueReductionRate) * quantity);
+        CharacterManager.PlayerCharacterData.AddGold(amount);
+        InventoryManager.Instance.RemoveItemLogic(selltem.id, quantity);
     }
 
     public Sprite GetItemSprite(string spriteName)

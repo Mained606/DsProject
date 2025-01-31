@@ -92,6 +92,7 @@ public class ItemDatabaseEditor : Editor
 
         //아이템 타입
         ItemType itemType = (ItemType)itemProperty.FindPropertyRelative("type").enumValueIndex;
+        EquipmentSlot itemEquireType = (EquipmentSlot)itemProperty.FindPropertyRelative("equipmentSlot").enumValueIndex;
         ConsumableType consumableType = (ConsumableType)itemProperty.FindPropertyRelative("consumableType").enumValueIndex;
 
         //아이템 타입에 따른 동적 속성
@@ -99,18 +100,21 @@ public class ItemDatabaseEditor : Editor
         {
             case ItemType.무기:
                 DrawPropertyIfExists(itemProperty, "weaponType");
+                DrawPropertyIfExists(itemProperty, "equipmentSlot");
                 DrawPropertyIfExists(itemProperty, "grade");
                 DrawPropertyIfExists(itemProperty, "effect");
                 DrawPropertyIfExists(itemProperty, "itemStat");
                 DrawPropertyIfExists(itemProperty, "durability");
                 break;
             case ItemType.장신구:
+                DrawPropertyIfExists(itemProperty, "equipmentSlot");
                 DrawPropertyIfExists(itemProperty, "grade");
                 DrawPropertyIfExists(itemProperty, "effect");
                 DrawPropertyIfExists(itemProperty, "itemStat");
                 DrawPropertyIfExists(itemProperty, "durability");
                 break;
             case ItemType.방어구:
+                DrawPropertyIfExists(itemProperty, "equipmentSlot");
                 DrawPropertyIfExists(itemProperty, "grade");
                 DrawPropertyIfExists(itemProperty, "effect");
                 DrawPropertyIfExists(itemProperty, "itemStat");

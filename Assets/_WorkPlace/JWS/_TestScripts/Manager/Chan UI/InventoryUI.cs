@@ -20,14 +20,6 @@ public class InventoryUI : MonoBehaviour
     private void Awake()
     {
         buttons = transform.GetComponentsInChildren<Button>();
-        if (buttons != null && buttons.Length > 0)
-        {
-            Debug.Log($"버튼이 {buttons.Length}개 연결되었습니다.");
-        }
-        else
-        {
-            Debug.LogWarning("버튼이 연결되지 않았거나 배열이 비어있습니다.");
-        }
     }
 
     private void OnEnable()
