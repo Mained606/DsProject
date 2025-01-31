@@ -87,6 +87,14 @@ public class CombatManager : BaseManager<CombatManager>
         // 데미지 적용
         if (damage > 0)
         {
+            // 250131 2:00PM Hyeon ===============================================
+            if (GameManager.playerTransform.GetComponent<PlayerController>().onParry)
+            {
+                Debug.LogWarning("패링 성공");  
+                attackerTransform.GetComponent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
+                return;
+            }
+            // 250131 2:00PM Hyeon ===============================================
             actualDefender.TakeDamage(finalDamage, attackerTransform);
         }
         
