@@ -11,7 +11,7 @@ public class BaseMonsterAI : MonoBehaviour
     public static readonly int IsDead = Animator.StringToHash("isDead");
     public static readonly int Hit = Animator.StringToHash("Hit");
 
-    public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Stun, Dead }
+    public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Stun, Hit, Dead }
 
     [Header("움직임 세팅")]
     public float patrolRange = 10f; // 패트롤 범위 (몬스터가 움직일 수 있는 반경)
@@ -26,12 +26,12 @@ public class BaseMonsterAI : MonoBehaviour
 
     protected float attackRange; // 공격 범위
     protected float attackCooldown; // 공격 쿨타임
+    protected float attackCooldownTimer = 0f; // 공격 쿨타임 타이머
 
     [SerializeField] protected AIState currentState = AIState.Idle; // 현재 AI 상태
     [SerializeField] protected Vector3 spawnPosition; // 스폰 위치
     protected Vector3 targetPosition; // 패트롤 목적지
     protected Transform playerTarget; // 탐지된 플레이어
-    protected float attackCooldownTimer = 0f; // 공격 쿨타임 타이머
 
     protected Animator animator; // 애니메이터 캐시
    
@@ -115,8 +115,8 @@ public class BaseMonsterAI : MonoBehaviour
     protected virtual void HandleTakeDamage(Transform attacker)
     {
         if (attacker.CompareTag("Player")) playerTarget = attacker;
-        SetState(AIState.Chasing);
-        animator.SetTrigger(Hit); // 피격 애니메이션 실행
+        
+        SetState(AIState.Hit);
     }
     
     // MonsterData를 반환하는 메서드 추가
@@ -169,15 +169,14 @@ public class BaseMonsterAI : MonoBehaviour
     // 상태 전환
     protected virtual void SetState(AIState newState)
     {
-        // 250131 3:31 PM Hyeon =======================================
-        //if (isAttacking && currentState == AIState.Attacking) return;
-        // 250131 3:31 PM Hyeon =======================================
-
         // 죽음 상태면 상태전환 막기
         if (currentState == AIState.Dead) return;
         
         // 스턴 상태면 상태전환 막기
         if (isStunned) return; 
+        
+        // 공격중일 때 상태 전환을 막지만 예외적으로 스턴, 히트, 데드 상태로는 전환 가능
+        if (isAttacking && newState != AIState.Stun && newState != AIState.Hit && newState != AIState.Dead) return;
         
         // 상태가 이미 동일하면 변경하지 않음
         if (currentState == newState) return;
@@ -200,10 +199,39 @@ public class BaseMonsterAI : MonoBehaviour
                 break;
             case AIState.Attacking:
                 break;
+            case AIState.Hit:
+                HandleHitState();
+                break;
             case AIState.Dead:
                 StopAllActions();
                 animator.SetTrigger(IsDead);
                 break;
+        }
+    }
+    
+    protected virtual void HandleHitState()
+    {
+        // 현재 공격 중이었다면 모든 것을 취소
+        if (isAttacking)
+        {
+            isAttacking = false; // 공격 중지
+            StopAllActions(); // 이동 및 행동 중지
+            StopAllCoroutines(); // 모든 코루틴 정지 (공격 지연 같은 것 포함)
+            CancelInvoke(nameof(ExecuteAttack)); 
+        }
+
+        animator.SetTrigger(Hit); // 피격 애니메이션 실행
+        
+        StartCoroutine(RecoverFromHit());
+    }
+    
+    protected IEnumerator RecoverFromHit()
+    {
+        yield return new WaitForSeconds(0.5f); // 피격 상태 유지 시간
+        
+        if (!isStunned)
+        {
+            SetState(playerTarget ? AIState.Chasing : AIState.Patrolling);
         }
     }
     
@@ -375,8 +403,10 @@ public class BaseMonsterAI : MonoBehaviour
     {
         // 패링 당한 후 효과 적용
         if (isStunned) return;
-
+        
+        // 디버그용 코드 -------------------------------------------------
         UIManager.Instance.TogglinfoMessageWindow("스턴됨");
+        // -------------------------------------------------------------
         
         isStunned = true;
         StopAllActions();
@@ -428,7 +458,7 @@ public class BaseMonsterAI : MonoBehaviour
         // CharacterController의 Move 메서드를 사용
         characterController.Move(movement);
 
-        // 스무스 회전 처리
+        // 부드러운 회전 처리
         Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
 
@@ -473,7 +503,7 @@ public class BaseMonsterAI : MonoBehaviour
     {
         // 이동 및 애니메이션 동작 멈춤
         animator.SetBool(IsWalking, false);
-        animator.ResetTrigger(nameof(Attack));
+        animator.ResetTrigger(Attack);
         
         Vector3 direction = (playerTarget.position - transform.position).normalized;
         Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
