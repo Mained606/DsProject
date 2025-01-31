@@ -230,7 +230,6 @@ public class DragonController : MonoBehaviour
         {
             currentTarget = null;
             currentTargetTransform = null;
-            Debug.Log("주변에 타겟이 없습니다.");
         }
     }
 
@@ -312,7 +311,7 @@ public class DragonController : MonoBehaviour
 
             // 파이어볼에 대한 초기화
             FireballController fireballController = fireball.GetComponent<FireballController>();
-            fireballController.Initialize(targetPos, dragonData, currentTarget);
+            fireballController.Initialize(targetPos, dragonData, this.transform.position, currentTarget);
         
             // 원거리 공격 쿨다운 시작
             rangedTimer = rangedCooldown;
