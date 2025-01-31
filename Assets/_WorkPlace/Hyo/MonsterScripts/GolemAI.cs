@@ -10,26 +10,9 @@ public class GolemAI : BaseMonsterAI
         base.Start();
         weaponCollider = GetComponentInChildren<WeaponCollider>();
     }
-    protected override void PerformAttack()
-    {
-        if (isAttacking || isStunned) return; // 이미 공격 중이거나 스턴 상태면 공격 방지
-        
-        // 물리 처리 방식
-        StopAllActions();
-        
-        // 공격 상태로 전환하고 애니메이션 실행
-        animator.SetTrigger(Attack);
-        
-        // 애니메이션의 길이 가져오기
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        float animationLength = stateInfo.length;
-        
-        isAttacking = true;
-        StartCoroutine(ResetAttackState(animationLength));
-    }
     
     // 애니메이션 이벤트에서 호출
-    public void EnableWeaponCollider()
+    public void GolemEnableWeaponCollider()
     {
         if (weaponCollider != null)
         {
@@ -37,7 +20,7 @@ public class GolemAI : BaseMonsterAI
         }
     }
     
-    public void DisableWeaponCollider()
+    public void GolemDisableWeaponCollider()
     {
         if (weaponCollider != null)
         {

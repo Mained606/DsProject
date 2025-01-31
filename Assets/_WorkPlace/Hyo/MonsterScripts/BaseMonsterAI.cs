@@ -489,15 +489,14 @@ public class BaseMonsterAI : MonoBehaviour
         animator.SetTrigger(Attack); // 공격 애니메이션 실행
 
         // 애니메이션의 길이 가져오기
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        float animationLength = stateInfo.length;
-    
-        // 70% 지점에 맞춰 메서드 호출
-        Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
+        // AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        // float animationLength = stateInfo.length;
+        // // 70% 지점에 맞춰 메서드 호출
+        // Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
         
         // 공격 후 이동을 방지하는 상태로 설정
         isAttacking = true;
-        StartCoroutine(ResetAttackState(animationLength));
+        StartCoroutine(ResetAttackState(animator.GetCurrentAnimatorClipInfo(0)[0].clip.length));
     }
     
     protected virtual IEnumerator ResetAttackState(float delay)
