@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2318800}
   - component: {fileID: 3440769456907980154}
   - component: {fileID: 2309603857249296144}
+  - component: {fileID: 3551263135916034244}
   m_Layer: 0
   m_Name: "\uC791\uC740\uB098\uBB34"
   m_TagString: Untagged
@@ -103,11 +104,11 @@ MonoBehaviour:
   maxHits: 3
   dropItems: []
   wood1:
-    itemPrefab: {fileID: 0}
+    itemPrefab: {fileID: 152020, guid: ccada80eb7f15a14887198a6c5271ee2, type: 3}
     dropCount: 2
     dropChance: 1
   wood2:
-    itemPrefab: {fileID: 0}
+    itemPrefab: {fileID: 151444, guid: ad5e63a6c57aa4a4ba79ff22c9c95caa, type: 3}
     dropCount: 2
     dropChance: 1
 --- !u!54 &2309603857249296144
@@ -133,7 +134,28 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &3551263135916034244
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 160110}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.20890601, y: 0.5010218, z: 0.20890723}
+  m_Center: {x: 0.00000013783573, y: 0.2505109, z: -0.00000032410023}
