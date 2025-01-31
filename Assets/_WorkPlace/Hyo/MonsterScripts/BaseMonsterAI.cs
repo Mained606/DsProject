@@ -165,8 +165,10 @@ public class BaseMonsterAI : MonoBehaviour
     // 상태 전환
     protected virtual void SetState(AIState newState)
     {
-        if (isAttacking && currentState == AIState.Attacking) return;
-        
+        // 250131 3:31 PM Hyeon =======================================
+        //if (isAttacking && currentState == AIState.Attacking) return;
+        // 250131 3:31 PM Hyeon =======================================
+
         // 죽음 상태면 상태전환 막기
         if (currentState == AIState.Dead) return;
         
@@ -365,6 +367,7 @@ public class BaseMonsterAI : MonoBehaviour
     protected virtual void HandleStunState()
     {
         // 패링 당한 후 효과 적용
+        Debug.LogWarning("Stun");
     }
 
 
