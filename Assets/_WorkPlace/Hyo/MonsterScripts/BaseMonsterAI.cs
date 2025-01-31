@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -38,6 +39,9 @@ public class BaseMonsterAI : MonoBehaviour
     
     [SerializeField] private bool respawn = false;
     protected bool isAttacking = false; // 공격 중인지 여부 플래그
+    
+    protected bool isStunned = false;
+    [SerializeField] protected float stunDuration = 5f; // 스턴 지속 시간
     
     protected CharacterController characterController;
     private Vector3 velocity;
@@ -171,6 +175,9 @@ public class BaseMonsterAI : MonoBehaviour
 
         // 죽음 상태면 상태전환 막기
         if (currentState == AIState.Dead) return;
+        
+        // 스턴 상태면 상태전환 막기
+        if (isStunned) return; 
         
         // 상태가 이미 동일하면 변경하지 않음
         if (currentState == newState) return;
@@ -367,7 +374,14 @@ public class BaseMonsterAI : MonoBehaviour
     protected virtual void HandleStunState()
     {
         // 패링 당한 후 효과 적용
-        Debug.LogWarning("Stun");
+        if (isStunned) return;
+
+        UIManager.Instance.TogglinfoMessageWindow("스턴됨");
+        
+        isStunned = true;
+        StopAllActions();
+    
+        StartCoroutine(RecoverFromStun());
     }
 
 
@@ -404,6 +418,8 @@ public class BaseMonsterAI : MonoBehaviour
     // 목표 지점으로 이동
     protected virtual void MoveTowards(Vector3 destination)
     {
+        if (isStunned) return;
+        
         Vector3 direction = (destination - transform.position).normalized;
 
         // 이동 처리
@@ -423,6 +439,8 @@ public class BaseMonsterAI : MonoBehaviour
     // 공격 실행
     protected virtual void PerformAttack()
     {
+        if (isStunned) return; // 스턴 상태일 경우 공격 중지
+        
         if (isAttacking) return; // 이미 공격 중이라면 중복 공격 방지
         
         StopAllActions();
@@ -445,7 +463,6 @@ public class BaseMonsterAI : MonoBehaviour
         yield return new WaitForSeconds(delay);
         isAttacking = false;
     }
-
     
     protected virtual void ExecuteAttack()
     {
@@ -463,6 +480,21 @@ public class BaseMonsterAI : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
         
         characterController.Move(Vector3.zero); // 이동 멈춤
+    }
+    
+    protected IEnumerator RecoverFromStun()
+    {
+        yield return new WaitForSeconds(stunDuration);
+        isStunned = false;
+    
+        if (playerTarget && Vector3.Distance(transform.position, playerTarget.position) <= searchRange)
+        {
+            SetState(AIState.Chasing);
+        }
+        else
+        {
+            SetState(AIState.Returning);
+        }
     }
 
     protected virtual IEnumerator SwitchStateAfterDelay(AIState newState, float delay)
