@@ -204,6 +204,15 @@ public class WeaponManager : MonoBehaviour
 
     public void SwitchWeapon(int index = -1)
     {
+        Debug.Log($"Index = {index}");
+        if(index == -1)
+        {
+            if(currentWeaponObject != null)
+            {
+                currentWeaponObject.SetActive(!currentWeaponObject.activeSelf);
+            }
+            return;
+        }
         currentWeaponObject = transform.GetChild(index).gameObject;
         currentWeaponObject.SetActive(true);
         var playerCombat = GameManager.playerTransform.GetComponent<PlayerCombat>();
