@@ -136,6 +136,20 @@ public class SkillManager : BaseManager<SkillManager>
             return;
         }
         
+        Skills skill = GetSkill(entityType, skillName);
+        if (skill == null)
+        {
+            Debug.LogError($"[ActivateSkill] 스킬을 찾을 수 없음: {skillName}");
+            return;
+        }
+        Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 정상적으로 찾았습니다.");
+        
+        if (skill.cooldownTimer.IsRunning)
+        {
+            Debug.Log($"{skill.skillName} is on cooldown! (남은 시간: {skill.cooldownTimer.RemainingTime})");
+            return;
+        }
+        
         // 만약 플레이어의 스킬 사용이라면, 스킬 실행 전에 플레이어 상태를 먼저 변경
         if (entityType == EntityType.Player)
         {
@@ -145,25 +159,11 @@ public class SkillManager : BaseManager<SkillManager>
                 playerController.isUseSkill = true;
             }
         }
-        
-        Skills skill = GetSkill(entityType, skillName);
-        if (skill == null)
-        {
-            Debug.LogError($"[ActivateSkill] 스킬을 찾을 수 없음: {skillName}");
-            return;
-        }
-        
-        Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 정상적으로 찾았습니다.");
-        
-        if (skill.cooldownTimer.IsRunning)
-        {
-            Debug.Log($"{skill.skillName} is on cooldown! (남은 시간: {skill.cooldownTimer.RemainingTime})");
-            return;
-        }
 
         Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 실행합니다.");
         
         isActivating = true; // 스킬 사용 중 플래그 설정
+        CharacterManager.PlayerCharacterData.UseMp(skill.energyCost);
         TimerManager.Instance.StartTimer(skill.cooldownTimer); // 쿨다운 시작
         StartCoroutine(ExecuteSkill(entityType, skill, target)); // 코루틴 실행
     }
@@ -194,6 +194,16 @@ public class SkillManager : BaseManager<SkillManager>
         yield return new WaitForSeconds(animationLength);
 
         isActivating = false; // 스킬 사용 완료 후 다시 입력 가능
+        
+        // 스킬 애니메이션 종료 후, 플레이어 상태 리셋
+        if (entityType == EntityType.Player)
+        {
+            PlayerController playerController = GameManager.playerTransform.GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.isUseSkill = false;
+            }
+        }
     }
     
     // 애니메이션 길이 가져오기
@@ -228,6 +238,30 @@ public class SkillManager : BaseManager<SkillManager>
         
         return null;
     }
+    
+    public bool CanActivateSkill(EntityType entityType, string skillName)
+    {
+        // 다른 스킬이 실행 중이면 안 됨
+        if (isActivating)
+        {
+            return false;
+        }
+    
+        Skills skill = GetSkill(entityType, skillName);
+        if (skill == null)
+        {
+            return false;
+        }
+    
+        // 해당 스킬이 쿨타임 중이면 사용 불가
+        if (skill.cooldownTimer.IsRunning)
+        {
+            return false;
+        }
+    
+        return true;
+    }
+    
     //============================================================================================================
     
     // ====================== 예전 코드 ===========================================================================

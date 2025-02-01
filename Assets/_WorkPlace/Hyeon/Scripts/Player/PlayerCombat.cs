@@ -169,20 +169,35 @@ public class PlayerCombat : MonoBehaviour
         }
         if (InputManager.InputActions.actions["PlayerSkill_1"].triggered)
         {
-            if (SkillManager.Instance.CheckMana("Fire"))
+            // =========== 20245-02-01 15:00 HYO 수정 =========================================
+            // 스킬 사용 가능 여부와 마나 체크를 먼저 진행
+            if (SkillManager.Instance.CheckMana("Fire") &&
+                SkillManager.Instance.CanActivateSkill(EntityType.Player, "Fire"))
             {
-                // 20245-02-01 12:43 HYO 수정 --------------------------------------------------------
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player,"Fire");
-                // ----------------------------------------------------------------------------------
-                if (!SkillManager.Instance.isActivating)
-                {
-                    controller.isUseSkill = true;
-                }
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Fire");
             }
             else
             {
-                Debug.Log("스킬 마나 부족");
+                Debug.Log("스킬 사용 불가: 마나 부족 또는 쿨타임 중");
             }
+            // ===============================================================================
+            
+            // =============== 예전 코드 =======================================================
+            // if (SkillManager.Instance.CheckMana("Fire"))
+            // {
+            //
+            //     SkillManager.Instance.ActivateSkill("Fire");
+            //
+            //     if (!SkillManager.Instance.isActivating)
+            //     {
+            //         controller.isUseSkill = true;
+            //     }
+            // }
+            // else
+            // {
+            //     Debug.Log("스킬 마나 부족");
+            // }
+            // ===============================================================================
         }
         if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
         {
