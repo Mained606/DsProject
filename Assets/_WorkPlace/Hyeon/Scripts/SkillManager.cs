@@ -136,6 +136,16 @@ public class SkillManager : BaseManager<SkillManager>
             return;
         }
         
+        // 만약 플레이어의 스킬 사용이라면, 스킬 실행 전에 플레이어 상태를 먼저 변경
+        if (entityType == EntityType.Player)
+        {
+            PlayerController playerController = GameManager.playerTransform.GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.isUseSkill = true;
+            }
+        }
+        
         Skills skill = GetSkill(entityType, skillName);
         if (skill == null)
         {
