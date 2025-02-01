@@ -83,7 +83,7 @@ public class CharacterData
     [HideInInspector] public float physicalDamageReduction; // 피해량 감소율 (ex. 받는 피해 -%)
     [HideInInspector] public float magicDamageReduction; // 피해량 감소율 (ex. 받는 피해 -%)
 
-    
+
     public StatModifier statModifier;
     private StatModifier baseStatModifier = new StatModifier();
 
@@ -178,12 +178,17 @@ public class CharacterData
                                  (level * statModifier.levelMpBonus)); // MP 계산
 
         // 물리 공격력 및 방어력 계산
-        physicalDamage = Mathf.RoundToInt(Mathf.Max(strength * statModifier.strengthMultiplier, 1f)); // 기본값을 1f로 설정하여 0 방지
-        physicalDefense = Mathf.RoundToInt(Mathf.Max((strength + vitality) * statModifier.physicalResistanceMultiplier, 1f)); // 기본값을 1f로 설정
-        
+        physicalDamage =
+            Mathf.RoundToInt(Mathf.Max(strength * statModifier.strengthMultiplier, 1f)); // 기본값을 1f로 설정하여 0 방지
+        physicalDefense =
+            Mathf.RoundToInt(Mathf.Max((strength + vitality) * statModifier.physicalResistanceMultiplier,
+                1f)); // 기본값을 1f로 설정
+
         // 마법 공격력 및 방어력 계산
-        magicDamage = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier, 1f)); // 기본값을 1f로 설정
-        magicDefense = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.magicResistanceMultiplier, 1f)); // 기본값을 1f로 설정
+        magicDamage =
+            Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier, 1f)); // 기본값을 1f로 설정
+        magicDefense =
+            Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.magicResistanceMultiplier, 1f)); // 기본값을 1f로 설정
 
 
         // 크리티컬 확률 계산
@@ -192,7 +197,7 @@ public class CharacterData
 
         // 회피 확률 및 방어 확률 (예시로 설정)
         dodgeChance = Mathf.Min(agility * 0.01f, MaxDodgeChance); // 회피 확률 (최대 75%)
-        
+
         // 2025-01-27 HYO 블록 확률 추후 아이템으로 빼고 제거 해야함 -------------------------------------------
         blockChance = Mathf.Min(strength * 0.01f, MaxBlockChance); // 방어 확률 (최대 50%)
         // ---------------------------------------------------------------------------------------
@@ -217,7 +222,7 @@ public class CharacterData
             currentMp = Mathf.Clamp(currentMp, 0, maxMp); // 현재 MP는 최대 MP보다 크지 않게 설정
         }
     }
-    
+
     // 경험치를 얻었을 때 호출되는 함수
     public void AddExperience(int amount)
     {
@@ -277,7 +282,7 @@ public class CharacterData
 
         UpdateDerivedStats();
     }
-    
+
     // 특정 스텟 증가 함수
     public void ModifyStat(StatType statType, int amount)
     {
@@ -384,14 +389,18 @@ public class CharacterData
             "<color=orange>Physical Defense:</color> {15}\n" +
             "<color=orange>Magic Defense:</color> {16}\n" +
             "<color=magenta>Critical Chance:</color> {17}%\n" +
-            "<color=teal>Dodge Chance:</color> {18}%\n" + // 회피율 추가
-            "<color=teal>Block Chance:</color> {19}%\n" + // 방어율 추가
-            "<color=black>Base Damage:</color> {20}\n" +
+            "<color=teal>Dodge Chance:</color> {18}%\n" +
+            "<color=teal>Block Chance:</color> {19}%\n" +
+            "<color=yellow>Attack Speed:</color> {20}\n" +
             "<color=teal>Speed:</color> {21}\n" +
-            "<color=yellow>Attack Speed:</color> {22}\n" +
-            "<color=orange>Current Experience:</color> {23}\n" +
-            "<color=orange>Experience To Level Up:</color> {24}\n" +
-            "<color=cyan>Shield Status:</color> {25}\n", // 방패 착용 여부 추가
+            "<color=orange>Current Experience:</color> {22}\n" +
+            "<color=orange>Experience To Level Up:</color> {23}\n" +
+            "<color=cyan>Shield Status:</color> {24}\n" +
+            "<color=lime>HP Recovery Rate:</color> {25}\n" +
+            "<color=lime>MP Recovery Rate:</color> {26}\n" +
+            "<color=lime>Stamina Recovery Rate:</color> {27}\n" +
+            "<color=teal>Physical Damage Reduction:</color> {28}%\n" +
+            "<color=teal>Magic Damage Reduction:</color> {29}%",
             characterName, // 0
             level, // 1
             strength, // 2
@@ -410,14 +419,18 @@ public class CharacterData
             physicalDefense, // 15
             magicDefense, // 16
             criticalChance * 100, // 17
-            dodgeChance * 100, // 18 회피율 %
-            blockChance * 100, // 19 방어율 %
-            physicalDamage, // 20 (or another base damage if needed)
+            dodgeChance * 100, // 18
+            blockChance * 100, // 19
+            attackSpeed, // 20
             moveSpeed, // 21
-            attackSpeed, // 22
-            currentExperience, // 23
-            experienceToLevelUp, // 24
-            hasShield ? "<color=green>Equipped</color>" : "<color=red>Not Equipped</color>" // 25
+            currentExperience, // 22
+            experienceToLevelUp, // 23
+            hasShield ? "<color=green>Equipped</color>" : "<color=red>Not Equipped</color>", // 24
+            hpRecoveryRate, // 25
+            mpRecoveryRate, // 26
+            staminaRecoveryRate, // 27
+            physicalDamageReduction * 100, // 28
+            magicDamageReduction * 100 // 29
         );
         return baseInfo;
     }
@@ -709,6 +722,9 @@ public class DragonData
         magicDamage = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier, 1f)); // 기본값을 1f로 설정
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f); // 민첩성에 따른 크리티컬 확률
         criticalDamage = 1.5f; // 크리티컬 데미지 배율 예시 (게임에 맞게 수정 가능)
+        
+        // 레벨 업 종료
+        isLevelingUp = false;
     }
     
     // 유대 경험치 증가
@@ -740,6 +756,47 @@ public class DragonData
         UpdateDerivedStats();
         Debug.Log($"{characterName}의 유대 레벨이 {bondLevel}로 상승했습니다!");
     }
+    
+    public string ToStringForTMPro()
+    {
+        // 기본 정보를 포맷하여 출력
+        string baseInfo = string.Format(
+            "<color=red>Name:</color> {0}\n" +
+            "<color=red>Type:</color> {1}\n" +
+            "<color=red>Strength:</color> {2}\n" +
+            "<color=blue>Agility:</color> {3}\n" +
+            "<color=green>Vitality:</color> {4}\n" +
+            "<color=yellow>Intelligence:</color> {5}\n" +
+            "<color=lime>Speed:</color> {6}\n" +
+            "<color=cyan>Attack Speed:</color> {7}\n" +
+            "<color=purple>Attack Range:</color> {8}\n" +
+            "<color=orange>Bond Level:</color> {9}\n" +
+            "<color=orange>Bond Experience:</color> {10}/{11}\n" +
+            "<color=magenta>Critical Chance:</color> {12}%\n" +
+            "<color=teal>Critical Damage:</color> {13}\n" +
+            "<color=lime>Physical Damage:</color> {14}\n" +
+            "<color=cyan>Magic Damage:</color> {15}\n",
+            characterName, // 0
+            characterType.ToString(), // 1
+            strength, // 2
+            agility, // 3
+            vitality, // 4
+            intelligence, // 5
+            speed, // 6
+            attackSpeed, // 7
+            attackRange, // 8
+            bondLevel, // 9
+            bondExperience, // 10
+            bondThresholds.Length > bondLevel - 1 ? bondThresholds[bondLevel - 1] : 0, // 11 (Next bond threshold)
+            criticalChance * 100, // 12
+            criticalDamage, // 13
+            physicalDamage, // 14
+            magicDamage // 15
+        );
+    
+        return baseInfo;
+    }
+
 }
 
 [Serializable]

@@ -1497,7 +1497,7 @@ MonoBehaviour:
   detectRange: 10
   meleeRange: 1
   maxDistanceFromPlayer: 15
-  fireballPrefab: {fileID: 478066477400670348, guid: f1ce9a5f250e288449f4dbd4206d3345, type: 3}
+  fireballPrefab: {fileID: 1949376083282614, guid: 4f8e896254c444d4e8162e9c534d6b27, type: 3}
   skillCooldown: 60
   rangedCooldown: 10
   currentTarget:
