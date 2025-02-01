@@ -49,7 +49,9 @@ public class BaseMonsterAI : MonoBehaviour
     private float gravity = -9.81f;
     
     private Coroutine hitCoroutine; // 현재 실행 중인 코루틴을 저장
-
+    
+    protected WeaponCollider baseweaponCollider; // **공통 무기 콜라이더 변수 추가**
+    
     protected virtual void OnEnable()
     {
         // 풀링 적용 후 리스폰 상태일 때 초기화
@@ -112,6 +114,9 @@ public class BaseMonsterAI : MonoBehaviour
             attackCooldown = monsterData.attackSpeed;
             attackRange = monsterData.attackRange;
         }
+        
+        // 무기 콜라이더가 있을 경우 자동으로 찾기 (자식 오브젝트에서 검색)
+        baseweaponCollider = GetComponentInChildren<WeaponCollider>();
         
         // 착지 여부를 체크하는 메서드 호출
         CheckLandingAndSetPatrolTarget();
@@ -194,6 +199,12 @@ public class BaseMonsterAI : MonoBehaviour
         // 공격중일 때 상태 전환을 막지만 예외적으로 스턴, 히트, 데드 상태로는 전환 가능
         if (isAttacking && newState != AIState.Stun && newState != AIState.Hit && newState != AIState.Dead) return;
         
+        // **스턴, 피격, 사망 상태로 전환 시 무기 콜라이더 자동 비활성화**
+        if (newState == AIState.Stun || newState == AIState.Hit || newState == AIState.Dead)
+        {
+            DisableWeaponCollider();
+        }
+        
         // 상태가 이미 동일하면 변경하지 않음
         if (currentState == newState) return;
 
@@ -222,6 +233,14 @@ public class BaseMonsterAI : MonoBehaviour
                 StopAllActions();
                 animator.SetTrigger(IsDead);
                 break;
+        }
+    }
+    
+    protected void DisableWeaponCollider()
+    {
+        if (baseweaponCollider)
+        {
+            baseweaponCollider.EnableWeaponCollider(false);
         }
     }
     
@@ -541,6 +560,8 @@ public class BaseMonsterAI : MonoBehaviour
         isAttacking = false;
         StopAllCoroutines(); // 공격 코루틴 정지
         CancelInvoke(nameof(ExecuteAttack)); // 공격 실행 취소
+        
+        DisableWeaponCollider();
         
         // 중력 및 이동을 완전히 멈추도록 velocity 초기화
         velocity = Vector3.zero;
