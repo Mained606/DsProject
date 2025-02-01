@@ -1,8 +1,15 @@
 fileFormatVersion: 2
-guid: 2f1ba335d79d24d4083bb6e5bb5292b1
+guid: f02c981079039114ab46afbe7c9810ce
 NativeFormatImporter:
   externalObjects: {}
-  mainObjectFileID: 2100000
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269085
+  packageName: 'Pure Nature 2 : Meadows'
+  packageVersion: 2.0
+  assetPath: Assets/Pico/PureNature_Meadows/Textures/Surfaces/TerrainLayers/Terrain.mat
+  uploadId: 698480

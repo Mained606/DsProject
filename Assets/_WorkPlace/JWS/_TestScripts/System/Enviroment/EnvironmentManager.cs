@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace JWS
 {
+    [ExecuteInEditMode]
     public class EnvironmentManager : MonoBehaviour
     {
         public Light directionalLight;
@@ -171,8 +172,6 @@ namespace JWS
             {
                 Debug.LogError("cloudsMaterial is null. Please assign a material.");
             }
-
-            Debug.Log($"Gradient Color: {scatteringColor}");
         }
 
 
