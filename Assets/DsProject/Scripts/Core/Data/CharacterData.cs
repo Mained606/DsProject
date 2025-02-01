@@ -667,7 +667,7 @@ public class DragonData
     public int bondExperience; // 유대 경험치
     public int[] bondThresholds; // 레벨 업에 필요한 유대 경험치
     
-    private bool isLevelingUp = false; // 레벨업 진행 중 여부
+    // private bool isLevelingUp = false; // 레벨업 진행 중 여부
 
     // 모디파이어
     public DragonStatModifier statModifier;
@@ -710,7 +710,7 @@ public class DragonData
         this.bondThresholds = bondThresholds;
         this.criticalChance = criticalChance;
         this.statModifier = modifier ?? new DragonStatModifier();
-        
+
         // 물리 데미지와 마법 데미지 계산
         UpdateDerivedStats();
     }
@@ -724,7 +724,7 @@ public class DragonData
         criticalDamage = 1.5f; // 크리티컬 데미지 배율 예시 (게임에 맞게 수정 가능)
         
         // 레벨 업 종료
-        isLevelingUp = false;
+        // isLevelingUp = false;
     }
     
     // 유대 경험치 증가
@@ -743,7 +743,7 @@ public class DragonData
 
     private void LevelUpBond()
     {
-        isLevelingUp = true; // 레벨업 시작
+        // isLevelingUp = true; // 레벨업 시작
         
         // 레벨 증가
         bondLevel++;
