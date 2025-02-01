@@ -4,26 +4,31 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// ===== 2025-02-01 11:08 HYO 코드 추가 ====
 public enum EntityType
 {
     Player,
     Dragon,
     Boss
 }
-
+// ========================================
 public class SkillManager : BaseManager<SkillManager>
 {
     [SerializeField] private SkillList skillDatabase;
     
-    // 2025-02-01 11:08 HYO 코드 추가 -----------------------------------------------------------------------
-    [SerializeField] private SkillList dragonSkillDatabase;
-    [SerializeField] private SkillList bossSkillDatabase;
-
+    // ==========================2025-02-01 11:08 HYO 코드 추가 =============================================
+    private Dictionary<string, Skills> playerSkillDictionary = new Dictionary<string, Skills>();
     private Dictionary<string, Skills> dragonSkillDictionary = new Dictionary<string, Skills>();
     private Dictionary<string, Skills> bossSkillDictionary = new Dictionary<string, Skills>();
-    // -----------------------------------------------------------------------------------------------------
     
-    private Dictionary<string, Skills> skillDictionary = new Dictionary<string, Skills>();
+    private Dictionary<Skills, Image> activeSkill = new Dictionary<Skills, Image>();
+    
+    // =====================================================================================================
+    
+    // ============================= 예전 코드 ==================================================
+    // private Dictionary<string, Skills> skillDictionary = new Dictionary<string, Skills>();
+    // ========================================================================================
+
     [SerializeField] private List<Skills> currentUsedSkills = new List<Skills>();
 
     private Animator animator;
@@ -32,26 +37,20 @@ public class SkillManager : BaseManager<SkillManager>
     public bool isActivating;
     private int currentMp;
 
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-
-    }
     protected override void Awake()
     {
         base.Awake();
         
-        // 2025-02-01 11:08 HYO 코드 추가 -----------------------------------------
-        InitializeSkillDictionary(skillDatabase.playerSkills, skillDictionary);
+        // ================= 2025-02-01 11:08 HYO 코드 추가 ===========================
+        // 플레이어, 드래곤, 보스 스킬을 각각 Dictionary에 저장
+        InitializeSkillDictionary(skillDatabase.playerSkills, playerSkillDictionary);
         InitializeSkillDictionary(skillDatabase.dragonSkills, dragonSkillDictionary);
         InitializeSkillDictionary(skillDatabase.bossSkills, bossSkillDictionary);
-        //-----------------------------------------------------------------------
+        //===========================================================================
         
-        // 예전 코드 ---------------------
+        // ======== 예전 코드 ============
         // InitializeSkillDictionary();
-        // -----------------------------
-        
-        Debug.Log($"PlayerSkill_1 존재 여부: {skillDictionary.ContainsKey("PlayerSkill_1")}");
+        // ==============================
     }
 
     protected override void Start()
@@ -66,7 +65,7 @@ public class SkillManager : BaseManager<SkillManager>
         CheckSkillCoolTime();
     }
     
-    // 2025-02-01 11:08 HYO 코드 추가 ----------------------------------------------------------------------------------
+    // ========================== 2025-02-01 11:08 HYO 코드 추가 ==============================================
     // 스킬을 Dictionary에 저장하는 함수
     private void InitializeSkillDictionary(List<Skills> skills, Dictionary<string, Skills> skillDictionary)
     {
@@ -79,10 +78,9 @@ public class SkillManager : BaseManager<SkillManager>
             }
         }
     }
-
-    // -----------------------------------------------------------------------------------------------------
+    // =======================================================================================================
     
-    // -------------------  예전 코드 -----------------------------------------------------------------------
+    // ==================== 예전 코드 =========================================================================
     // private void InitializeSkillDictionary()
     // {
     //     foreach(var skill in skillDatabase.skillList)
@@ -100,29 +98,22 @@ public class SkillManager : BaseManager<SkillManager>
     //     }
     //     
     // }
-    // ---------------------------------------------------------------------------------------------------
+    // ======================================================================================================
     
-    // -----------------------2025-02-01 11:08 HYO 코드 추가 ----------------------------------------------
+    // ========================= 2025-02-01 11:08 HYO 코드 추가 ====================================================
     public Skills GetSkill(EntityType entityType, string skillName)
     {
-        Dictionary<string, Skills> selectedDictionary = entityType switch
+        return entityType switch
         {
-            EntityType.Player => skillDictionary,
-            EntityType.Dragon => dragonSkillDictionary,
-            EntityType.Boss => bossSkillDictionary,
+            EntityType.Player => playerSkillDictionary.TryGetValue(skillName, out var skill) ? skill : null,
+            EntityType.Dragon => dragonSkillDictionary.TryGetValue(skillName, out var skill) ? skill : null,
+            EntityType.Boss => bossSkillDictionary.TryGetValue(skillName, out var skill) ? skill : null,
             _ => null
         };
-
-        if (selectedDictionary != null && selectedDictionary.TryGetValue(skillName, out var skill))
-        {
-            return skill;
-        }
-
-        return null;
     }
-    // -----------------------------------------------------------------------------------------------------
+    // ===========================================================================================================
 
-    // -------------------  예전 코드 -----------------------------------------------------------------------
+    // ====================== 예전 코드 =================================
     // public Skills GetSkill(string skillName)
     // {
     //     if(skillDictionary.TryGetValue(skillName, out var skill))
@@ -132,59 +123,159 @@ public class SkillManager : BaseManager<SkillManager>
     //
     //     return null;
     // }
-    // -----------------------------------------------------------------------------------------------------
+    // ================================================================
     
-    public void ActivateSkill(string skillName, GameObject target = null)
+    // ===================== 2025-02-01 10:44 HYO 코드 추가 =======================================================
+    public void ActivateSkillForEntity(EntityType entityType, string skillName, GameObject target = null)
     {
-        if(target == null)
+        Debug.Log($"[ActivateSkillForEntity] {entityType}가 {skillName} 스킬을 사용하려 합니다.");
+        
+        if (isActivating)
+        {
+            Debug.Log("현재 스킬이 활성화 중이므로 새로운 스킬을 사용할 수 없습니다.");
+            return;
+        }
+        
+        Skills skill = GetSkill(entityType, skillName);
+        if (skill == null)
+        {
+            Debug.LogError($"[ActivateSkill] 스킬을 찾을 수 없음: {skillName}");
+            return;
+        }
+        
+        Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 정상적으로 찾았습니다.");
+        
+        if (skill.cooldownTimer.IsRunning)
+        {
+            Debug.Log($"{skill.skillName} is on cooldown! (남은 시간: {skill.cooldownTimer.RemainingTime})");
+            return;
+        }
+
+        Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 실행합니다.");
+        
+        isActivating = true; // 스킬 사용 중 플래그 설정
+        TimerManager.Instance.StartTimer(skill.cooldownTimer); // 쿨다운 시작
+        StartCoroutine(ExecuteSkill(entityType, skill, target)); // 코루틴 실행
+    }
+    
+    // 공통 스킬 실행 로직 (애니메이션, 효과, 쿨다운 포함)
+    private IEnumerator ExecuteSkill(EntityType entityType, Skills skill, GameObject target)
+    {
+        if (target == null)
         {
             target = GameManager.playerTransform.gameObject;
         }
-        Skills skill = GetSkill(EntityType.Player, skillName);
-        isActivating = activeSkill.ContainsKey(skill);
-        UpdateCurrentMana();
-        if (isActivating)
-        {
-            Debug.Log("isActivating true");
-            return;
-        }
-        else
-        {
-            CharacterManager.PlayerCharacterData.UseMp(skill.energyCost);
-            UpdateCurrentMana();
-            TimerManager.Instance.StartTimer(skill.cooldownTimer);
-            animator.SetTrigger(skill.activeTriggerName);
-            if (skill.effectPrefab != null)
-            {
-                Quaternion playerRotation = Quaternion.LookRotation(GameManager.playerTransform.forward);
-                var effect = Instantiate(skill.effectPrefab, target.transform.position, playerRotation);
-                if (skill.particleDelay > 0)
-                {
-                    var particleEffect = effect.GetComponent<ParticleSystem>().main;
-                    particleEffect.startDelay = skill.particleDelay;
-                }
 
-                Destroy(effect, 5f);
-
-            }
-            //Debug.Log($"ActivateSkill: {skill.skillName}");
-            currentUsedSkills.Add(skill);
+        Animator entityAnimator = GetEntityAnimator(entityType);
+        if (entityAnimator != null)
+        {
+            entityAnimator.SetTrigger(skill.activeTriggerName);
         }
+
+        if (skill.effectPrefab != null)
+        {
+            Quaternion entityRotation = Quaternion.LookRotation(target.transform.forward);
+            var effect = Instantiate(skill.effectPrefab, target.transform.position, entityRotation);
+            Destroy(effect, 5f);
+        }
+
+        // 현재 실행 중인 애니메이션의 길이만큼 대기 (애니메이션이 끝날 때까지)
+        float animationLength = GetAnimationClipLength(entityAnimator, skill.activeTriggerName);
+        yield return new WaitForSeconds(animationLength);
+
+        isActivating = false; // 스킬 사용 완료 후 다시 입력 가능
     }
-
-    private Dictionary<Skills, Image> activeSkill = new Dictionary<Skills, Image>();
     
+    // 애니메이션 길이 가져오기
+    private float GetAnimationClipLength(Animator animator, string triggerName)
+    {
+        if (animator == null) return 0;
+
+        foreach (var clip in animator.runtimeAnimatorController.animationClips)
+        {
+            if (clip.name == triggerName)
+            {
+                return clip.length;
+            }
+        }
+        return 0.5f; // 기본값 (애니메이션이 없을 경우)
+    }
+    
+    private Animator GetEntityAnimator(EntityType entityType)
+    {
+        if (entityType == EntityType.Player)
+        {
+            return GameManager.playerTransform?.GetComponentInChildren<Animator>();
+        }
+        else if (entityType == EntityType.Dragon)
+        {
+            return GameManager.DragonTransform?.GetComponent<Animator>();
+        }
+        else if (entityType == EntityType.Boss)
+        {
+            // return GameManager.BossTransform?.GetComponent<Animator>();
+        }
+        
+        return null;
+    }
+    //============================================================================================================
+    
+    // ====================== 예전 코드 ===========================================================================
+    // public void ActivateSkill(string skillName, GameObject target = null)
+    // {
+    //     if(target == null)
+    //     {
+    //         target = GameManager.playerTransform.gameObject;
+    //     }
+    //     Skills skill = GetSkill(EntityType.Player, skillName);
+    //     isActivating = activeSkill.ContainsKey(skill);
+    //     UpdateCurrentMana();
+    //     if (isActivating)
+    //     {
+    //         Debug.Log("isActivating true");
+    //         return;
+    //     }
+    //     else
+    //     {
+    //         CharacterManager.PlayerCharacterData.UseMp(skill.energyCost);
+    //         UpdateCurrentMana();
+    //         TimerManager.Instance.StartTimer(skill.cooldownTimer);
+    //         animator.SetTrigger(skill.activeTriggerName);
+    //         if (skill.effectPrefab != null)
+    //         {
+    //             Quaternion playerRotation = Quaternion.LookRotation(GameManager.playerTransform.forward);
+    //             var effect = Instantiate(skill.effectPrefab, target.transform.position, playerRotation);
+    //             if (skill.particleDelay > 0)
+    //             {
+    //                 var particleEffect = effect.GetComponent<ParticleSystem>().main;
+    //                 particleEffect.startDelay = skill.particleDelay;
+    //             }
+    //
+    //             Destroy(effect, 5f);
+    //
+    //         }
+    //         //Debug.Log($"ActivateSkill: {skill.skillName}");
+    //         currentUsedSkills.Add(skill);
+    //     }
+    // }
+    // ==========================================================================================================
+    
+    // ===================== 2025-02-01 10:44 HYO 코드 추가 ======================================================
     public void CheckSkillCoolTime()
     {
         List<Dictionary<string, Skills>> allDictionaries = new()
         {
-            skillDictionary, dragonSkillDictionary, bossSkillDictionary
+            playerSkillDictionary, dragonSkillDictionary, bossSkillDictionary
         };
+        
+        List<Skills> skillsToRemove = new List<Skills>();
 
         foreach (var dict in allDictionaries)
         {
             foreach (var skill in dict.Values)
             {
+                if (!skill.cooldownTimer.IsRunning) continue; // 동작 중인 타이머만 체크
+
                 if (skill.cooldownTimer.RemainingPercent <= 0)
                 {
                     if (activeSkill.ContainsKey(skill))
@@ -192,6 +283,9 @@ public class SkillManager : BaseManager<SkillManager>
                         Destroy(activeSkill[skill].gameObject);
                         activeSkill.Remove(skill);
                     }
+                    
+                    skillsToRemove.Add(skill);
+                    skill.cooldownTimer.Stop(); // 쿨타임 종료
                 }
                 else
                 {
@@ -216,9 +310,15 @@ public class SkillManager : BaseManager<SkillManager>
                 }
             }
         }
+        // 스킬 리스트에서 제거 (리스트를 수정할 때는 별도 리스트에 저장 후 제거)
+        foreach (var skill in skillsToRemove)
+        {
+            currentUsedSkills.Remove(skill);
+        }
     }
-
-    // ----------- 이전 코드 ---------------------------------------------------------------------------------
+    // ========================================================================================================
+    
+    // ====================================== 이전 코드 ========================================================
     // public void CheckSkillCoolTime()
     // {
     //     if (currentUsedSkills.Count > 0)
@@ -259,13 +359,15 @@ public class SkillManager : BaseManager<SkillManager>
     //         }
     //     }
     // }
-    // ----------------------------------------------------------------------------------------------------------
+    // ======================================================================================================
     
+    // ===================== 2025-02-01 10:44 HYO 코드 수정 =======================================================
     public bool CheckMana(string skillName)
     {
+        UpdateCurrentMana(); // MP 정보 최신화
+        
         Skills skill = GetSkill(EntityType.Player, skillName);
-            
-        if (skill == null)  // 🚨 skill이 null이면 바로 로그 출력 후 리턴
+        if (skill == null)
         {
             Debug.LogError($"CheckMana 오류: {skillName} 스킬이 SkillManager에 등록되지 않았습니다!");
             return false;
@@ -273,13 +375,13 @@ public class SkillManager : BaseManager<SkillManager>
         
         if (currentMp < skill.energyCost)
         {
+            Debug.Log($"MP 부족: {skillName} 사용 불가 (현재 MP: {currentMp}, 필요 MP: {skill.energyCost})");
             return false;
         }
-        else
-        {
-            return true;
-        }
+        
+        return true;
     }
+    // ==========================================================================================================
 
     private void UpdateCurrentMana()
     {
@@ -291,70 +393,7 @@ public class SkillManager : BaseManager<SkillManager>
 
     }
     
-    // ----------------- 2025-02-01 10:44 HYO 용 및 보스 전용 코드 추가 ----------------------------------------------------
-    public void ActivateSkillForEntity(EntityType entityType, string skillName, GameObject target = null)
-    {
-        Skills skill = GetSkill(entityType, skillName);
-        if (skill == null) return;
-
-        ExecuteSkill(entityType, skill, target);
-    }
-    
-    // 공통 스킬 실행 로직 (애니메이션, 효과, 쿨다운 포함)
-    private void ExecuteSkill(EntityType entityType, Skills skill, GameObject target)
-    {
-        if (target == null)
-        {
-            target = GameManager.playerTransform.gameObject;
-        }
-        
-        if (skill.cooldownTimer.RemainingTime > 0)
-        {
-            Debug.Log($"{skill.skillName} is on cooldown!");
-            return;
-        }
-
-        // 애니메이션 실행
-        if (entityType == EntityType.Player)
-        {
-            animator.SetTrigger(skill.activeTriggerName);
-        }
-        else if (entityType == EntityType.Dragon || entityType == EntityType.Boss)
-        {
-            Animator entityAnimator = GetEntityAnimator(entityType);
-            if (entityAnimator != null)
-            {
-                entityAnimator.SetTrigger(skill.activeTriggerName);
-            }
-        }
-
-        // 스킬 효과 적용
-        if (skill.effectPrefab != null)
-        {
-            Quaternion entityRotation = Quaternion.LookRotation(target.transform.forward);
-            var effect = Instantiate(skill.effectPrefab, target.transform.position, entityRotation);
-            Destroy(effect, 5f);
-        }
-
-        // 스킬 쿨다운 시작
-        TimerManager.Instance.StartTimer(skill.cooldownTimer);
-    }
-    
-    private Animator GetEntityAnimator(EntityType entityType)
-    {
-        if (entityType == EntityType.Dragon)
-        {
-            return GameManager.DragonTransform?.GetComponent<Animator>();
-        }
-        
-        else if (entityType == EntityType.Boss)
-        {
-            // return GameManager.BossTransform?.GetComponent<Animator>();
-        }
-        
-        return null;
-    }
-    
+    // ===================== 2025-02-01 1:33 HYO 코드 추가 ==============================================================
     private Dictionary<string, Coroutine> activeBuffs = new Dictionary<string, Coroutine>();
 
     public void ApplyBuff(EntityType entityType, string skillName)
@@ -428,6 +467,5 @@ public class SkillManager : BaseManager<SkillManager>
         // 🛑 버프가 해제되었으므로 딕셔너리에서 제거
         activeBuffs.Remove(skillName);
     }
-
-// ---------------------------------------------------------------------------------------------------------------------
+    // =================================================================================================================
 }

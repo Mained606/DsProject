@@ -171,7 +171,9 @@ public class PlayerCombat : MonoBehaviour
         {
             if (SkillManager.Instance.CheckMana("Fire"))
             {
-                SkillManager.Instance.ActivateSkill("Fire");
+                // 20245-02-01 12:43 HYO 수정 --------------------------------------------------------
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player,"Fire");
+                // ----------------------------------------------------------------------------------
                 if (!SkillManager.Instance.isActivating)
                 {
                     controller.isUseSkill = true;
@@ -186,13 +188,18 @@ public class PlayerCombat : MonoBehaviour
         {
             controller.CanMove = false;
             controller.CanAttack = false;
-            SkillManager.Instance.ActivateSkill("Water", closestMonster);
+            // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
+            // SkillManager.Instance.ActivateSkill("Water", closestMonster);
+            // ----------------------------------------------------------------
+
         }
         if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
         {
             controller.CanMove = false;
             controller.CanAttack = false;
-            SkillManager.Instance.ActivateSkill("eee", closestMonster);
+            // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
+            // SkillManager.Instance.ActivateSkill("eee", closestMonster);
+            // ----------------------------------------------------------------
         }
     }
 
