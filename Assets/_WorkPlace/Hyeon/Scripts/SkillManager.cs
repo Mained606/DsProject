@@ -274,12 +274,22 @@ public class SkillManager : BaseManager<SkillManager>
         {
             foreach (var skill in dict.Values)
             {
-                if (!skill.cooldownTimer.IsRunning) continue; // 동작 중인 타이머만 체크
-
-                if (skill.cooldownTimer.RemainingPercent <= 0)
+                // 쿨타임이 실행되고 있는지 확인
+                if (!skill.cooldownTimer.IsRunning)
                 {
+                    Debug.Log($"[쿨타임 체크] {skill.skillName} 타이머가 실행 중이 아님.");
+                    continue;
+                }
+                
+                Debug.Log($"[쿨타임 진행] {skill.skillName} 남은 퍼센트: {skill.cooldownTimer.RemainingPercent * 100}%");
+                
+                if (skill.cooldownTimer.RemainingTime <= 0.1f)
+                {
+                    Debug.Log($"[쿨타임 종료] {skill.skillName}의 쿨타임이 끝났습니다.");
+                    
                     if (activeSkill.ContainsKey(skill))
                     {
+                        Debug.Log($"[쿨타임 종료] {skill.skillName} 쿨타임이 끝났습니다. UI 제거 시도.");
                         Destroy(activeSkill[skill].gameObject);
                         activeSkill.Remove(skill);
                     }
@@ -313,7 +323,11 @@ public class SkillManager : BaseManager<SkillManager>
         // 스킬 리스트에서 제거 (리스트를 수정할 때는 별도 리스트에 저장 후 제거)
         foreach (var skill in skillsToRemove)
         {
-            currentUsedSkills.Remove(skill);
+            if (currentUsedSkills.Contains(skill))
+            {
+                Debug.Log($"[쿨타임 종료] {skill.skillName}을 currentUsedSkills에서 제거.");
+                currentUsedSkills.Remove(skill);
+            }
         }
     }
     // ========================================================================================================
