@@ -522,9 +522,27 @@ public class SkillManager : BaseManager<SkillManager>
                 break;
         }
         
+        if (skill.effectPrefab != null)
+        {
+            // 용이 플레이어에게 버프를 사용하므로, 플레이어 근처에 이팩트를 표시
+            InstantiateBuffEffect(skill.effectPrefab, GameManager.playerTransform.position);
+        }
+        
         TimerManager.Instance.StartTimer(skill.cooldownTimer);
     }
+    
+    private void InstantiateBuffEffect(GameObject effectPrefab, Vector3 targetPosition)
+    {
+        // 이펙트를 플레이어 위치에 생성 (부모를 플레이어로 설정)
+        var effect = Instantiate(effectPrefab, targetPosition, Quaternion.identity);
+    
+        // 이펙트를 플레이어의 자식 오브젝트로 설정
+        effect.transform.SetParent(GameManager.playerTransform);
 
+        // 이펙트가 일정 시간 후에 제거되도록 설정
+        Destroy(effect, 3f); // 3초 후 이펙트 삭제
+    }
+    
     // 🔄 일정 시간이 지나면 버프 해제
     private IEnumerator RemoveBuffAfterDuration(string skillName, float duration, CharacterData targetCharacter)
     {
