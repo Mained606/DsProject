@@ -12,7 +12,9 @@ public class Skills
     public GameObject effectPrefab;
     public string activeTriggerName;
     public float particleDelay;
-
+    
+    public float buffDuration;
+    
     public BasicTimer cooldownTimer;
 
     public void Initialize()
