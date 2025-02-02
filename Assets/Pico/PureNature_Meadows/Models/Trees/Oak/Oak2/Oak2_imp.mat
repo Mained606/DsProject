@@ -58,6 +58,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlphaClipThreshold: 0.2
     - _AlphaCutoff: 0.5
     - _ColorVariationPower: 1
     - _Cull: 2
@@ -94,3 +95,4 @@ Material:
     - _GradientColor: {r: 0.32809454, g: 0.7924528, b: 0, a: 1}
     - _MainColor: {r: 0.34897837, g: 0.5566037, b: 0.06651233, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
