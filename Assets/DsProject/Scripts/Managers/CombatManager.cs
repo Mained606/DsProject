@@ -28,7 +28,7 @@ public class CombatManager : BaseManager<CombatManager>
 
         if (actualDefender == null || actualDefender.currentHp <= 0)
         {
-            Debug.Log(actualDefender.currentHp);
+            // Debug.Log(actualDefender.currentHp);
             Debug.LogWarning($"{actualDefender.characterName}는 이미 사망했습니다.");
             return;
         }
@@ -108,8 +108,8 @@ public class CombatManager : BaseManager<CombatManager>
             UIManager.DisplayPopupText(finalDamage.ToString(), targetPosition, isPlayerAttacking ? MessageTag.적_피해 : MessageTag.플레이어_피해);
         }
         
-        Debug.Log($"{actualAttacker.characterName}가 {actualDefender.characterName}에게 {finalDamage}의 데미지를 입혔습니다.");
-        Debug.Log($"{actualDefender.characterName}의 체력이 {actualDefender.currentHp} 만큼 남았습니다.");
+        // Debug.Log($"{actualAttacker.characterName}가 {actualDefender.characterName}에게 {finalDamage}의 데미지를 입혔습니다.");
+        // Debug.Log($"{actualDefender.characterName}의 체력이 {actualDefender.currentHp} 만큼 남았습니다.");
 
         // 대상이 사망했는지 확인
         if (actualDefender.currentHp <= 0)
@@ -201,8 +201,8 @@ public class CombatManager : BaseManager<CombatManager>
         // UI에 데미지 표시
         UIManager.DisplayPopupText(finalDamage.ToString(), targetPosition, MessageTag.적_피해);
 
-        Debug.Log($"{dragonData.characterName}가 {targetData.characterName}에게 {finalDamage}의 데미지를 입혔습니다.");
-        Debug.Log($"{targetData.characterName}의 체력이 {targetData.currentHp} 만큼 남았습니다.");
+        // Debug.Log($"{dragonData.characterName}가 {targetData.characterName}에게 {finalDamage}의 데미지를 입혔습니다.");
+        // Debug.Log($"{targetData.characterName}의 체력이 {targetData.currentHp} 만큼 남았습니다.");
 
         // 대상이 사망했는지 확인
         if (targetData.currentHp <= 0)

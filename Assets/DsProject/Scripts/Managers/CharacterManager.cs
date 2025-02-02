@@ -111,6 +111,9 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.stamina = 100f;
         PlayerCharacterData.staminaRecoveryRate = 0.1f;
         PlayerCharacterData.mpRecoveryRate = 1;
+        PlayerCharacterData.physicalDamageBuffMultiplier = 1.0f;
+        playercharacterData.magicDamageBuffMultiplier = 1.0f;
+        playercharacterData.hpBuffBonus = 0;
         
         // 파생 스탯 계산
         PlayerCharacterData.UpdateDerivedStats();

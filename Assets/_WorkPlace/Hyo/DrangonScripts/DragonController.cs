@@ -233,7 +233,7 @@ public class DragonController : MonoBehaviour
         {
             currentTarget = closestMonster;
             currentTargetTransform = closestTransform;
-            Debug.Log($"타겟 몬스터: {closestMonster.characterName}");
+            // Debug.Log($"타겟 몬스터: {closestMonster.characterName}");
         }
         else
         {
@@ -350,7 +350,7 @@ public class DragonController : MonoBehaviour
         {
             isAttacking = true; // 공격 진행 중 플래그 설정
 
-            Debug.Log("Melee Attack Executed!");
+            // Debug.Log("Melee Attack Executed!");
             animator.SetTrigger(IsMeleeAttack);
 
             // CombatManager 호출 등을 통해 실제 근접 공격 처리 (필요에 따라)
