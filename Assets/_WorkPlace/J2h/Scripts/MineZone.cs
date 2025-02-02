@@ -6,14 +6,11 @@ public class MineZone : MonoBehaviour
     [SerializeField] private GameObject[] rockPrefabs;
     [SerializeField] private int maxSpawnAmount = 20;
     [SerializeField] private float spawnRadius = 10f;
-    private SphereCollider collider;
 
     private List<GameObject> rockList = new List<GameObject>();
 
     private void Awake()
     {
-        collider = GetComponent<SphereCollider>();
-        collider.radius = spawnRadius;
         RockSpawn();
     }
 

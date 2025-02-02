@@ -26,10 +26,18 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        
+
         Debug.Log($"GameManager 초기화 완료. 총 필요 매니저 수: {totalManagers}");
+
+        ////////////////////////////////////////////////////////////
+        //  플레이어 이동 범위를 Terrain안으로 고정하기
+        /// JWS 2025.02.02 13:00 추가
+        ////////////////////////////////////////////////////////////
+        InitTerrainInfo();
+        ////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////
     }
-    
+
     // 각 매니저가 준비 상태를 등록할 때 필요한 메서드
     public void RegisterManager(string managerName)
     {
@@ -73,4 +81,51 @@ public class GameManager : MonoBehaviour
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
 
+
+
+    ////////////////////////////////////////////////////////////
+    //  플레이어 이동 범위를 Terrain안으로 고정하기
+    /// JWS 2025.02.02 13:00 추가
+    ////////////////////////////////////////////////////////////
+    private float borderMargin = 10f;  // 경계에서 플레이어가 접근할 수 있는 최소 거리
+    private Terrain terrain;
+    private float minX, maxX, minZ, maxZ;
+
+    private void InitTerrainInfo()
+    {
+        terrain = Terrain.activeTerrain;
+        if (terrain == null)
+        {
+            Debug.LogError("Terrain이 씬에 없습니다!");
+            return;
+        }
+
+        Vector3 terrainPos = terrain.transform.position;
+        Vector3 terrainSize = terrain.terrainData.size;
+
+        // 플레이어 이동 가능 범위 계산
+        minX = terrainPos.x + borderMargin;
+        maxX = terrainPos.x + terrainSize.x - borderMargin;
+        minZ = terrainPos.z + borderMargin;
+        maxZ = terrainPos.z + terrainSize.z - borderMargin;
+        Debug.LogWarning("Terrain정보를 확인했습니다.");
+    }
+
+    private void Update()
+    {
+        RestrictPlayerMovement();
+    }
+
+    private void RestrictPlayerMovement()
+    {
+        Vector3 pos = playerTransform.position;
+
+        // X축 및 Z축 범위 제한
+        pos.x = Mathf.Clamp(pos.x, minX, maxX);
+        pos.z = Mathf.Clamp(pos.z, minZ, maxZ);
+
+        playerTransform.position = pos; // 위치 업데이트
+    }
+    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
 }
