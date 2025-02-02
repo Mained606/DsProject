@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -574,6 +575,37 @@ public class SkillManager : BaseManager<SkillManager>
 
         // 🛑 버프가 해제되었으므로 딕셔너리에서 제거
         activeBuffs.Remove(skillName);
+    }
+    
+    public float GetCooldownForSkill(EntityType entityType, string skillName)
+    {
+        // 각 엔티티 타입별로 적합한 스킬 목록을 선택
+        List<Skills> skillsList = entityType switch
+        {
+            EntityType.Player => skillDatabase.playerSkills,
+            EntityType.Dragon => skillDatabase.dragonSkills,
+            EntityType.Boss => skillDatabase.bossSkills,
+            _ => null
+        };
+
+        // 유효한 스킬 목록이 없거나, 해당 스킬이 목록에 없으면 기본 쿨다운 반환
+        if (skillsList == null)
+        {
+            Debug.LogError($"[GetCooldownForSkill] 유효하지 않은 엔티티 타입: {entityType}");
+            return 60f; // 기본값 60초
+        }
+
+        // 스킬 목록에서 해당 스킬 찾기
+        var skill = skillsList.FirstOrDefault(s => s.skillName == skillName);
+
+        // 해당 스킬이 없으면 기본 쿨다운 반환
+        if (skill == null)
+        {
+            Debug.LogError($"[GetCooldownForSkill] 스킬을 찾을 수 없음: {skillName}");
+            return 60f; // 기본값 60초
+        }
+
+        return skill.cooldown;
     }
     // =================================================================================================================
 }

@@ -304,13 +304,14 @@ public class DragonController : MonoBehaviour
             Debug.Log("[드래곤] 스킬 공격 발사! 선택된 버프 스킬: " + chosenBuff);
             
             SkillManager.Instance.ApplyBuff(EntityType.Dragon, chosenBuff);
+            
+            float chosenBuffCooldown = SkillManager.Instance.GetCooldownForSkill(EntityType.Dragon, chosenBuff);
 
             // 스킬 쿨다운 시작
-            skillTimer = skillCooldown;
+            skillTimer = chosenBuffCooldown;
 
             isAttacking = false;
             currentState = DragonState.Idle;
-
         }
     }
 
