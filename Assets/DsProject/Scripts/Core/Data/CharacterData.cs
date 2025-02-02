@@ -64,6 +64,12 @@ public class CharacterData
     public float stamina; // 최대 스태미너
     public float staminaCurrent; // 현재 스테미너
     public float staminaRecoveryRate; // 스태미너 회복 속도
+    
+    // 버프 전용 변수 추가
+    public int hpBuffBonus = 0;
+    public float physicalDamageBuffMultiplier = 1.0f;
+    public float magicDamageBuffMultiplier = 1.0f;
+    
 
     // 이동 및 공격 관련
     public float moveSpeed; // 이동 속도
@@ -172,41 +178,30 @@ public class CharacterData
         int previousMaxHp = maxHp; // 이전 최대 체력 저장
         int previousMaxMp = maxMp; // 이전 최대 MP 저장
 
-        // 체력, MP 등 파생 스탯 계산
-        maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier); // 체력에 비례한 최대 HP
+        // 기본 체력 및 MP 계산에 버프 보너스를 반영
+        maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier) + hpBuffBonus;
         maxMp = Mathf.RoundToInt((intelligence * statModifier.mpMultiplier) +
-                                 (level * statModifier.levelMpBonus)); // MP 계산
+                                 (level * statModifier.levelMpBonus)); // MP는 버프 효과가 없다고 가정
 
-        // 물리 공격력 및 방어력 계산
-        physicalDamage =
-            Mathf.RoundToInt(Mathf.Max(strength * statModifier.strengthMultiplier, 1f)); // 기본값을 1f로 설정하여 0 방지
-        physicalDefense =
-            Mathf.RoundToInt(Mathf.Max((strength + vitality) * statModifier.physicalResistanceMultiplier,
-                1f)); // 기본값을 1f로 설정
+        // 물리 공격력 및 방어력 계산 (물리 공격력에 버프 배율 적용)
+        physicalDamage = Mathf.RoundToInt(Mathf.Max(strength * statModifier.strengthMultiplier * physicalDamageBuffMultiplier, 1f));
+        physicalDefense = Mathf.RoundToInt(Mathf.Max((strength + vitality) * statModifier.physicalResistanceMultiplier, 1f));
 
-        // 마법 공격력 및 방어력 계산
-        magicDamage =
-            Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier, 1f)); // 기본값을 1f로 설정
-        magicDefense =
-            Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.magicResistanceMultiplier, 1f)); // 기본값을 1f로 설정
-
+        // 마법 공격력 및 방어력 계산 (마법 공격력에 버프 배율 적용)
+        magicDamage = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier * magicDamageBuffMultiplier, 1f));
+        magicDefense = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.magicResistanceMultiplier, 1f));
 
         // 크리티컬 확률 계산
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f); // 민첩성에 따른 크리티컬 확률
         criticalDamage = 1.5f; // 크리티컬 데미지 배율 예시 (게임에 맞게 수정 가능)
 
-        // 회피 확률 및 방어 확률 (예시로 설정)
-        dodgeChance = Mathf.Min(agility * 0.01f, MaxDodgeChance); // 회피 확률 (최대 75%)
+        // 회피, 방어 확률 등 계산
+        dodgeChance = Mathf.Min(agility * 0.01f, MaxDodgeChance);
+        blockChance = Mathf.Min(strength * 0.01f, MaxBlockChance);
 
-        // 2025-01-27 HYO 블록 확률 추후 아이템으로 빼고 제거 해야함 -------------------------------------------
-        blockChance = Mathf.Min(strength * 0.01f, MaxBlockChance); // 방어 확률 (최대 50%)
-        // ---------------------------------------------------------------------------------------
-
-        // 2025-01-27 HYO 피해 감소율 계산 이후 로직 수정 필요 ----------------------------------------
-        // 피해 감소율 계산 (50%가 넘지 않도록 제한)
+        // 피해 감소율 계산 (최대 50% 제한)
         physicalDamageReduction = Mathf.Min(physicalDefense / (physicalDefense + 100), 0.5f);
         magicDamageReduction = Mathf.Min(magicDefense / (magicDefense + 100), 0.5f);
-        // ----------------------------------------------------------------------------------
 
         // 체력 증가 처리
         if (maxHp > previousMaxHp)
@@ -222,6 +217,7 @@ public class CharacterData
             currentMp = Mathf.Clamp(currentMp, 0, maxMp); // 현재 MP는 최대 MP보다 크지 않게 설정
         }
     }
+
 
     // 경험치를 얻었을 때 호출되는 함수
     public void AddExperience(int amount)
