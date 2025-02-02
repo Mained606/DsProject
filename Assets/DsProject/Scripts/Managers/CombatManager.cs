@@ -33,21 +33,25 @@ public class CombatManager : BaseManager<CombatManager>
             return;
         }
         
-        // 회피율 적용
-        if (Random.value < actualDefender.dodgeChance)
+        // 지금 기준은 플레이어만 회피 및 블록 처리
+        if (!isPlayerAttacking)
         {
-            Debug.Log($"{actualDefender.characterName}는 공격을 회피했습니다.");
-            return; // 공격이 회피되어 데미지 없음
-        }
-        
-        // 방패 블락율 처리
-        if (actualDefender.hasShield)
-        {
-            // 방패 블록 확률이 적용되는 경우
-            if (Random.value < actualDefender.blockChance)
+            // 회피율 적용
+            if (Random.value < actualDefender.dodgeChance)
             {
-                Debug.Log($"{actualDefender.characterName}는 방패로 공격을 차단했습니다!");
-                return; // 방패 차단
+                Debug.Log($"{actualDefender.characterName}는 공격을 회피했습니다.");
+                return; // 공격이 회피되어 데미지 없음
+            }
+            
+            // 방패 블락율 처리
+            if (actualDefender.hasShield)
+            {
+                // 방패 블록 확률이 적용되는 경우
+                if (Random.value < actualDefender.blockChance)
+                {
+                    Debug.Log($"{actualDefender.characterName}는 방패로 공격을 차단했습니다!");
+                    return; // 방패 차단
+                }
             }
         }
         

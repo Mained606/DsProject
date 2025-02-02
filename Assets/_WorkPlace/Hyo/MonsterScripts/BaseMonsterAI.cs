@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -10,7 +11,7 @@ public class BaseMonsterAI : MonoBehaviour
     public static readonly int IsDead = Animator.StringToHash("isDead");
     public static readonly int Hit = Animator.StringToHash("Hit");
 
-    public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Stun, Dead }
+    public enum AIState { Idle, Patrolling, Chasing, Attacking, Returning, Stun, Hit, Dead }
 
     [Header("움직임 세팅")]
     public float patrolRange = 10f; // 패트롤 범위 (몬스터가 움직일 수 있는 반경)
@@ -25,12 +26,13 @@ public class BaseMonsterAI : MonoBehaviour
 
     protected float attackRange; // 공격 범위
     protected float attackCooldown; // 공격 쿨타임
+    protected float attackCooldownTimer = 0f; // 공격 쿨타임 타이머
+    public float hitStateDuration = 0.7f;
 
     [SerializeField] protected AIState currentState = AIState.Idle; // 현재 AI 상태
     [SerializeField] protected Vector3 spawnPosition; // 스폰 위치
     protected Vector3 targetPosition; // 패트롤 목적지
     protected Transform playerTarget; // 탐지된 플레이어
-    protected float attackCooldownTimer = 0f; // 공격 쿨타임 타이머
 
     protected Animator animator; // 애니메이터 캐시
    
@@ -39,9 +41,16 @@ public class BaseMonsterAI : MonoBehaviour
     [SerializeField] private bool respawn = false;
     protected bool isAttacking = false; // 공격 중인지 여부 플래그
     
+    protected bool isStunned = false;
+    [SerializeField] protected float stunDuration = 5f; // 스턴 지속 시간
+    
     protected CharacterController characterController;
     private Vector3 velocity;
     private float gravity = -9.81f;
+    
+    private Coroutine hitCoroutine; // 현재 실행 중인 코루틴을 저장
+    
+    protected WeaponCollider baseweaponCollider; // **공통 무기 콜라이더 변수 추가**
     
     protected virtual void OnEnable()
     {
@@ -74,9 +83,11 @@ public class BaseMonsterAI : MonoBehaviour
     // 착지 여부를 주기적으로 체크
     protected IEnumerator CheckForLanding()
     {
+        WaitForFixedUpdate wait = new WaitForFixedUpdate(); // FixedUpdate 주기마다 실행
+        
         while (!characterController.isGrounded)
         {
-            yield return null; // 바닥에 닿을 때까지 대기
+            yield return wait; // FixedUpdate 이후에만 체크하여 불필요한 연산 감소
         }
     
         // 착지 후 타겟 설정
@@ -104,6 +115,9 @@ public class BaseMonsterAI : MonoBehaviour
             attackRange = monsterData.attackRange;
         }
         
+        // 무기 콜라이더가 있을 경우 자동으로 찾기 (자식 오브젝트에서 검색)
+        baseweaponCollider = GetComponentInChildren<WeaponCollider>();
+        
         // 착지 여부를 체크하는 메서드 호출
         CheckLandingAndSetPatrolTarget();
     }
@@ -111,8 +125,22 @@ public class BaseMonsterAI : MonoBehaviour
     protected virtual void HandleTakeDamage(Transform attacker)
     {
         if (attacker.CompareTag("Player")) playerTarget = attacker;
-        SetState(AIState.Chasing);
-        animator.SetTrigger(Hit); // 피격 애니메이션 실행
+        
+        // 현재 상태가 Hit이더라도 다시 피격 상태로 전환 가능하도록 변경
+        if (currentState == AIState.Hit)
+        {
+            RestartHitAnimation(); 
+        }
+        else
+        {
+            SetState(AIState.Hit);
+        }
+    }
+    
+    protected void RestartHitAnimation()
+    {
+        animator.ResetTrigger(Hit); // 기존 트리거를 초기화
+        animator.SetTrigger(Hit); // 다시 트리거를 활성화하여 애니메이션을 재생
     }
     
     // MonsterData를 반환하는 메서드 추가
@@ -165,12 +193,17 @@ public class BaseMonsterAI : MonoBehaviour
     // 상태 전환
     protected virtual void SetState(AIState newState)
     {
-        // 250131 3:31 PM Hyeon =======================================
-        //if (isAttacking && currentState == AIState.Attacking) return;
-        // 250131 3:31 PM Hyeon =======================================
-
-        // 죽음 상태면 상태전환 막기
-        if (currentState == AIState.Dead) return;
+        // 죽음 상태나 스턴이면 상태전환 막기
+        if (currentState == AIState.Dead || isStunned) return;
+        
+        // 공격중일 때 상태 전환을 막지만 예외적으로 스턴, 히트, 데드 상태로는 전환 가능
+        if (isAttacking && newState != AIState.Stun && newState != AIState.Hit && newState != AIState.Dead) return;
+        
+        // **스턴, 피격, 사망 상태로 전환 시 무기 콜라이더 자동 비활성화**
+        if (newState == AIState.Stun || newState == AIState.Hit || newState == AIState.Dead)
+        {
+            DisableWeaponCollider();
+        }
         
         // 상태가 이미 동일하면 변경하지 않음
         if (currentState == newState) return;
@@ -193,10 +226,49 @@ public class BaseMonsterAI : MonoBehaviour
                 break;
             case AIState.Attacking:
                 break;
+            case AIState.Hit:
+                HandleHitState();
+                break;
             case AIState.Dead:
                 StopAllActions();
                 animator.SetTrigger(IsDead);
                 break;
+        }
+    }
+    
+    protected void DisableWeaponCollider()
+    {
+        if (baseweaponCollider)
+        {
+            baseweaponCollider.EnableWeaponCollider(false);
+        }
+    }
+    
+    protected virtual void HandleHitState()
+    {
+        if (isAttacking) StopAllActions();
+    
+        RestartHitAnimation(); // 피격 애니메이션 강제 재시작
+        
+        // 실행 중인 코루틴이 있다면 먼저 중지
+        if (hitCoroutine != null)
+        {
+            StopCoroutine(hitCoroutine);
+        }
+
+        // 새로운 코루틴 실행 및 저장
+        hitCoroutine = StartCoroutine(RecoverFromHit());
+    }
+    
+    protected IEnumerator RecoverFromHit()
+    {
+        yield return new WaitForSeconds(hitStateDuration); // 피격 상태 유지 시간
+        
+        hitCoroutine = null; // 완료 후 참조 해제
+        
+        if (!isStunned)
+        {
+            SetState(playerTarget ? AIState.Chasing : AIState.Patrolling);
         }
     }
     
@@ -225,18 +297,35 @@ public class BaseMonsterAI : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(randomPosition + Vector3.up * 10f, Vector3.down, out hit, Mathf.Infinity))
             {
-                randomPosition.y = hit.point.y;
+                float groundY = hit.point.y;
 
-                // Y값이 지나치게 높은 값이 되지 않도록 보정
-                if (randomPosition.y < spawnPosition.y + 1f) // 지면과 너무 멀리 떨어지지 않도록 제한
+                // 높이 제한을 더 유연하게 조정 (너무 높거나 낮은 곳 피함)
+                if (groundY < spawnPosition.y + 2f && groundY > spawnPosition.y - 3f) 
                 {
-                    if (IsOnTerrain(randomPosition)) // 목표 위치가 터레인 위인지 확인
+                    if (IsOnTerrain(randomPosition))
                     {
-                        targetPosition = randomPosition;
+                        targetPosition = new Vector3(randomPosition.x, groundY, randomPosition.z);
                         validPositionFound = true;
                     }
                 }
             }
+            
+            // --- 2025-02-01 04:17 Hyo 수정된 코드 충분히 테스트 후 문제 없을 시 삭제 처리 -----------------------------
+            // if (Physics.Raycast(randomPosition + Vector3.up * 10f, Vector3.down, out hit, Mathf.Infinity))
+            // {
+            //     randomPosition.y = hit.point.y;
+            //
+            //     // Y값이 지나치게 높은 값이 되지 않도록 보정
+            //     if (randomPosition.y < spawnPosition.y + 1f) // 지면과 너무 멀리 떨어지지 않도록 제한
+            //     {
+            //         if (IsOnTerrain(randomPosition)) // 목표 위치가 터레인 위인지 확인
+            //         {
+            //             targetPosition = randomPosition;
+            //             validPositionFound = true;
+            //         }
+            //     }
+            // }
+            // ----------------------------------------------------------------------------------------------------
 
             attempts++;
         }
@@ -358,7 +447,7 @@ public class BaseMonsterAI : MonoBehaviour
         
         MoveTowards(spawnPosition); // 스폰 위치로 돌아감
 
-        if (Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance)
+        if (Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance * 1.1f)
         {
             SetState(AIState.Patrolling); // 스폰 위치에 도달하면 패트롤 상태로 전환
         }
@@ -367,7 +456,16 @@ public class BaseMonsterAI : MonoBehaviour
     protected virtual void HandleStunState()
     {
         // 패링 당한 후 효과 적용
-        Debug.LogWarning("Stun");
+        if (isStunned) return;
+        
+        // 디버그용 코드 -------------------------------------------------
+        UIManager.Instance.TogglinfoMessageWindow("스턴됨");
+        // -------------------------------------------------------------
+        
+        isStunned = true;
+        StopAllActions();
+    
+        StartCoroutine(RecoverFromStun());
     }
 
 
@@ -404,6 +502,8 @@ public class BaseMonsterAI : MonoBehaviour
     // 목표 지점으로 이동
     protected virtual void MoveTowards(Vector3 destination)
     {
+        if (isStunned) return;
+        
         Vector3 direction = (destination - transform.position).normalized;
 
         // 이동 처리
@@ -412,7 +512,7 @@ public class BaseMonsterAI : MonoBehaviour
         // CharacterController의 Move 메서드를 사용
         characterController.Move(movement);
 
-        // 스무스 회전 처리
+        // 부드러운 회전 처리
         Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
 
@@ -423,21 +523,20 @@ public class BaseMonsterAI : MonoBehaviour
     // 공격 실행
     protected virtual void PerformAttack()
     {
-        if (isAttacking) return; // 이미 공격 중이라면 중복 공격 방지
+        if (isAttacking || isStunned) return; // 이미 공격 중이거나 스턴 상태면 공격 방지
         
         StopAllActions();
         animator.SetTrigger(Attack); // 공격 애니메이션 실행
 
         // 애니메이션의 길이 가져오기
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        float animationLength = stateInfo.length;
-    
-        // 70% 지점에 맞춰 메서드 호출
-        Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
+        // AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        // float animationLength = stateInfo.length;
+        // // 70% 지점에 맞춰 메서드 호출
+        // Invoke(nameof(ExecuteAttack), animationLength * 0.7f);
         
         // 공격 후 이동을 방지하는 상태로 설정
         isAttacking = true;
-        StartCoroutine(ResetAttackState(animationLength));
+        StartCoroutine(ResetAttackState(animator.GetCurrentAnimatorClipInfo(0)[0].clip.length));
     }
     
     protected virtual IEnumerator ResetAttackState(float delay)
@@ -445,7 +544,6 @@ public class BaseMonsterAI : MonoBehaviour
         yield return new WaitForSeconds(delay);
         isAttacking = false;
     }
-
     
     protected virtual void ExecuteAttack()
     {
@@ -456,13 +554,48 @@ public class BaseMonsterAI : MonoBehaviour
     {
         // 이동 및 애니메이션 동작 멈춤
         animator.SetBool(IsWalking, false);
-        animator.ResetTrigger(nameof(Attack));
+        animator.ResetTrigger(Attack);
         
-        Vector3 direction = (playerTarget.position - transform.position).normalized;
-        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        // 공격 중이라면 즉시 취소
+        isAttacking = false;
+        StopAllCoroutines(); // 공격 코루틴 정지
+        CancelInvoke(nameof(ExecuteAttack)); // 공격 실행 취소
         
-        characterController.Move(Vector3.zero); // 이동 멈춤
+        DisableWeaponCollider();
+        
+        // 중력 및 이동을 완전히 멈추도록 velocity 초기화
+        velocity = Vector3.zero;
+        characterController.Move(Vector3.zero);
+        
+        // 현재 방향을 고정 (불필요한 회전 방지)
+        if (playerTarget)
+        {
+            Vector3 direction = (playerTarget.position - transform.position).normalized;
+            Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+        }
+    }
+    
+    protected IEnumerator RecoverFromStun()
+    {
+        yield return new WaitForSeconds(stunDuration);
+        isStunned = false;
+        
+        // 몬스터가 이미 죽었으면 Dead 상태로 변경
+        if (monsterData.currentHp <= 0)
+        {
+            SetState(AIState.Dead);
+            yield break; // 상태 변경 후 즉시 코루틴 종료
+        }
+    
+        if (playerTarget && Vector3.Distance(transform.position, playerTarget.position) <= searchRange)
+        {
+            SetState(AIState.Chasing);
+        }
+        else
+        {
+            SetState(AIState.Returning);
+        }
     }
 
     protected virtual IEnumerator SwitchStateAfterDelay(AIState newState, float delay)
