@@ -481,24 +481,38 @@ public class SkillManager : BaseManager<SkillManager>
         {
             EntityType.Dragon => CharacterManager.PlayerCharacterData,
             // EntityType.Boss => CharacterManager.BossCharacterData, // 보스 데이터 추가
+            // EntityType.Player => CharacterManager.PlayerCharacterData,
             _ => null
         };
 
         if (targetCharacter == null) return;
         
-        // 이미 해당 버프가 적용 중이면 기존 코루틴 중단 후 제거
+        // 이미 해당 버프가 적용 중이면 기존 코루틴 중단 후 지속시간만 갱신
         if (activeBuffs.ContainsKey(skillName))
         {
+            // 버프가 이미 활성화되어 있으면 기존 코루틴을 멈추고 지속시간만 갱신
             StopCoroutine(activeBuffs[skillName].coroutine);
             activeBuffs.Remove(skillName);
+            
+            // 기존 버프 정보를 새로 갱신
+            BuffInfo buffInfo = new BuffInfo();
+            buffInfo.startTime = Time.time;
+            buffInfo.duration = skill.buffDuration;
+            buffInfo.coroutine = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
+            activeBuffs[skillName] = buffInfo;
+            
+            Debug.Log(skillName + "이미 중복되어 실행 중지");
+    
+            // 기존 버프 효과가 이미 적용되어 있으면 추가 효과를 적용하지 않음
+            return;
         }
 
         // 버프 정보를 새로 생성하여 저장 (현재 시간과 지속시간)
-        BuffInfo buffInfo = new BuffInfo();
-        buffInfo.startTime = Time.time;
-        buffInfo.duration = skill.buffDuration;
-        buffInfo.coroutine = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
-        activeBuffs[skillName] = buffInfo;
+        BuffInfo newBuffInfo = new BuffInfo();
+        newBuffInfo.startTime = Time.time;
+        newBuffInfo.duration = skill.buffDuration;
+        newBuffInfo.coroutine = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
+        activeBuffs[skillName] = newBuffInfo;
 
         // 버프 효과 적용
         switch (skillName)
@@ -573,7 +587,8 @@ public class SkillManager : BaseManager<SkillManager>
             targetCharacter.currentHp = targetCharacter.maxHp; // 최대 체력에 맞게 현재 체력 조정
         }
 
-        // 🛑 버프가 해제되었으므로 딕셔너리에서 제거
+        // 버프가 해제되었으므로 딕셔너리에서 제거
+        Debug.Log(skillName + "버프 시간 종료");
         activeBuffs.Remove(skillName);
     }
     
