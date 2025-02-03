@@ -4,42 +4,59 @@ public class ZonesManager : MonoBehaviour
 {
     [SerializeField] private Transform[] objectZones;
     [SerializeField] private float visibleDistance = 300f;
-    private Transform player;
-    private Camera mainCamera;
 
     private void Awake()
     {
-        // 모든 Zone 비활성화
-        for (int i = 0; i < objectZones.Length; i++)
-        {
-            objectZones[i].gameObject.SetActive(false);
-        }
-        mainCamera = Camera.main;
-    }
-
-    void Update()
-    {
-        if (player == null) player = GameManager.playerTransform;
         if (objectZones == null || objectZones.Length == 0) return;
 
-        Plane[] frustumPlanes = GeometryUtility.CalculateFrustumPlanes(mainCamera);
-
-        for (int i = 0; i < objectZones.Length; i++)
+        foreach (Transform zone in objectZones)
         {
-            Transform zone = objectZones[i];
-            float distanceToPlayer = Vector3.Distance(zone.position, player.position);
-
-            Collider zoneCollider = zone.GetComponent<Collider>();
-            Bounds zoneBounds = zoneCollider != null ? zoneCollider.bounds : new Bounds(zone.position, Vector3.one);
-            bool isInFrustum = GeometryUtility.TestPlanesAABB(frustumPlanes, zoneBounds);
-
-            if (distanceToPlayer < visibleDistance && isInFrustum)
+            zone.gameObject.SetActive(false);
+            if (zone.name == "용의둥지" && zone.childCount > 3)
             {
-                if (!zone.gameObject.activeSelf) zone.gameObject.SetActive(true);
+                if (zone.GetChild(3).gameObject.activeSelf) zone.GetChild(3).gameObject.SetActive(false);
             }
-            else
+        }
+    }
+
+    private void Update()
+    {
+        BaseCheck();
+    }
+
+    private void BaseCheck()
+    {
+        if (objectZones == null || objectZones.Length == 0) return;
+
+        Transform player = GameManager.playerTransform;
+
+        foreach (Transform zone in objectZones)
+        {
+            float distanceToPlayer = Vector3.Distance(zone.position, player.position);
+            float maxDistance = visibleDistance;
+            bool isInFrustum = CameraManager.IsInFrustum(zone);
+
+            switch (zone.name)
             {
-                if (zone.gameObject.activeSelf) zone.gameObject.SetActive(false);
+                case "용의둥지":
+                    if (QuestManager.CurrentMainQuestIndex != 2) continue;
+                    maxDistance = 40f;
+                    bool eggActive = distanceToPlayer < 1f && isInFrustum;
+                    if (zone.GetChild(3).gameObject.activeSelf != eggActive)
+                    {
+                        zone.GetChild(3).gameObject.SetActive(eggActive);
+                    }
+                    break;
+
+                case "최고위험지역":
+                    if (QuestManager.CurrentMainQuestIndex != 9) continue;
+                    break;
+            }
+
+            bool shouldBeActive = distanceToPlayer < maxDistance && isInFrustum;
+            if (zone.gameObject.activeSelf != shouldBeActive)
+            {
+                zone.gameObject.SetActive(shouldBeActive);
             }
         }
     }
