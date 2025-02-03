@@ -6,7 +6,6 @@ using UnityEngine;
 public class NonePlayerCharacter : MonoBehaviour
 {
     [SerializeField] private NPCType npcType;
-    [SerializeField] public bool isMainQuest = false;
     [SerializeField] private int mainIndex = 0;
     [SerializeField] private NPCData currentNPCData = null;
 
@@ -91,43 +90,30 @@ public class NonePlayerCharacter : MonoBehaviour
 
     private void GetMainNpcData()
     {
-        List < NPCData> npclist = isMainQuest ? QuestManager.NpcDatabase.mainQuestNpcLists : QuestManager.NpcDatabase.npcLists;
-        if (!isMainQuest)
-        {
-            foreach (NPCData npcData in npclist)
-            {
-                if (npcData.currentNPC == null && npcData.npcType == npcType)
-                {
-                    isInitNPC = true;
-                    currentNPCData = npcData;
-                    currentNPCData.currentNPC = this.gameObject;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            isInitNPC = true;
-            mainIndex = Random.Range(0, npclist.Count);
-            currentNPCData = npclist[mainIndex].Clone(false);
-            currentNPCData.currentNPC = this.gameObject;
-        }
-        if (npcType == NPCType.상점)
-        {
-            npclist = QuestManager.NpcDatabase.shopNpcLists;
-            isInitNPC = true;
-            mainIndex = Random.Range(0, npclist.Count);
-            currentNPCData = npclist[mainIndex].Clone(false);
-            currentNPCData.currentNPC = this.gameObject;
-        }
+        List <NPCData> npclist = QuestManager.NpcDatabase.npcLists;
 
         switch (currentNPCData.npcType)
         {
             case NPCType.퀘스트:
+                foreach (NPCData npcData in npclist)
+                {
+                    if (npcData.currentNPC == null && npcData.npcType == npcType)
+                    {
+                        isInitNPC = true;
+                        currentNPCData = npcData;
+                        currentNPCData.currentNPC = this.gameObject;
+                        break;
+                    }
+                }
                 bool isHasQuestNew = !currentNPCData.quests.Any(quest => quest.isCompleted);
                 interActText.InteractTextSetting("대화하기", 0, offSetHeight,isHasQuestNew);
                 break;
             case NPCType.상점:
+                npclist = QuestManager.NpcDatabase.shopNpcLists;
+                isInitNPC = true;
+                mainIndex = Random.Range(0, npclist.Count);
+                currentNPCData = npclist[mainIndex].Clone(false);
+                currentNPCData.currentNPC = this.gameObject;
                 interActText.InteractTextSetting("상점열기", 0, offSetHeight);
                 break;
             default:
