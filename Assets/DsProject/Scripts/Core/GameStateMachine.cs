@@ -41,7 +41,7 @@ public class GameStateMachine : MonoBehaviour
         
         if (!forceTrigger && CurrentState == newState)
         {
-            Debug.Log($"이미 상태가 {newState} 입니다.");
+            // Debug.Log($"이미 상태가 {newState} 입니다.");
             return;
         }
         

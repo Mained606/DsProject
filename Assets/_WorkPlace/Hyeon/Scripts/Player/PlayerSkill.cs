@@ -29,15 +29,22 @@ public class PlayerSkill : MonoBehaviour
             controller.CanMove = false;
             InputManager.InputActions.actions["Attack"].Disable();
             Debug.Log(InputManager.InputActions.actions["Attack"].enabled);
-            SkillManager.Instance.ActivateSkill("Fire", this.gameObject);
+            
+            // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
+            // SkillManager.Instance.ActivateSkill("Fire", this.gameObject);
+            // ----------------------------------------------------------------
         }
         if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
         {
-            SkillManager.Instance.ActivateSkill("Water", this.gameObject);
+            // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
+            // SkillManager.Instance.ActivateSkill("Water", this.gameObject);
+            // ----------------------------------------------------------------
         }
         if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
         {
-            SkillManager.Instance.ActivateSkill("eee", this.gameObject);
+            // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
+            // SkillManager.Instance.ActivateSkill("eee", this.gameObject);
+            // ----------------------------------------------------------------
         }
     }
 

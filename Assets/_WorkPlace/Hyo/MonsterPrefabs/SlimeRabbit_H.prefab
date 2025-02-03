@@ -436,7 +436,7 @@ Animator:
   m_GameObject: {fileID: 1773656247975474}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 10667cfbfc8e1b541899e8206067dbe6, type: 2}
+  m_Controller: {fileID: 9100000, guid: 101a3f0caa9ced845aef9697edab495c, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -466,9 +466,11 @@ MonoBehaviour:
   maxPatrolDistance: 50
   arrivedDistance: 1
   searchRange: 10
+  hitStateDuration: 3
   currentState: 0
   spawnPosition: {x: 0, y: 0, z: 0}
   respawn: 0
+  stunDuration: 5
 --- !u!143 &5920219863564566185
 CharacterController:
   m_ObjectHideFlags: 0
