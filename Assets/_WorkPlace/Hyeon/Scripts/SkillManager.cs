@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,13 @@ public enum EntityType
     Dragon,
     Boss
 }
+
+public class BuffInfo {
+    public Coroutine coroutine;
+    public float startTime;  // 버프가 시작된 시간
+    public float duration;   // 버프 지속시간
+}
+
 // ========================================
 public class SkillManager : BaseManager<SkillManager>
 {
@@ -22,7 +30,8 @@ public class SkillManager : BaseManager<SkillManager>
     private Dictionary<string, Skills> bossSkillDictionary = new Dictionary<string, Skills>();
     
     private Dictionary<Skills, Image> activeSkill = new Dictionary<Skills, Image>();
-    
+    private Dictionary<string, BuffInfo> activeBuffs = new Dictionary<string, BuffInfo>();
+  
     // =====================================================================================================
     
     // ============================= 예전 코드 ==================================================
@@ -191,7 +200,7 @@ public class SkillManager : BaseManager<SkillManager>
 
         // 현재 실행 중인 애니메이션의 길이만큼 대기 (애니메이션이 끝날 때까지)
         float animationLength = GetAnimationClipLength(entityAnimator, skill.activeTriggerName);
-        yield return new WaitForSeconds(animationLength);
+        yield return new WaitForSeconds(animationLength + 0.5f);
 
         isActivating = false; // 스킬 사용 완료 후 다시 입력 가능
         
@@ -321,19 +330,18 @@ public class SkillManager : BaseManager<SkillManager>
                 // 쿨타임이 실행되고 있는지 확인
                 if (!skill.cooldownTimer.IsRunning)
                 {
-                    Debug.Log($"[쿨타임 체크] {skill.skillName} 타이머가 실행 중이 아님.");
                     continue;
                 }
                 
-                Debug.Log($"[쿨타임 진행] {skill.skillName} 남은 퍼센트: {skill.cooldownTimer.RemainingPercent * 100}%");
+                // Debug.Log($"[쿨타임 진행] {skill.skillName} 남은 퍼센트: {skill.cooldownTimer.RemainingPercent * 100}%");
                 
                 if (skill.cooldownTimer.RemainingTime <= 0.1f)
                 {
-                    Debug.Log($"[쿨타임 종료] {skill.skillName}의 쿨타임이 끝났습니다.");
+                    // Debug.Log($"[쿨타임 종료] {skill.skillName}의 쿨타임이 끝났습니다.");
                     
                     if (activeSkill.ContainsKey(skill))
                     {
-                        Debug.Log($"[쿨타임 종료] {skill.skillName} 쿨타임이 끝났습니다. UI 제거 시도.");
+                        // Debug.Log($"[쿨타임 종료] {skill.skillName} 쿨타임이 끝났습니다. UI 제거 시도.");
                         Destroy(activeSkill[skill].gameObject);
                         activeSkill.Remove(skill);
                     }
@@ -358,6 +366,17 @@ public class SkillManager : BaseManager<SkillManager>
                         skillCoolImage = activeSkill[skill];
                         skillCoolName = activeSkill[skill].GetComponentInChildren<TextMeshProUGUI>();
                     }
+                    
+                    // 기본적으로 쿨타임 남은 시간을 표시
+                    string uiText = $"CD: {skill.cooldownTimer.RemainingTime:0.0}s";
+                    
+                    // 버프 스킬인 경우, 현재 활성화된 버프의 남은 지속시간을 추가로 표시
+                    if (skill.buffDuration > 0 && activeBuffs.ContainsKey(skill.skillName))
+                    {
+                        BuffInfo buffInfo = activeBuffs[skill.skillName];
+                        float buffRemaining = Mathf.Max(0, buffInfo.duration - (Time.time - buffInfo.startTime));
+                        uiText = $"Buff: {buffRemaining:0.0}s\n" + uiText;
+                    }
 
                     skillCoolImage.fillAmount = skill.cooldownTimer.RemainingPercent;
                     skillCoolName.text = skill.skillName;
@@ -369,7 +388,7 @@ public class SkillManager : BaseManager<SkillManager>
         {
             if (currentUsedSkills.Contains(skill))
             {
-                Debug.Log($"[쿨타임 종료] {skill.skillName}을 currentUsedSkills에서 제거.");
+                // Debug.Log($"[쿨타임 종료] {skill.skillName}을 currentUsedSkills에서 제거.");
                 currentUsedSkills.Remove(skill);
             }
         }
@@ -452,8 +471,6 @@ public class SkillManager : BaseManager<SkillManager>
     }
     
     // ===================== 2025-02-01 1:33 HYO 코드 추가 ==============================================================
-    private Dictionary<string, Coroutine> activeBuffs = new Dictionary<string, Coroutine>();
-
     public void ApplyBuff(EntityType entityType, string skillName)
     {
         Skills skill = GetSkill(entityType, skillName);
@@ -464,42 +481,83 @@ public class SkillManager : BaseManager<SkillManager>
         {
             EntityType.Dragon => CharacterManager.PlayerCharacterData,
             // EntityType.Boss => CharacterManager.BossCharacterData, // 보스 데이터 추가
+            // EntityType.Player => CharacterManager.PlayerCharacterData,
             _ => null
         };
 
         if (targetCharacter == null) return;
         
+        // 이미 해당 버프가 적용 중이면 기존 코루틴 중단 후 지속시간만 갱신
         if (activeBuffs.ContainsKey(skillName))
         {
-            StopCoroutine(activeBuffs[skillName]);
+            // 버프가 이미 활성화되어 있으면 기존 코루틴을 멈추고 지속시간만 갱신
+            StopCoroutine(activeBuffs[skillName].coroutine);
+            activeBuffs.Remove(skillName);
+            
+            // 기존 버프 정보를 새로 갱신
+            BuffInfo buffInfo = new BuffInfo();
+            buffInfo.startTime = Time.time;
+            buffInfo.duration = skill.buffDuration;
+            buffInfo.coroutine = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
+            activeBuffs[skillName] = buffInfo;
+            
+            Debug.Log(skillName + "이미 중복되어 실행 중지");
+    
+            // 기존 버프 효과가 이미 적용되어 있으면 추가 효과를 적용하지 않음
+            return;
         }
 
-        // 버프 지속시간을 연장하는 방식으로 수정
-        activeBuffs[skillName] = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
+        // 버프 정보를 새로 생성하여 저장 (현재 시간과 지속시간)
+        BuffInfo newBuffInfo = new BuffInfo();
+        newBuffInfo.startTime = Time.time;
+        newBuffInfo.duration = skill.buffDuration;
+        newBuffInfo.coroutine = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
+        activeBuffs[skillName] = newBuffInfo;
 
         // 버프 효과 적용
         switch (skillName)
         {
-            case "DragonBuffAttack":
-                targetCharacter.physicalDamage *= 1.2f; // 20% 증가
+            case "PlayerBuffPhysical":
+                targetCharacter.physicalDamageBuffMultiplier *= 1.2f; // 20% 증가
+                targetCharacter.UpdateDerivedStats();
                 break;
 
-            case "DragonBuffDefense":
-                targetCharacter.physicalDefense *= 1.2f; // 20% 증가
+            case "PlayerBuffMagic":
+                targetCharacter.magicDamageBuffMultiplier *= 1.2f; // 20% 증가
+                targetCharacter.UpdateDerivedStats();
                 break;
 
-            case "DragonBuffHP":
-                targetCharacter.maxHp += 100;
-                if (targetCharacter.currentHp > targetCharacter.maxHp)
-                    targetCharacter.currentHp = targetCharacter.maxHp;
+            case "PlayerBuffHP":
+                targetCharacter.hpBuffBonus += 100;
+                targetCharacter.currentHp += 100; // 즉시 회복 효과
+                targetCharacter.UpdateDerivedStats();
+                break;
+            default:
+                Debug.LogWarning("알 수 없는 버프 스킬: " + skillName);
                 break;
         }
         
-        // 버프 해제 코루틴 실행 & 등록
-        Coroutine buffCoroutine = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
-        activeBuffs[skillName] = buffCoroutine;
+        if (skill.effectPrefab != null)
+        {
+            // 용이 플레이어에게 버프를 사용하므로, 플레이어 근처에 이팩트를 표시
+            InstantiateBuffEffect(skill.effectPrefab, GameManager.playerTransform.position);
+        }
+        
+        TimerManager.Instance.StartTimer(skill.cooldownTimer);
     }
+    
+    private void InstantiateBuffEffect(GameObject effectPrefab, Vector3 targetPosition)
+    {
+        // 이펙트를 플레이어 위치에 생성 (부모를 플레이어로 설정)
+        var effect = Instantiate(effectPrefab, targetPosition, Quaternion.identity);
+    
+        // 이펙트를 플레이어의 자식 오브젝트로 설정
+        effect.transform.SetParent(GameManager.playerTransform);
 
+        // 이펙트가 일정 시간 후에 제거되도록 설정
+        Destroy(effect, 3f); // 3초 후 이펙트 삭제
+    }
+    
     // 🔄 일정 시간이 지나면 버프 해제
     private IEnumerator RemoveBuffAfterDuration(string skillName, float duration, CharacterData targetCharacter)
     {
@@ -507,23 +565,62 @@ public class SkillManager : BaseManager<SkillManager>
 
         switch (skillName)
         {
-            case "DragonBuffAttack":
-                targetCharacter.physicalDamage /= 1.2f;
+            case "PlayerBuffPhysical":
+                targetCharacter.physicalDamageBuffMultiplier /= 1.2f;
+                targetCharacter.UpdateDerivedStats();
                 break;
 
-            case "DragonBuffDefense":
-                targetCharacter.physicalDefense /= 1.2f;
+            case "PlayerBuffMagic":
+                targetCharacter.magicDamageBuffMultiplier /= 1.2f;
+                targetCharacter.UpdateDerivedStats();
                 break;
 
-            case "DragonBuffHP":
-                targetCharacter.maxHp -= 100;
-                if (targetCharacter.currentHp > targetCharacter.maxHp)
-                    targetCharacter.currentHp = targetCharacter.maxHp;
+            case "PlayerBuffHP":
+                targetCharacter.hpBuffBonus -= 100;
+                targetCharacter.UpdateDerivedStats();
                 break;
         }
+        
+        // 버프 해제 후 최대 체력(maxHp)과 현재 체력(currentHp) 처리
+        if (targetCharacter.maxHp < targetCharacter.currentHp)
+        {
+            targetCharacter.currentHp = targetCharacter.maxHp; // 최대 체력에 맞게 현재 체력 조정
+        }
 
-        // 🛑 버프가 해제되었으므로 딕셔너리에서 제거
+        // 버프가 해제되었으므로 딕셔너리에서 제거
+        Debug.Log(skillName + "버프 시간 종료");
         activeBuffs.Remove(skillName);
+    }
+    
+    public float GetCooldownForSkill(EntityType entityType, string skillName)
+    {
+        // 각 엔티티 타입별로 적합한 스킬 목록을 선택
+        List<Skills> skillsList = entityType switch
+        {
+            EntityType.Player => skillDatabase.playerSkills,
+            EntityType.Dragon => skillDatabase.dragonSkills,
+            EntityType.Boss => skillDatabase.bossSkills,
+            _ => null
+        };
+
+        // 유효한 스킬 목록이 없거나, 해당 스킬이 목록에 없으면 기본 쿨다운 반환
+        if (skillsList == null)
+        {
+            Debug.LogError($"[GetCooldownForSkill] 유효하지 않은 엔티티 타입: {entityType}");
+            return 60f; // 기본값 60초
+        }
+
+        // 스킬 목록에서 해당 스킬 찾기
+        var skill = skillsList.FirstOrDefault(s => s.skillName == skillName);
+
+        // 해당 스킬이 없으면 기본 쿨다운 반환
+        if (skill == null)
+        {
+            Debug.LogError($"[GetCooldownForSkill] 스킬을 찾을 수 없음: {skillName}");
+            return 60f; // 기본값 60초
+        }
+
+        return skill.cooldown;
     }
     // =================================================================================================================
 }
