@@ -121,6 +121,8 @@ public class CharacterStatusUI : MonoBehaviour
         {
             statsNames[i].text = defaultNames[i];
         }
+
+      //  statsValues[0].text = playerData.vitality.ToString();
         statsValues[0].text = playerData.currentHp.ToString();
         statsValues[1].text = playerData.currentMp.ToString();
         statsValues[2].text = playerData.staminaCurrent.ToString();
