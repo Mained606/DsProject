@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isHit;
     public bool onParry;
     public bool CanWeaponSwitch;
+    public bool isInvincible;
 
     private BasicTimer RecoveryTimer;
     [SerializeField] private float RecoveryTime = 1f;
@@ -534,10 +535,14 @@ public class PlayerController : MonoBehaviour
     private IEnumerator Dodging()
     {
         isDodging = true;
-        //isInvincible = true;
+
+        isInvincible = true;
 
         Vector3 dodgeDirection = GetDirection(moveInput);
+        dodgeDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
+
+        playerAnimator.SetBool("Dodge", isDodging);
 
         while(elapsedTime < dodgeDuration)
         {
@@ -548,7 +553,8 @@ public class PlayerController : MonoBehaviour
 
         CanMove = true;
         isDodging = false;
-        //isInvincible = false;
+        playerAnimator.SetBool("Dodge", isDodging);
+        isInvincible = false;
     }
 
 
