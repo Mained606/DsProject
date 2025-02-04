@@ -18,7 +18,7 @@ public class BaseMonsterAI : MonoBehaviour
     public float idleTime = 2f; // 대기 상태에서 머무는 시간
     protected float movementSpeed; // 이동 속도
     public float turnSpeed = 10f;
-    public float maxPatrolDistance = 10f; // 스폰 위치에서 최대 이동 가능 거리
+    public float maxPatrolDistance = 40f; // 스폰 위치에서 최대 이동 가능 거리
     public float arrivedDistance = 1f; // 도착 판정 거리 
 
     [Header("서치 & 공격 세팅")]
@@ -27,7 +27,7 @@ public class BaseMonsterAI : MonoBehaviour
     protected float attackRange; // 공격 범위
     protected float attackCooldown; // 공격 쿨타임
     protected float attackCooldownTimer = 0f; // 공격 쿨타임 타이머
-    public float hitStateDuration = 0.7f;
+    public float hitStateDuration = 1f;
 
     [SerializeField] protected AIState currentState = AIState.Idle; // 현재 AI 상태
     [SerializeField] protected Vector3 spawnPosition; // 스폰 위치
@@ -128,7 +128,8 @@ public class BaseMonsterAI : MonoBehaviour
     
     protected virtual void HandleTakeDamage(Transform attacker)
     {
-        if (attacker.CompareTag("Player")) playerTarget = attacker;
+        // if (attacker.CompareTag("Player")) playerTarget = attacker;
+        playerTarget = GameManager.playerTransform;
         
         // 현재 상태가 Hit이더라도 다시 피격 상태로 전환 가능하도록 변경
         if (currentState == AIState.Hit)
