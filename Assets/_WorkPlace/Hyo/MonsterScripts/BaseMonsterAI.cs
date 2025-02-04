@@ -63,6 +63,10 @@ public class BaseMonsterAI : MonoBehaviour
             animator.ResetTrigger(Attack);
             playerTarget = null;
             currentState = AIState.Idle;
+            
+            // 풀링된 몬스터를 다시 캐릭터 리스트에 추가
+            CharacterManager.Instance.AddCharacter(this.monsterData);
+            
             CheckLandingAndSetPatrolTarget();
         }
     }
