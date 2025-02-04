@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ public class PlayerCombat : MonoBehaviour
     public WeaponManager weapon;
     private PlayerData playerData;
     public Collider weaponCollider;
-    [SerializeField] private float attackPerceptionRange = 5f;
+    [SerializeField] private float attackPerceptionRange = 2.5f;
     [SerializeField] private float skillPerceptionRange = 5f;
 
     public Animator playerAnimator;
@@ -17,12 +18,16 @@ public class PlayerCombat : MonoBehaviour
 
     public bool CanReceiveInput { get; set; } = true;
     public bool hasWeapon;
+    public bool isBlocking;
+    public bool firstAttack;
+    [SerializeField] private bool CanParry;
+    public bool onParry;
 
     // public bool inputReceived = false;
     // private bool inputReceived = false;
 
     public Quaternion targetRotation;
-
+    private AnimatorStateInfo stateInfo;
 
 
     ////////////////////////////////////////////////////////////
@@ -64,26 +69,43 @@ public class PlayerCombat : MonoBehaviour
         ////////////////////////////////////////////////////////////
 
         //Debug.Log($"Current CanMove : {controller.CanMove}");
+        if (controller.isParry)
+        {
+            ParryCheck();
+        }
 
         HandleAttackInput();
         HandleSkillInput();
+        HandleBlockInput();
 
         // 2025.01.29 JWS 주석처리 사용안해서
         // AttackFinishedCheck();
         SkillFinishedCheck();
+        ParryFinishedCheck();
     }
 
     private void HandleAttackInput()
     {
 
-        if (InputManager.InputActions.actions["Attack"].triggered && CanReceiveInput && hasWeapon)
+        if (InputManager.InputActions.actions["Attack"].triggered)
         {
-            Debug.Log("Attack");
+            if (isBlocking && CanParry && hasWeapon)
+            {
+                OnParry();
+                return;
+            }
+            if(CanReceiveInput && hasWeapon)
+            {
+                if (!firstAttack)
+                {
+                    PerformComboAttack();
+                }
+                
+            }
 
             // 2025.01.29 JWS 주석처리 사용안해서
             //inputReceived = true;
-
-            PerformComboAttack();
+            
         }
     }
 
@@ -140,9 +162,15 @@ public class PlayerCombat : MonoBehaviour
     //}
     private void PerformComboAttack()
     {
+        if (controller.isSprinting)
+        {
+            // 대쉬공격
+        }
+        firstAttack = true;
+        LookEnemy(attackPerceptionRange);
         controller.isAttack = true;
-        LookEnemy();
         playerAnimator.SetTrigger("NextCombo");
+        
     }
 
     // 현재 콤보진행상태 받아보는 함수 의미 없음.
@@ -154,7 +182,7 @@ public class PlayerCombat : MonoBehaviour
     // 콤보 끝났을때 받는 함수.
     public void AttackFinishedCheck()
     {
-        Debug.LogWarning("콤보종료함");
+        //Debug.LogWarning("콤보종료함");
         controller.CanMove = true;
         controller.isAttack = false;
     }
@@ -218,6 +246,43 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    private void HandleBlockInput()
+    {
+        if (InputManager.InputActions.actions["Block"].IsPressed() && controller.CanBlock)
+        {
+            isBlocking = true;
+            CanParry = true;
+        }
+        else
+        {
+            isBlocking = false;
+            CanParry = false;
+        }
+        playerAnimator.SetBool("Block", isBlocking);
+    }
+
+    private void OnParry()
+    {
+        controller.isParry = true;
+        playerAnimator.SetBool("Parry", true);
+        //ParryCheck();
+    }
+    private void ParryCheck()
+    {
+        stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+        float normalized = stateInfo.normalizedTime;
+
+        if (normalized >= 0.1f && normalized <= 0.9f)
+        {
+            //Debug.LogWarning("onParry");
+            onParry = true;
+        }
+        else
+        {
+            onParry = false;
+        }
+    }
+
     // 스킬 애니메이션이 끝났는지 검사
     private void SkillFinishedCheck()
     {
@@ -229,6 +294,19 @@ public class PlayerCombat : MonoBehaviour
             if (normalizedTime >= 0.95f)
             {
                 controller.isUseSkill = false;
+            }
+        }
+    }
+
+    private void ParryFinishedCheck()
+    {
+        if (controller.isParry)
+        {
+            if (controller.AnimFinishCheck())
+            {
+                controller.isParry = false;
+                onParry = false;
+                playerAnimator.SetBool("Parry", false);
             }
         }
     }
@@ -264,9 +342,9 @@ public class PlayerCombat : MonoBehaviour
     //    controller.transform.rotation = targetRotation;
     //}
 
-    public void LookEnemy()
+    public void LookEnemy(float perceptionRange)
     {
-        closestMonster = GetClosestMonster(attackPerceptionRange);
+        closestMonster = GetClosestMonster(perceptionRange);
         if (closestMonster == null) { return; }
         Vector3 dir = (closestMonster.position - transform.position).normalized;
         dir.y = 0f;

@@ -9,7 +9,7 @@ public class Flame : MonoBehaviour
     private Dictionary<GameObject, int> enemyDamageCount = new Dictionary<GameObject, int>();
     public int maxHits = 3;
 
-    public int damage = 10;
+    [SerializeField] private float multiplier = 0.1f;
 
     private void Start()
     {
@@ -40,9 +40,9 @@ public class Flame : MonoBehaviour
                 monsterHP = monster.currentHp;
                 // monster.TakeDamage(damage);
                 // 2025-01-27 HYO ProcessAttack 로직 변경으로 매개변수에 물리 공격인지 마법 공격인지 확인 추가 및 스킬 배율 추가 true = 마법데미지, false = 물리데미지, 2f = 스킬 데미지 배율 --------------
-                CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monster, other.transform, true, true, 2f);
+                CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monster, other.transform, true, true, 1f + multiplier);
                 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                Debug.Log($"Damaged: {monster.characterName}, monsterHP: {monsterHP}, monsterCurrentHP: {monster.currentHp}");
+                Debug.LogWarning($"{monster.characterName}이 스킬맞음");
             }
         }
         Debug.Log($"Enter : {other.name}");

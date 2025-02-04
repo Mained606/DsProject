@@ -6,7 +6,7 @@ public enum PlayerState
     Move,
     InAir,
     Attack,
-    Parry,
+    Block,
     UseSkill,
     Climb,
     Hit,
