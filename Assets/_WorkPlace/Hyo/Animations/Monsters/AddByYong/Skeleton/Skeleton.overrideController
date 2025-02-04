@@ -8,4 +8,14 @@ AnimatorOverrideController:
   m_PrefabAsset: {fileID: 0}
   m_Name: Skeleton
   m_Controller: {fileID: 9100000, guid: 0bb1e1c4a828a914e9aafd1b48aac197, type: 2}
-  m_Clips: []
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 78373e72667bb5f428e0382efcf3d91c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 547647dde3404d0498449c8c5dd1248c, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 096cff525c99a0245941b4fd385699ce, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: cd38164c52fda9f4db0db83daf9a1935, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 544dc7bc3ae13404ba3bece3b52e9cfd, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 1dff26c2bd7a0f840b5ea844c6f5f990, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 9d80e0b465704464d993a1e396ee09e2, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 811366f9d56eb7340a3f6d45853a4cff, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 39f20c6bdbdbe6645b0c94f444601f27, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: a8824afedb915fa48a13fbb6c8780e96, type: 2}
