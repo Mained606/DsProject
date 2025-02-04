@@ -93,7 +93,15 @@ public class CharacterManager : BaseManager<CharacterManager>
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-        
+        switch (newState)
+        {
+            case GameSystemState.Combat:
+                //GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = true;
+                break;
+            case GameSystemState.MainMenu:
+                //GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = false;
+                break;
+        }
     }
     
     public void InitialCharacter()
