@@ -286,9 +286,14 @@ public class DragonController : MonoBehaviour
         {
             isAttacking = true;
             
-            string[] buffSkills = new string[] { "PlayerBuffPhysical", "PlayerBuffMagic", "PlayerBuffHP" };
-            int randomIndex = Random.Range(0, buffSkills.Length);
-            string chosenBuff = buffSkills[randomIndex];
+            List<string> availableBuffs = SkillManager.Instance.GetAvailableBuffs(EntityType.Dragon);
+            if (availableBuffs.Count == 0)
+            {
+                Debug.Log($"[드래곤] 사용 가능한 버프 스킬 목록: {string.Join(", ", availableBuffs)}");
+                return;
+            }
+            
+            string chosenBuff = availableBuffs[Random.Range(0, availableBuffs.Count)];
             
             Debug.Log("[드래곤] 스킬 공격 발사! 선택된 버프 스킬: " + chosenBuff);
             
