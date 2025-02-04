@@ -77,6 +77,7 @@ public class SoundManager : MonoBehaviour
 
         LoadAudioClip();
         LoadMainMusicClip();
+        PlayMainMusic(true);
     }
 
     private void Update()
@@ -87,9 +88,9 @@ public class SoundManager : MonoBehaviour
         else SetMute("MasterVolume", false);
     }
 
-    private void PlayMainMusic()
+    private void PlayMainMusic(bool isPlay)
     {
-        _isPlayMainMusic = true;
+        _isPlayMainMusic = isPlay;
     }
 
     private void CheckVolumes()
@@ -118,7 +119,6 @@ public class SoundManager : MonoBehaviour
         MainMusicSource.minDistance = 1f;
         MainMusicSource.maxDistance = 20f;
         MainMusicSource.outputAudioMixerGroup = _MusicEffect;
-        _isPlayMainMusic = false;
     }
 
     private void InitailizeAudioSource()
@@ -134,7 +134,7 @@ public class SoundManager : MonoBehaviour
             audioSource.volume = sFXVolume;
             audioSource.pitch = 1f;
             audioSource.priority = 120;
-            //audioSource.spatialBlend = 1f;          // 3D 사운드 활성화
+            // audioSource.spatialBlend = 1f;          // 3D 사운드 활성화
             // audioSource.dopplerLevel = 1f;         // 도플러 효과 설정
             // audioSource.spread = 360f;             // 소리 확산 각도
             audioSource.minDistance = 1f;          // 최대 음량이 들리는 최소 거리

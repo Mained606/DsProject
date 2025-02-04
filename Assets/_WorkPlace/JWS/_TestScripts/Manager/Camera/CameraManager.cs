@@ -46,11 +46,7 @@ public class CameraManager : BaseManager<CameraManager>
     [SerializeField] private bool mouseCursorVisible = false;
 
     // 컬링부분 체크중.
-    private Transform player, orbitTarget, followTarget; // 플레이어 오브젝트
-    [SerializeField] private Color highlightColor = Color.yellow; // 하이라이트 색상
-    [SerializeField] private float outlineWidth = 2.0f; // 하이라이트 두께
-    private SkinnedMeshRenderer playerRenderer;
-    private bool isPlayerHidden = false; // 플레이어가 가려졌는지 여부
+    private Transform orbitTarget, followTarget; // 플레이어 오브젝트
 
     private Camera mainCamera;
     private Camera portraitCamera;
@@ -502,40 +498,15 @@ public class CameraManager : BaseManager<CameraManager>
         }
     }
 
-    private void CheckPlayerVisibility()
+    public static bool IsInFrustum(Transform zone)
     {
-        Vector3 cameraPosition = mainCamera.transform.position;
-        Vector3 directionToPlayer = player.position - cameraPosition;
-        float distanceToPlayer = directionToPlayer.magnitude;
+        if (zone == null) return false;
+        Plane[] frustumPlanes = GeometryUtility.CalculateFrustumPlanes(Instance.mainCamera);
 
-        // Raycast로 카메라와 플레이어 사이 장애물 확인
-        if (Physics.Raycast(cameraPosition, directionToPlayer.normalized, out RaycastHit hit, distanceToPlayer))
-        {
-            if (hit.transform != player) // 플레이어가 아닌 다른 오브젝트가 먼저 감지됨
-            {
-                if (!isPlayerHidden)
-                {
-                    ApplyHighlight(true);
-                    isPlayerHidden = true;
-                }
-                return;
-            }
-        }
+        Collider zoneCollider = zone.GetComponent<Collider>();
+        Bounds zoneBounds = zoneCollider ? zoneCollider.bounds : new Bounds(zone.position, Vector3.one);
 
-        if (isPlayerHidden)
-        {
-            ApplyHighlight(false);
-            isPlayerHidden = false;
-        }
-    }
-
-    private void ApplyHighlight(bool enable)
-    {
-        foreach (var material in playerRenderer.materials)
-        {
-            material.SetFloat("_OutlineWidth", enable ? outlineWidth : 0f);
-            material.SetColor("_OutlineColor", highlightColor);
-        }
+        return GeometryUtility.TestPlanesAABB(frustumPlanes, zoneBounds);
     }
 
     private void OnDrawGizmos()

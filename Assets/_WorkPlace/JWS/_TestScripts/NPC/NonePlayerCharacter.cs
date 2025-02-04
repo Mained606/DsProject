@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class NonePlayerCharacter : MonoBehaviour
@@ -59,6 +60,7 @@ public class NonePlayerCharacter : MonoBehaviour
                 GetMainNpcData();
             }
         }
+        
         if (isPlayerInRange)
         {
             if (UIManager.Instance.IsUIWindowOpen())
@@ -106,14 +108,16 @@ public class NonePlayerCharacter : MonoBehaviour
         else
         {
             isInitNPC = true;
-            currentNPCData = npclist[mainIndex - 1];
+            mainIndex = Random.Range(0, npclist.Count);
+            currentNPCData = npclist[mainIndex].Clone(false);
             currentNPCData.currentNPC = this.gameObject;
         }
         if (npcType == NPCType.상점)
         {
             npclist = QuestManager.NpcDatabase.shopNpcLists;
             isInitNPC = true;
-            currentNPCData = npclist[mainIndex - 1];
+            mainIndex = Random.Range(0, npclist.Count);
+            currentNPCData = npclist[mainIndex].Clone(false);
             currentNPCData.currentNPC = this.gameObject;
         }
 
