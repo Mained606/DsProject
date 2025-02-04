@@ -99,7 +99,7 @@ public class InterActText : MonoBehaviour
             }
             if (!hasQuest)
             {
-                _rectTransforms[currentIndex].GetChild(2).gameObject.SetActive(false);
+                _rectTransforms[0].GetChild(2).gameObject.SetActive(false);
             }
             textMsg = _rectTransforms[currentIndex].GetChild(1).GetComponent<TextMeshProUGUI>();
         }

@@ -11,10 +11,25 @@ public class NPCDataEditor : Editor
 
         // 기본 NPC 설정
         SerializedProperty npctypeProperty = serializedObject.FindProperty("npcType");
+        SerializedProperty isMainQuestProperty = serializedObject.FindProperty("isMainQuest");
         SerializedProperty mainIndexProperty = serializedObject.FindProperty("mainIndex");
 
         EditorGUILayout.LabelField("▣ NPC 설정");
         EditorGUILayout.PropertyField(npctypeProperty, new GUIContent("      NPC Type"));
+        EditorGUILayout.PropertyField(isMainQuestProperty, new GUIContent("      Is Main Quest"));
+
+        // 메인 퀘스트 관련 설정
+        if (isMainQuestProperty.boolValue)
+        {
+            string[] indexOptions = new string[11]; // "None" + 1~10
+            indexOptions[0] = "None";
+            for (int i = 1; i <= 10; i++) indexOptions[i] = i.ToString();
+
+            int selectedIndex = mainIndexProperty.intValue;
+            selectedIndex = EditorGUILayout.Popup("      Main Index", selectedIndex, indexOptions);
+
+            if (selectedIndex != mainIndexProperty.intValue) mainIndexProperty.intValue = selectedIndex;
+        }
 
         serializedObject.ApplyModifiedProperties();
 
