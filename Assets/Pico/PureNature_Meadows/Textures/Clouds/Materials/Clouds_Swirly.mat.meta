@@ -2,14 +2,7 @@ fileFormatVersion: 2
 guid: 4a66714a43864099a863e2a76da9a938
 NativeFormatImporter:
   externalObjects: {}
-  mainObjectFileID: 2100000
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 269085
-  packageName: 'Pure Nature 2 : Meadows'
-  packageVersion: 2.0
-  assetPath: Assets/Pico/PureNature_Meadows/Textures/Clouds/Materials/Clouds_Swirly.mat
-  uploadId: 698480

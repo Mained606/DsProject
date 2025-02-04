@@ -461,9 +461,10 @@ public class BaseMonsterAI : MonoBehaviour
     {
         // 패링 당한 후 효과 적용
         if (isStunned) return;
-        
+
         // 디버그용 코드 -------------------------------------------------
-        UIManager.Instance.TogglinfoMessageWindow("스턴됨");
+        //UIManager.Instance.TogglinfoMessageWindow("스턴됨");
+        Debug.LogWarning("몬스터 스턴됨");
         // -------------------------------------------------------------
         
         isStunned = true;
