@@ -195,6 +195,11 @@ public class SkillManager : BaseManager<SkillManager>
         {
             Quaternion entityRotation = Quaternion.LookRotation(target.transform.forward);
             var effect = Instantiate(skill.effectPrefab, target.transform.position, entityRotation);
+            if (skill.particleDelay > 0)
+            {
+                var particleEffect = effect.GetComponent<ParticleSystem>().main;
+                particleEffect.startDelay = skill.particleDelay;
+            }
             Destroy(effect, 5f);
         }
 

@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
     public bool CanMove;
     [SerializeField] private bool isGrounded;
     [SerializeField] private bool isMove;
-    private bool isSprinting;
+    public bool isSprinting;
 
     [Header("점프 / 중력")]
     [SerializeField] private float jumpHeight = 0.5f;
@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour
     public bool isCombatState;
     public bool CanAttack;
     public bool CanUseSkill;
-    public bool CanParry;
+    public bool CanBlock;
     public bool isAttack;
     public bool isUseSkill;
     public bool isParry;
@@ -70,7 +70,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isEnoughMana;
     [SerializeField] private bool isRecovery;
     [SerializeField] private bool isHit;
-    public bool onParry;
     public bool CanWeaponSwitch;
     public bool isInvincible;
 
@@ -143,7 +142,6 @@ public class PlayerController : MonoBehaviour
             ControlMovement();
             ControlJump();
             OnDodge();
-            OnParry();
         }
 
         //CanGlidingCheck();
@@ -155,49 +153,49 @@ public class PlayerController : MonoBehaviour
                 CanMove = true;
                 CanAttack = true;
                 CanUseSkill = true;
-                CanParry = true;
+                CanBlock = true;
                 break;
             case PlayerState.Move:
                 CanMove = true;
                 CanAttack = true;
                 CanUseSkill = true;
-                CanParry = true;
+                CanBlock = true;
                 break;
             case PlayerState.InAir:
                 CanMove = true;
                 CanAttack = false;
                 CanUseSkill = false;
-                CanParry = false;
+                CanBlock = false;
                 break;
             case PlayerState.Attack:
                 CanMove = false;
                 CanAttack = true;
                 CanUseSkill = true;
-                CanParry = false;
+                CanBlock = false;
                 break;
             case PlayerState.Parry:
                 CanMove = false;
                 CanAttack = false;
                 CanUseSkill = false;
-                CanParry = false;
+                CanBlock = false;
                 break;
             case PlayerState.UseSkill:
                 CanMove = false;
                 CanAttack = false;
                 CanUseSkill = false;
-                CanParry = false;
+                CanBlock = false;
                 break;
             case PlayerState.Climb:
                 CanMove = true;
                 CanAttack = false;
                 CanUseSkill = false;
-                CanParry = false;
+                CanBlock = false;
                 break;
             case PlayerState.Hit:
                 CanMove = false;
                 CanAttack = false;
                 CanUseSkill = false;
-                CanParry = false;
+                CanBlock = false;
                 break;
             case PlayerState.Death:
                 break;
@@ -231,7 +229,7 @@ public class PlayerController : MonoBehaviour
 
     private void RunableCheck()
     {
-        if (isSprinting)
+        if (InputManager.InputActions.actions["Sprint"].IsPressed())
         {
             currentStamina = playerData.staminaCurrent;
             if (isRecovery && currentStamina > 10f)
@@ -283,12 +281,12 @@ public class PlayerController : MonoBehaviour
         {
             case true:
                 CanMove = false;
-                CanParry = false;
+                CanBlock = false;
                 break;
             case false:
                 CanMove = true;
                 CanAttack = true;
-                CanParry = true;
+                CanBlock = true;
                 break;
         }
 
@@ -297,12 +295,12 @@ public class PlayerController : MonoBehaviour
             case true:
                 CanMove = false;
                 CanUseSkill = false;
-                CanParry = false;
+                CanBlock = false;
                 break;
             case false:
                 CanMove = true;
                 CanUseSkill = true;
-                CanParry = true;
+                CanBlock = true;
                 break;
         }
     }
@@ -411,11 +409,11 @@ public class PlayerController : MonoBehaviour
     AnimatorClipInfo[] clipInfo;
     AnimationClip currentClip;
 
-    private bool AnimFinishCheck()
+    public bool AnimFinishCheck()
     {
         stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
         float normalize = stateInfo.normalizedTime;
-        if (normalize >= 0.95f)
+        if (normalize >= 0.99f)
         {
             return true;
         }
@@ -463,7 +461,6 @@ public class PlayerController : MonoBehaviour
         }
 
         moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
-        isSprinting = InputManager.InputActions.actions["Sprint"].IsPressed();
 
         direction = GetDirection(moveInput);
         moveDirection = direction;
@@ -481,20 +478,20 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetFloat("MotionSpeed", 1);
             playerAnimator.SetFloat("Speed", 0);
             isMove = false;
-            playerAnimator.SetBool("Sprint", false);
-            //SetState(PlayerState.Idle);
+            isSprinting = false;
         }
         else
         {
             playerAnimator.SetFloat("MotionSpeed", 1);
             playerAnimator.SetFloat("Speed", currentSpeed);
             isMove = true;
-            playerAnimator.SetBool("Sprint", CanSprint);
-            //if (currentState != PlayerState.InAir || isGrounded)
-            //{
-            //    SetState(PlayerState.Move);
-            //}
+            if (CanSprint)
+            {
+                isSprinting = true;
+            }
         }
+
+        playerAnimator.SetBool("Sprint", isSprinting);
 
         characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
         UsingStamina();
@@ -656,7 +653,7 @@ public class PlayerController : MonoBehaviour
         UpdateInputActions(CanMove, "Move");
         UpdateInputActions(CanAttack, "Attack");
         UpdateInputActions(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
-        UpdateInputActions(CanParry, "Parry");
+        UpdateInputActions(CanBlock, "Block");
     }
 
     private void SetActionStates(bool state)
@@ -664,7 +661,7 @@ public class PlayerController : MonoBehaviour
         CanMove = state;
         CanAttack = state;
         CanUseSkill = state;
-        CanParry = state;
+        CanBlock = state;
         CanWeaponSwitch = state;
         CanGliding = state;
     }
@@ -682,40 +679,6 @@ public class PlayerController : MonoBehaviour
     ///////////////////////////////////////////////////////////////////////////////////
     ///// JWS 수정 UI오픈관련 키엑세스 2025.01.26 19:30  End
     ///////////////////////////////////////////////////////////////////////////////////
-
-    // 패링
-    private void OnParry()
-    {
-        if (InputManager.InputActions.actions["Parry"].triggered && CanParry)
-        {
-            playerAnimator.SetTrigger("Parry");
-            isParry = true;
-        }
-        if (isParry)
-        {
-            ParryCheck();
-            if (AnimFinishCheck())
-            {
-                isParry = false;
-                onParry = false;
-            }
-        }
-    }
-
-    private void ParryCheck()
-    {
-        stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        float normalized = stateInfo.normalizedTime;
-
-        if (normalized >= 0.2f && normalized <= 0.5f)
-        {
-            onParry = true;
-        }
-        else
-        {
-            onParry = false;
-        }
-    }
 
     #region ---------------Climb---------------
     private void DetectCliff()
@@ -942,7 +905,7 @@ public class PlayerController : MonoBehaviour
     //
     private void HitCheck(Transform Attacker)
     {
-        if (onParry)
+        if (playerCombat.onParry)
         {
             Debug.LogWarning("Parring!!!");
         }

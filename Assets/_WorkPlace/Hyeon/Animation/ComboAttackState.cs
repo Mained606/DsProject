@@ -4,6 +4,7 @@ public class ComboAttackState : StateMachineBehaviour
 {
     private PlayerCombat combat;
     private bool isPressedAttackKey = false;
+    [SerializeField] private float attackPerceptionRange = 2.5f;
 
     private StateComboName GetStateCombo(AnimatorStateInfo stateInfo)
     {
@@ -35,9 +36,9 @@ public class ComboAttackState : StateMachineBehaviour
         if (!combat.weaponCollider.enabled)
         {
             combat.weaponCollider.enabled = true;
-            Debug.Log("🔪 무기 콜라이더 활성화!");
+            Debug.LogWarning("🔪 무기 콜라이더 활성화!");
         }
-        combat?.LookEnemy();
+        combat?.LookEnemy(attackPerceptionRange);
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -64,19 +65,19 @@ public class ComboAttackState : StateMachineBehaviour
         if (animator.IsInTransition(layerIndex) && 
             (nextState == StateComboName.Attack1 || nextState == StateComboName.Attack2 || nextState == StateComboName.Attack3))
         {
-            Debug.Log("🔄 트랜지션 중: 콤보 유지");
+            Debug.LogWarning("🔄 트랜지션 중: 콤보 유지");
             return;
         }
         if (nextState == StateComboName.Unknown)
         {
             animator.ResetTrigger("NextCombo");
             combat?.AttackFinishedCheck();
-            Debug.Log("⚔ 콤보 종료: 외부로 나감");
+            Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
         }
         if (combat.weaponCollider.enabled)
         {
             combat.weaponCollider.enabled = false;
-            Debug.Log("🛑 무기 콜라이더 비활성화!");
+            Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
         }
         InputManager.InputActions.actions["Move"].Enable();
         InputManager.InputActions.actions["Jump"].Enable();

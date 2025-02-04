@@ -92,7 +92,7 @@ public class CombatManager : BaseManager<CombatManager>
         if (damage > 0)
         {
             // 250131 2:00PM Hyeon ===============================================
-            if (GameManager.playerTransform.GetComponent<PlayerController>().onParry)
+            if (GameManager.playerTransform.GetComponent<PlayerCombat>().onParry)
             {
                 Debug.LogWarning("패링 성공");  
                 attackerTransform.GetComponent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);

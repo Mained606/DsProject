@@ -9,7 +9,7 @@ public class PlayerCombat : MonoBehaviour
     public WeaponManager weapon;
     private PlayerData playerData;
     public Collider weaponCollider;
-    [SerializeField] private float attackPerceptionRange = 5f;
+    [SerializeField] private float attackPerceptionRange = 2.5f;
     [SerializeField] private float skillPerceptionRange = 5f;
 
     public Animator playerAnimator;
@@ -17,12 +17,15 @@ public class PlayerCombat : MonoBehaviour
 
     public bool CanReceiveInput { get; set; } = true;
     public bool hasWeapon;
+    public bool isBlocking;
+    [SerializeField] private bool CanParry;
+    public bool onParry;
 
     // public bool inputReceived = false;
     // private bool inputReceived = false;
 
     public Quaternion targetRotation;
-
+    private AnimatorStateInfo stateInfo;
 
 
     ////////////////////////////////////////////////////////////
@@ -67,23 +70,32 @@ public class PlayerCombat : MonoBehaviour
 
         HandleAttackInput();
         HandleSkillInput();
+        HandleBlockInput();
 
         // 2025.01.29 JWS 주석처리 사용안해서
         // AttackFinishedCheck();
         SkillFinishedCheck();
+        ParryFinishedCheck();
     }
 
     private void HandleAttackInput()
     {
 
-        if (InputManager.InputActions.actions["Attack"].triggered && CanReceiveInput && hasWeapon)
+        if (InputManager.InputActions.actions["Attack"].triggered)
         {
-            Debug.Log("Attack");
+            if (isBlocking && CanParry && hasWeapon)
+            {
+                OnParry();
+                return;
+            }
+            if(CanReceiveInput && hasWeapon)
+            {
+                PerformComboAttack();
+            }
 
             // 2025.01.29 JWS 주석처리 사용안해서
             //inputReceived = true;
-
-            PerformComboAttack();
+            
         }
     }
 
@@ -141,7 +153,11 @@ public class PlayerCombat : MonoBehaviour
     private void PerformComboAttack()
     {
         controller.isAttack = true;
-        LookEnemy();
+        if (controller.isSprinting)
+        {
+            // 대쉬공격
+        }
+        LookEnemy(attackPerceptionRange);
         playerAnimator.SetTrigger("NextCombo");
     }
 
@@ -218,6 +234,42 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
+    private void HandleBlockInput()
+    {
+        if (InputManager.InputActions.actions["Block"].IsPressed() && controller.CanBlock)
+        {
+            isBlocking = true;
+            CanParry = true;
+        }
+        else
+        {
+            isBlocking = false;
+            CanParry = true;
+        }
+        playerAnimator.SetBool("Block", isBlocking);
+    }
+
+    private void OnParry()
+    {
+        playerAnimator.SetTrigger("Parry");
+        controller.isParry = true;
+        ParryCheck();
+    }
+    private void ParryCheck()
+    {
+        stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+        float normalized = stateInfo.normalizedTime;
+
+        if (normalized >= 0.2f && normalized <= 0.5f)
+        {
+            onParry = true;
+        }
+        else
+        {
+            onParry = false;
+        }
+    }
+
     // 스킬 애니메이션이 끝났는지 검사
     private void SkillFinishedCheck()
     {
@@ -229,6 +281,18 @@ public class PlayerCombat : MonoBehaviour
             if (normalizedTime >= 0.95f)
             {
                 controller.isUseSkill = false;
+            }
+        }
+    }
+
+    private void ParryFinishedCheck()
+    {
+        if (controller.isParry)
+        {
+            if (controller.AnimFinishCheck())
+            {
+                controller.isParry = false;
+                onParry = false;
             }
         }
     }
@@ -264,9 +328,9 @@ public class PlayerCombat : MonoBehaviour
     //    controller.transform.rotation = targetRotation;
     //}
 
-    public void LookEnemy()
+    public void LookEnemy(float perceptionRange)
     {
-        closestMonster = GetClosestMonster(attackPerceptionRange);
+        closestMonster = GetClosestMonster(perceptionRange);
         if (closestMonster == null) { return; }
         Vector3 dir = (closestMonster.position - transform.position).normalized;
         dir.y = 0f;
