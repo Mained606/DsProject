@@ -1522,9 +1522,6 @@ MonoBehaviour:
     stamina: 0
     staminaCurrent: 0
     staminaRecoveryRate: 0
-    hpBuffBonus: 0
-    physicalDamageBuffMultiplier: 0
-    magicDamageBuffMultiplier: 0
     moveSpeed: 0
     attackSpeed: 0
     attackRange: 0
