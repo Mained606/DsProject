@@ -622,5 +622,36 @@ public class SkillManager : BaseManager<SkillManager>
 
         return skill.cooldown;
     }
+    
+    // 사용할 수 있는 모든 버프 스킬 목록 가져오기
+    public List<string> GetAvailableBuffs(EntityType entityType)
+    {
+        List<string> buffSkills = new List<string>();
+
+        Dictionary<string, Skills> skillDictionary = entityType switch
+        {
+            EntityType.Player => playerSkillDictionary,
+            EntityType.Dragon => dragonSkillDictionary,
+            EntityType.Boss => bossSkillDictionary,
+            _ => null
+        };
+
+        if (skillDictionary == null)
+        {
+            Debug.LogError($"[GetAvailableBuffs] 유효하지 않은 엔티티 타입: {entityType}");
+            return buffSkills;
+        }
+
+        foreach (var skill in skillDictionary.Values)
+        {
+            if (skill.skillType == SkillType.Support)
+            {
+                buffSkills.Add(skill.skillName);
+            }
+        }
+
+        return buffSkills;
+    }
+
     // =================================================================================================================
 }
