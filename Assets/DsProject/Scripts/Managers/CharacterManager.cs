@@ -324,4 +324,22 @@ public class CharacterManager : BaseManager<CharacterManager>
 
         return closestMonster; // 가장 가까운 몬스터 반환
     }
+    
+    // 캐릭터 추가 메서드
+    public void AddCharacter(CharacterData character)
+    {
+        if (!characterList.Contains(character))
+        {
+            characterList.Add(character);
+        }
+    }
+
+    // 캐릭터 제거 메서드
+    public void RemoveCharacter(CharacterData character)
+    {
+        if (characterList.Contains(character))
+        {
+            characterList.Remove(character);
+        }
+    }
 }
