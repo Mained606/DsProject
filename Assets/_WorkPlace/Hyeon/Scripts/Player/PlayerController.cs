@@ -55,6 +55,7 @@ public class PlayerController : MonoBehaviour
     //[SerializeField] private bool isInvincible = false;
 
     [Header("공격")]
+    public bool isCombatState;
     public bool CanAttack;
     public bool CanUseSkill;
     public bool CanParry;
@@ -138,6 +139,7 @@ public class PlayerController : MonoBehaviour
         //UpdateClimbState();
         if (!isDodging)
         {
+            CheckCombatState();
             ControlMovement();
             ControlJump();
             OnDodge();
@@ -220,6 +222,11 @@ public class PlayerController : MonoBehaviour
             Debug.Log(playerData.ToStringForTMPro());
             //-----------------------------------------------------------------
         }
+    }
+
+    private void CheckCombatState()
+    {
+        playerAnimator.SetBool("Combat", isCombatState);
     }
 
     private void RunableCheck()
@@ -474,6 +481,7 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetFloat("MotionSpeed", 1);
             playerAnimator.SetFloat("Speed", 0);
             isMove = false;
+            playerAnimator.SetBool("Sprint", false);
             //SetState(PlayerState.Idle);
         }
         else
@@ -481,6 +489,7 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetFloat("MotionSpeed", 1);
             playerAnimator.SetFloat("Speed", currentSpeed);
             isMove = true;
+            playerAnimator.SetBool("Sprint", CanSprint);
             //if (currentState != PlayerState.InAir || isGrounded)
             //{
             //    SetState(PlayerState.Move);
