@@ -15,7 +15,9 @@ public class InventoryUI : MonoBehaviour
     private int currentButtonIndex = 6;
     private Dictionary<string, List<Item>> categorizedItems = new Dictionary<string, List<Item>>();
 
-   
+    #region 골드 인벤으로 이전
+    [SerializeField]private TextMeshProUGUI playerGold;
+    #endregion
 
     private void Awake()
     {
@@ -80,6 +82,11 @@ public class InventoryUI : MonoBehaviour
     {
         CategorizeItems();
         ClearUI();
+
+        #region 골드 인벤토리로 이전
+        playerGold.text = CharacterManager.PlayerCharacterData.gold.ToString();
+        #endregion
+
         if (buttons == null || buttons.Length == 0)
         {
             Debug.LogWarning("버튼이 설정되지 않았거나 버튼 배열이 비어있습니다.");
