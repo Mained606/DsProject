@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,6 +19,7 @@ public class PlayerCombat : MonoBehaviour
     public bool CanReceiveInput { get; set; } = true;
     public bool hasWeapon;
     public bool isBlocking;
+    public bool firstAttack;
     [SerializeField] private bool CanParry;
     public bool onParry;
 
@@ -67,6 +69,10 @@ public class PlayerCombat : MonoBehaviour
         ////////////////////////////////////////////////////////////
 
         //Debug.Log($"Current CanMove : {controller.CanMove}");
+        if (controller.isParry)
+        {
+            ParryCheck();
+        }
 
         HandleAttackInput();
         HandleSkillInput();
@@ -90,7 +96,11 @@ public class PlayerCombat : MonoBehaviour
             }
             if(CanReceiveInput && hasWeapon)
             {
-                PerformComboAttack();
+                if (!firstAttack)
+                {
+                    PerformComboAttack();
+                }
+                
             }
 
             // 2025.01.29 JWS 주석처리 사용안해서
@@ -152,13 +162,15 @@ public class PlayerCombat : MonoBehaviour
     //}
     private void PerformComboAttack()
     {
-        controller.isAttack = true;
         if (controller.isSprinting)
         {
             // 대쉬공격
         }
+        firstAttack = true;
         LookEnemy(attackPerceptionRange);
+        controller.isAttack = true;
         playerAnimator.SetTrigger("NextCombo");
+        
     }
 
     // 현재 콤보진행상태 받아보는 함수 의미 없음.
@@ -170,7 +182,7 @@ public class PlayerCombat : MonoBehaviour
     // 콤보 끝났을때 받는 함수.
     public void AttackFinishedCheck()
     {
-        Debug.LogWarning("콤보종료함");
+        //Debug.LogWarning("콤보종료함");
         controller.CanMove = true;
         controller.isAttack = false;
     }
@@ -244,24 +256,25 @@ public class PlayerCombat : MonoBehaviour
         else
         {
             isBlocking = false;
-            CanParry = true;
+            CanParry = false;
         }
         playerAnimator.SetBool("Block", isBlocking);
     }
 
     private void OnParry()
     {
-        playerAnimator.SetTrigger("Parry");
         controller.isParry = true;
-        ParryCheck();
+        playerAnimator.SetBool("Parry", true);
+        //ParryCheck();
     }
     private void ParryCheck()
     {
         stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
         float normalized = stateInfo.normalizedTime;
 
-        if (normalized >= 0.2f && normalized <= 0.5f)
+        if (normalized >= 0.1f && normalized <= 0.9f)
         {
+            //Debug.LogWarning("onParry");
             onParry = true;
         }
         else
@@ -293,6 +306,7 @@ public class PlayerCombat : MonoBehaviour
             {
                 controller.isParry = false;
                 onParry = false;
+                playerAnimator.SetBool("Parry", false);
             }
         }
     }

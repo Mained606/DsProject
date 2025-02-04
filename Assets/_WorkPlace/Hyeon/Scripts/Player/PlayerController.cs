@@ -173,11 +173,11 @@ public class PlayerController : MonoBehaviour
                 CanUseSkill = true;
                 CanBlock = false;
                 break;
-            case PlayerState.Parry:
+            case PlayerState.Block:
                 CanMove = false;
-                CanAttack = false;
+                CanAttack = true;
                 CanUseSkill = false;
-                CanBlock = false;
+                CanBlock = true;
                 break;
             case PlayerState.UseSkill:
                 CanMove = false;
@@ -193,9 +193,9 @@ public class PlayerController : MonoBehaviour
                 break;
             case PlayerState.Hit:
                 CanMove = false;
-                CanAttack = false;
+                CanAttack = true;
                 CanUseSkill = false;
-                CanBlock = false;
+                CanBlock = true;
                 break;
             case PlayerState.Death:
                 break;
@@ -246,6 +246,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             CanSprint = false;
+            isSprinting = false;
         }
     }
 
@@ -365,7 +366,7 @@ public class PlayerController : MonoBehaviour
 
     private void StateCheck()
     {
-        if (isHit)
+        if (isHit && !isParry)
         {
             SetState(PlayerState.Hit);
         }
@@ -389,9 +390,9 @@ public class PlayerController : MonoBehaviour
             {
                 SetState(PlayerState.Attack);
             }
-            else if (isParry)
+            else if (playerCombat.isBlocking)
             {
-                SetState(PlayerState.Parry);
+                SetState(PlayerState.Block);
             }
             else if (isUseSkill)
             {
@@ -905,21 +906,26 @@ public class PlayerController : MonoBehaviour
     //
     private void HitCheck(Transform Attacker)
     {
-        if (playerCombat.onParry)
+        if (isParry)
         {
-            Debug.LogWarning("Parring!!!");
+            isHit = false;
+            return;
         }
         else
         {
-            playerAnimator.SetTrigger("Hit");
             isHit = true;
+            playerAnimator.SetTrigger("Hit");
+            Debug.LogWarning("Hit신호 감지");
         }
     }
 
     private void HitFinishedCheck()
     {
         if (currentState != PlayerState.Hit)
+        {
+            isHit = false;
             return;
+        }
 
         if (isHit && AnimFinishCheck())
         {
