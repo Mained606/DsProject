@@ -43,16 +43,13 @@ public class DragonController : MonoBehaviour
     public float meleeRange;          // 근접 공격 범위
     public float maxDistanceFromPlayer = 15f; // 플레이어로부터 이만큼 멀어지면 타겟 해제 & 순간이동
     
-    private float meleeCooldown;  // 근접 공격 쿨타임
     [SerializeField] private GameObject fireballPrefab; // 파이어볼 프리팹
 
     //쿨다운
-    [SerializeField] public float skillCooldown = 60f;       // 스킬 쿨다운
-    [SerializeField] public float rangedCooldown = 10f;      // 원거리 공격(파이어볼) 쿨다운
-    [SerializeField] public float rangedDelayTime = 1.5f;
-
-    private float skillTimer = 0f;
-    private float rangedTimer = 0f;
+    private BasicTimer meleeCooldown;  // 근접 공격 쿨타임
+    [SerializeField] private BasicTimer skillCooldown = new BasicTimer(1f);                              // 스킬 쿨다운
+    [SerializeField] private readonly BasicTimer rangedCooldown = new BasicTimer(10f);      // 원거리 공격(파이어볼) 쿨다운
+    [SerializeField] private float rangedDelayTime = 1.5f;
     
     [SerializeField] private bool isAttacking = false;
 
@@ -62,10 +59,6 @@ public class DragonController : MonoBehaviour
 
     // 드래곤의 상태를 나타내는 변수 추가
     [SerializeField] private DragonState currentState = DragonState.Idle;
-    
-    private bool IsMeleeOnCooldown() => (meleeCooldown > 0f);
-    private bool IsSkillOnCooldown() => (skillTimer > 0f);
-    private bool IsRangedOnCooldown() => (rangedTimer > 0f);
 
     private void OnEnable()
     {
@@ -100,11 +93,11 @@ public class DragonController : MonoBehaviour
         // 어택 스피드를 기반으로 근접 공격 쿨타임 계산
         if (dragonData != null)
         {
-            meleeCooldown = dragonData.attackSpeed;  // 어택 스피드를 기준으로 쿨타임 계산 (초단위)
+            meleeCooldown = new BasicTimer(dragonData.attackSpeed);  // 어택 스피드를 기준으로 쿨타임 계산 (초단위)
         }
         else
         {
-            meleeCooldown = 3f;  // 기본 쿨타임 설정 (어택 스피드가 없을 경우)
+            meleeCooldown = new BasicTimer(3f);  // 기본 쿨타임 설정 (어택 스피드가 없을 경우)
         }
 
         // 플레이어와 초기 상대 위치 설정
@@ -116,9 +109,6 @@ public class DragonController : MonoBehaviour
 
     private void Update()
     {
-        // 쿨다운 갱신
-        UpdateCooldowns();
-
         // 전투 상태일 때만 몬스터를 추적
         if (GameStateMachine.Instance.CurrentState == GameSystemState.Combat)
         {
@@ -148,7 +138,7 @@ public class DragonController : MonoBehaviour
             currentTarget = null;
             currentTargetTransform = null;
             // 플레이어 옆으로 순간이동
-            transform.position = player.position + offset;
+            FollowPlayerLogic();
             currentState = DragonState.Idle;
             return;
         }
@@ -172,7 +162,7 @@ public class DragonController : MonoBehaviour
         }
 
         // 공격 우선순위 1) 스킬, 2) 원거리 공격(파이어볼), 3) 근접 공격
-        if (!IsSkillOnCooldown())
+        if (!skillCooldown.IsRunning)
         {
             if (currentState == DragonState.Moving || currentState == DragonState.Idle)
             {
@@ -180,7 +170,7 @@ public class DragonController : MonoBehaviour
                 UseSkillAttack();
             }
         }
-        else if (!IsRangedOnCooldown())
+        else if (!rangedCooldown.IsRunning)
         {
             if (currentState == DragonState.Moving || currentState == DragonState.Idle)
             {
@@ -188,7 +178,7 @@ public class DragonController : MonoBehaviour
                 StartCoroutine(UseRangedAttack());
             }
         }
-        else if (!IsMeleeOnCooldown())
+        else if (!meleeCooldown.IsRunning)
         {
             if (currentState == DragonState.Moving || currentState == DragonState.Idle)
             {
@@ -233,7 +223,6 @@ public class DragonController : MonoBehaviour
         {
             currentTarget = closestMonster;
             currentTargetTransform = closestTransform;
-            // Debug.Log($"타겟 몬스터: {closestMonster.characterName}");
         }
         else
         {
@@ -244,7 +233,7 @@ public class DragonController : MonoBehaviour
 
     private void MoveTowardTarget(Transform targetTransform)
     {
-        if (targetTransform == null) return;
+        if (!targetTransform) return;
 
         // 근접 범위에 들어가지 않았다면 이동 (단, “용은 공격받지 않는다” 가정이므로 충돌 처리X)
         float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
@@ -276,7 +265,7 @@ public class DragonController : MonoBehaviour
             animator.SetBool(IsMoving, false);
         
             // 밀리 어택 상태로 진입하고, 공격을 수행
-            if (!IsMeleeOnCooldown())
+            if (!meleeCooldown.IsRunning)
             {
                 currentState = DragonState.MeleeAttack;
                 UseMeleeAttack();
@@ -293,13 +282,18 @@ public class DragonController : MonoBehaviour
     // 1) 스킬 공격 (우선순위 1위)
     private void UseSkillAttack()
     {
-        if (!IsSkillOnCooldown())
+        if (!skillCooldown.IsRunning)
         {
             isAttacking = true;
             
-            string[] buffSkills = new string[] { "PlayerBuffPhysical", "PlayerBuffMagic", "PlayerBuffHP" };
-            int randomIndex = Random.Range(0, buffSkills.Length);
-            string chosenBuff = buffSkills[randomIndex];
+            List<string> availableBuffs = SkillManager.Instance.GetAvailableBuffs(EntityType.Dragon);
+            if (availableBuffs.Count == 0)
+            {
+                Debug.Log($"[드래곤] 사용 가능한 버프 스킬 목록: {string.Join(", ", availableBuffs)}");
+                return;
+            }
+            
+            string chosenBuff = availableBuffs[Random.Range(0, availableBuffs.Count)];
             
             Debug.Log("[드래곤] 스킬 공격 발사! 선택된 버프 스킬: " + chosenBuff);
             
@@ -308,7 +302,8 @@ public class DragonController : MonoBehaviour
             float chosenBuffCooldown = SkillManager.Instance.GetCooldownForSkill(EntityType.Dragon, chosenBuff);
 
             // 스킬 쿨다운 시작
-            skillTimer = chosenBuffCooldown;
+            skillCooldown = new BasicTimer(chosenBuffCooldown);
+            TimerManager.Instance.StartTimer(skillCooldown);    // 스킬 쿨다운에 맞도록 사용
 
             isAttacking = false;
             currentState = DragonState.Idle;
@@ -318,7 +313,7 @@ public class DragonController : MonoBehaviour
     // 2) 원거리 공격(파이어볼) (우선순위 2위)
     private IEnumerator UseRangedAttack()
     {
-        if (fireballPrefab != null && currentTarget != null && !IsRangedOnCooldown())
+        if (fireballPrefab != null && currentTarget != null && !rangedCooldown.IsRunning)
         {
             isAttacking = true; // 공격 진행 중 플래그 설정
             
@@ -334,7 +329,7 @@ public class DragonController : MonoBehaviour
             fireballController.Initialize(targetPos, dragonData, this.transform.position, currentTarget);
         
             // 원거리 공격 쿨다운 시작
-            rangedTimer = rangedCooldown;
+            TimerManager.Instance.StartTimer(rangedCooldown);
             
             yield return new WaitForSeconds(rangedDelayTime);
         
@@ -347,7 +342,7 @@ public class DragonController : MonoBehaviour
     // 3) 근접 공격 (우선순위 3위)
     private void UseMeleeAttack()
     {
-        if (meleeCooldown <= 0f)
+        if (!meleeCooldown.IsRunning)
         {
             isAttacking = true; // 공격 진행 중 플래그 설정
 
@@ -358,7 +353,7 @@ public class DragonController : MonoBehaviour
             CombatManager.Instance.ProcessDragonAttack(dragonData, currentTarget, currentTargetTransform, false);
 
             // 공격 후 쿨타임 갱신
-            meleeCooldown = dragonData.attackSpeed;  // 다시 어택 스피드에 맞춰 쿨타임 설정
+            TimerManager.Instance.StartTimer(meleeCooldown);
 
             isAttacking = false;
             currentState = DragonState.Idle;
@@ -366,30 +361,6 @@ public class DragonController : MonoBehaviour
     }
     #endregion
     
-    // 쿨다운 시간 갱신
-    private void UpdateCooldowns()
-    {
-        // 어택 스피드를 반영한 근접 공격 쿨타임 갱신
-        if (meleeCooldown > 0f)
-        {
-            meleeCooldown -= Time.deltaTime;
-            if (meleeCooldown < 0f) meleeCooldown = 0f;
-        }
-
-        // 스킬 쿨다운 갱신
-        if (skillTimer > 0f)
-        {
-            skillTimer -= Time.deltaTime;
-            if (skillTimer < 0f) skillTimer = 0f;
-        }
-
-        // 원거리 공격 쿨다운 갱신
-        if (rangedTimer > 0f)
-        {
-            rangedTimer -= Time.deltaTime;
-            if (rangedTimer < 0f) rangedTimer = 0f;
-        }
-    }
     #endregion
 
     #region 플레이어 따라다니기 로직 (기존 로직 유지/보완)
@@ -403,12 +374,13 @@ public class DragonController : MonoBehaviour
         {
             // 플레이어 옆으로 순간이동
             transform.position = player.position + offset;
+            isMoving = false;
         }
         else
         {
             // 플레이어를 따라다니는 동작
             Vector3 targetPosition = player.position + offset;
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * followSpeed);
+            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * (distanceToPlayer > teleportDistance ? followSpeed * 10f : followSpeed));
 
             // 회전
             RotateTowardsPlayer();
@@ -473,7 +445,6 @@ public class DragonController : MonoBehaviour
         {
             Gizmos.color = Color.green;
             Gizmos.DrawLine(transform.position, player.position);
-            Gizmos.DrawWireSphere(player.position, teleportDistance);
         }
 
         // 전투 탐색 범위 표시

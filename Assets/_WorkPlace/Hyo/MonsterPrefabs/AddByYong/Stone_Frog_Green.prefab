@@ -330,6 +330,8 @@ GameObject:
   m_Component:
   - component: {fileID: 400016}
   - component: {fileID: 872764004270341459}
+  - component: {fileID: 8784868585029118151}
+  - component: {fileID: -8160498788450680272}
   m_Layer: 0
   m_Name: Stone_Frog_Green
   m_TagString: Untagged
@@ -376,6 +378,50 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!65 &8784868585029118151
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100016}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 1, z: 2}
+  m_Center: {x: 0, y: 0.6, z: 0}
+--- !u!114 &-8160498788450680272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0235f91dacf0a2d47ace65f61d298010, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patrolRange: 10
+  idleTime: 2
+  turnSpeed: 10
+  maxPatrolDistance: 10
+  arrivedDistance: 1
+  searchRange: 7
+  hitStateDuration: 0.7
+  currentState: 0
+  spawnPosition: {x: 0, y: 0, z: 0}
+  respawn: 0
+  stunDuration: 5
 --- !u!1 &100018
 GameObject:
   m_ObjectHideFlags: 0
