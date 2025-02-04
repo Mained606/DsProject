@@ -40,6 +40,9 @@ public class UIManager : BaseManager<UIManager>
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
 
+    public GameObject BossHud;
+    public BossData CurrentBossData;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -261,6 +264,7 @@ public class UIManager : BaseManager<UIManager>
         dialogUI.DisplayQuestDialogWindow(title, quest);
     }
 
+    #region 구 퀘스트 구현부분
     //public void DisplayQuestDialogWindow(string title, Quest quest)
     //{
     //    if (dialogWindow == null)
@@ -328,6 +332,7 @@ public class UIManager : BaseManager<UIManager>
     //    yield return new WaitForSeconds(0.5f);
     //    button.gameObject.SetActive(true);
     //}
+    #endregion
 
     private void HandleQuest(Quest quest, bool state)
     {
@@ -434,6 +439,10 @@ public class UIManager : BaseManager<UIManager>
                 string message = additionalData as string;
                 TogglinfoMessageWindow(message);
                 break;
+            case GameSystemState.Exploration:
+                BossHudDown();  // 02.04 = 차후에 보스 bud 온오프 조건 수정 요망 
+                break;
+
         }
         #endregion
     }
@@ -474,4 +483,17 @@ public class UIManager : BaseManager<UIManager>
         }
         return "#FFFFFF"; // 기본 흰색
     }
+
+    public void BossHudUP (BossData bossData)
+    {
+        CurrentBossData = bossData;
+        BossHud.SetActive(true);
+    }
+    private void BossHudDown()
+    {
+        BossHud.SetActive(false);
+    }
+
+
+
 }
