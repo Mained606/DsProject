@@ -1,11 +1,11 @@
 using UnityEngine;
+
 public enum NpcType
 {
     Wander,
     Farmer,
-    BlackSmith,
+    Craft,
     Fishing,
-    Guard,
     Sitting
 }
 
@@ -15,11 +15,11 @@ public class NpcController : MonoBehaviour
 
     private void Awake()
     {
-        if(npcType == NpcType.Wander)
+        if (npcType == NpcType.Wander)
         {
             gameObject.AddComponent<WanderNpc>();
         }
-        else if(npcType == NpcType.Farmer || npcType == NpcType.BlackSmith || npcType == NpcType.Fishing)
+        else if (npcType == NpcType.Farmer || npcType == NpcType.Craft || npcType == NpcType.Fishing || npcType == NpcType.Sitting)
         {
             gameObject.AddComponent<ActivityNpc>();
         }
