@@ -16,6 +16,11 @@ public class CharacterStatusUI : MonoBehaviour
     private Button[] buttons;
     private int currentButtonIndex = 0;
 
+    #region 경험치 추가 구현 부분 
+    [SerializeField] private TextMeshProUGUI experienceText; // 경험치 텍스트 
+    [SerializeField] private Image experienceFillBar; // 경험치 바 이미지
+    #endregion
+
     void Awake()
     {
         statsNames = statsNamePosition.GetComponentsInChildren<TextMeshProUGUI>();
@@ -121,6 +126,8 @@ public class CharacterStatusUI : MonoBehaviour
         {
             statsNames[i].text = defaultNames[i];
         }
+
+     
         statsValues[0].text = playerData.currentHp.ToString();
         statsValues[1].text = playerData.currentMp.ToString();
         statsValues[2].text = playerData.staminaCurrent.ToString();
@@ -131,7 +138,19 @@ public class CharacterStatusUI : MonoBehaviour
         statsValues[7].text = playerData.magicDamage.ToString();
         statsValues[8].text = playerData.physicalDefense.ToString();
         statsValues[9].text = playerData.magicDefense.ToString();
-   
+
+        #region 추가 스탯 수치 표현 & 경험치 추가 
+        statsValues[10].text = playerData.vitality.ToString();
+        statsValues[11].text = (playerData.criticalChance * 100).ToString("F1") + "%";
+        statsValues[12].text = (playerData.dodgeChance * 100).ToString("F1") + "%";
+        statsValues[13].text = (playerData.physicalDamageReduction * 100).ToString("F1") + "%";
+        statsValues[14].text = (playerData.magicDamageReduction * 100).ToString("F1") + "%";
+
+        // 경험치 UI 갱신 추가
+        experienceText.text = $"{playerData.currentExperience} / {playerData.experienceToLevelUp}";
+        experienceFillBar.fillAmount = (float)playerData.currentExperience / playerData.experienceToLevelUp;
+        #endregion
+
     }
 
     private void GetDragonStatsValue()
