@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -14,6 +15,32 @@ public class GameManager : MonoBehaviour
     public static Transform DragonTransform;
     
     public static event Action OnAllManagersReadyEvent;
+    private static List<ScriptableObject> scriptableObjects = new List<ScriptableObject>();
+
+    private void OnDisable()
+    {
+        SaveAllAssets();
+    }
+
+    public static void RegistAsset(ScriptableObject asset)
+    {
+        if (!scriptableObjects.Contains(asset))
+        {
+            scriptableObjects.Add(asset);
+        }
+    }
+
+    public static void SaveAllAssets()
+    {
+#if UNITY_EDITOR
+        foreach (var asset in scriptableObjects)
+        {
+            EditorUtility.SetDirty(asset);
+        }
+        AssetDatabase.SaveAssets();
+        Debug.Log("모든 ScriptableObject 자동 저장 완료.");
+#endif
+    }
 
     private void Awake()
     {
