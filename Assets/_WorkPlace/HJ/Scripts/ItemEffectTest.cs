@@ -18,5 +18,18 @@ public class ItemEffectTest : MonoBehaviour
             ItemManager.Instance.AddItemLogic(test);
             Debug.Log("ESC");
         }
+
+        if(InputManager.InputActions.actions["Interact"].triggered)
+        {
+            Item item = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+            if(item != null)
+            {
+                Debug.Log(item.id);
+            }
+            else
+            {
+                Debug.Log("장착되어 있지 않음");
+            }
+        }
     }
 }
