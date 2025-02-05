@@ -96,10 +96,10 @@ public class CharacterManager : BaseManager<CharacterManager>
         switch (newState)
         {
             case GameSystemState.Combat:
-                //GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = true;
+                GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = true;
                 break;
-            case GameSystemState.MainMenu:
-                //GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = false;
+            case GameSystemState.Exploration:
+                GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = false;
                 break;
         }
     }

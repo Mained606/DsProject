@@ -195,7 +195,7 @@ public class PlayerCombat : MonoBehaviour
         {
             closestMonster = GetClosestMonster(skillPerceptionRange).gameObject;
         }
-        if (InputManager.InputActions.actions["PlayerSkill_1"].triggered)
+        if (InputManager.InputActions.actions["PlayerSkill_1"].triggered && hasWeapon)
         {
             // =========== 20245-02-01 15:00 HYO 수정 =========================================
             // 스킬 사용 가능 여부와 마나 체크를 먼저 진행
@@ -208,24 +208,6 @@ public class PlayerCombat : MonoBehaviour
             {
                 Debug.Log("스킬 사용 불가: 마나 부족 또는 쿨타임 중");
             }
-            // ===============================================================================
-            
-            // =============== 예전 코드 =======================================================
-            // if (SkillManager.Instance.CheckMana("Fire"))
-            // {
-            //
-            //     SkillManager.Instance.ActivateSkill("Fire");
-            //
-            //     if (!SkillManager.Instance.isActivating)
-            //     {
-            //         controller.isUseSkill = true;
-            //     }
-            // }
-            // else
-            // {
-            //     Debug.Log("스킬 마나 부족");
-            // }
-            // ===============================================================================
         }
         if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
         {
