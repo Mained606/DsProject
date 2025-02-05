@@ -277,6 +277,8 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
     [SerializeField] private float effectParticleDuration = 2f; // 아이템 이펙트 파티클 재생 시간
     [SerializeField] private Vector3 particlePositionOffset = new Vector3(); // 파티클 위치 오프셋
+    [SerializeField] private Item count;
+
     private WeaponManager weaponManager;
 
     private PlayerData Player
@@ -294,6 +296,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         base.Start();
         weaponManager = GameManager.playerTransform.GetComponent<PlayerCombat>().weapon;
         InitializeEquipmentSlots(); // 딕셔너리 초기화
+        count = Instance.equippedItems[EquipmentSlot.손];
     }
 
     #endregion

@@ -229,6 +229,11 @@ public class InventoryManager : BaseManager<InventoryManager>
         Debug.Log(inventoryText);
     }
 
+    public static List<Item> GetSlotItem(EquipmentSlot slot)
+    {
+        return Instance.inventory.FindAll(x=>x.equipmentSlot == slot);
+    }
+
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
     {
     }

@@ -1,5 +1,5 @@
 using TMPro;
-using UnityEditor.Playables;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +12,8 @@ public class CharacterStatusUI : MonoBehaviour
     [SerializeField] private Transform statsValuePosition;
     [SerializeField] private Transform ImagePanel;
     [SerializeField] private Transform NamePanel;
+    [SerializeField] private Transform equirePrefab;
+    [SerializeField] private RectTransform equirePannel;
     private TextMeshProUGUI[] statsNames;
     private string[] defaultNames;
     private TextMeshProUGUI[] statsValues;
@@ -33,6 +35,7 @@ public class CharacterStatusUI : MonoBehaviour
         Edge = ImagePanel.GetComponentsInChildren<Image>();
         CharacterName = NamePanel.GetComponentInChildren<TextMeshProUGUI>();
         buttons = transform.GetComponentsInChildren<Button>();
+        equirePannel.gameObject.SetActive(false);
         defaultNames = new string[statsNames.Length];
         for (int i = 0; statsNames.Length > i; i++)
         {
@@ -58,7 +61,7 @@ public class CharacterStatusUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        UpdateUI();
     }
 
 
@@ -71,12 +74,19 @@ public class CharacterStatusUI : MonoBehaviour
         }
         switch (currentButtonIndex)
         {
-            case 2:
+            case 0:
+            case 1:
+                ShowCharacterInfo();
+                break;
+            case 8:
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
                 break;
-
             default:
-                ShowCharacterInfo();
+                if (currentButtonIndex >= 2 && currentButtonIndex <= 7)
+                {
+                    int slotIndex = currentButtonIndex - 2;
+                    SlotInfo((EquipmentSlot)slotIndex);
+                }
                 break;
         }
     }
@@ -95,6 +105,23 @@ public class CharacterStatusUI : MonoBehaviour
                 break;
         }
     }
+
+    private void SlotInfo(EquipmentSlot slot)
+    {
+        Item equireItem = ItemEffectManager.Instance.GetEquippedItem(slot);
+        bool isTrue = equireItem == null;
+        Debug.LogWarning("체크 : " + isTrue);
+        foreach (Transform gob in buttons[currentButtonIndex].transform)
+        {
+            if (gob.gameObject.activeSelf != isTrue ) gob.gameObject.SetActive(equireItem == null);
+        }
+        if (!isTrue)
+        {
+            Debug.LogWarning("어디 : " + currentButtonIndex.ToString());
+            buttons[currentButtonIndex].GetComponent<Image>().sprite = equireItem.sprite;
+        }
+    }
+
 
     public void AddButtonListeners()
     {
@@ -117,13 +144,43 @@ public class CharacterStatusUI : MonoBehaviour
     private void OnButtonClick(int buttonIndex)
     {
         currentButtonIndex = buttonIndex;
-        if (currentButtonIndex >= 0 && currentButtonIndex < 2)
+        switch (currentButtonIndex)
         {
-            Animator buttonAnimator = buttons[buttonIndex].animator;
-            buttonAnimator.SetTrigger("Hover");
-            chraterType = (CharType)buttonIndex;
+            case 0:
+            case 1:
+                Animator buttonAnimator = buttons[buttonIndex].animator;
+                buttonAnimator.SetTrigger("Hover");
+                chraterType = (CharType)buttonIndex;
+                break;
+            case 8:
+                break;
+            default:
+                equirePannel.gameObject.SetActive(false);
+                ClickedSlot(currentButtonIndex);
+                break;
         }
         UpdateUI();
+    }
+
+    private void ClickedSlot(int buttonIndex)
+    {
+        List<Item> slotItemList = InventoryManager.GetSlotItem((EquipmentSlot)buttonIndex);
+        if (slotItemList == null || slotItemList.Count == 0) return;
+        equirePannel.gameObject.SetActive(true);
+        Transform context = equirePannel.GetChild(1).GetChild(0).GetChild(0).transform;
+        foreach (Transform trans in context)
+        {
+            Destroy(trans.gameObject);
+        }
+        Vector3 offsset = Vector3.up;
+        RectTransform rectTransform = buttons[buttonIndex].GetComponent<RectTransform>();
+        foreach (var equireItem in slotItemList)
+        {
+            var gob = Instantiate(equirePrefab, context);
+            gob.GetComponent<InventoryTooltip>().currentItem = equireItem;
+            gob.GetComponent<InventoryTooltip>().isEquireSlot = true;
+        }
+        equirePannel.GetComponent<RectTransform>().localPosition = rectTransform.position + offsset;
     }
 
     private void GetPlayerStatsValue()
@@ -165,7 +222,6 @@ public class CharacterStatusUI : MonoBehaviour
             tempColor.a = 1f; // 알파값 1 (완전히 보이게)
             Edge[i].color = tempColor;
         }
-
     }
 
     private void GetDragonStatsValue()
