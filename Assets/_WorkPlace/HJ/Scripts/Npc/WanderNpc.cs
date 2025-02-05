@@ -9,7 +9,7 @@ public class WanderNpc : MonoBehaviour
     [SerializeField] private float maxMoveSpeed = 5f;
     [SerializeField] private float moveSpeed;
     [SerializeField] private float turnSpeed = 10f;
-    [SerializeField] private float arrivedDistance = 2f;
+    [SerializeField] private float arrivedDistance = 1f;
     [SerializeField] private bool isMoving = false;
 
     [SerializeField] private Vector3 spawnPosition;
@@ -27,6 +27,15 @@ public class WanderNpc : MonoBehaviour
     private float talkingDuration = 2f;
     private Transform targetNpc;
 
+    //대화 쿨타임
+    private float conversationCoolTime = 5f;
+    private float lastConversationTime = 0f;
+
+    //npc간의 거리가 너무 가까울 경우 경로 재설정
+    private float minNpcDistance = 0.5f;
+    private float nextDestinationTime = 0f;
+    private float destinationCooldown = 1f;
+
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -43,6 +52,17 @@ public class WanderNpc : MonoBehaviour
             return;
         }
 
+        if(isMoving && isCloseNpcs(transform.position, minNpcDistance) && !isTalking)
+        {
+            if(Time.time > nextDestinationTime)
+            {
+                Debug.Log("다른 npc와 너무 가까움, 새로운 목적지 설정");
+                SetNextDestination();
+                nextDestinationTime = Time.time + destinationCooldown;
+            }
+            
+        }
+
         if (Vector3.Distance(transform.position, targetPosition) <= arrivedDistance)
         {
             if (currentCoroutine == null)
@@ -55,6 +75,7 @@ public class WanderNpc : MonoBehaviour
             if (animator.GetBool(walkingState))
             {
                 MoveToWards(targetPosition);
+                Debug.Log($"{gameObject.name} 이동 중");
             }
         }
     }
@@ -63,6 +84,12 @@ public class WanderNpc : MonoBehaviour
     {
         if (other.CompareTag("NPC"))
         {
+            if (Time.time - lastConversationTime < conversationCoolTime)
+            {
+                Debug.Log("대화 쿨타임 중");
+                return;
+            }
+
             Debug.Log("npc 만남");
             targetNpc = other.transform;
             StartConversation();
@@ -82,7 +109,15 @@ public class WanderNpc : MonoBehaviour
     //이동 위치 설정
     private void SetNextDestination()
     {
-        Vector3 randomPosition = spawnPosition + new Vector3(Random.Range(-walkingRange, walkingRange), 0f, Random.Range(-walkingRange, walkingRange));
+        Vector3 randomPosition;
+        int safetyCounter = 0;
+
+        do
+        {
+            randomPosition = spawnPosition + new Vector3(Random.Range(-walkingRange, walkingRange), 0f, Random.Range(-walkingRange, walkingRange));
+            safetyCounter++;
+        }
+        while (Vector3.Distance(transform.position, randomPosition) < arrivedDistance * 2f && safetyCounter < 10);
 
         targetPosition = randomPosition;
         animator.SetBool(walkingState, true);
@@ -119,9 +154,8 @@ public class WanderNpc : MonoBehaviour
 
         if (direction != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
-            Debug.Log("회전중");
         }
     }
 
@@ -129,6 +163,7 @@ public class WanderNpc : MonoBehaviour
     private void StartConversation()
     {
         isTalking = true;
+        isMoving = false;
 
         if (animator.GetBool(walkingState))
         {
@@ -166,11 +201,18 @@ public class WanderNpc : MonoBehaviour
     //대화 종료
     private void StopConversation()
     {
-        //isTalking = false;
+        if(isTalking)
+        {
+            isTalking = false;
+        }
+
+        lastConversationTime = Time.time;
+        Debug.Log("대화 종료");
+
         animator.SetTrigger(exitTrigger);
         animator.SetBool(talkingState, false);
+
         SetNextDestination();
-        MoveToWards(targetPosition);
     }
 
     //트리거 랜덤 재생
@@ -194,5 +236,19 @@ public class WanderNpc : MonoBehaviour
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         transform.rotation = targetRotation;
+    }
+
+    private bool isCloseNpcs(Vector3 position, float minDistance)
+    {
+        Collider[] colliders = Physics.OverlapSphere(position, minDistance);
+
+        foreach(Collider collider in colliders)
+        {
+            if(collider.CompareTag("NPC") && collider.transform != this.transform)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -116,7 +116,7 @@ public class ActivityNpc : MonoBehaviour
 
             yield return new WaitForSeconds(Random.Range(5f, 10f));
 
-            if(isNearNpc)
+            if (isNearNpc)
             {
                 PlayRandomTrigger(sittingTriggers);
             }
