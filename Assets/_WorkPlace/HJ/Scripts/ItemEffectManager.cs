@@ -290,7 +290,6 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     #endregion
 
     #region Unity Methods
-
     protected override void Start()
     {
         base.Start();
