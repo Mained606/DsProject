@@ -40,7 +40,7 @@ public class UIManager : BaseManager<UIManager>
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
 
-    public GameObject BossHud;
+    public GameObject bossHud;
     public BossData CurrentBossData;
 
     protected override void OnEnable()
@@ -61,7 +61,7 @@ public class UIManager : BaseManager<UIManager>
         historyWindow.gameObject.SetActive(false);
         InventorytooltipWindow.SetActive(false);
         characterStaus.SetActive(false);
-        BossHud.SetActive(false);
+        bossHud.SetActive(false);
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
@@ -88,7 +88,7 @@ public class UIManager : BaseManager<UIManager>
         }
         if (infoMessageWindow.activeSelf && Input.GetMouseButtonDown(1))
         {
-            TogglinfoMessageWindow("");
+            ToggleinfoMessageWindow("");
             GameStateMachine.Instance.ChangeState(GameSystemState.Play);
         }
     }
@@ -151,53 +151,24 @@ public class UIManager : BaseManager<UIManager>
         quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
     }
 
-    public void TogglShopWindow(NPCData nPCData)
+    public void ToggleShopWindow(NPCData nPCData)
     {
         shopUI.gameObject.SetActive(!shopUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
-        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
+        //MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(false);
         if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
     }
 
-    private Coroutine infoMessageCoroutine;
-
-    public void TogglinfoMessageWindow(string message)
+    public void ToggleinfoMessageWindow(string message)
     {
-        #region 기존 토글 메서드 
-        /* infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
-         if (infoMessageWindow.gameObject.activeSelf)
-         {
-             infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
-         }*/
-        #endregion
-
-        #region 코루틴으로 메세지 2초후에 비활성화 부분
-        bool isActive = !infoMessageWindow.gameObject.activeSelf;
-        infoMessageWindow.gameObject.SetActive(isActive);
-
-        if (isActive)
+        infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
+        if (infoMessageWindow.gameObject.activeSelf)
         {
             infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
-
-            // 기존에 실행 중인 코루틴이 있으면 중지
-            if (infoMessageCoroutine != null)
-            {
-                StopCoroutine(infoMessageCoroutine);
-            }
-
-            // 2초 후 창을 자동으로 닫는 코루틴 실행
-            infoMessageCoroutine = StartCoroutine(AutoHideInfoMessage());
         }
-        #endregion
     }
 
-    #region 코루틴
-    private IEnumerator AutoHideInfoMessage()
-    {
-        yield return new WaitForSeconds(2f);
-        infoMessageWindow.gameObject.SetActive(false);
-    }
     public void InventoryUpdate()
     {
         if (InventoryUI != null && InventoryUI.gameObject.activeSelf)
@@ -205,7 +176,6 @@ public class UIManager : BaseManager<UIManager>
             InventoryUI.UpdateUI();
         }
     }
-    #endregion
 
     public void QuestUpdate()
     {
@@ -468,11 +438,11 @@ public class UIManager : BaseManager<UIManager>
                 break;
             case GameSystemState.Shopping:
                 NPCData npcData = additionalData as NPCData;
-                TogglShopWindow(npcData);
+                ToggleShopWindow(npcData);
                 break;
             case GameSystemState.InfoMessage:
                 string message = additionalData as string;
-                TogglinfoMessageWindow(message);
+                ToggleinfoMessageWindow(message);
                 break;
             case GameSystemState.Exploration:
                 BossHudDown();  // 02.04 = 차후에 보스 bud 온오프 조건 수정 요망 
@@ -522,11 +492,11 @@ public class UIManager : BaseManager<UIManager>
     public void BossHudUP (BossData bossData)
     {
         CurrentBossData = bossData;
-        BossHud.SetActive(true);
+        // BossHud.SetActive(true);
     }
     private void BossHudDown()
     {
-        BossHud.SetActive(false);
+        // BossHud.SetActive(false);
     }
 
 
