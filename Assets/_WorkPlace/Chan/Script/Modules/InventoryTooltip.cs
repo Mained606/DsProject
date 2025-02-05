@@ -12,6 +12,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     [NonSerialized] public TextMeshProUGUI[] textPoint = new TextMeshProUGUI[3];
     [NonSerialized] public Image ItemImage;
     [NonSerialized] public TextMeshProUGUI[] amountCount;
+    [NonSerialized] public bool isEquireSlot = false;
     private int preAmountCount = 0;
     private string[] condition = { "소형 체력포션", "소형 마나포션" };
     private float lastClickTime = 0f;
@@ -19,7 +20,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     private void Start()
     {
-        InventorytooltipWindow.SetActive(false);
+        if (!isEquireSlot) InventorytooltipWindow.SetActive(false);
         amountCount = transform.GetComponentsInChildren<TextMeshProUGUI>();
         if (currentItem != null && currentItem.sprite != null)
         {
@@ -69,15 +70,18 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
             var ditem = transform.GetComponent<DraggableItem>();
             if (ditem == null) { ditem = transform.AddComponent<DraggableItem>(); }
         }
-        InventorytooltipWindow.SetActive(true);
-        ItemImage.sprite = currentItem.sprite;
-        textPoint[1].text = currentItem.name;
-        textPoint[2].text = currentItem.ToStringTMPro();
+        if (!isEquireSlot)
+        {
+            InventorytooltipWindow.SetActive(true);
+            ItemImage.sprite = currentItem.sprite;
+            textPoint[1].text = currentItem.name;
+            textPoint[2].text = currentItem.ToStringTMPro();
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        InventorytooltipWindow.SetActive(false);
+        if (!isEquireSlot) InventorytooltipWindow.SetActive(false);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -113,8 +117,6 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
             Debug.Log($"'{currentItem.name}' 아이템을 더블 클릭했습니다. 장착합니다.");
         }
     }
-
-
 
     public Item GetItem() => currentItem;
 }

@@ -271,6 +271,7 @@ public enum EquipmentSlot
     몸,     // Body
     손,     // Hand
     발,     // Feet
+    장신구     // Accesorry
 }
 
 // 소모품 타입 Enum
