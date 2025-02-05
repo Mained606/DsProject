@@ -91,11 +91,25 @@ public class CombatManager : BaseManager<CombatManager>
         // 데미지 적용
         if (damage > 0)
         {
-            // 250131 2:00PM Hyeon ===============================================
+            // 250205 3:40PM Hyeon : 패링 성공 처리
             if (GameManager.playerTransform.GetComponent<PlayerCombat>().onParry)
             {
-                Debug.LogWarning("패링 성공");  
+                UIManager.DisplayPopupText("패링", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
                 attackerTransform.GetComponent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
+                return;
+            }
+            
+            if (GameManager.playerTransform.GetComponent<PlayerCombat>().isBlocking && !GameManager.playerTransform.GetComponent<PlayerController>().isParry)
+            {
+                UIManager.DisplayPopupText("방어", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
+                actualDefender.TakeDamage(0, attackerTransform);
+                // Damage에 따라 방어 성공 or 방어 실패(break) 판단 필요할 수 있음
+                return;
+            }
+
+            if (GameManager.playerTransform.GetComponent<PlayerController>().isInvincible)
+            {
+                UIManager.DisplayPopupText("무효", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
                 return;
             }
             // 250131 2:00PM Hyeon ===============================================
