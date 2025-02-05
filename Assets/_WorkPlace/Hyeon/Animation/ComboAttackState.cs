@@ -31,7 +31,7 @@ public class ComboAttackState : StateMachineBehaviour
     {
         SetCombatComponent(animator);
         animator.ResetTrigger("NextCombo");
-        //combat?.CurrentComboStates(GetStateCombo(stateInfo));
+        combat?.CurrentComboStates(GetStateCombo(stateInfo));
         isPressedAttackKey = false;
 
         if (!combat.weaponCollider.enabled)
@@ -46,12 +46,12 @@ public class ComboAttackState : StateMachineBehaviour
     {
         SetCombatComponent(animator);
         //Debug.LogWarning($"normalizedTime: {stateInfo.normalizedTime}");
-        if (stateInfo.normalizedTime >= 0.7f)
+        if (stateInfo.normalizedTime >= 0.5f)
         {
             if (!isPressedAttackKey && InputManager.InputActions.actions["Attack"].triggered)
             {
                 isPressedAttackKey = true;
-                //Debug.LogWarning($"🟢 다음 콤보로 전환 요청");
+                Debug.LogWarning($"🟢 다음 콤보로 전환 요청");
                 animator.SetTrigger("NextCombo");
             }
         }
@@ -68,7 +68,7 @@ public class ComboAttackState : StateMachineBehaviour
         if (animator.IsInTransition(layerIndex) && 
             (nextState == StateComboName.Attack1 || nextState == StateComboName.Attack2 || nextState == StateComboName.Attack3 || nextState == StateComboName.Attack4))
         {
-            //Debug.LogWarning("🔄 트랜지션 중: 콤보 유지");
+            Debug.LogWarning("🔄 트랜지션 중: 콤보 유지");
             return;
         }
         if (nextState == StateComboName.Unknown)
