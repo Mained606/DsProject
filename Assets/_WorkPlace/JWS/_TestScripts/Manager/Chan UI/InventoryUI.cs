@@ -88,17 +88,17 @@ public class InventoryUI : MonoBehaviour
         }
         switch (currentButtonIndex)
         {
-            //case 7:
-            //    Debug.Log("제거 처리로직 필요");
-            //    break;
-
             case 7:
+                Debug.Log("제거 처리로직 필요");
+                break;
+
+            case 8:
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
                 break;
 
-            //case 9:
-            //    Debug.Log("장착 처리로직 필요");
-            //    break;
+            case 9:
+                Debug.Log("장착 처리로직 필요");
+                break;
 
             default:
                 if (currentButtonIndex >= 0 && currentButtonIndex < 7)
