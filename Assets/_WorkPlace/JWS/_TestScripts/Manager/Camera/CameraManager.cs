@@ -74,8 +74,6 @@ public class CameraManager : BaseManager<CameraManager>
         Cursor.lockState = mouseCursor;
         Cursor.visible = mouseCursorVisible;
 
-
-        //playerRenderer = player.GetChild(0).GetChild(1).GetComponentInChildren<SkinnedMeshRenderer>();
         playerLayerMask = 1 << LayerMask.NameToLayer(playerLayerName);
         dragonLayerMask = 1 << LayerMask.NameToLayer(dragonLayerName);
     }
@@ -493,6 +491,7 @@ public class CameraManager : BaseManager<CameraManager>
                 break;
 
             default:
+                PlayerVisible(false);
                 HandleDefaultState();
                 break;
         }
