@@ -522,11 +522,11 @@ public class UIManager : BaseManager<UIManager>
     public void BossHudUP (BossData bossData)
     {
         CurrentBossData = bossData;
-         BossHud.SetActive(true);
+        bossHud.SetActive(true);
     }
     private void BossHudDown()
     {
-         BossHud.SetActive(false);
+        bossHud.SetActive(false);
     }
 
 
