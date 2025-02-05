@@ -61,13 +61,7 @@ public class ItemList : ScriptableObject
             item.effect.Initialize(item);
         }
     }
-
-
-    private void OnEnable()
-    {
-        GameManager.RegistAsset(this); // 중앙 관리 등록
-    }
-
+    
     private void OnDisable()
     {
         SaveAsset(); // 자동 저장

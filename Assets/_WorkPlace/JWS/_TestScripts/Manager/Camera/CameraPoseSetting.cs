@@ -7,10 +7,6 @@ public class CameraPoseSetting : ScriptableObject
 {
     public List<CameraPose> poseList;
     public List<CameraPoseList> poseTransitionList;
-    private void OnEnable()
-    {
-        GameManager.RegistAsset(this); // 중앙 관리 등록
-    }
 
     private void OnDisable()
     {

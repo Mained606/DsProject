@@ -45,6 +45,7 @@ public class SkillManager : BaseManager<SkillManager>
     [SerializeField] private Transform skillPanel;
     public bool isActivating;
     private int currentMp;
+    private float animationDuration;
 
     protected override void Awake()
     {
@@ -658,5 +659,22 @@ public class SkillManager : BaseManager<SkillManager>
         return buffSkills;
     }
 
+    public List<string> GetAvailableSkills(EntityType entityType)
+    {
+        Dictionary<string, Skills> skillDictionary = entityType switch
+        {
+            EntityType.Player => playerSkillDictionary,
+            EntityType.Dragon => dragonSkillDictionary,
+            EntityType.Boss => bossSkillDictionary,
+            _ => null
+        };
+
+        if (skillDictionary == null) return new List<string>();
+
+        return skillDictionary.Keys.ToList();
+
+
+    }
+    
     // =================================================================================================================
 }
