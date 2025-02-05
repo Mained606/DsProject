@@ -977,11 +977,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-    // 장비 장착에 따른 스탯 변화
-
-    //private void IdleMotion()
-    //{
-
-    //}
+    public void SetVisible(bool isOnOff)
+    {
+        foreach(Transform obj in transform)
+        { 
+            obj.gameObject.SetActive(isOnOff);
+        }
+    }
 }
