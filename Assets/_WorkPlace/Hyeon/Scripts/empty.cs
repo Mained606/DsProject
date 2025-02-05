@@ -3,10 +3,45 @@ using UnityEngine;
 public class empty : MonoBehaviour
 {
     PlayerController controller;
+    [SerializeField] LayerMask layer;
 
     void OnFootstep(AnimationEvent animationEvent)
     {
-        SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+        //Collider[] hitColliders = Physics.OverlapSphere(transform.position + Vector3.up * 1f, 1.5f);
+        //foreach(Collider collider in hitColliders)
+        //{
+        //    if(collider.gameObject.layer == 4)
+        //    {
+        //        Debug.LogWarning("물 걷는 중");
+        //        SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Puddle_Walk_01", transform.position, 10f, false);
+        //    }
+        //    else
+        //    {
+        //        Debug.LogWarning("땅 걷는 중");
+        //        SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+        //    }
+        //}
+
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + Vector3.up * 1f, Vector3.down, out hit, 10f, LayerMask.GetMask("Default"), QueryTriggerInteraction.Collide))
+        {
+            Debug.DrawRay(transform.position + Vector3.up * 0.5f, Vector3.down, Color.red);
+            Debug.LogWarning("레이 맞는 중");
+            if (hit.collider.gameObject.layer == 4)
+            {
+                //Debug.LogWarning("물 걷는 중");
+                SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Puddle_Walk_01", transform.position, 10f, false);
+            }
+            else
+            {
+                //Debug.LogWarning("땅 걷는 중");
+                SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+            }
+        }
+        else
+        {
+            //Debug.LogWarning("레이 안 맞는 중");
+        }
     }
 
     void OnLand(AnimationEvent animationEvent)

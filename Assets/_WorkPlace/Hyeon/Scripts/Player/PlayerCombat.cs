@@ -91,6 +91,7 @@ public class PlayerCombat : MonoBehaviour
         {
             if (isBlocking && CanParry && hasWeapon)
             {
+                isBlocking = false;
                 OnParry();
                 return;
             }
@@ -251,6 +252,8 @@ public class PlayerCombat : MonoBehaviour
     }
     private void ParryCheck()
     {
+        InputManager.InputActions.actions["Block"].Disable();
+        isBlocking = false;
         stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
         float normalized = stateInfo.normalizedTime;
 

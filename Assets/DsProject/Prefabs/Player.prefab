@@ -1085,7 +1085,7 @@ GameObject:
   - component: {fileID: 6243912105908528203}
   - component: {fileID: 2716994649444407189}
   - component: {fileID: 7633669963187817886}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Staff_Medium
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1395,7 +1395,17 @@ SkinnedMeshRenderer:
   - {fileID: 3657319033827906285}
   - {fileID: 6274886893756141911}
   - {fileID: 6966747264240417}
-  m_BlendShapeWeights: []
+  m_BlendShapeWeights:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   m_RootBone: {fileID: 1006756730410322759}
   m_AABB:
     m_Center: {x: 0, y: 0.4723931, z: 0.015051171}
@@ -2582,7 +2592,7 @@ GameObject:
   - component: {fileID: 130465023974542337}
   - component: {fileID: 9109181084728799578}
   - component: {fileID: 7200266327484286411}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Staff_Basic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5220,7 +5230,7 @@ GameObject:
   - component: {fileID: 6192864000595569560}
   - component: {fileID: 338954232628491240}
   - component: {fileID: 5981647405961899676}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Simple_Axe_Variant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5908,7 +5918,7 @@ GameObject:
   - component: {fileID: 438076946574641249}
   - component: {fileID: 8504571374248471736}
   - component: {fileID: 3807677298798281662}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sword1_1_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7199,7 +7209,7 @@ GameObject:
   - component: {fileID: 8307260367046717886}
   - component: {fileID: 3459172584739558993}
   - component: {fileID: 6003607676492173130}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: MoonSword_6b
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8877,6 +8887,9 @@ MonoBehaviour:
     stamina: 0
     staminaCurrent: 0
     staminaRecoveryRate: 0
+    hpBuffBonus: 0
+    physicalDamageBuffMultiplier: 0
+    magicDamageBuffMultiplier: 0
     moveSpeed: 0
     attackSpeed: 0
     attackRange: 0
@@ -8904,10 +8917,14 @@ MonoBehaviour:
     gold: 0
   playerCombat: {fileID: 0}
   staminaRecoveryRate: 0.1
+  currentState: 0
   playerAnimator: {fileID: 5264475562808799088}
+  cheatMode: 0
   cameraTransform: {fileID: 0}
   CanMove: 0
   isGrounded: 0
+  isMove: 0
+  isSprinting: 0
   jumpHeight: 0.5
   fallDamageThreshold: 10
   fallDamageMultiplier: 5
@@ -8923,9 +8940,11 @@ MonoBehaviour:
   dodgeDist: 3
   dodgeDuration: 0.3
   isDodging: 0
+  isInvincible: 0
+  isCombatState: 0
   CanAttack: 0
   CanUseSkill: 0
-  CanParry: 0
+  CanBlock: 0
   isAttack: 0
   isUseSkill: 0
   isParry: 0
@@ -8934,6 +8953,7 @@ MonoBehaviour:
   currentStamina: 0
   isEnoughMana: 0
   isRecovery: 0
+  isHit: 0
   CanWeaponSwitch: 0
   RecoveryTime: 1
   uiCheck: 0
@@ -9003,7 +9023,10 @@ MonoBehaviour:
   skillPerceptionRange: 5
   playerAnimator: {fileID: 5264475562808799088}
   hasWeapon: 0
-  inputReceived: 0
+  isBlocking: 0
+  firstAttack: 0
+  CanParry: 0
+  onParry: 0
   targetRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &6176708764453778850
 GameObject:
@@ -9726,6 +9749,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e328a5f8abae0849a0ae1d50efc2999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  layer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &6961892644257715340
 GameObject:
   m_ObjectHideFlags: 0
@@ -10596,7 +10622,7 @@ GameObject:
   - component: {fileID: 6808700527072560716}
   - component: {fileID: 2629104190976261345}
   - component: {fileID: 8677867369708142270}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Wand_Basic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
