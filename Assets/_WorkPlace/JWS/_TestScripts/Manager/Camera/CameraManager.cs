@@ -80,6 +80,20 @@ public class CameraManager : BaseManager<CameraManager>
 
     private void Update()
     {
+        if (!UIManager.Instance.IsUIWindowOpen())
+        {
+            if (Input.GetKeyDown(KeyCode.LeftAlt))
+            {
+                CursorLock();
+            }
+            if (Input.GetKeyUp(KeyCode.LeftAlt))
+            {
+                CursorUnLock();
+            }
+        }
+
+        if (mouseCursorVisible) return;
+
         if (orbitTarget == null || followTarget == null)
         {
             orbitTarget = followTarget = GameManager.playerTransform;
@@ -90,21 +104,10 @@ public class CameraManager : BaseManager<CameraManager>
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftAlt))
-        {
-            CursorLock();
-        }
-        if (Input.GetKeyUp(KeyCode.LeftAlt))
-        {
-            CursorUnLock();
-        }
-
         if (Input.GetKeyUp(KeyCode.F9))
         {
             StartTransition(orbitTarget, CameraTransitionType.Normal);
         }
-
-        if (mouseCursorVisible) return;
 
         if (preTransitionType != currentTransitionType)
         {
@@ -242,11 +245,11 @@ public class CameraManager : BaseManager<CameraManager>
 
     private void UpdateUIviewCamera(Transform gobTarget = null)
     {
-        bool isPlayer = false;
+        bool isPlayer = gobTarget == GameManager.playerTransform;
         if (orbitTarget == null || MainCamera == null) return;
         if (gobTarget == null)
         {
-            isPlayer= true;
+            //isPlayer= true;
             gobTarget = orbitTarget;
         }
 

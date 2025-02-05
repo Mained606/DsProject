@@ -122,6 +122,7 @@ public class InventoryUI : MonoBehaviour
                             CreateItemUI(item);
                         }
                     }
+                    transform.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
                 }
                 break;
         }

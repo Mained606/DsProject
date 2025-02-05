@@ -59,6 +59,7 @@ public class ShopUI : MonoBehaviour
                     }
                     break;
             }
+            transform.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
         }
     }
 
