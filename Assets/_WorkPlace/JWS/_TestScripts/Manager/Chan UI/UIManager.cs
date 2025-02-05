@@ -40,7 +40,7 @@ public class UIManager : BaseManager<UIManager>
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
 
-    public GameObject BossHud;
+    public GameObject bossHud;
     public BossData CurrentBossData;
 
     protected override void OnEnable()
@@ -61,6 +61,7 @@ public class UIManager : BaseManager<UIManager>
         historyWindow.gameObject.SetActive(false);
         InventorytooltipWindow.SetActive(false);
         characterStaus.SetActive(false);
+        bossHud.SetActive(false);
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
@@ -130,6 +131,7 @@ public class UIManager : BaseManager<UIManager>
     {
         inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(true);
     }
 
@@ -137,6 +139,7 @@ public class UIManager : BaseManager<UIManager>
     {
         questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
     }
 
@@ -144,6 +147,7 @@ public class UIManager : BaseManager<UIManager>
     {
         characterStaus.gameObject.SetActive(!characterStaus.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
     }
 
@@ -151,6 +155,7 @@ public class UIManager : BaseManager<UIManager>
     {
         shopUI.gameObject.SetActive(!shopUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
+        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(false);
         if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
     }
