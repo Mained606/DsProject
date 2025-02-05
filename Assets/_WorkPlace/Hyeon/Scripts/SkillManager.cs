@@ -136,7 +136,7 @@ public class SkillManager : BaseManager<SkillManager>
     // ================================================================
     
     // ===================== 2025-02-01 10:44 HYO 코드 추가 =======================================================
-    public void ActivateSkillForEntity(EntityType entityType, string skillName, GameObject target = null)
+    public void ActivateSkillForEntity(EntityType entityType, string skillName, GameObject target = null, Vector3? overridePosition = null)
     {
         Debug.Log($"[ActivateSkillForEntity] {entityType}가 {skillName} 스킬을 사용하려 합니다.");
         
@@ -175,17 +175,19 @@ public class SkillManager : BaseManager<SkillManager>
         isActivating = true; // 스킬 사용 중 플래그 설정
         CharacterManager.PlayerCharacterData.UseMp(skill.energyCost);
         TimerManager.Instance.StartTimer(skill.cooldownTimer); // 쿨다운 시작
-        StartCoroutine(ExecuteSkill(entityType, skill, target)); // 코루틴 실행
+        StartCoroutine(ExecuteSkill(entityType, skill, target, overridePosition)); // 코루틴 실행
     }
     
     // 공통 스킬 실행 로직 (애니메이션, 효과, 쿨다운 포함)
-    private IEnumerator ExecuteSkill(EntityType entityType, Skills skill, GameObject target)
+    private IEnumerator ExecuteSkill(EntityType entityType, Skills skill, GameObject target, Vector3? overridePosition = null)
     {
         if (target == null)
         {
             target = GameManager.playerTransform.gameObject;
         }
-
+        
+        Vector3 spawnPosition = overridePosition ?? target.transform.position; // 전달된 위치가 없으면 기본 위치 사용
+        
         Animator entityAnimator = GetEntityAnimator(entityType);
         if (entityAnimator != null)
         {
@@ -195,7 +197,7 @@ public class SkillManager : BaseManager<SkillManager>
         if (skill.effectPrefab != null)
         {
             Quaternion entityRotation = Quaternion.LookRotation(target.transform.forward);
-            var effect = Instantiate(skill.effectPrefab, target.transform.position, entityRotation);
+            var effect = Instantiate(skill.effectPrefab, spawnPosition, entityRotation);
             if (skill.particleDelay > 0)
             {
                 var particleEffect = effect.GetComponent<ParticleSystem>().main;

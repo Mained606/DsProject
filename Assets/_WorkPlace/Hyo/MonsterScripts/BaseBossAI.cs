@@ -171,7 +171,7 @@ public class BaseBossAI : MonoBehaviour
 
     private IEnumerator RoaringSequence()
     {
-        Debug.Log("롤링 시작");
+        Debug.Log("Roaring 시작");
         animator.SetTrigger(IsRoaring);
         yield return new WaitForSeconds(roarDuration);
         SetState(BossState.Attacking);
@@ -223,10 +223,24 @@ public class BaseBossAI : MonoBehaviour
             isAttacking = false;
             yield break;
         }
-
-        Debug.Log($"보스가 스킬 사용: {selectedSkill.skillName}");
-
-        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
+        
+        Vector3 randomSkillPosition = GetRandomSkillPosition();
+        
+        switch (selectedSkill.skillName)
+        {
+            case "Test1":
+                Debug.Log("테스트 스킬1 발동");
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, randomSkillPosition);
+                break;
+            case "Test2":
+                Debug.Log("테스트 스킬2 발동");
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, randomSkillPosition);
+                break;
+            case "Test3":
+                Debug.Log("테스트 스킬1 발동");
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, randomSkillPosition);
+                break;
+        }
         
         // 스킬 지속 시간 가져오기
         float skillDuration = selectedSkill.GetSkillDuration();
@@ -244,8 +258,6 @@ public class BaseBossAI : MonoBehaviour
 
         isAttacking = false; // 공격 완료 후 플래그 해제
     }
-
-
     
     private void HandleDeath()
     {
@@ -296,5 +308,14 @@ public class BaseBossAI : MonoBehaviour
     {
         animator.ResetTrigger(Hit); // 기존 트리거를 초기화
         animator.SetTrigger(Hit); // 다시 트리거를 활성화하여 애니메이션을 재생
+    }
+    
+    // 랜덤 위치를 보스 주변에서 생성하는 함수
+    private Vector3 GetRandomSkillPosition()
+    {
+        float randomX = Random.Range(-teleportRange, teleportRange);
+        float randomZ = Random.Range(-teleportRange, teleportRange);
+        Vector3 randomPosition = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+        return randomPosition;
     }
 }
