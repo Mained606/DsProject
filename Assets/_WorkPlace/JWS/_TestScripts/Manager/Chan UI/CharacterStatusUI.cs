@@ -14,6 +14,7 @@ public class CharacterStatusUI : MonoBehaviour
     [SerializeField] private Transform NamePanel;
     [SerializeField] private Transform equirePrefab;
     [SerializeField] private RectTransform equirePannel;
+    [SerializeField] private Vector3 offSet;
     private TextMeshProUGUI[] statsNames;
     private string[] defaultNames;
     private TextMeshProUGUI[] statsValues;
@@ -72,22 +73,10 @@ public class CharacterStatusUI : MonoBehaviour
             Debug.LogWarning("버튼이 설정되지 않았거나 버튼 배열이 비어있습니다.");
             return;
         }
-        switch (currentButtonIndex)
+        for (int i = 2; i < buttons.Length - 1; i++)
         {
-            case 0:
-            case 1:
-                ShowCharacterInfo();
-                break;
-            case 8:
-                GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-                break;
-            default:
-                if (currentButtonIndex >= 2 && currentButtonIndex <= 7)
-                {
-                    int slotIndex = currentButtonIndex - 2;
-                    SlotInfo((EquipmentSlot)slotIndex);
-                }
-                break;
+            int slotIndex = i - 2;
+            SlotInfo(i, (EquipmentSlot)slotIndex);
         }
     }
 
@@ -106,19 +95,18 @@ public class CharacterStatusUI : MonoBehaviour
         }
     }
 
-    private void SlotInfo(EquipmentSlot slot)
+    private void SlotInfo(int slotIndex, EquipmentSlot slot)
     {
-        Item equireItem = ItemEffectManager.Instance.GetEquippedItem(slot);
+        Item equireItem = ItemEffectManager.Instance?.GetEquippedItem(slot);
         bool isTrue = equireItem == null;
-        Debug.LogWarning("체크 : " + isTrue);
-        foreach (Transform gob in buttons[currentButtonIndex].transform)
+        foreach (Transform gob in buttons[slotIndex].transform.GetChild(0))
         {
-            if (gob.gameObject.activeSelf != isTrue ) gob.gameObject.SetActive(equireItem == null);
+            if (gob.gameObject.activeSelf != isTrue ) gob.gameObject.SetActive(isTrue);
         }
         if (!isTrue)
         {
-            Debug.LogWarning("어디 : " + currentButtonIndex.ToString());
-            buttons[currentButtonIndex].GetComponent<Image>().sprite = equireItem.sprite;
+            buttons[slotIndex].transform.GetChild(0).GetChild(0).GetComponent<Image>().gameObject.SetActive(true);
+            buttons[slotIndex].transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = equireItem.sprite;
         }
     }
 
@@ -146,14 +134,19 @@ public class CharacterStatusUI : MonoBehaviour
         currentButtonIndex = buttonIndex;
         switch (currentButtonIndex)
         {
+
             case 0:
             case 1:
+                ShowCharacterInfo();
                 Animator buttonAnimator = buttons[buttonIndex].animator;
                 buttonAnimator.SetTrigger("Hover");
                 chraterType = (CharType)buttonIndex;
                 break;
+
             case 8:
+                GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
                 break;
+
             default:
                 equirePannel.gameObject.SetActive(false);
                 ClickedSlot(currentButtonIndex);
@@ -172,7 +165,7 @@ public class CharacterStatusUI : MonoBehaviour
         {
             Destroy(trans.gameObject);
         }
-        Vector3 offsset = Vector3.up;
+
         RectTransform rectTransform = buttons[buttonIndex].GetComponent<RectTransform>();
         foreach (var equireItem in slotItemList)
         {
@@ -180,7 +173,8 @@ public class CharacterStatusUI : MonoBehaviour
             gob.GetComponent<InventoryTooltip>().currentItem = equireItem;
             gob.GetComponent<InventoryTooltip>().isEquireSlot = true;
         }
-        equirePannel.GetComponent<RectTransform>().localPosition = rectTransform.position + offsset;
+        equirePannel.GetComponent<RectTransform>().position = rectTransform.position + offSet;
+        equirePannel.GetComponentInChildren<ScrollRect>().horizontalNormalizedPosition = 0f;
     }
 
     private void GetPlayerStatsValue()
