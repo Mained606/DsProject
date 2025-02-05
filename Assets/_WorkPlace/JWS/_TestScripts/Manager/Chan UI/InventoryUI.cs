@@ -34,7 +34,7 @@ public class InventoryUI : MonoBehaviour
     {
 
         #region !버튼 애니 초기화!
-        ResetButtonAnimations(); // 버튼 애니메이션 초기화
+      //  ResetButtonAnimations(); // 버튼 애니메이션 초기화
         #endregion
 
         RemoveButtonListeners();
@@ -46,18 +46,16 @@ public class InventoryUI : MonoBehaviour
 
     }
 
-
     #region !버튼 애니 초기화 함수! 
-    private void ResetButtonAnimations()
+   /* private void ResetButtonAnimations()
     {
         foreach (Button button in buttons)
         {
             Animator animator = button.animator;
             animator.CrossFade("Hover", 0f); 
         }
-    }
+    }*/
     #endregion
-
 
     private void CategorizeItems()
     {
@@ -129,7 +127,6 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-
     private void ClearUI()
     {
         foreach (Transform child in itemsParent.transform)
@@ -152,13 +149,7 @@ public class InventoryUI : MonoBehaviour
         for (int i = 0; i < buttons.Length; i++)
         {
             int index = i;
-            #region 버튼 애니 사용시/비사용시    비활성화 /활성화
-            /* if (index >= 0 && index < 7)
-             {
-                 Animator buttonAnimator = buttons[index].animator;
-                 buttonAnimator.SetTrigger("Idle");
-             }*/
-            #endregion
+           
             buttons[i].onClick.RemoveAllListeners();
             buttons[i].onClick.AddListener(() => OnButtonClick(index));
         }
@@ -175,14 +166,6 @@ public class InventoryUI : MonoBehaviour
     private void OnButtonClick(int buttonIndex)
     {
         currentButtonIndex = buttonIndex;
-
-        #region 버튼 애니 사용시/비사용시    비활성화 /활성화
-        /* if (currentButtonIndex >= 0 && currentButtonIndex < 7)
-         {
-             Animator buttonAnimator = buttons[buttonIndex].animator;
-             buttonAnimator.SetTrigger("Selected");
-         }*/
-        #endregion
 
         UpdateUI();
     }

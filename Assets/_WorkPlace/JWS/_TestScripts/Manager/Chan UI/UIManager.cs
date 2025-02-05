@@ -40,7 +40,7 @@ public class UIManager : BaseManager<UIManager>
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
 
-    public GameObject bossHud;
+    public GameObject BossHud;
     public BossData CurrentBossData;
 
     protected override void OnEnable()
@@ -61,7 +61,7 @@ public class UIManager : BaseManager<UIManager>
         historyWindow.gameObject.SetActive(false);
         InventorytooltipWindow.SetActive(false);
         characterStaus.SetActive(false);
-        bossHud.SetActive(false);
+        BossHud.SetActive(false);
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
@@ -522,11 +522,11 @@ public class UIManager : BaseManager<UIManager>
     public void BossHudUP (BossData bossData)
     {
         CurrentBossData = bossData;
-        bossHud.SetActive(true);
+        BossHud.SetActive(true);
     }
     private void BossHudDown()
     {
-        bossHud.SetActive(false);
+        BossHud.SetActive(false);
     }
 
 
