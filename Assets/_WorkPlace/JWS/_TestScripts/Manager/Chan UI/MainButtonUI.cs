@@ -27,7 +27,7 @@ public class MainButtonUI : MonoBehaviour
 
     private void Update()
     {
-       playerGold.text = CharacterManager.PlayerCharacterData.gold.ToString();
+     //  playerGold.text = CharacterManager.PlayerCharacterData.gold.ToString();
     }
 
     public void AddButtonListeners()
