@@ -80,6 +80,8 @@ public class CameraManager : BaseManager<CameraManager>
 
     private void Update()
     {
+        if (mouseCursorVisible) return;
+
         if (orbitTarget == null || followTarget == null)
         {
             orbitTarget = followTarget = GameManager.playerTransform;
@@ -103,8 +105,6 @@ public class CameraManager : BaseManager<CameraManager>
         {
             StartTransition(orbitTarget, CameraTransitionType.Normal);
         }
-
-        if (mouseCursorVisible) return;
 
         if (preTransitionType != currentTransitionType)
         {
