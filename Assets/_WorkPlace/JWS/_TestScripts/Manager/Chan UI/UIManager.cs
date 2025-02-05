@@ -160,13 +160,42 @@ public class UIManager : BaseManager<UIManager>
         if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
     }
 
+    private Coroutine infoMessageCoroutine; // 코루틴 추가부분 
+
     public void ToggleinfoMessageWindow(string message)
     {
-        infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
+        #region 기존 인포메시지 로직
+      /*  infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
         if (infoMessageWindow.gameObject.activeSelf)
         {
             infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
+        }*/
+        #endregion
+
+        bool isActive = !infoMessageWindow.gameObject.activeSelf;
+        infoMessageWindow.gameObject.SetActive(isActive);
+
+        if (isActive)
+        {
+            infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
+
+            // 기존에 실행 중인 코루틴이 있으면 중지
+            if (infoMessageCoroutine != null)
+            {
+                StopCoroutine(infoMessageCoroutine);
+            }
+
+            // 2초 후 창을 자동으로 닫는 코루틴 실행
+            infoMessageCoroutine = StartCoroutine(AutoHideInfoMessage());
         }
+
+    }
+
+    // 코루틴 
+    private IEnumerator AutoHideInfoMessage()
+    {
+        yield return new WaitForSeconds(2f);
+        infoMessageWindow.gameObject.SetActive(false);
     }
 
     public void InventoryUpdate()
