@@ -32,9 +32,11 @@ public class QuestManager : BaseManager<QuestManager>
     protected override void Start()
     {
         base.Start();
+        npcDataList.npcLists.Clear();
         GenerateData generater = new GenerateData();
         mainQuestDatabase = generater.GenerateMainQuestLists();
         subQuestDatabase = generater.GenerateQuestLists();
+        
         generater.GenerateRandomNPCs(20, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
         npcDatabase = npcDataList.npcLists;
         GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);

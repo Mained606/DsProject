@@ -8,12 +8,7 @@ public class SkillList : ScriptableObject
     public List<Skills> playerSkills;
     public List<Skills> dragonSkills;
     public List<Skills> bossSkills;
-
-    private void OnEnable()
-    {
-        GameManager.RegistAsset(this); // 중앙 관리 등록
-    }
-
+    
     private void OnDisable()
     {
         SaveAsset(); // 자동 저장
