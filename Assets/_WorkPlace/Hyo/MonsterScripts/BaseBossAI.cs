@@ -31,7 +31,7 @@ public class BaseBossAI : MonoBehaviour
 
     private Animator animator;
     private CharacterController characterController;
-    private BossData bossData;
+    [SerializeField] private BossData bossData;
     
     private Vector3 velocity;
     private float gravity = -9.81f;
@@ -68,7 +68,7 @@ public class BaseBossAI : MonoBehaviour
         attackCooldownTimer -= Time.deltaTime;
         
         SearchForPlayer();
-
+        RotateTowardsPlayer();
         HandleCurrentState();
     }
     
@@ -77,12 +77,28 @@ public class BaseBossAI : MonoBehaviour
         switch (currentState)
         {
             case BossState.Idle:
+                HandleIdleLogic();
                 break;
             case BossState.Roaring:
                 break;
             case BossState.Attacking:
                 HandleCombatLogic();
                 break;
+        }
+    }
+
+    private void HandleIdleLogic()
+    {
+        if (playerTarget == null) return;
+        
+        if (Vector3.Distance(transform.position, playerTarget.position) > maxDistance)
+        {
+            playerTarget = null;
+            SetState(BossState.Idle);
+        }
+        else
+        {
+            SetState(BossState.Attacking);
         }
     }
 
@@ -99,6 +115,19 @@ public class BaseBossAI : MonoBehaviour
                 StartBossBattle();
                 return;
             }
+        }
+    }
+    
+    private void RotateTowardsPlayer()
+    {
+        if (playerTarget == null) return;
+
+        Vector3 direction = (playerTarget.position - transform.position).normalized;
+        direction.y = 0;
+
+        if (direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 2f);
         }
     }
 
@@ -150,13 +179,73 @@ public class BaseBossAI : MonoBehaviour
 
     private void HandleCombatLogic()
     {
-        // 전투 로직 실행
-        
-        // 랜덤 스킬 사용
-        
-        // 이후 기능 추가
-        
+        if (currentState != BossState.Attacking || isAttacking) return;
+
+        StartCoroutine(ExecuteBossAttack());
     }
+
+    private IEnumerator ExecuteBossAttack()
+    {
+        if (isAttacking) yield break; // 이미 공격 중이라면 실행하지 않음
+        isAttacking = true;
+        
+        List<string> bossSkillNames = SkillManager.Instance.GetAvailableSkills(EntityType.Boss);
+
+        if (bossSkillNames.Count == 0)
+        {
+            Debug.LogWarning("보스의 사용 가능한 스킬이 없습니다.");
+            SetState(BossState.Idle);
+            isAttacking = false;
+            yield break;
+        }
+
+        Skills selectedSkill = null;
+
+        int attempt = 0;
+        int maxAttempts = 10; // 최대 10번만 시도
+        while (selectedSkill == null && attempt < maxAttempts)
+        {
+            string randomSkillName = bossSkillNames[Random.Range(0, bossSkillNames.Count)];
+            Skills skill = SkillManager.Instance.GetSkill(EntityType.Boss, randomSkillName);
+
+            if (skill != null && !skill.cooldownTimer.IsRunning)
+            {
+                selectedSkill = skill;
+            }
+
+            attempt++;
+        }
+
+        if (selectedSkill == null)
+        {
+            Debug.LogWarning("사용 가능한 스킬이 없습니다.");
+            SetState(BossState.Idle);
+            isAttacking = false;
+            yield break;
+        }
+
+        Debug.Log($"보스가 스킬 사용: {selectedSkill.skillName}");
+
+        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
+        
+        // 스킬 지속 시간 가져오기
+        float skillDuration = selectedSkill.GetSkillDuration();
+        yield return new WaitForSeconds(skillDuration + attackCooldown); // 스킬 후 대기시간 포함
+
+        // 공격 후 플레이어가 여전히 유효한가?
+        if (playerTarget != null && Vector3.Distance(transform.position, playerTarget.position) <= maxDistance)
+        {
+            SetState(BossState.Attacking); // 다시 공격 시도
+        }
+        else
+        {
+            SetState(BossState.Idle); // 타겟이 없으면 Idle 상태로 전환
+        }
+
+        isAttacking = false; // 공격 완료 후 플래그 해제
+    }
+
+
     
     private void HandleDeath()
     {

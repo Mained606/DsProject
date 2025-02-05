@@ -22,13 +22,6 @@ public class GameManager : MonoBehaviour
         SaveAllAssets();
     }
 
-    public static void RegistAsset(ScriptableObject asset)
-    {
-        if (!scriptableObjects.Contains(asset))
-        {
-            scriptableObjects.Add(asset);
-        }
-    }
 
     public static void SaveAllAssets()
     {

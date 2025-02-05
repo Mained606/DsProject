@@ -1244,6 +1244,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68ac8f6e32da426448afc1463c511dd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  searchRange: 30
+  maxDistance: 50
+  roarDuration: 3
+  teleportInterval: 80
+  teleportRange: 10
+  hitDuration: 1
+  movementSpeed: 0
+  attackRange: 0
+  attackCooldown: 3
+  currentState: 0
 --- !u!1 &5498884121071274135
 GameObject:
   m_ObjectHideFlags: 0

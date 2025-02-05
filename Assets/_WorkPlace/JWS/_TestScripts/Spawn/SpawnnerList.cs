@@ -9,11 +9,6 @@ public class SpawnnerList : ScriptableObject
     public List<SpawnData> spawnNPCDataLists = new List<SpawnData>();
     public List<SpawnData> spawnBossDataLists = new List<SpawnData>();
 
-    private void OnEnable()
-    {
-        GameManager.RegistAsset(this); // 중앙 관리 등록
-    }
-
     private void OnDisable()
     {
         SaveAsset(); // 자동 저장
