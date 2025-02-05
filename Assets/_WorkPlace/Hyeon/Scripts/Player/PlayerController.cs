@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator playerAnimator;
     public Animator PlayerAnimator => playerAnimator;
 
+    [SerializeField] private bool cheatMode;
+
     [Header("이동")]
     private Vector2 moveInput;
     [SerializeField] private Transform cameraTransform;
@@ -122,7 +124,14 @@ public class PlayerController : MonoBehaviour
         {
             uiCheck = UIManager.Instance.IsUIWindowOpen();
         }
-        if (uiCheck) return;
+        if (uiCheck)
+        {
+            return;
+        }
+
+        // 치트
+        CheatMode();
+        HpRecovery();
 
         DeathCheck();
         HitFinishedCheck();
@@ -170,7 +179,7 @@ public class PlayerController : MonoBehaviour
             case PlayerState.Attack:
                 CanMove = false;
                 CanAttack = true;
-                CanUseSkill = true;
+                CanUseSkill = false;
                 CanBlock = false;
                 break;
             case PlayerState.Block:
@@ -199,6 +208,24 @@ public class PlayerController : MonoBehaviour
                 break;
             case PlayerState.Death:
                 break;
+        }
+    }
+
+    private void CheatMode()
+    {
+        if (InputManager.InputActions.actions["Cheat"].triggered)
+        {
+            cheatMode = !cheatMode;
+        }
+    }
+
+    // 치트 전용
+    private void HpRecovery()
+    {
+        if (!cheatMode) return;
+        if(playerData.maxMp != playerData.currentHp)
+        {
+            playerData.currentHp = playerData.maxHp;
         }
     }
 
@@ -252,6 +279,7 @@ public class PlayerController : MonoBehaviour
 
     private void UsingStamina()
     {
+        if (cheatMode) return;  // 치트
         if (CanSprint && moveInput != Vector2.zero)
         {
             playerData.UseStamina(staminaUseAmount);
@@ -313,7 +341,6 @@ public class PlayerController : MonoBehaviour
 
         if (!isGrounded)
         {
-            //SetState(PlayerState.InAir);
             if (verticalVelocity.y <= fallDamageThreshold && !isFreefall && !isClimb)
             {
                 isFreefall = true;
@@ -977,11 +1004,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-    // 장비 장착에 따른 스탯 변화
-
-    //private void IdleMotion()
-    //{
-
-    //}
+    public void SetVisible(bool isOnOff)
+    {
+        foreach(Transform obj in transform)
+        { 
+            obj.gameObject.SetActive(isOnOff);
+        }
+    }
 }
