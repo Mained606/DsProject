@@ -135,6 +135,7 @@
 /// 2025.01.27 17:20 인벤토리에서 더블클릭으로 무기 장착 시스템 완성                                                    ///  
 /// 이후 클릭이 아닌 소켓을 이용할때도 그대로 이용만 하면 됨.                                                           ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
@@ -191,6 +192,7 @@ public class WeaponManager : MonoBehaviour
         {
             currentWeaponObject.SetActive(false);
             currentWeaponObject = null;
+            GameManager.playerTransform.GetComponent<PlayerCombat>().hasWeapon = false;
         }
         else
         {

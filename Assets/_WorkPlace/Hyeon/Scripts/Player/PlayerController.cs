@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dodgeDist = 3f;
     [SerializeField] private float dodgeDuration = 0.3f;
     [SerializeField] private bool isDodging = false;
-    //[SerializeField] private bool isInvincible = false;
+    public bool isInvincible = false;
 
     [Header("공격")]
     public bool isCombatState;
@@ -73,7 +73,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isRecovery;
     [SerializeField] private bool isHit;
     public bool CanWeaponSwitch;
-    public bool isInvincible;
 
     private BasicTimer RecoveryTimer;
     [SerializeField] private float RecoveryTime = 1f;
@@ -136,6 +135,7 @@ public class PlayerController : MonoBehaviour
         DeathCheck();
         HitFinishedCheck();
         StateCheck();
+        StateBoolChange();
         isGrounded = characterController.isGrounded;
         playerAnimator.SetBool("Grounded", isGrounded);
 
@@ -155,60 +155,6 @@ public class PlayerController : MonoBehaviour
 
         //CanGlidingCheck();
         //OnGliding();
-
-        switch (currentState)
-        {
-            case PlayerState.Idle:
-                CanMove = true;
-                CanAttack = true;
-                CanUseSkill = true;
-                CanBlock = true;
-                break;
-            case PlayerState.Move:
-                CanMove = true;
-                CanAttack = true;
-                CanUseSkill = true;
-                CanBlock = true;
-                break;
-            case PlayerState.InAir:
-                CanMove = true;
-                CanAttack = false;
-                CanUseSkill = false;
-                CanBlock = false;
-                break;
-            case PlayerState.Attack:
-                CanMove = false;
-                CanAttack = true;
-                CanUseSkill = false;
-                CanBlock = false;
-                break;
-            case PlayerState.Block:
-                CanMove = false;
-                CanAttack = true;
-                CanUseSkill = false;
-                CanBlock = true;
-                break;
-            case PlayerState.UseSkill:
-                CanMove = false;
-                CanAttack = false;
-                CanUseSkill = false;
-                CanBlock = false;
-                break;
-            case PlayerState.Climb:
-                CanMove = true;
-                CanAttack = false;
-                CanUseSkill = false;
-                CanBlock = false;
-                break;
-            case PlayerState.Hit:
-                CanMove = false;
-                CanAttack = true;
-                CanUseSkill = false;
-                CanBlock = true;
-                break;
-            case PlayerState.Death:
-                break;
-        }
     }
 
     private void CheatMode()
@@ -304,36 +250,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void SwitchingBoolState()
-    {
-        switch (isAttack)
-        {
-            case true:
-                CanMove = false;
-                CanBlock = false;
-                break;
-            case false:
-                CanMove = true;
-                CanAttack = true;
-                CanBlock = true;
-                break;
-        }
-
-        switch (isUseSkill)
-        {
-            case true:
-                CanMove = false;
-                CanUseSkill = false;
-                CanBlock = false;
-                break;
-            case false:
-                CanMove = true;
-                CanUseSkill = true;
-                CanBlock = true;
-                break;
-        }
-    }
-
     // 상시 중력 적용
     private void HandleGravity()
     {
@@ -408,7 +324,7 @@ public class PlayerController : MonoBehaviour
                 SetState(PlayerState.Move);
 
             }
-            else if (!isGrounded && !isClimb)
+            else if (isFreefall || !isGrounded && !isClimb)
             {
                 SetState(PlayerState.InAir);
             }
@@ -431,6 +347,63 @@ public class PlayerController : MonoBehaviour
             }
         }
         
+    }
+    
+    private void StateBoolChange()
+    {
+        switch (currentState)
+        {
+            case PlayerState.Idle:
+                CanMove = true;
+                CanAttack = true;
+                CanUseSkill = true;
+                CanBlock = true;
+                break;
+            case PlayerState.Move:
+                CanMove = true;
+                CanAttack = true;
+                CanUseSkill = true;
+                CanBlock = true;
+                break;
+            case PlayerState.InAir:
+                CanMove = true;
+                CanAttack = false;
+                CanUseSkill = false;
+                CanBlock = false;
+                break;
+            case PlayerState.Attack:
+                CanMove = false;
+                CanAttack = true;
+                CanUseSkill = false;
+                CanBlock = false;
+                break;
+            case PlayerState.Block:
+                CanMove = false;
+                CanAttack = true;
+                CanUseSkill = false;
+                CanBlock = true;
+                break;
+            case PlayerState.UseSkill:
+                CanMove = false;
+                CanAttack = false;
+                CanUseSkill = false;
+                CanBlock = false;
+                break;
+            case PlayerState.Climb:
+                CanMove = true;
+                CanAttack = false;
+                CanUseSkill = false;
+                CanBlock = false;
+                break;
+            case PlayerState.Hit:
+                CanMove = false;
+                CanAttack = true;
+                CanUseSkill = false;
+                CanBlock = true;
+                break;
+            case PlayerState.Death:
+                break;
+        }
     }
 
     AnimatorStateInfo stateInfo;
@@ -568,6 +541,8 @@ public class PlayerController : MonoBehaviour
     // 굴리기(무적)
     private IEnumerator Dodging()
     {
+        if (isHit) yield break;
+
         isDodging = true;
 
         isInvincible = true;
