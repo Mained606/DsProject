@@ -15,11 +15,10 @@ public class BlockParryState : StateMachineBehaviour
     //}
 
     //OnStateExit is called before OnStateExit is called on any state inside this state machine
-    override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        animator.SetBool("Parry", false);
-        animator.SetBool("Block", false);
-    }
+    //override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    //{
+
+    //}
 
     // OnStateMove is called before OnStateMove is called on any state inside this state machine
     //override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -40,8 +39,9 @@ public class BlockParryState : StateMachineBehaviour
     //}
 
     // OnStateMachineExit is called when exiting a state machine via its Exit Node
-    //override public void OnStateMachineExit(Animator animator, int stateMachinePathHash)
-    //{
-    //    
-    //}
+    override public void OnStateMachineExit(Animator animator, int stateMachinePathHash)
+    {
+        animator.SetBool("Parry", false);
+        animator.SetBool("Block", false);
+    }
 }
