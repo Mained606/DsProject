@@ -155,15 +155,44 @@ public class UIManager : BaseManager<UIManager>
         if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
     }
 
+    private Coroutine infoMessageCoroutine;
+
     public void TogglinfoMessageWindow(string message)
     {
-        infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
-        if (infoMessageWindow.gameObject.activeSelf)
+        #region 기존 토글 메서드 
+        /* infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
+         if (infoMessageWindow.gameObject.activeSelf)
+         {
+             infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
+         }*/
+        #endregion
+
+        #region 코루틴으로 메세지 2초후에 비활성화 부분
+        bool isActive = !infoMessageWindow.gameObject.activeSelf;
+        infoMessageWindow.gameObject.SetActive(isActive);
+
+        if (isActive)
         {
             infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
+
+            // 기존에 실행 중인 코루틴이 있으면 중지
+            if (infoMessageCoroutine != null)
+            {
+                StopCoroutine(infoMessageCoroutine);
+            }
+
+            // 2초 후 창을 자동으로 닫는 코루틴 실행
+            infoMessageCoroutine = StartCoroutine(AutoHideInfoMessage());
         }
+        #endregion
     }
 
+    #region 코루틴
+    private IEnumerator AutoHideInfoMessage()
+    {
+        yield return new WaitForSeconds(2f);
+        infoMessageWindow.gameObject.SetActive(false);
+    }
     public void InventoryUpdate()
     {
         if (InventoryUI != null && InventoryUI.gameObject.activeSelf)
@@ -171,6 +200,7 @@ public class UIManager : BaseManager<UIManager>
             InventoryUI.UpdateUI();
         }
     }
+    #endregion
 
     public void QuestUpdate()
     {
@@ -487,11 +517,11 @@ public class UIManager : BaseManager<UIManager>
     public void BossHudUP (BossData bossData)
     {
         CurrentBossData = bossData;
-        // BossHud.SetActive(true);
+         BossHud.SetActive(true);
     }
     private void BossHudDown()
     {
-        // BossHud.SetActive(false);
+         BossHud.SetActive(false);
     }
 
 

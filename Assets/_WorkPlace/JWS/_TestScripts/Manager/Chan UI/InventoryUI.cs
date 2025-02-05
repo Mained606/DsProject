@@ -50,14 +50,10 @@ public class InventoryUI : MonoBehaviour
     #region !버튼 애니 초기화 함수! 
     private void ResetButtonAnimations()
     {
-        foreach (var button in buttons)
+        foreach (Button button in buttons)
         {
-            Animator buttonAnimator = button.GetComponent<Animator>();
-            if (buttonAnimator != null)
-            {
-                buttonAnimator.Rebind(); // 애니메이터 내부 상태를 리셋
-                buttonAnimator.Update(0f); // 즉시 반영
-            }
+            Animator animator = button.animator;
+            animator.CrossFade("Hover", 0f); 
         }
     }
     #endregion
