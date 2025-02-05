@@ -88,7 +88,7 @@ public class UIManager : BaseManager<UIManager>
         }
         if (infoMessageWindow.activeSelf && Input.GetMouseButtonDown(1))
         {
-            TogglinfoMessageWindow("");
+            ToggleinfoMessageWindow("");
             GameStateMachine.Instance.ChangeState(GameSystemState.Play);
         }
     }
@@ -151,16 +151,16 @@ public class UIManager : BaseManager<UIManager>
         quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
     }
 
-    public void TogglShopWindow(NPCData nPCData)
+    public void ToggleShopWindow(NPCData nPCData)
     {
         shopUI.gameObject.SetActive(!shopUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
-        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
+        //MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(false);
         if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
     }
 
-    public void TogglinfoMessageWindow(string message)
+    public void ToggleinfoMessageWindow(string message)
     {
         infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
         if (infoMessageWindow.gameObject.activeSelf)
@@ -438,11 +438,11 @@ public class UIManager : BaseManager<UIManager>
                 break;
             case GameSystemState.Shopping:
                 NPCData npcData = additionalData as NPCData;
-                TogglShopWindow(npcData);
+                ToggleShopWindow(npcData);
                 break;
             case GameSystemState.InfoMessage:
                 string message = additionalData as string;
-                TogglinfoMessageWindow(message);
+                ToggleinfoMessageWindow(message);
                 break;
             case GameSystemState.Exploration:
                 BossHudDown();  // 02.04 = 차후에 보스 bud 온오프 조건 수정 요망 

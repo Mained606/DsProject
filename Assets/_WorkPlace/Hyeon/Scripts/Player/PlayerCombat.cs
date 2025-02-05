@@ -212,12 +212,20 @@ public class PlayerCombat : MonoBehaviour
         }
         if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
         {
-            controller.CanMove = false;
-            controller.CanAttack = false;
+            //controller.CanMove = false;
+            //controller.CanAttack = false;
             // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
             // SkillManager.Instance.ActivateSkill("Water", closestMonster);
             // ----------------------------------------------------------------
-
+            if (SkillManager.Instance.CheckMana("Water") &&
+                SkillManager.Instance.CanActivateSkill(EntityType.Player, "Water"))
+            {
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Water");
+            }
+            else
+            {
+                Debug.Log("스킬 사용 불가: 마나 부족 또는 쿨타임 중");
+            }
         }
         if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
         {
@@ -231,7 +239,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void HandleBlockInput()
     {
-        if (InputManager.InputActions.actions["Block"].IsPressed() && controller.CanBlock)
+        if (InputManager.InputActions.actions["Block"].IsPressed() && controller.CanBlock && hasWeapon)
         {
             isBlocking = true;
             CanParry = true;
