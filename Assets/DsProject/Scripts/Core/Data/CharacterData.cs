@@ -588,8 +588,9 @@ public class BossData : MonsterData
     {
         SpecialSkills = new List<string>(specialSkills);
     }
-
-
+    
+    public void AddSkill(string skill) => SpecialSkills.Add(skill);
+    
     public new BossData Clone()
     {
         // BossData의 고유 속성 및 MonsterData의 공통 속성을 포함한 클론 생성
