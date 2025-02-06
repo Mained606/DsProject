@@ -39,12 +39,18 @@ public class WanderNpc : MonoBehaviour
     //
     private string sittingState = "IsSitting";
     [SerializeField] private bool isSitting = false;
-    public Vector3 sittingOffset = new Vector3(1, -0.3f, 0.3f);
+    public Vector3 sittingOffset = new Vector3(1, 0.2f, 0.5f);
     private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
+
+    private float sittingCoolTime = 5f;
+    private float lastSittingTime = 0f;
+
+    private Rigidbody rb;
 
     private void Start()
     {
         animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
 
         spawnPosition = transform.position;
 
@@ -101,18 +107,34 @@ public class WanderNpc : MonoBehaviour
     {
         if (other.CompareTag("NPC"))
         {
-            if (Time.time - lastConversationTime < conversationCoolTime)
+            if (isSitting)
             {
-                Debug.Log("대화 쿨타임 중");
+                StartCoroutine(SittingTalking(other.GetComponent<Bench>()));
+            }
+            else
+            {
+                if (Time.time - lastConversationTime < conversationCoolTime)
+                {
+                    Debug.Log("대화 쿨타임 중");
+                    return;
+                }
+
+                Debug.Log($"{transform.name} npc 만남");
+                targetNpc = other.transform;
+                StartConversation();
+            }
+        }
+
+        if (other.name.Contains("Bench"))
+        {
+            if(Time.time - lastSittingTime < sittingCoolTime)
+            {
+                Debug.Log("앉기 쿨타임 중");
                 return;
             }
 
-            Debug.Log("npc 만남");
-            targetNpc = other.transform;
-            StartConversation();
+            SittingAtBench(other);
         }
-
-        SittingAtBench(other);
     }
 
     private void OnTriggerExit(Collider other)
@@ -288,41 +310,81 @@ public class WanderNpc : MonoBehaviour
         return false;
     }
 
+
     /// <summary>
     /// 의자가 근처에 있으면 앉기
     /// 넣을지 말지 고민
     /// </summary>
     private void SittingAtBench(Collider collider)
     {
-        if(collider.name == "Bench")
+        Bench bench = collider.GetComponent<Bench>();
+        if (bench == null) return;
+
+        Debug.Log("의자 인식");
+
+        if (Random.value <= 1)
         {
-            Debug.Log("의자 인식");
-
-            if(Random.value <= 1)
+            if (!animator.GetBool(sittingState))
             {
-                if(!animator.GetBool(sittingState))
+                isSitting = true;
+
+                if (animator.GetBool(walkingState))
                 {
-                    isSitting = true;
-
-                    if (animator.GetBool(walkingState))
-                    {
-                        Debug.Log("걷기 멈춤");
-                        animator.SetBool(walkingState, false);
-                        isMoving = false;
-                    }
-
-                    Rigidbody rb = GetComponent<Rigidbody>();
-                    if(rb != null)
-                        rb.isKinematic = true;
-
-                    transform.position = collider.transform.position + sittingOffset;
-                    transform.rotation = collider.transform.rotation;
-
-                    animator.SetBool(sittingState, true);
-
-                    
+                    Debug.Log("걷기 멈춤");
+                    animator.SetBool(walkingState, false);
+                    isMoving = false;
                 }
+
+                if (rb != null)
+                    rb.isKinematic = true;
+
+                if(!bench.left)
+                {
+                    transform.position = bench.leftPosition;
+                    bench.left = true;
+                }
+                else if(!bench.right)
+                {
+                    transform.position = bench.rightPosition;
+                    bench.right = true;
+                }
+                else
+                {
+                    Debug.Log("벤치에 빈 자리 없음");
+                    return;
+                }
+                
+                transform.rotation = collider.transform.rotation;
+                animator.SetBool(sittingState, true);
             }
         }
+    }
+
+    private IEnumerator SittingTalking(Bench bench)
+    {
+        while (isSitting)
+        {
+            Debug.Log("앉은 상태로 대화 중");
+            yield return new WaitForSeconds(Random.Range(5f, 10f));
+
+            PlayRandomTrigger(sittingTriggers);
+
+            yield return new WaitForSeconds(Random.Range(2f, 3f));
+
+            if (Random.value <= 0.3f)
+            {
+                isSitting = false;
+            }
+        }
+
+        Debug.Log("대화 종료, 이동 시작");
+
+        if (transform.position == bench.leftPosition) bench.left = false;
+        if (transform.position == bench.rightPosition) bench.right = false;
+
+        animator.SetBool(sittingState, false);
+        SetNextDestination();
+        rb.isKinematic = false;
+        lastSittingTime = Time.time;
     }
 }

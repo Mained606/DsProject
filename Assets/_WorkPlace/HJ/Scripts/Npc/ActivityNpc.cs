@@ -17,12 +17,16 @@ public class ActivityNpc : MonoBehaviour
     private NpcController npcController;
 
     [SerializeField] private bool isNearNpc = false;
+    [SerializeField] private bool isSitting = false;
 
 
     private void Start()
     {
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
+        Rigidbody rb = GetComponent<Rigidbody>();
+
+        rb.isKinematic = true;
 
         if (npcController.npcType == NpcType.Fishing)
         {
@@ -47,6 +51,11 @@ public class ActivityNpc : MonoBehaviour
         if (other.CompareTag("NPC"))
         {
             isNearNpc = true;
+        }
+
+        if(npcController.npcType == NpcType.Sitting && other.name.Contains("Bench") && !isSitting)
+        {
+            SittingAtBench(other.GetComponent<Bench>());
         }
     }
 
@@ -132,5 +141,26 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetTrigger(randomTrigger);
         }
+    }
+
+    private void SittingAtBench(Bench bench)
+    {
+        if(!bench.right)
+        {
+            transform.position = bench.rightPosition;
+            bench.right = true;
+            isSitting = true;
+            return;
+        }
+
+        if(!bench.left)
+        {
+            transform.position = bench.leftPosition;
+            bench.left = true;
+            isSitting = true;
+            return;
+        }
+
+        Debug.Log("비어있는 벤치 없음");
     }
 }
