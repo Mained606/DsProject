@@ -432,7 +432,6 @@ public class DragonController : MonoBehaviour
             // 플레이어 옆으로 순간이동
             transform.position = player.position + offset;
             isMoving = false;
-            
         }
         else
         {
