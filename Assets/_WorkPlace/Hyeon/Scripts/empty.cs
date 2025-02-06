@@ -3,6 +3,7 @@ using UnityEngine;
 public class empty : MonoBehaviour
 {
     PlayerController controller;
+    Collider weaponCollider;
     [SerializeField] LayerMask layer;
 
     void OnFootstep(AnimationEvent animationEvent)
@@ -72,23 +73,18 @@ public class empty : MonoBehaviour
         }
     }
 
-    //private void EnableCollider()
-    //{
-    //    //transform.GetComponentInParent<PlayerCombat>().weaponCollider.enabled = true;
-    //}
+    private void DisableCollider()
+    {
+        WeaponInit();
+        if(weaponCollider != null)
+        {
+            weaponCollider.enabled = false;
+        }
+        
+    }
 
-    //private void DisableCollider()
-    //{
-    //    //transform.GetComponentInParent<PlayerCombat>().weaponCollider.enabled = false;
-    //}
-
-    //private void EnableComboInput()
-    //{
-    //    //transform.GetComponentInParent<PlayerCombat>().CanReceiveInput = true;
-    //}
-
-    //private void StartCombo()
-    //{
-    //    //transform.GetComponentInParent<PlayerCombat>().CanReceiveInput = false;
-    //}
+    private void WeaponInit()
+    {
+        weaponCollider = transform.GetComponentInParent<PlayerCombat>().weaponCollider;
+    }
 }

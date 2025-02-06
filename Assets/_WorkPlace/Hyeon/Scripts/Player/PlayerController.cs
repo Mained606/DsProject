@@ -157,11 +157,13 @@ public class PlayerController : MonoBehaviour
         //OnGliding();
     }
 
+    // 치트 모드 전환
     private void CheatMode()
     {
         if (InputManager.InputActions.actions["Cheat"].triggered)
         {
             cheatMode = !cheatMode;
+            Debug.LogWarning($"CheatMode : {cheatMode}");
         }
     }
 
@@ -169,7 +171,7 @@ public class PlayerController : MonoBehaviour
     private void HpRecovery()
     {
         if (!cheatMode) return;
-        if(playerData.maxMp != playerData.currentHp)
+        if(playerData.maxHp != playerData.currentHp)
         {
             playerData.currentHp = playerData.maxHp;
         }
