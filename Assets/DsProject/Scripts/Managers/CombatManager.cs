@@ -244,6 +244,6 @@ public class CombatManager : BaseManager<CombatManager>
             Debug.LogError("defeatedCharacter를 MonsterData로 캐스팅할 수 없습니다.");
         }
         
-        GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
+        // GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
     }
 }
