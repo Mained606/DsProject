@@ -96,6 +96,8 @@ public class CharacterData
     private Dictionary<StatType, int> stats;
 
     private bool isLevelingUp = false; // 레벨업 진행 중 여부
+    
+    [HideInInspector] public GameObject instance;  // 생성된 몬스터 인스턴스를 저장할 필드
 
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(
@@ -495,8 +497,7 @@ public class MonsterData : CharacterData
     public List<string> dropItems = new List<string>(); // 드롭 아이템
     public int experienceReward; // 경험치 보상
     public int goldReward;       // 골드 보상
-    [HideInInspector] public GameObject instance;  // 생성된 몬스터 인스턴스를 저장할 필드
-
+    
     public MonsterData(
         string name, 
         CharacterType characterType, 
