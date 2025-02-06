@@ -17,14 +17,11 @@ public class WeaponAttack : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-
         InteractableOb interactable = other.GetComponent<InteractableOb>();
         if (interactable != null)
         {
             interactable.Interact(toolTag); // 상호작용 호출
         }
-
-        Debug.LogWarning($"Weapon Trigger : {other.name}");
         
         if (!weaponCollider.enabled) return;
         if (!DamagedTargets.Contains(other.gameObject))

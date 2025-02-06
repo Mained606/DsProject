@@ -7,6 +7,7 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     private PlayerController controller;
+    private CharacterController characterController;
     public WeaponManager weapon;
     private PlayerData playerData;
     public Collider weaponCollider;
@@ -51,6 +52,7 @@ public class PlayerCombat : MonoBehaviour
     private void Start()
     {
         controller = GetComponent<PlayerController>();
+        characterController = GetComponent<CharacterController>();
         //weaponCollider = currentWeapon.GetComponent<Collider>();
         playerData = controller.playerData;
 
@@ -169,10 +171,15 @@ public class PlayerCombat : MonoBehaviour
     {
         if (controller.isSprinting)
         {
+            Debug.LogWarning("대쉬공격");
+            StartCoroutine(controller.DashAttack());
             // 대쉬공격
         }
+        else
+        {
+            LookEnemy(attackPerceptionRange);
+        }
         firstAttack = true;
-        LookEnemy(attackPerceptionRange);
         controller.isAttack = true;
         playerAnimator.SetTrigger("NextCombo");
         

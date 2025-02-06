@@ -16,24 +16,33 @@ public class ItemManager : BaseManager<ItemManager>
 
     public static List<Item> ItemDatabase => Instance.itemList.itemList;
     private Dictionary<string, Sprite> itemSpriteDictionary = new Dictionary<string, Sprite>(); // 스프라이트 딕셔너리
+    private Dictionary<string, Sprite> skillSpriteDictionary = new Dictionary<string, Sprite>(); // 스킬 스프라이트 딕셔너리
 
     protected override void Awake()
     {
         base.Awake();
         ItemGenerater itemGenerater = new ItemGenerater();
-        // itemList.itemList.Clear();
+
         Addressables.LoadAssetsAsync<Sprite>("ItemSprites", sprite =>
         {
             if (!itemSpriteDictionary.ContainsKey(sprite.name))
             {
                 itemSpriteDictionary[sprite.name] = sprite; // 스프라이트 딕셔너리에 추가
                 itemSpriteList.Add(sprite); // 스프라이트 리스트에도 추가
-                // Item item = itemGenerater.GenerateItem(sprite.name);
-                // if (item != null) itemList.itemList.Add(item);
             }
         }).Completed += handle =>
         {
             Debug.Log($"{itemSpriteList.Count}개의 아이템 스프라이트를 로드했습니다.");
+        };
+        Addressables.LoadAssetsAsync<Sprite>("Skills", sprite =>
+        {
+            if (!itemSpriteDictionary.ContainsKey(sprite.name))
+            {
+                skillSpriteDictionary[sprite.name] = sprite;
+            }
+        }).Completed += handle =>
+        {
+            Debug.LogWarning($"{skillSpriteDictionary.Count}개의 아이템 스프라이트를 로드했습니다.");
         };
 
         if (itemList.itemList.Count <= 0)
@@ -163,6 +172,17 @@ public class ItemManager : BaseManager<ItemManager>
     public Sprite GetItemSprite(string spriteName)
     {
         if (itemSpriteDictionary.TryGetValue(spriteName, out Sprite sprite))
+        {
+            return sprite;
+        }
+
+        Debug.LogWarning($"'{spriteName}'에 해당하는 스프라이트를 찾을 수 없습니다.");
+        return null;
+    }
+
+    public Sprite GetSkillSprite(string spriteName)
+    {
+        if (skillSpriteDictionary.TryGetValue(spriteName, out Sprite sprite))
         {
             return sprite;
         }

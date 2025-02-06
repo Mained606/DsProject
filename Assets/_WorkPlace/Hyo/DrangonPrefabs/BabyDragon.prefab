@@ -1406,6 +1406,7 @@ GameObject:
   - component: {fileID: 3520101967674268895}
   - component: {fileID: 4239135750975846520}
   - component: {fileID: 1591436506873774237}
+  - component: {fileID: 6283431910812347998}
   m_Layer: 6
   m_Name: BabyDragon
   m_TagString: Dragon
@@ -1494,12 +1495,10 @@ MonoBehaviour:
   followSpeed: 5
   hoverHeight: 2
   rotationSpeed: 5
-  detectRange: 10
-  meleeRange: 1
+  detectRange: 40
+  meleeRange: 1.5
   maxDistanceFromPlayer: 15
   fireballPrefab: {fileID: 1949376083282614, guid: 4f8e896254c444d4e8162e9c534d6b27, type: 3}
-  skillCooldown: 60
-  rangedCooldown: 10
   rangedDelayTime: 1.5
   isAttacking: 0
   currentTarget:
@@ -1522,6 +1521,9 @@ MonoBehaviour:
     stamina: 0
     staminaCurrent: 0
     staminaRecoveryRate: 0
+    hpBuffBonus: 0
+    physicalDamageBuffMultiplier: 0
+    magicDamageBuffMultiplier: 0
     moveSpeed: 0
     attackSpeed: 0
     attackRange: 0
@@ -1545,12 +1547,33 @@ MonoBehaviour:
       physicalResistanceMultiplier: 1
       magicResistanceMultiplier: 2
       intelligenceMultiplier: 1.5
+    instance: {fileID: 0}
     dropItems: []
     experienceReward: 0
     goldReward: 0
-    instance: {fileID: 0}
   currentTargetTransform: {fileID: 0}
   currentState: 0
+--- !u!135 &6283431910812347998
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6847506254371132336}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 12
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6947217215586214734
 GameObject:
   m_ObjectHideFlags: 0
