@@ -16,10 +16,10 @@ public class WanderNpc : MonoBehaviour
     [SerializeField] private Vector3 targetPosition;
 
     private Animator animator;
-    public string walkingState = "IsWalking";
-    public string talkingState = "IsTalking";
-    public string animationSpeed = "Speed";
-    public string exitTrigger = "ExitTrigger";
+    private string walkingState = "IsWalking";
+    private string talkingState = "IsTalking";
+    private string animationSpeed = "Speed";
+    private string exitTrigger = "ExitTrigger";
     private Coroutine currentCoroutine = null;
 
     [SerializeField] private bool isTalking = false;
@@ -36,6 +36,12 @@ public class WanderNpc : MonoBehaviour
     private float nextDestinationTime = 0f;
     private float destinationCooldown = 1f;
 
+    //
+    private string sittingState = "IsSitting";
+    [SerializeField] private bool isSitting = false;
+    public Vector3 sittingOffset = new Vector3(1, -0.3f, 0.3f);
+    private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
+
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -47,12 +53,12 @@ public class WanderNpc : MonoBehaviour
 
     private void Update()
     {
-        if (isTalking)
+        if (isTalking || isSitting)
         {
             return;
         }
 
-        if(isMoving && isCloseNpcs(transform.position, minNpcDistance) && !isTalking)
+        if (isMoving && isCloseNpcs(transform.position, minNpcDistance) && !isTalking)
         {
             if(Time.time > nextDestinationTime)
             {
@@ -105,6 +111,8 @@ public class WanderNpc : MonoBehaviour
             targetNpc = other.transform;
             StartConversation();
         }
+
+        SittingAtBench(other);
     }
 
     private void OnTriggerExit(Collider other)
@@ -120,6 +128,8 @@ public class WanderNpc : MonoBehaviour
     //이동 위치 설정
     private void SetNextDestination()
     {
+        if (isSitting) return;
+
         Vector3 randomPosition;
         int safetyCounter = 0;
 
@@ -276,5 +286,43 @@ public class WanderNpc : MonoBehaviour
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// 의자가 근처에 있으면 앉기
+    /// 넣을지 말지 고민
+    /// </summary>
+    private void SittingAtBench(Collider collider)
+    {
+        if(collider.name == "Bench")
+        {
+            Debug.Log("의자 인식");
+
+            if(Random.value <= 1)
+            {
+                if(!animator.GetBool(sittingState))
+                {
+                    isSitting = true;
+
+                    if (animator.GetBool(walkingState))
+                    {
+                        Debug.Log("걷기 멈춤");
+                        animator.SetBool(walkingState, false);
+                        isMoving = false;
+                    }
+
+                    Rigidbody rb = GetComponent<Rigidbody>();
+                    if(rb != null)
+                        rb.isKinematic = true;
+
+                    transform.position = collider.transform.position + sittingOffset;
+                    transform.rotation = collider.transform.rotation;
+
+                    animator.SetBool(sittingState, true);
+
+                    
+                }
+            }
+        }
     }
 }

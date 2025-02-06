@@ -6753,7 +6753,7 @@ GameObject:
   - component: {fileID: 4565804802523364667}
   - component: {fileID: 2564020316933106344}
   m_Layer: 0
-  m_Name: TwonNpc
+  m_Name: TownNpc
   m_TagString: NPC
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
