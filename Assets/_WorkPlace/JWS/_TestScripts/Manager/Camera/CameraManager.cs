@@ -51,8 +51,10 @@ public class CameraManager : BaseManager<CameraManager>
     private Camera mainCamera;
     private Camera portraitCamera;
     public string playerLayerName = "Ds Player";
+    public string npcLayerName = "NPC";
+    public string enemyLayerName = "Enemy";
     public string dragonLayerName = "Dragon";
-    private int playerLayerMask, dragonLayerMask;
+    private int playerLayerMask, dragonLayerMask, npcLayerMask, enemyLayerMask;
     private bool isStatusUI = false;
     public static Camera MainCamera => Instance.mainCamera;
     #endregion
@@ -76,6 +78,8 @@ public class CameraManager : BaseManager<CameraManager>
 
         playerLayerMask = 1 << LayerMask.NameToLayer(playerLayerName);
         dragonLayerMask = 1 << LayerMask.NameToLayer(dragonLayerName);
+        npcLayerMask = 1 << LayerMask.NameToLayer(npcLayerName);
+        enemyLayerMask = 1 << LayerMask.NameToLayer(enemyLayerName);
     }
 
     private void Update()
@@ -162,7 +166,7 @@ public class CameraManager : BaseManager<CameraManager>
             );
 
             cameraPoses[(int)CameraType.UIview] = new CameraPose(
-                new Vector3(1.8f, 2.4f, 4f),
+                new Vector3(2f, 2.4f, 5f),
                 new Vector3(10, 180, 0),
                 3f
             );
@@ -249,7 +253,7 @@ public class CameraManager : BaseManager<CameraManager>
         if (orbitTarget == null || MainCamera == null) return;
         if (gobTarget == null)
         {
-            //isPlayer= true;
+            isPlayer= true;
             gobTarget = orbitTarget;
         }
 
@@ -260,7 +264,11 @@ public class CameraManager : BaseManager<CameraManager>
         
         if (gobTarget != orbitTarget)
         {
-            targetPosition.y -= isStatusUI ? 1 : 0.5f;
+            targetPosition.y -= isStatusUI ? 1 : 0f;
+        }
+        else
+        {
+            targetPosition.y += 0.3f;
         }
 
         MainCamera.transform.position = targetPosition + offsetPosition;
@@ -428,6 +436,7 @@ public class CameraManager : BaseManager<CameraManager>
         else
         {
             UpdateUIviewCamera();
+            NonePlayerVisible(false);
         }
         CursorLock();
     }
@@ -437,6 +446,7 @@ public class CameraManager : BaseManager<CameraManager>
         CursorUnLock();
         currentCameraType = CameraType.Orbit;
         PlayerVisible(true);
+        NonePlayerVisible(true);
     }
 
     private void PlayerVisible(bool visible)
@@ -452,6 +462,20 @@ public class CameraManager : BaseManager<CameraManager>
             DisableLayer(MainCamera, dragonLayerMask);
         }
     }
+    
+    private void NonePlayerVisible(bool visible)
+    {
+        if (visible)
+        {
+            EnableLayer(MainCamera, npcLayerMask);
+            EnableLayer(MainCamera, enemyLayerMask);
+        }
+        else
+        {
+            DisableLayer(MainCamera, npcLayerMask);
+            DisableLayer(MainCamera, enemyLayerMask);
+        }
+    }
 
     public void DisableLayer(Camera targetCamera, LayerMask layerMask)
     {
@@ -465,6 +489,7 @@ public class CameraManager : BaseManager<CameraManager>
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
+        isStatusUI = false;
         switch (newState)
         {
             case GameSystemState.Shopping:

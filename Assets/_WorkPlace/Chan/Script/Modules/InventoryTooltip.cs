@@ -113,8 +113,8 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     {
         if (currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구 || currentItem.type == ItemType.장신구)
         {
-            ItemEffectManager.Instance.ApplyItemEffect(currentItem);
-            Debug.Log($"'{currentItem.name}' 아이템을 더블 클릭했습니다. 장착합니다.");
+            if (!currentItem.isEquired) ItemEffectManager.Instance.ApplyItemEffect(currentItem);
+            else ItemEffectManager.Instance.UnequipmentEffect(currentItem);
         }
     }
 

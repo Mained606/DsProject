@@ -48,6 +48,7 @@ public class ShopUI : MonoBehaviour
                         GameObject gob = Instantiate(shopItemListPrefab, shopItemListParent);
                         gob.transform.GetComponent<ShopitemUI>().SetItemInfo(item, this, i, currentShopType);
                     }
+                    transform.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
                     break;
                 case 1:
                     for (int i = 0; i < InventoryManager.InventoryList.Count; i++)
@@ -57,6 +58,7 @@ public class ShopUI : MonoBehaviour
                         GameObject gob = Instantiate(shopItemListPrefab, shopItemListParent);
                         gob.transform.GetComponent<ShopitemUI>().SetItemInfo(item, this, i, currentShopType);
                     }
+                    transform.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
                     break;
             }
             transform.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
