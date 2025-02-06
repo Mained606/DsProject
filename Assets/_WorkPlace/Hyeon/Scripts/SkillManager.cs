@@ -677,6 +677,22 @@ public class SkillManager : BaseManager<SkillManager>
 
 
     }
-    
+
     // =================================================================================================================
+
+
+    public List<Skills> GetSkills(EntityType entityType)
+    {
+        List<Skills> tempList = entityType switch
+        {
+            EntityType.Player => skillDatabase.playerSkills,
+            EntityType.Dragon => skillDatabase.dragonSkills,
+            EntityType.Boss => skillDatabase.bossSkills,
+            _ => null
+        };
+
+        if(tempList == null) return new List<Skills>();
+
+        return tempList;
+    }
 }

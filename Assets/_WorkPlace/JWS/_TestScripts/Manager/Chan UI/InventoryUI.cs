@@ -24,12 +24,12 @@ public class InventoryUI : MonoBehaviour
 
     private void Awake()
     {
+        preInventory = new List<Item>();
         buttons = transform.GetComponentsInChildren<Button>();
     }
 
     private void OnEnable()
     {
-        preInventory = new List<Item>();
         AddButtonListeners();
         OnButtonClick((int)CategotyItemType.전체아이템);
     }
@@ -143,12 +143,8 @@ public class InventoryUI : MonoBehaviour
             Animator animator = buttons[i].GetComponent<Animator>();
             if (animator != null)
             {
-                animator.ResetTrigger("Hover");
-                animator.ResetTrigger("Selected");
-                animator.ResetTrigger("Pressed");
-                animator.ResetTrigger("Idle");
+                animator.StopPlayback();
                 animator.SetTrigger("Idle");
-                animator.Rebind();
             }
         }
     }
