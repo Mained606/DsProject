@@ -59,12 +59,23 @@ public class WanderNpc : MonoBehaviour
                 Debug.Log("다른 npc와 너무 가까움, 새로운 목적지 설정");
                 SetNextDestination();
                 nextDestinationTime = Time.time + destinationCooldown;
-            }
-            
+            }            
         }
 
-        if (Vector3.Distance(transform.position, targetPosition) <= arrivedDistance)
+        //도착 판정할때 y축 위치는 고려하지 않음
+        Vector3 horizontalPosition = new Vector3(transform.position.x, 0, transform.position.z);
+        Vector3 horizontalTarget = new Vector3(targetPosition.x, 0, targetPosition.z);
+
+        if (Vector3.Distance(horizontalPosition, horizontalTarget) <= arrivedDistance)
         {
+            //y축 차이가 너무 크면 새로운 목적지 설정
+            if(Mathf.Abs(transform.position.y - targetPosition.y) > 2f)
+            {
+                Debug.Log("y축 차이가 큼, 새로운 목적지 설정");
+                SetNextDestination();
+                return;
+            }
+
             if (currentCoroutine == null)
             {
                 currentCoroutine = StartCoroutine(IdleAfterWalking());
@@ -147,10 +158,21 @@ public class WanderNpc : MonoBehaviour
             isMoving = true;
         }
 
-        transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
-
+        //현재 위치에서 목표 방향(y값 제외)
         Vector3 direction = (destination - transform.position).normalized;
         direction.y = 0f;
+
+        //앞으로 이동할 위치
+        Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
+
+        //Raycast로 지형 높이 감지
+        if(Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
+        {
+            nextPosition.y = hit.point.y;
+        }
+
+        //이동 적용
+        transform.position = nextPosition;
 
         if (direction != Vector3.zero)
         {
@@ -182,13 +204,17 @@ public class WanderNpc : MonoBehaviour
     //대화 진행
     private IEnumerator ContinueConversation()
     {
+        int minConversations = Random.Range(3,6);
+        int conversationCount = 0;
+
         while (isTalking)
         {
             yield return new WaitForSeconds(talkingDuration);
 
-            if (Random.value <= 0.9)
+            if (conversationCount < minConversations || Random.value <= 0.9)
             {
                 PlayRandomTrigger(talkingTriggers);
+                conversationCount++;
             }
             else
             {

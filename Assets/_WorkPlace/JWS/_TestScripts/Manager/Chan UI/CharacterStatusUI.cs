@@ -103,10 +103,16 @@ public class CharacterStatusUI : MonoBehaviour
         {
             if (gob.gameObject.activeSelf != isTrue ) gob.gameObject.SetActive(isTrue);
         }
-        if (!isTrue)
+        if (!isTrue && equireItem.isEquired)
+        {
+            buttons[slotIndex].transform.GetChild(0).GetChild(0).GetComponent<Image>().gameObject.SetActive(false);
+            buttons[slotIndex].transform.GetChild(0).GetChild(1).GetComponent<Image>().gameObject.SetActive(true);
+            buttons[slotIndex].transform.GetChild(0).GetChild(1).GetComponent<Image>().sprite = equireItem.sprite;
+        }
+        else
         {
             buttons[slotIndex].transform.GetChild(0).GetChild(0).GetComponent<Image>().gameObject.SetActive(true);
-            buttons[slotIndex].transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = equireItem.sprite;
+            buttons[slotIndex].transform.GetChild(0).GetChild(1).GetComponent<Image>().gameObject.SetActive(false);
         }
     }
 
@@ -132,6 +138,7 @@ public class CharacterStatusUI : MonoBehaviour
     private void OnButtonClick(int buttonIndex)
     {
         currentButtonIndex = buttonIndex;
+        Debug.LogWarning("클릭번호 : "+ currentButtonIndex);
         switch (currentButtonIndex)
         {
 
@@ -157,7 +164,7 @@ public class CharacterStatusUI : MonoBehaviour
 
     private void ClickedSlot(int buttonIndex)
     {
-        List<Item> slotItemList = InventoryManager.GetSlotItem((EquipmentSlot)buttonIndex);
+        List<Item> slotItemList = InventoryManager.GetSlotItem((EquipmentSlot)(buttonIndex - 2));
         if (slotItemList == null || slotItemList.Count == 0) return;
         equirePannel.gameObject.SetActive(true);
         Transform context = equirePannel.GetChild(1).GetChild(0).GetChild(0).transform;

@@ -406,6 +406,7 @@ public class UIManager : BaseManager<UIManager>
         EventSystem.current.SetSelectedGameObject(null);
         mainCanvas.SetActive(true);
         quickSlot.SetActive(true);
+        MainButtonUI.gameObject.SetActive(true);
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         characterStaus.SetActive(false);
