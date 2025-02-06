@@ -130,7 +130,7 @@ public class PlayerController : MonoBehaviour
 
         // 치트
         CheatMode();
-        HpRecovery();
+        HpMpRecovery();
 
         DeathCheck();
         HitFinishedCheck();
@@ -168,12 +168,16 @@ public class PlayerController : MonoBehaviour
     }
 
     // 치트 전용
-    private void HpRecovery()
+    private void HpMpRecovery()
     {
         if (!cheatMode) return;
         if(playerData.maxHp != playerData.currentHp)
         {
             playerData.currentHp = playerData.maxHp;
+        }
+        if(playerData.maxMp != playerData.currentMp)
+        {
+            playerData.currentMp = playerData.maxMp;
         }
     }
 
