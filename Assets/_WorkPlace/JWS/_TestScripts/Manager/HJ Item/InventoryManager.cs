@@ -231,6 +231,7 @@ public class InventoryManager : BaseManager<InventoryManager>
 
     public static List<Item> GetSlotItem(EquipmentSlot slot)
     {
+        Debug.LogWarning("위치 : " + slot);   
         return Instance.inventory.FindAll(x=>x.equipmentSlot == slot);
     }
 

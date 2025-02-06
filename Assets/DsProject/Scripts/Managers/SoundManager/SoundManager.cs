@@ -257,10 +257,10 @@ public class SoundManager : MonoBehaviour
             {
                 _loadedAudioClips[clip.name] = clip;
             }
-        }).Completed += handle =>
-        {
-            //Debug.Log($"{_loadedAudioClips.Count}개의 사운드 클립을 로드했습니다.");
-        };
+        });//.Completed += handle =>
+        //{
+        //    //Debug.Log($"{_loadedAudioClips.Count}개의 사운드 클립을 로드했습니다.");
+        //};
     }
 
     private void LoadMainMusicClip()
@@ -271,10 +271,10 @@ public class SoundManager : MonoBehaviour
             {
                 _loadedMainMusicClips[clip.name] = clip;
             }
-        }).Completed += handle =>
-        {
-            //Debug.Log($"{_loadedMainMusicClips.Count}개의 메인 음악을 로드했습니다.");
-        };
+        });//.Completed += handle =>
+        //{
+        //    //Debug.Log($"{_loadedMainMusicClips.Count}개의 메인 음악을 로드했습니다.");
+        //};
     }
 }
 
