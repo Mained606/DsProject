@@ -63,6 +63,15 @@ public class CharacterStatusUI : MonoBehaviour
     void Update()
     {
         UpdateUI();
+        switch (chraterType)
+        {
+            case CharType.Player:
+                GetPlayerStatsValue();
+                break;
+            case CharType.Dragon:
+                GetDragonStatsValue();
+                break;
+        }
     }
 
 
@@ -187,6 +196,7 @@ public class CharacterStatusUI : MonoBehaviour
     private void GetPlayerStatsValue()
     {
         PlayerData playerData = CharacterManager.PlayerCharacterData;
+
         for (int i = 0; statsNames.Length > i; i++)
         {
             statsNames[i].text = defaultNames[i];
@@ -228,7 +238,6 @@ public class CharacterStatusUI : MonoBehaviour
     private void GetDragonStatsValue()
     {
         DragonData dragonData = CharacterManager.DragonData;
-
         experienceText.text = $"{dragonData.bondExperience} / {dragonData.bondThresholds}";
      //   experienceFillBar.fillAmount = (float)dragonData.bondExperience / (float)dragonData.bondThresholds;
 
