@@ -666,6 +666,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2334469903408501697}
+  - {fileID: 6575432466752511305}
   - {fileID: 4624261638538609514}
   - {fileID: 7189203171523088719}
   m_Father: {fileID: 1818494720296218508}
@@ -1252,7 +1253,7 @@ MonoBehaviour:
   hitDuration: 1
   movementSpeed: 0
   attackRange: 0
-  attackCooldown: 3
+  attackCooldown: 10
   currentState: 0
   bossData:
     characterName: 
@@ -1304,6 +1305,38 @@ MonoBehaviour:
     experienceReward: 0
     goldReward: 0
     instance: {fileID: 0}
+  firePoint1: {fileID: 5299003056017755789}
+--- !u!1 &5299003056017755789
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6575432466752511305}
+  m_Layer: 10
+  m_Name: FirePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6575432466752511305
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5299003056017755789}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.3011459e-10, y: 0.3222924, z: 0.044604976}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6167759041613499547}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5498884121071274135
 GameObject:
   m_ObjectHideFlags: 0
