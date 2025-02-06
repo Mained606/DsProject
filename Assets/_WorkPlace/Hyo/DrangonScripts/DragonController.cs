@@ -316,28 +316,30 @@ public class DragonController : MonoBehaviour
         if (fireballPrefab != null && currentTarget != null && !rangedCooldown.IsRunning)
         {
             isAttacking = true; // 공격 진행 중 플래그 설정
-            
-            Transform targetPos = currentTargetTransform; // 타겟의 위치로 향하게 설정
-        
+
+            // 타겟 위치를 콜라이더의 정중앙으로 설정
+            Vector3 targetCenter = GetTargetCenter(currentTargetTransform);
+
             animator.SetTrigger(IsRangedAttack);
-        
+
             // 파이어볼 인스턴스화
             GameObject fireball = Instantiate(fireballPrefab, firePoint.position, Quaternion.identity);
 
-            // 파이어볼에 대한 초기화
+            // 파이어볼 초기화 (중앙 좌표 + 타겟 Transform 전달)
             FireballController fireballController = fireball.GetComponent<FireballController>();
-            fireballController.Initialize(targetPos, dragonData, this.transform.position, currentTarget);
-        
+            fireballController.Initialize(targetCenter, dragonData, this.transform.position, currentTarget, currentTargetTransform);
+
             // 원거리 공격 쿨다운 시작
             TimerManager.Instance.StartTimer(rangedCooldown);
-            
+
             yield return new WaitForSeconds(rangedDelayTime);
-        
+
             // 딜레이 후 상태를 Idle로 전환 및 공격 진행 플래그 해제
             isAttacking = false;
             currentState = DragonState.Idle;
         }
     }
+
     
     // 3) 근접 공격 (우선순위 3위)
     private void UseMeleeAttack()
@@ -359,6 +361,18 @@ public class DragonController : MonoBehaviour
             currentState = DragonState.Idle;
         }
     }
+    
+    // 타겟의 콜라이더 정중앙 위치를 반환하는 함수
+    private Vector3 GetTargetCenter(Transform targetTransform)
+    {
+        CharacterController targetController = targetTransform.GetComponent<CharacterController>();
+        if (targetController != null)
+        {
+            return targetController.bounds.center; // 정중앙 위치 반환
+        }
+        return targetTransform.position; // 기본 위치 반환 (콜라이더가 없을 경우)
+    }
+    
     #endregion
     
     #endregion

@@ -51,7 +51,7 @@ public class NPCSpawner : MonoBehaviour
         {
             foreach (var monsterName in spawnData.spawnObjects)
             {
-                GameObject obj = CharacterManager.Instance.CreatMonster(monsterName, poolParent);
+                GameObject obj = CharacterManager.Instance.CreatMonster(SpawnType, monsterName, poolParent);
                 obj.SetActive(false);
             }
         }
