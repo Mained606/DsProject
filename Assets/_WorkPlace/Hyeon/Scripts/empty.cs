@@ -63,11 +63,11 @@ public class empty : MonoBehaviour
         {
             if (hit.collider.gameObject.layer == 4)
             {
-                SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Puddle_Land_Walk_Forward_Landing_01", transform.position, 10f, false);
+                SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Puddle_Land_Walk_Forward_Landing_01", transform.position, 0.2f, false);
             }
             else
             {
-                SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Land_Walk_Forward_Landing_01", transform.position, 10f, false);
+                SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Land_Walk_Forward_Landing_01", transform.position, 0.2f, false);
             }
         }
     }

@@ -50,6 +50,7 @@ public class InventoryManager : BaseManager<InventoryManager>
         {
             HandleNonStackableItem(addItem);
         }
+        UIManager.Instance.InventoryUpdate();
     }
 
     public Item FindExistingItem(string itemId)
@@ -127,6 +128,7 @@ public class InventoryManager : BaseManager<InventoryManager>
         }
 
         inventory.Add(item.Clone());
+        GameStateMachine.Instance.ChangeState(GameSystemState.InventoryChange);
         return true;
     }
 
@@ -237,5 +239,12 @@ public class InventoryManager : BaseManager<InventoryManager>
 
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
     {
+        switch (newState)
+        {
+            case GameSystemState.InventoryChange:
+
+                break;
+
+        }
     }
 }

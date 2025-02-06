@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using System.Linq;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class InventoryUI : MonoBehaviour
     private int currentButtonIndex = 6;
     private Dictionary<string, List<Item>> categorizedItems = new Dictionary<string, List<Item>>();
 
+    private IReadOnlyList<Item> preInventory = new List<Item>();
+
     #region 골드 인벤으로 이전
     [SerializeField]private TextMeshProUGUI playerGold;
     #endregion
@@ -27,38 +30,18 @@ public class InventoryUI : MonoBehaviour
     private void OnEnable()
     {
         AddButtonListeners();
-        OnButtonClick(currentButtonIndex);
+        OnButtonClick((int)CategotyItemType.전체아이템);
     }
 
     private void OnDisable()
     {
-
-        #region !버튼 애니 초기화!
-      //  ResetButtonAnimations(); // 버튼 애니메이션 초기화
-        #endregion
-
-        RemoveButtonListeners();
-        currentButtonIndex = 6;
     }
-
-    private void Start()
-    {
-
-    }
-
-    #region !버튼 애니 초기화 함수! 
-   /* private void ResetButtonAnimations()
-    {
-        foreach (Button button in buttons)
-        {
-            Animator animator = button.animator;
-            animator.CrossFade("Hover", 0f); 
-        }
-    }*/
-    #endregion
 
     private void CategorizeItems()
     {
+        if (preInventory.SequenceEqual(InventoryManager.InventoryList)) { return; } // 내부 요소 비교
+
+        preInventory = new List<Item>(InventoryManager.InventoryList); // 리스트 복사
         categorizedItems.Clear();
 
         foreach (var item in InventoryManager.InventoryList)
@@ -71,6 +54,7 @@ public class InventoryUI : MonoBehaviour
             categorizedItems[itemtag].Add(item);
         }
     }
+
 
     public void UpdateUI()
     {
@@ -153,19 +137,23 @@ public class InventoryUI : MonoBehaviour
            
             buttons[i].onClick.RemoveAllListeners();
             buttons[i].onClick.AddListener(() => OnButtonClick(index));
-        }
-    }
-
-    public void RemoveButtonListeners()
-    {
-        foreach (var button in buttons)
-        {
-            button.onClick.RemoveAllListeners();
+            if (i == currentButtonIndex) continue;
+            Animator animator = buttons[i].GetComponent<Animator>();
+            if (animator != null)
+            {
+                animator.ResetTrigger("Hover");
+                animator.ResetTrigger("Selected");
+                animator.ResetTrigger("Pressed");
+                animator.ResetTrigger("Idle");
+                animator.SetTrigger("Idle");
+                animator.Rebind();
+            }
         }
     }
 
     private void OnButtonClick(int buttonIndex)
     {
+        if (buttons[currentButtonIndex].animator != null) buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);
         currentButtonIndex = buttonIndex;
 
         UpdateUI();
