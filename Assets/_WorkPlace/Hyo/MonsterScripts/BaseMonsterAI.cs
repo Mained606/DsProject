@@ -224,7 +224,6 @@ public class BaseMonsterAI : MonoBehaviour
             case AIState.Idle:
                 break;
             case AIState.Returning:
-                GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
                 break;
             case AIState.Chasing:
                 GameStateMachine.Instance.ChangeState(GameSystemState.Combat);
