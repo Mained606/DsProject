@@ -163,6 +163,7 @@ public class PlayerController : MonoBehaviour
         if (InputManager.InputActions.actions["Cheat"].triggered)
         {
             cheatMode = !cheatMode;
+            Debug.LogWarning($"CheatMode : {cheatMode}");
         }
     }
 
