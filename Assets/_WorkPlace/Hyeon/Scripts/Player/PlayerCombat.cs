@@ -28,6 +28,7 @@ public class PlayerCombat : MonoBehaviour
 
     public Quaternion targetRotation;
     private AnimatorStateInfo stateInfo;
+    public bool firstCombo = false;
 
 
     ////////////////////////////////////////////////////////////
@@ -79,7 +80,11 @@ public class PlayerCombat : MonoBehaviour
         HandleBlockInput();
 
         // 2025.01.29 JWS 주석처리 사용안해서
-        // AttackFinishedCheck();
+
+        //if (controller.isAttack)
+        //{
+        //    AttackFinishedCheck();
+        //}
         SkillFinishedCheck();
         ParryFinishedCheck();
     }
@@ -99,9 +104,9 @@ public class PlayerCombat : MonoBehaviour
             {
                 if (!firstAttack)
                 {
+                    Debug.LogWarning("FirstAttack");
                     PerformComboAttack();
                 }
-                
             }
 
             // 2025.01.29 JWS 주석처리 사용안해서
@@ -132,20 +137,19 @@ public class PlayerCombat : MonoBehaviour
     //    }
     //}
 
-    //private void AttackFinishedCheck()
-    //{
-    //    AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-    //    if(AttackStateHash.Contains(stateInfo.fullPathHash))
-    //    {
-    //        float normalizedTime = stateInfo.normalizedTime;
+    private void AttackFinishedCheck()
+    {
+        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+        float normalizedTime = stateInfo.normalizedTime;
 
-    //        if(normalizedTime >= 0.95f)
-    //        {
-    //            controller.CanMove = true;
-    //            controller.isAttack = false;
-    //        }
-    //    }
-    //}
+        if (normalizedTime >= 0.95f)
+        {
+            Debug.LogWarning("콤보 끝");
+            controller.CanMove = true;
+            controller.isAttack = false;
+            firstAttack = false;
+        }
+    }
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////
@@ -181,7 +185,7 @@ public class PlayerCombat : MonoBehaviour
     }
 
     // 콤보 끝났을때 받는 함수.
-    public void AttackFinishedCheck()
+    public void AttackFinished()
     {
         //Debug.LogWarning("콤보종료함");
         controller.CanMove = true;
