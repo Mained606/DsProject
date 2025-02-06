@@ -78,6 +78,7 @@ public class empty : MonoBehaviour
         WeaponInit();
         if(weaponCollider != null)
         {
+            Debug.LogWarning("DisableCollider");
             weaponCollider.enabled = false;
         }
         
