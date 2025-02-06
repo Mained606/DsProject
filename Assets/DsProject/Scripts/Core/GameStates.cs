@@ -22,5 +22,6 @@ public enum GameSystemState
     Play,             // 게임 진행
     MainQuestPlay,    // 메인퀘스트 진행.
     InfoMessage,      // 간단한 안내나 출력매새지.
+    InventoryChange,  // 아이템변동
     GameOver          // 게임 종료
 }
