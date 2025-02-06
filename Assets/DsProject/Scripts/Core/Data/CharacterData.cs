@@ -515,12 +515,13 @@ public class MonsterData : CharacterData
         List<string> dropItems,
         int experienceReward, 
         int goldReward)
-        : base(name, CharacterType.Monster, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate)
+        : base(name, characterType, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate)
     {
         this.dropItems = new List<string>(dropItems);
         this.experienceReward = experienceReward;
         this.goldReward = goldReward;
     }
+
     public new MonsterData Clone()
     {
         var clone = new MonsterData(
@@ -569,6 +570,7 @@ public class BossData : MonsterData
 
     public BossData(
         string name,
+        CharacterType characterType,
         GameObject prefab,
         int strength,
         int vitality,
@@ -584,7 +586,7 @@ public class BossData : MonsterData
         int experienceReward,
         int goldReward,
         List<string> specialSkills)
-        : base(name, CharacterType.Boss, prefab, strength, vitality, agility, intelligence, speed, attackSpeed,
+        : base(name, characterType, prefab, strength, vitality, agility, intelligence, speed, attackSpeed,
             attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, dropItems, experienceReward, goldReward)
     {
         SpecialSkills = new List<string>(specialSkills);
@@ -597,6 +599,7 @@ public class BossData : MonsterData
         // BossData의 고유 속성 및 MonsterData의 공통 속성을 포함한 클론 생성
         var clone = new BossData(
             this.characterName,
+            this.characterType,
             this.characterPrefab,
             this.strength,
             this.vitality,

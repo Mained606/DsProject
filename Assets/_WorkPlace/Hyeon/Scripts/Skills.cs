@@ -4,6 +4,7 @@ using UnityEngine;
 [Serializable]
 public class Skills
 {
+    public EntityType entityType;
     public SkillType skillType;
     public string skillName;
     public float damage;

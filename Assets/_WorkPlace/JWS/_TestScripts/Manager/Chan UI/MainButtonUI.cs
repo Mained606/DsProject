@@ -5,14 +5,14 @@ using UnityEngine.UI;
 public class MainButtonUI : MonoBehaviour
 {
     private Button[] mainButtons;
-    private TextMeshProUGUI playerGold;
+    //private TextMeshProUGUI playerGold;
     private enum MainButtonType { Main, StatusUI, QuestUI, Exit }
     private MainButtonType clickedButtonType = MainButtonType.Main;
 
     private void Awake()
     {
         mainButtons = transform.GetComponentsInChildren<Button>();
-        playerGold = transform.GetComponentInChildren<TextMeshProUGUI>();
+        //playerGold = transform.GetComponentInChildren<TextMeshProUGUI>();
     }
 
     private void OnEnable()
@@ -27,7 +27,7 @@ public class MainButtonUI : MonoBehaviour
 
     private void Update()
     {
-     //  playerGold.text = CharacterManager.PlayerCharacterData.gold.ToString();
+        //playerGold.text = CharacterManager.PlayerCharacterData.gold.ToString();
     }
 
     public void AddButtonListeners()
