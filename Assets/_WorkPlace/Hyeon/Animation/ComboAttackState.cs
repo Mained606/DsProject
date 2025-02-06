@@ -31,12 +31,14 @@ public class ComboAttackState : StateMachineBehaviour
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        
         SetCombatComponent(animator);
         //animator.ResetTrigger("NextCombo");
         //combat?.CurrentComboStates(GetStateCombo(stateInfo));
         if (!combat.weaponCollider.enabled)
         {
             combat.weaponCollider.enabled = true;
+            Debug.LogWarning("OnStateEnter");
             //Debug.LogWarning("🔪 무기 콜라이더 활성화!");
         }
         combat?.LookEnemy(attackPerceptionRange);
@@ -50,7 +52,7 @@ public class ComboAttackState : StateMachineBehaviour
             if (!isPressedAttackKey && InputManager.InputActions.actions["Attack"].triggered)
             {
                 isPressedAttackKey = true;
-                Debug.LogWarning($"{GetStateCombo(stateInfo)} : 🟢 다음 콤보로 전환 요청");
+                //Debug.LogWarning($"{GetStateCombo(stateInfo)} : 🟢 다음 콤보로 전환 요청");
                 nextComboInput = true;
                 animator.SetTrigger("NextCombo");
             }
@@ -61,9 +63,9 @@ public class ComboAttackState : StateMachineBehaviour
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        SetCombatComponent(animator);
-        AnimatorStateInfo nextStateInfo = animator.GetNextAnimatorStateInfo(layerIndex);
-        StateComboName nextState = GetStateCombo(nextStateInfo);
+        //SetCombatComponent(animator);
+        //AnimatorStateInfo nextStateInfo = animator.GetNextAnimatorStateInfo(layerIndex);
+        //StateComboName nextState = GetStateCombo(nextStateInfo);
         //Debug.LogWarning($"nextState : {nextState}");
         //if (animator.IsInTransition(layerIndex) &&
         //    (nextState == StateComboName.Attack1 || nextState == StateComboName.Attack2 || nextState == StateComboName.Attack3 || nextState == StateComboName.Attack4))
@@ -90,17 +92,12 @@ public class ComboAttackState : StateMachineBehaviour
             combat?.AttackFinished();
             Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
             combat.firstAttack = false;
-            if (combat.weaponCollider.enabled)
-            {
-                combat.weaponCollider.enabled = false;
-                //Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
-            }
+            //if (combat.weaponCollider.enabled)
+            //{
+            //    combat.weaponCollider.enabled = false;
+            //    //Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
+            //}
         }
-        //if (combat.weaponCollider.enabled)
-        //{
-        //    combat.weaponCollider.enabled = false;
-        //    //Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
-        //}
         InputManager.InputActions.actions["Move"].Enable();
         InputManager.InputActions.actions["Jump"].Enable();
 
