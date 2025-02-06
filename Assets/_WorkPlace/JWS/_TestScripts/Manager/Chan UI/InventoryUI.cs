@@ -16,7 +16,7 @@ public class InventoryUI : MonoBehaviour
     private int currentButtonIndex = 6;
     private Dictionary<string, List<Item>> categorizedItems = new Dictionary<string, List<Item>>();
 
-    private IReadOnlyList<Item> preInventory = new List<Item>();
+    private IReadOnlyList<Item> preInventory;
 
     #region 골드 인벤으로 이전
     [SerializeField]private TextMeshProUGUI playerGold;
@@ -29,6 +29,7 @@ public class InventoryUI : MonoBehaviour
 
     private void OnEnable()
     {
+        preInventory = new List<Item>();
         AddButtonListeners();
         OnButtonClick((int)CategotyItemType.전체아이템);
     }
@@ -39,6 +40,7 @@ public class InventoryUI : MonoBehaviour
 
     private void CategorizeItems()
     {
+        if (InventoryManager.Instance == null) return;
         if (preInventory.SequenceEqual(InventoryManager.InventoryList)) { return; } // 내부 요소 비교
 
         preInventory = new List<Item>(InventoryManager.InventoryList); // 리스트 복사
