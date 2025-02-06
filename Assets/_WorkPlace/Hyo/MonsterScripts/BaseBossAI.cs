@@ -266,6 +266,8 @@ public class BaseBossAI : MonoBehaviour
     private void HandleDeath()
     {
         animator.SetTrigger(IsDead);
+        
+        GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
         Debug.Log("보스가 사망했습니다.");
     }
 
