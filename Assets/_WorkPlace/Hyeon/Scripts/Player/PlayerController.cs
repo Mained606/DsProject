@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool cheatMode;
 
     [Header("이동")]
-    private Vector2 moveInput;
+    public Vector2 moveInput;
     [SerializeField] private Transform cameraTransform;
     private float walkSpeed;
     private float sprintSpeed;
@@ -57,6 +57,8 @@ public class PlayerController : MonoBehaviour
     public bool isInvincible = false;
 
     [Header("공격")]
+    [SerializeField] private float dashAttackDuration = 0.5f;
+    [SerializeField] private float dashAttackMoveDistance = 10f;
     public bool isCombatState;
     public bool CanAttack;
     public bool CanUseSkill;
@@ -431,7 +433,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // 카메라 회전 기준으로 정면 변경
-    private Vector3 GetDirection(Vector2 _moveInput)
+    public Vector3 GetDirection(Vector2 _moveInput)
     {
         Vector2 moveInput = _moveInput;
         Vector3 forward;
@@ -570,6 +572,21 @@ public class PlayerController : MonoBehaviour
         isDodging = false;
         playerAnimator.SetBool("Dodge", isDodging);
         isInvincible = false;
+    }
+
+    public IEnumerator DashAttack()
+    {
+        Vector3 dashDirection = GetDirection(moveInput);
+        dashDirection.y = verticalVelocity.y;
+        float elapsedTime = 0f;
+        while (elapsedTime < dashAttackDuration)
+        {
+            characterController.Move(dashDirection * (dashAttackMoveDistance / dashAttackDuration) * Time.deltaTime);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        playerAnimator.SetBool("Sprint", false);
+        playerAnimator.SetFloat("Speed", 0);
     }
 
 
