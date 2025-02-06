@@ -39,9 +39,12 @@ public class DragonController : MonoBehaviour
 
     // ===== 전투 관련 필드 =====
     [Header("Combat Settings")]
-    public float detectRange = 10f;        // 전투 시, 주변 몬스터 탐색 범위
+    public float detectRange = 40f;        // 전투 시, 주변 몬스터 탐색 범위
     public float meleeRange;          // 근접 공격 범위
     public float maxDistanceFromPlayer = 15f; // 플레이어로부터 이만큼 멀어지면 타겟 해제 & 순간이동
+    
+    // 전투 종료 체크 중복 방지를 위한 플래그
+    private bool isCheckingEndCombat = false;
     
     [SerializeField] private GameObject fireballPrefab; // 파이어볼 프리팹
 
@@ -113,6 +116,13 @@ public class DragonController : MonoBehaviour
         if (GameStateMachine.Instance.CurrentState == GameSystemState.Combat)
         {
             HandleCombatLogic();
+            
+            // [추가] 전투 상태에서 주변에 적이 하나도 없다면, 전투 종료 후보
+            if (!IsEnemyInRange(detectRange) && !isCheckingEndCombat)
+            {
+                // 1초(또는 2초) 후에 다시 확인 → 진짜 없으면 Exploration 전환
+                StartCoroutine(CheckEndCombatCoroutine(1f));
+            }
         }
         else
         {
@@ -122,6 +132,41 @@ public class DragonController : MonoBehaviour
             FollowPlayerLogic();
         }
     }
+    
+    // [1] 주변 몬스터가 있는지(= 전투가 계속될 가능성이 있는지) 확인하는 함수
+    private bool IsEnemyInRange(float range)
+    {
+        foreach (var character in CharacterManager.Instance.CharacterList)
+        {
+            if (character is MonsterData monster && monster.currentHp > 0)
+            {
+                float dist = Vector3.Distance(transform.position, monster.instance.transform.position);
+                if (dist <= range)
+                {
+                    return true; // 탐지 범위 내 살아있는 몬스터 발견
+                }
+            }
+        }
+        return false; // 범위 내 적 없음
+    }
+    
+    // [2] 일정 시간 후 다시 확인해서, 여전히 적이 없다면 전투 종료
+    private IEnumerator CheckEndCombatCoroutine(float delay)
+    {
+        isCheckingEndCombat = true;
+
+        // 지연시간 (1~2초 권장)
+        yield return new WaitForSeconds(delay);
+
+        // 아직도 탐지 범위 내 적이 없고, 게임 상태가 Combat이면 Exploration으로 전환
+        if (!IsEnemyInRange(detectRange) && GameStateMachine.Instance.CurrentState == GameSystemState.Combat)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
+        }
+
+        // 체크 완료
+        isCheckingEndCombat = false;
+    }
 
     #region 전투 로직
 
@@ -130,35 +175,33 @@ public class DragonController : MonoBehaviour
     {
         if (isAttacking) return; 
         
-        // 플레이어와 너무 멀어졌을 때, 타겟을 해제하고 플레이어 근처로 순간이동
+        // 플레이어와 너무 멀어졌으면 타겟 해제 후 Idle 로
         float distanceFromPlayer = Vector3.Distance(transform.position, player.position);
-
         if (distanceFromPlayer > maxDistanceFromPlayer)
         {
             currentTarget = null;
             currentTargetTransform = null;
-            // 플레이어 옆으로 순간이동
-            FollowPlayerLogic();
             currentState = DragonState.Idle;
+            FollowPlayerLogic();
             return;
         }
 
-        // 현재 타겟이 없거나 이미 죽었으면 새로운 타겟을 찾는다
+        // 현재 타겟이 없거나 타겟이 사망했다면 새로운 타겟을 찾는다
         if (currentTarget == null || currentTarget.currentHp <= 0)
         {
             currentTarget = null;
             currentTargetTransform = null;
-            currentState = DragonState.Idle;
-            
+        
+            // 새로운 타겟 탐색
             FindNearestTarget();
-        }
 
-        // 타겟이 존재하지 않으면 공격 불가 -> 그대로 종료
-        if (currentTarget == null)
-        {
-            currentState = DragonState.Idle;
-            FollowPlayerLogic();
-            return;
+            // 탐색 후에도 없으면 플레이어 따라감 (Idle 상태)
+            if (currentTarget == null)
+            {
+                currentState = DragonState.Idle;
+                FollowPlayerLogic();
+                return;
+            }
         }
 
         // 공격 우선순위 1) 스킬, 2) 원거리 공격(파이어볼), 3) 근접 공격
@@ -389,6 +432,7 @@ public class DragonController : MonoBehaviour
             // 플레이어 옆으로 순간이동
             transform.position = player.position + offset;
             isMoving = false;
+            
         }
         else
         {
