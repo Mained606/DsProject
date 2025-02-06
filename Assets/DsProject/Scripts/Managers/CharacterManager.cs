@@ -101,6 +101,9 @@ public class CharacterManager : BaseManager<CharacterManager>
             case GameSystemState.Exploration:
                 GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = false;
                 break;
+            case GameSystemState.BossBattle:
+                GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = true;
+                break;
         }
     }
     
@@ -260,10 +263,7 @@ public class CharacterManager : BaseManager<CharacterManager>
                 GameObject monsterInstance = Instantiate(monster.characterPrefab, parent);
                 monster.instance = monsterInstance;
                 var testComponent = monsterInstance.AddComponent<Test1>();
-                if (spawnType == SpawnnerType.Monster)
-                    testComponent.monster = monster as MonsterData;
-                else if (spawnType == SpawnnerType.Boss)
-                    testComponent.monster = monster as BossData;
+                testComponent.monster = monster;
                 return monsterInstance;
             }
         }
@@ -271,7 +271,9 @@ public class CharacterManager : BaseManager<CharacterManager>
         {
             // 템플릿에서 이름에 해당하는 캐릭터 데이터 검색
             BossData template = characterTemplates.boss.Find(c => c.characterName == templateName);
+            Debug.LogWarning("보스타입1 : " + template.characterType.ToString());
             BossData cloned = template.Clone();
+            Debug.LogWarning("보스타입2 : " + cloned.characterType.ToString());
             cloned.InitializeStats();
             cloned.UpdateDerivedStats();
 
@@ -287,6 +289,7 @@ public class CharacterManager : BaseManager<CharacterManager>
             GameObject monsterInstance = Instantiate(cloned.characterPrefab, parent);
             cloned.instance = monsterInstance;
             var testComponent = monsterInstance.AddComponent<Test1>();
+            Debug.LogWarning("보스타입 : " + cloned.characterType.ToString());
             testComponent.bossData = cloned;
             return monsterInstance;
         }
