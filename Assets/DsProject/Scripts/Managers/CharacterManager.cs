@@ -250,15 +250,18 @@ public class CharacterManager : BaseManager<CharacterManager>
     /// /////////////////////////////////////////////////////////////////////////////////////////
     /// </summary>
     // 몬스터 생성 함수 (템플릿 기반) - 풀링
-    public GameObject CreatMonster(string templateName, Transform parent)
+    public GameObject CreatMonster(SpawnnerType spawnType, string templateName, Transform parent)
     {
-        MonsterData monster = CreateCharacterFromTemplate(templateName);
+        CharacterData monster = CreateCharacterFromTemplate(templateName);
         if (monster != null)
         {
             GameObject monsterInstance = Instantiate(monster.characterPrefab, parent);
             monster.instance = monsterInstance;
             var testComponent = monsterInstance.AddComponent<Test1>();
-            testComponent.monster = monster;
+            if (spawnType == SpawnnerType.Monster)
+                testComponent.monster = monster as MonsterData;
+            else if (spawnType == SpawnnerType.Boss)
+                testComponent.monster = monster as BossData;
             return monsterInstance;
         }
         return null;

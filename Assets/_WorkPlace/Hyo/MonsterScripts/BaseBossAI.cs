@@ -14,7 +14,7 @@ public class BaseBossAI : MonoBehaviour
     [Header("보스 AI 설정")]
     public float searchRange = 30f; // 보스 탐색 범위
     public float maxDistance = 50f; // 플레이어가 벗어날 최대 거리
-    public float roarDuration = 3f; // 함성 지속 시간
+    public float roarDuration = 4f; // 함성 지속 시간
     public float teleportInterval = 80f; // 텔레포트 간격
     public float teleportRange = 10f; // 텔레포트 범위
     public float hitDuration = 1f; // 피격 상태 유지 시간
@@ -22,7 +22,7 @@ public class BaseBossAI : MonoBehaviour
     public float attackRange;
 
     [Header("스킬 설정")]
-    public float attackCooldown = 3f; // 공격 간격
+    public float attackCooldown = 10f; // 공격 간격
     private float attackCooldownTimer;
 
     [SerializeField] private BossState currentState = BossState.Idle;
@@ -38,6 +38,8 @@ public class BaseBossAI : MonoBehaviour
     
     private bool isAttacking = false;
     private bool isStunned = false;
+
+    [SerializeField] private GameObject firePoint1;
 
     protected virtual void OnDestroy()
     {
@@ -228,17 +230,19 @@ public class BaseBossAI : MonoBehaviour
         
         switch (selectedSkill.skillName)
         {
-            case "Test1":
-                Debug.Log("테스트 스킬1 발동");
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, randomSkillPosition);
+            case "OrbExplosion":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, GameManager.playerTransform.gameObject);
                 break;
             case "Test2":
-                Debug.Log("테스트 스킬2 발동");
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, randomSkillPosition);
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(5f);
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1);
                 break;
             case "Test3":
                 Debug.Log("테스트 스킬1 발동");
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, randomSkillPosition);
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
                 break;
         }
         
@@ -262,6 +266,8 @@ public class BaseBossAI : MonoBehaviour
     private void HandleDeath()
     {
         animator.SetTrigger(IsDead);
+        
+        GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
         Debug.Log("보스가 사망했습니다.");
     }
 
