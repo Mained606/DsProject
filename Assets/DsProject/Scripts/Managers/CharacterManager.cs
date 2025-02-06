@@ -232,7 +232,7 @@ public class CharacterManager : BaseManager<CharacterManager>
     // 단일 몬스터 생성 함수 (템플릿 기반) - 풀링 적용 X
     public void SpawnMonster(string templateName, Vector3 spawnPosition)
     {
-        MonsterData monster = CreateCharacterFromTemplate(templateName);
+        MonsterData monster = CreateCharacterFromTemplate(templateName) as MonsterData;
 
         if (monster != null)
         {
@@ -250,15 +250,44 @@ public class CharacterManager : BaseManager<CharacterManager>
     /// /////////////////////////////////////////////////////////////////////////////////////////
     /// </summary>
     // 몬스터 생성 함수 (템플릿 기반) - 풀링
-    public GameObject CreatMonster(string templateName, Transform parent)
+    public GameObject CreatMonster(SpawnnerType spawnType, string templateName, Transform parent)
     {
-        MonsterData monster = CreateCharacterFromTemplate(templateName);
-        if (monster != null)
+        if (spawnType != SpawnnerType.Boss)
         {
-            GameObject monsterInstance = Instantiate(monster.characterPrefab, parent);
-            monster.instance = monsterInstance;
+            MonsterData monster = CreateCharacterFromTemplate(templateName);
+            if (monster != null)
+            {
+                GameObject monsterInstance = Instantiate(monster.characterPrefab, parent);
+                monster.instance = monsterInstance;
+                var testComponent = monsterInstance.AddComponent<Test1>();
+                if (spawnType == SpawnnerType.Monster)
+                    testComponent.monster = monster as MonsterData;
+                else if (spawnType == SpawnnerType.Boss)
+                    testComponent.monster = monster as BossData;
+                return monsterInstance;
+            }
+        }
+        else
+        {
+            // 템플릿에서 이름에 해당하는 캐릭터 데이터 검색
+            BossData template = characterTemplates.boss.Find(c => c.characterName == templateName);
+            BossData cloned = template.Clone();
+            cloned.InitializeStats();
+            cloned.UpdateDerivedStats();
+
+            // 복제된 템플릿의 이름을 변경 (옵션)
+            if (!string.IsNullOrEmpty(templateName))
+            {
+                cloned.characterName = templateName;
+            }
+
+            // 리스트에 복제된 캐릭터 추가 (필요 시)
+            characterList.Add(cloned);
+
+            GameObject monsterInstance = Instantiate(cloned.characterPrefab, parent);
+            cloned.instance = monsterInstance;
             var testComponent = monsterInstance.AddComponent<Test1>();
-            testComponent.monster = monster;
+            testComponent.bossData = cloned;
             return monsterInstance;
         }
         return null;

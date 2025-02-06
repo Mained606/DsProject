@@ -6,6 +6,6 @@ public class TestMonster : MonoBehaviour
 
     private void Start()
     {
-        monsterData = CharacterManager.Instance.CreateCharacterFromTemplate("MophanS");
+        //monsterData = CharacterManager.Instance.CreateCharacterFromTemplate(SpawnnerType.Boss, "MophanS");
     }
 }
