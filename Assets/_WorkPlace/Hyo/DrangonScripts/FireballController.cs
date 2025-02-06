@@ -9,7 +9,7 @@ public class FireballController : MonoBehaviour
     public float speed = 10f;
     public float skillMultiplier = 1.2f;
 
-    // 🔹 초기화 함수 (Vector3 위치 + Transform 전달)
+    // 초기화 함수 (Vector3 위치 + Transform 전달)
     public void Initialize(Vector3 targetPosition, DragonData dragonData, Vector3 dragonPosition, CharacterData targetData, Transform targetTransform)
     {
         this.targetPosition = targetPosition;
@@ -34,7 +34,7 @@ public class FireballController : MonoBehaviour
         {
             if (targetTransform != null)
             {
-                // 🔹 Transform 전달하여 문제 해결!
+                // Transform 전달하여 문제 해결!
                 CombatManager.Instance.ProcessDragonAttack(dragonData, targetData, targetTransform, true, skillMultiplier);
             }
 
