@@ -41,7 +41,7 @@ public class ZonesManager : MonoBehaviour
                 case "용의둥지":
                     if (QuestManager.CurrentMainQuestIndex != 2) continue;
                     maxDistance = 40f;
-                    bool eggActive = distanceToPlayer < 1f && isInFrustum;
+                    bool eggActive = distanceToPlayer < 1f;
                     if (zone.GetChild(3).gameObject.activeSelf != eggActive)
                     {
                         zone.GetChild(3).gameObject.SetActive(eggActive);
@@ -53,7 +53,7 @@ public class ZonesManager : MonoBehaviour
                     break;
             }
 
-            bool shouldBeActive = distanceToPlayer < maxDistance && isInFrustum;
+            bool shouldBeActive = distanceToPlayer < maxDistance;
             if (zone.gameObject.activeSelf != shouldBeActive)
             {
                 zone.gameObject.SetActive(shouldBeActive);
