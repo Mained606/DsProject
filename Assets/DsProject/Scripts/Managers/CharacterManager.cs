@@ -244,7 +244,7 @@ public class CharacterManager : BaseManager<CharacterManager>
             // 생성된 인스턴스를 MonsterData에 연결
             monster.instance = monsterInstance;
             // 필요한 컴포넌트 추가 및 초기화
-            var testComponent = monsterInstance.AddComponent<Test1>();
+            var testComponent = monsterInstance.AddComponent<BaseMonsterData>();
             testComponent.monster = monster;
         }
     }
@@ -262,7 +262,7 @@ public class CharacterManager : BaseManager<CharacterManager>
             {
                 GameObject monsterInstance = Instantiate(monster.characterPrefab, parent);
                 monster.instance = monsterInstance;
-                var testComponent = monsterInstance.AddComponent<Test1>();
+                var testComponent = monsterInstance.AddComponent<BaseMonsterData>();
                 testComponent.monster = monster;
                 return monsterInstance;
             }
@@ -288,7 +288,7 @@ public class CharacterManager : BaseManager<CharacterManager>
 
             GameObject monsterInstance = Instantiate(cloned.characterPrefab, parent);
             cloned.instance = monsterInstance;
-            var testComponent = monsterInstance.AddComponent<Test1>();
+            var testComponent = monsterInstance.AddComponent<BaseMonsterData>();
             Debug.LogWarning("보스타입 : " + cloned.characterType.ToString());
             testComponent.bossData = cloned;
             return monsterInstance;
