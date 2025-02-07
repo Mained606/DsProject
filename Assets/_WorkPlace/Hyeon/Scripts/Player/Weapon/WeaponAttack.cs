@@ -30,12 +30,24 @@ public class WeaponAttack : MonoBehaviour
             // ================ 2025-02-07 09:18 HYO 코드 추가 ====================================================================================================================================
             if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
             {
-                CharacterData enemyData = other.GetComponent<BaseMonsterData>()?.monster ?? other.GetComponent<BaseMonsterData>()?.bossData;
-
-                if (enemyData != null)
+                // BaseMonsterData에서 monsterOrBossData를 가져오고, 타입에 맞게 처리
+                BaseMonsterData baseMonsterData = other.GetComponent<BaseMonsterData>();
+                if (baseMonsterData != null)
                 {
-                    StartCoroutine(GameManager.playerTransform.GetComponent<PlayerController>().StopPlayer(0.05f));
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyData, other.transform, true, false);
+                    // monsterOrBossData가 MonsterData일 경우 처리
+                    MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
+                    if (enemyMonsterData != null)
+                    {
+                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, false);
+                        return;  // MonsterData 처리 완료 후 반환
+                    }
+
+                    // monsterOrBossData가 BossData일 경우 처리
+                    BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
+                    if (enemyBossData != null)
+                    {
+                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, false);
+                    }
                 }
             }
             // ===================================================================================================================================================================================

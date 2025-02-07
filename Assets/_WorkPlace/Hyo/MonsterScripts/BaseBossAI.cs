@@ -40,6 +40,7 @@ public class BaseBossAI : MonoBehaviour
     private bool isStunned = false;
 
     [SerializeField] private GameObject firePoint1;
+    private bool respawn = false;
 
     protected virtual void OnDestroy()
     {
@@ -50,7 +51,7 @@ public class BaseBossAI : MonoBehaviour
         spawnPosition = transform.position;
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
-        bossData = GetComponent<BaseMonsterData>().bossData;
+        bossData = GetComponent<BaseMonsterData>().GetBossData();
 
         if (bossData != null)
         {
@@ -297,16 +298,16 @@ public class BaseBossAI : MonoBehaviour
     {
         // if (attacker.CompareTag("Player")) playerTarget = attacker;
         playerTarget = GameManager.playerTransform;
-        
-        // 현재 상태가 Hit이더라도 다시 피격 상태로 전환 가능하도록 변경
-        if (currentState == BossState.Hit)
-        {
-            RestartHitAnimation(); 
-        }
-        else
-        {
-            SetState(BossState.Hit);
-        }
+        //
+        // // 현재 상태가 Hit이더라도 다시 피격 상태로 전환 가능하도록 변경
+        // if (currentState == BossState.Hit)
+        // {
+        //     RestartHitAnimation(); 
+        // }
+        // else
+        // {
+        //     SetState(BossState.Hit);
+        // }
     }
     
     protected void RestartHitAnimation()
@@ -322,5 +323,30 @@ public class BaseBossAI : MonoBehaviour
         float randomZ = Random.Range(-teleportRange, teleportRange);
         Vector3 randomPosition = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
         return randomPosition;
+    }
+    
+    public void SetDeadState(bool pooling)
+    {
+        SetState(BossState.Dead);
+        StartCoroutine(OnDeathAnimationEnd(pooling));
+    }
+    
+    IEnumerator OnDeathAnimationEnd(bool pooling)
+    {
+        characterController.Move(Vector3.zero); // 이동 정지
+
+        yield return new WaitForSeconds(1.5f);
+        if (pooling)
+        {
+            respawn = true;
+            gameObject.SetActive(false);
+
+            // 데이터 초기화 부분
+            bossData.ResetDataByLevel();
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 }
