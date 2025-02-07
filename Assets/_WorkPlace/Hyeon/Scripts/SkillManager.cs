@@ -19,12 +19,11 @@ public class BuffInfo {
     public float duration;   // 버프 지속시간
 }
 
-
+/*
 // ========================================
 public class SkillManager : BaseManager<SkillManager>
 {
     [SerializeField] private SkillList skillDatabase;
-    public static SkillList SkillDatabase => Instance.skillDatabase;
     private Dictionary<(EntityType, string), Skills> skillList = new Dictionary<(EntityType, string), Skills>();
 
 
@@ -714,8 +713,7 @@ public class SkillManager : BaseManager<SkillManager>
         return tempList;
     }
 }
-
-/*
+*/
 
 public class SkillManager : BaseManager<SkillManager>
 {
@@ -807,22 +805,28 @@ public class SkillManager : BaseManager<SkillManager>
 
     private IEnumerator ExecuteSkill(EntityType entityType, Skills skill, GameObject target, Vector3? overridePosition = null)
     {
-        if (target == null) target = GameManager.playerTransform.gameObject;
+        if (target == null)
+        {
+            target = GameManager.playerTransform.gameObject;
+        }
 
-        Vector3 spawnPosition = overridePosition ?? target.transform.position;
+        Vector3 spawnPosition = overridePosition ?? target.transform.position; // 전달된 위치가 없으면 기본 위치 사용
+
         Animator entityAnimator = GetEntityAnimator(entityType);
-
-        entityAnimator?.SetTrigger(skill.activeTriggerName);
+        if (entityAnimator != null)
+        {
+            entityAnimator.SetTrigger(skill.activeTriggerName);
+        }
 
         if (skill.effectPrefab != null)
         {
-            var effect = Instantiate(skill.effectPrefab, spawnPosition, Quaternion.LookRotation(target.transform.forward));
+            Quaternion entityRotation = Quaternion.LookRotation(target.transform.forward);
+            var effect = Instantiate(skill.effectPrefab, spawnPosition, entityRotation);
             if (skill.particleDelay > 0)
             {
                 var particleEffect = effect.GetComponent<ParticleSystem>().main;
                 particleEffect.startDelay = skill.particleDelay;
             }
-
             Destroy(effect, 5f);
         }
 
@@ -830,6 +834,15 @@ public class SkillManager : BaseManager<SkillManager>
         yield return new WaitForSeconds(animationLength + 0.5f);
 
         isActivating = false;
+
+        if (entityType == EntityType.Player)
+        {
+            PlayerController playerController = GameManager.playerTransform.GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.isUseSkill = false;
+            }
+        }
     }
 
     private float GetAnimationClipLength(Animator animator, string triggerName)
@@ -845,7 +858,7 @@ public class SkillManager : BaseManager<SkillManager>
         {
             EntityType.Player => GameManager.playerTransform?.GetComponentInChildren<Animator>(),
             EntityType.Dragon => GameManager.DragonTransform?.GetComponent<Animator>(),
-            *//*EntityType.Boss => GameManager.BossTransform?.GetComponent<Animator>(),*//*
+            /*EntityType.Boss => GameManager.BossTransform?.GetComponent<Animator>(),*/
             _ => null
         };
     }
@@ -915,7 +928,7 @@ public class SkillManager : BaseManager<SkillManager>
         if (!skillList.TryGetValue((entityType, skillName), out Skills skill))
         {
             Debug.LogError($"[GetCooldownForSkill] 스킬을 찾을 수 없음: {skillName}");
-            return 60f; // 기본값 60초
+            return 60f;
         }
 
         return skill.cooldown;
@@ -923,7 +936,7 @@ public class SkillManager : BaseManager<SkillManager>
 
     public bool CheckMana(EntityType entity, string skillName)
     {
-        UpdateCurrentMana(); // MP 정보 최신화
+        UpdateCurrentMana();
 
         Skills skill = GetSkill(entity, skillName);
         if (skill == null)
@@ -942,8 +955,7 @@ public class SkillManager : BaseManager<SkillManager>
     }
 
     // ========================== 🛠️ 버프 기능 추가 ==========================
-    // 기존 함수명: ApplyBuff → ApplyBuffToCharacter
-    public void ApplyBuffToCharacter(EntityType entityType, string skillName)
+    public void ApplyBuff(EntityType entityType, string skillName)
     {
         Skills skill = GetSkill(entityType, skillName);
         if (skill == null) return;
@@ -951,54 +963,74 @@ public class SkillManager : BaseManager<SkillManager>
         CharacterData targetCharacter = entityType switch
         {
             EntityType.Dragon => CharacterManager.PlayerCharacterData,
-            EntityType.Player => CharacterManager.PlayerCharacterData,
-            *//* EntityType.Boss => CharacterManager.BossCharacterData, *//*
+            // EntityType.Boss => CharacterManager.BossCharacterData, // 보스 데이터 추가
+            // EntityType.Player => CharacterManager.PlayerCharacterData,
             _ => null
         };
 
         if (targetCharacter == null) return;
 
-        // 이미 활성화된 버프인지 확인
         if (activeBuffs.ContainsKey(skillName))
         {
             StopCoroutine(activeBuffs[skillName].coroutine);
             activeBuffs.Remove(skillName);
+
+            BuffInfo buffInfo = new BuffInfo();
+            buffInfo.startTime = Time.time;
+            buffInfo.duration = skill.buffDuration;
+            buffInfo.coroutine = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
+            activeBuffs[skillName] = buffInfo;
+
+            Debug.Log(skillName + "이미 중복되어 실행 중지");
+
+            return;
         }
 
-        BuffInfo newBuffInfo = new BuffInfo
-        {
-            startTime = Time.time,
-            duration = skill.buffDuration,
-            coroutine = StartCoroutine(RemoveBuff(skillName, skill.buffDuration, targetCharacter))
-        };
+        BuffInfo newBuffInfo = new BuffInfo();
+        newBuffInfo.startTime = Time.time;
+        newBuffInfo.duration = skill.buffDuration;
+        newBuffInfo.coroutine = StartCoroutine(RemoveBuffAfterDuration(skillName, skill.buffDuration, targetCharacter));
         activeBuffs[skillName] = newBuffInfo;
 
+        // 버프 효과 적용
         switch (skillName)
         {
             case "PlayerBuffPhysical":
                 targetCharacter.physicalDamageBuffMultiplier *= 1.2f;
+                targetCharacter.UpdateDerivedStats();
                 break;
+
             case "PlayerBuffMagic":
                 targetCharacter.magicDamageBuffMultiplier *= 1.2f;
+                targetCharacter.UpdateDerivedStats();
                 break;
+
             case "PlayerBuffHP":
                 targetCharacter.hpBuffBonus += 100;
                 targetCharacter.currentHp += 100;
+                targetCharacter.UpdateDerivedStats();
+                break;
+            default:
+                Debug.LogWarning("알 수 없는 버프 스킬: " + skillName);
                 break;
         }
 
-        targetCharacter.UpdateDerivedStats();
-
         if (skill.effectPrefab != null)
         {
-            CreateBuffEffect(skill.effectPrefab, GameManager.playerTransform.position);
+            InstantiateBuffEffect(skill.effectPrefab, GameManager.playerTransform.position);
         }
 
         TimerManager.Instance.StartTimer(skill.cooldownTimer);
     }
 
-    // 기존 함수명: RemoveBuffAfterDuration → RemoveBuff
-    private IEnumerator RemoveBuff(string skillName, float duration, CharacterData targetCharacter)
+    private void InstantiateBuffEffect(GameObject effectPrefab, Vector3 targetPosition)
+    {
+        var effect = Instantiate(effectPrefab, targetPosition, Quaternion.identity);
+        effect.transform.SetParent(GameManager.playerTransform);
+        Destroy(effect, 3f);
+    }
+
+    private IEnumerator RemoveBuffAfterDuration(string skillName, float duration, CharacterData targetCharacter)
     {
         yield return new WaitForSeconds(duration);
 
@@ -1006,31 +1038,27 @@ public class SkillManager : BaseManager<SkillManager>
         {
             case "PlayerBuffPhysical":
                 targetCharacter.physicalDamageBuffMultiplier /= 1.2f;
+                targetCharacter.UpdateDerivedStats();
                 break;
+
             case "PlayerBuffMagic":
                 targetCharacter.magicDamageBuffMultiplier /= 1.2f;
+                targetCharacter.UpdateDerivedStats();
                 break;
+
             case "PlayerBuffHP":
                 targetCharacter.hpBuffBonus -= 100;
+                targetCharacter.UpdateDerivedStats();
                 break;
         }
-
-        targetCharacter.UpdateDerivedStats();
 
         if (targetCharacter.maxHp < targetCharacter.currentHp)
         {
             targetCharacter.currentHp = targetCharacter.maxHp;
         }
 
+        Debug.Log(skillName + "버프 시간 종료");
         activeBuffs.Remove(skillName);
-    }
-
-    // 기존 함수명: InstantiateBuffEffect → CreateBuffEffect
-    private void CreateBuffEffect(GameObject effectPrefab, Vector3 targetPosition)
-    {
-        var effect = Instantiate(effectPrefab, targetPosition, Quaternion.identity);
-        effect.transform.SetParent(GameManager.playerTransform);
-        Destroy(effect, 3f);
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
@@ -1038,4 +1066,3 @@ public class SkillManager : BaseManager<SkillManager>
 
     }
 }
-*/
