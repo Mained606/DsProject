@@ -248,7 +248,6 @@ public class CombatManager : BaseManager<CombatManager>
             switch (baseMonsterData.currentType)
             {
                 case SpawnnerType.Monster:
-
                     CharacterManager.Instance.OnMonsterDefeated(baseMonsterData.GetMonsterData(), defenderTransform.position);
                     break;
 
