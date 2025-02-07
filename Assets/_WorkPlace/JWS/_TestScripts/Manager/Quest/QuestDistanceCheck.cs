@@ -33,6 +33,14 @@ public class QuestDistanceCheck : MonoBehaviour
                 continue;
             }
 
+            if (questCondition.type == QuestConditionType.Kill)
+            {
+                CompassIndicater.AddTarget(QuestManager.GetQuestConditionPoint(keyWord));
+                distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord).position);
+                int currentProgress = quest.progress.ContainsKey(keyWord) ? quest.progress[keyWord] : 0;
+                distanceColor = $"     <color=green>{currentProgress} / {questCondition.requiredQuantity}</color>";
+            }
+
             if (keyWord.Contains("location"))
             {
                 CompassIndicater.AddTarget(QuestManager.GetQuestConditionPoint(keyWord));
