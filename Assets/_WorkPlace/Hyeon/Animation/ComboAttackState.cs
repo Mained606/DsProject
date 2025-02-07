@@ -38,7 +38,7 @@ public class ComboAttackState : StateMachineBehaviour
         if (!combat.weaponCollider.enabled)
         {
             combat.weaponCollider.enabled = true;
-            Debug.LogWarning("OnStateEnter");
+            //Debug.LogWarning("OnStateEnter");
             //Debug.LogWarning("🔪 무기 콜라이더 활성화!");
         }
         combat?.LookEnemy(attackPerceptionRange);
@@ -95,7 +95,7 @@ public class ComboAttackState : StateMachineBehaviour
         {
             animator.ResetTrigger("NextCombo");
             combat?.AttackFinished();
-            Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
+            //Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
             combat.firstAttack = false;
             if (combat.weaponCollider.enabled)
             {

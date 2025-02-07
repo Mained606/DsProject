@@ -34,13 +34,14 @@ public class WeaponAttack : MonoBehaviour
 
                 if (enemyData != null)
                 {
+                    StartCoroutine(GameManager.playerTransform.GetComponent<PlayerController>().StopPlayer(0.05f));
                     CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyData, other.transform, true, false);
                 }
             }
             // ===================================================================================================================================================================================
             else
             {
-                Debug.Log("암튼 뭔갈 침");
+                //Debug.Log("암튼 뭔갈 침");
             }
         }
     }
@@ -48,5 +49,7 @@ public class WeaponAttack : MonoBehaviour
     {
         DamagedTargets.Remove(other.gameObject);
     }
+
+
 
 }
