@@ -17,7 +17,7 @@ public class BaseBossAI : MonoBehaviour
     [Header("보스 AI 설정")]
     public float searchRange = 30f;           // 보스가 플레이어를 감지하는 범위
     public float maxDistance = 50f;           // 보스 스폰 위치로부터 플레이어가 벗어나면 복귀 처리할 거리
-    public float roarDuration = 4f;           // 로어링(울부짖기) 애니메이션 지속 시간
+    public float roarDuration = 5f;           // 로어링(울부짖기) 애니메이션 지속 시간
     public float teleportInterval = 80f;      // 텔레포트 간격 (미사용)
     public float teleportRange = 10f;         // 텔레포트 범위 (미사용)
     public float hitDuration = 1f;            // 피격 상태 지속 시간
@@ -29,11 +29,11 @@ public class BaseBossAI : MonoBehaviour
     private float attackCooldownTimer;
         
     [Header("대쉬 설정")]
-    public float dashSpeed = 20f;     // 대쉬 시 이동 속도
+    public float dashSpeed = 30f;     // 대쉬 시 이동 속도
     public float dashDistance = 30f;  // 대쉬 시 이동할 거리
 
     [Header("점프 설정")]
-    public float jumpSpeed = 10f;     // 점프 시 수평 이동 속도
+    public float jumpSpeed = 20f;     // 점프 시 수평 이동 속도
     public float jumpHeight = 7f;     // 점프 최고 높이
     public float jumpDistance = 20f;  // 점프 시 이동할 거리
 
@@ -53,7 +53,6 @@ public class BaseBossAI : MonoBehaviour
     private bool isPerformingSpecialMove = false;
     private bool isRotating = true; // 회전 방지 플래그 추가
     
-
     [SerializeField] private GameObject firePoint1;  // AoE 스킬 시 사용할 위치 (예시)
     [SerializeField] private bool respawn = false;
 
@@ -442,7 +441,17 @@ public class BaseBossAI : MonoBehaviour
     private IEnumerator PerformJump()
     {
         Vector3 startPosition = transform.position;
-        Vector3 targetPosition = playerTarget.position; // 플레이어 위치로 설정
+        Vector3 targetPosition = playerTarget.position;
+
+        // 플레이어와의 거리가 너무 가까운 경우 오프셋을 적용하지 않도록 함
+        Vector3 offset;
+        do
+        {
+            offset = new Vector3(Random.Range(-3f, 3f), 0f, Random.Range(-3f, 3f)); // x, z축으로 랜덤 오프셋
+            targetPosition = playerTarget.position + offset;
+        }
+        while (Vector3.Distance(targetPosition, playerTarget.position) < 1.5f); // 플레이어와의 거리가 1 이상일 때만 오프셋 적용
+
         float jumpDuration = jumpDistance / jumpSpeed;
         float elapsed = 0f;
 
@@ -456,24 +465,13 @@ public class BaseBossAI : MonoBehaviour
             Vector3 newPosition = horizontalPosition;
             newPosition.y = startPosition.y + verticalOffset;
 
-            // 플레이어와 충돌했을 경우 밀어내기 (수평 방향으로 밀어내기)
-            if (playerTarget != null && Vector3.Distance(transform.position, playerTarget.position) < 4f) // 플레이어와의 거리 확인
-            {
-                // 플레이어와의 상대적인 수평 방향 계산 (y축을 무시)
-                Vector3 directionToPlayer = (playerTarget.position - transform.position).normalized;
-                directionToPlayer.y = 0; // y축을 0으로 설정해 수평 방향으로만 밀어내기
-
-                // 플레이어를 밀어낼 벡터는 대시 방향과 직각인 벡터로 설정 (벡터의 외적 사용)
-                Vector3 pushDirection = Vector3.Cross(directionToPlayer, Vector3.up).normalized;
-
-                float pushForce = 50f; // 밀어내는 힘 설정
-                playerTarget.GetComponent<CharacterController>().Move(pushDirection * pushForce * Time.deltaTime);
-            }
             // 보스 점프 이동
             characterController.Move(newPosition - transform.position);
             yield return null;
         }
     }
+
+
 
     protected virtual void HandleGravity()
     {

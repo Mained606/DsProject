@@ -1247,16 +1247,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   searchRange: 30
   maxDistance: 50
-  roarDuration: 3
+  roarDuration: 5
   teleportInterval: 80
   teleportRange: 10
   hitDuration: 1
   movementSpeed: 0
   attackRange: 0
   attackCooldown: 10
-  dashSpeed: 20
+  dashSpeed: 30
   dashDistance: 30
-  jumpSpeed: 10
+  jumpSpeed: 20
   jumpHeight: 7
   jumpDistance: 20
   currentState: 0
