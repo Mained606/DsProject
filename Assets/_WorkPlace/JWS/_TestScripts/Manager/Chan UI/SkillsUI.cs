@@ -8,8 +8,8 @@ public class SkillsUI : MonoBehaviour
     [SerializeField] private Animator[] skillSlotsAnimator;
     [SerializeField] private Image[] skillSlotImages;
     [SerializeField] private TextMeshProUGUI[] skillSlotText;
+    [SerializeField] private Transform buffDisplayPosition;
     private PlayerData playerData;
-    private Item[] skillSlot = new Item[4];
     private List<Skills> playerSkillList = new List<Skills>();
     private int skillCount = 0;
 
@@ -19,7 +19,7 @@ public class SkillsUI : MonoBehaviour
         if (playerData == null) { playerData = CharacterManager.PlayerCharacterData; }
         if (SkillManager.Instance != null)
         {
-            playerSkillList = SkillManager.Instance.GetSkills(EntityType.Player);
+            playerSkillList = SkillManager.SkillDatabase.playerSkills;
         }
         skillCount = playerSkillList.Count;
         InitskillSlotItems();
