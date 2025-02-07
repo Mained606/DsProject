@@ -138,7 +138,7 @@ public class SkillManager : BaseManager<SkillManager>
     // ===================== 2025-02-01 10:44 HYO 코드 추가 =======================================================
     public void ActivateSkillForEntity(EntityType entityType, string skillName, GameObject target = null, Vector3? overridePosition = null)
     {
-        Debug.Log($"[ActivateSkillForEntity] {entityType}가 {skillName} 스킬을 사용하려 합니다.");
+        // Debug.Log($"[ActivateSkillForEntity] {entityType}가 {skillName} 스킬을 사용하려 합니다.");
         
         if (isActivating)
         {
@@ -152,7 +152,7 @@ public class SkillManager : BaseManager<SkillManager>
             Debug.LogError($"[ActivateSkill] 스킬을 찾을 수 없음: {skillName}");
             return;
         }
-        Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 정상적으로 찾았습니다.");
+        // Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 정상적으로 찾았습니다.");
         
         if (skill.cooldownTimer.IsRunning)
         {
@@ -170,7 +170,7 @@ public class SkillManager : BaseManager<SkillManager>
             }
         }
 
-        Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 실행합니다.");
+        // Debug.Log($"[ActivateSkillForEntity] {skillName} 스킬을 실행합니다.");
         
         isActivating = true; // 스킬 사용 중 플래그 설정
         CharacterManager.PlayerCharacterData.UseMp(skill.energyCost);

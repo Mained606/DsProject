@@ -50,7 +50,7 @@ public class BaseBossAI : MonoBehaviour
         spawnPosition = transform.position;
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
-        bossData = GetComponent<Test1>().bossData;
+        bossData = GetComponent<BaseMonsterData>().bossData;
 
         if (bossData != null)
         {
