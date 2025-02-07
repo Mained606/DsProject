@@ -11,7 +11,7 @@ public class BossHudUI : MonoBehaviour
     private void Awake()
     {
         bossHudText = transform.GetComponentsInChildren<TextMeshProUGUI>();
-        bossHealthBar = transform.GetComponentInChildren<Image>();
+        bossHealthBar = transform.GetChild(1).GetComponent<Image>();
     }
 
     private void OnDisable()
@@ -25,7 +25,8 @@ public class BossHudUI : MonoBehaviour
         {
             bossHudText[0].text = bossData.characterName;
             bossHudText[1].text = $"{bossData.currentHp} / {bossData.maxHp}";
-            bossHealthBar.fillAmount = bossData.currentHp / bossData.maxHp;
+            bossHealthBar.fillAmount = (float)((float)bossData.currentHp / (float)bossData.maxHp);
+            Debug.LogWarning("보스피 : " + bossHealthBar.fillAmount);
         }
     }
 

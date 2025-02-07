@@ -210,15 +210,17 @@ public class PlayerCombat : MonoBehaviour
         {
             string skillName = SkillManager.SkillDatabase.playerSkills[i].skillName;
             string skillTriggerName = Enum.GetName(typeof(SkillTriggerName), i);
-            if (string.IsNullOrEmpty(skillTriggerName))
-                continue;
+            if (string.IsNullOrEmpty(skillTriggerName)) continue;
             if (InputManager.InputActions.actions[skillTriggerName].triggered && hasWeapon)
             {
+                controller.CanMove = false;
+                controller.CanAttack = false;
+     
                 if (SkillManager.Instance.CheckMana(EntityType.Player, skillName) &&
                     SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
                 {
                     controller.isUseSkill = true;
-                    SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, closestMonster);
+                    SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
                 }
                 else
                 {
