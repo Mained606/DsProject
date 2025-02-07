@@ -135,8 +135,7 @@ public class BaseBossAI : MonoBehaviour
 
     private void StartBossBattle()
     {
-        GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle);
-        // UIManager.Instance.BossHudUP(bossData);
+        GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
         SetState(BossState.Roaring);
     }
 
