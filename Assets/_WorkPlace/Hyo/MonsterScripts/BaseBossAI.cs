@@ -40,7 +40,7 @@ public class BaseBossAI : MonoBehaviour
     private bool isStunned = false;
 
     [SerializeField] private GameObject firePoint1;
-    private bool respawn = false;
+    [SerializeField] private bool respawn = false;
 
     protected virtual void OnDestroy()
     {

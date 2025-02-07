@@ -11,7 +11,7 @@ public class BaseMonsterData : MonoBehaviour
     public void SetData(SpawnnerType type, object data)
     {
         monsterOrBossData = data;
-        currentType= type;
+        currentType = type;
     }
 
     // 일반 몬스터 데이터에 접근하는 메서드
