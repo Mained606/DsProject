@@ -57,8 +57,8 @@ public class PlayerController : MonoBehaviour
     public bool isInvincible = false;
 
     [Header("공격")]
-    [SerializeField] private float dashAttackDuration = 0.5f;
-    [SerializeField] private float dashAttackMoveDistance = 10f;
+    private float dashAttackDuration = 0.5f;
+    private float dashAttackMoveDistance = 10f;
     public bool isCombatState;
     public bool CanAttack;
     public bool CanUseSkill;
