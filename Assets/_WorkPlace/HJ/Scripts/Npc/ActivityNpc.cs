@@ -147,7 +147,8 @@ public class ActivityNpc : MonoBehaviour
     {
         if(!bench.right)
         {
-            transform.position = bench.rightPosition;
+            transform.position = bench.rightPosition.position;
+            transform.rotation = bench.rightPosition.rotation;
             bench.right = true;
             isSitting = true;
             return;
@@ -155,7 +156,8 @@ public class ActivityNpc : MonoBehaviour
 
         if(!bench.left)
         {
-            transform.position = bench.leftPosition;
+            transform.position = bench.leftPosition.position;
+            transform.rotation = bench.leftPosition.rotation;
             bench.left = true;
             isSitting = true;
             return;

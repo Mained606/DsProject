@@ -39,10 +39,13 @@ public class WanderNpc : MonoBehaviour
     //
     private string sittingState = "IsSitting";
     [SerializeField] private bool isSitting = false;
+    [SerializeField] private bool isSittingTalking = false;
+    [SerializeField] private bool isJustStoodUp = false;
     public Vector3 sittingOffset = new Vector3(1, 0.2f, 0.5f);
     private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
+    private Coroutine sittingTalkingCoroutine = null;
 
-    private float sittingCoolTime = 5f;
+    [SerializeField] private float sittingCoolTime = 0f; //5f
     private float lastSittingTime = 0f;
 
     private Rigidbody rb;
@@ -64,11 +67,11 @@ public class WanderNpc : MonoBehaviour
             return;
         }
 
-        if (isMoving && isCloseNpcs(transform.position, minNpcDistance) && !isTalking)
+        if (isMoving && isCloseNpcs(transform.position, minNpcDistance))
         {
             if(Time.time > nextDestinationTime)
             {
-                Debug.Log("다른 npc와 너무 가까움, 새로운 목적지 설정");
+                Debug.Log($"{transform.name} 다른 npc와 너무 가까움, 새로운 목적지 설정");
                 SetNextDestination();
                 nextDestinationTime = Time.time + destinationCooldown;
             }            
@@ -83,7 +86,7 @@ public class WanderNpc : MonoBehaviour
             //y축 차이가 너무 크면 새로운 목적지 설정
             if(Mathf.Abs(transform.position.y - targetPosition.y) > 2f)
             {
-                Debug.Log("y축 차이가 큼, 새로운 목적지 설정");
+                Debug.Log($"{transform.name} y축 차이가 큼, 새로운 목적지 설정");
                 SetNextDestination();
                 return;
             }
@@ -98,7 +101,6 @@ public class WanderNpc : MonoBehaviour
             if (animator.GetBool(walkingState))
             {
                 MoveToWards(targetPosition);
-                Debug.Log($"{gameObject.name} 이동 중");
             }
         }
     }
@@ -109,13 +111,19 @@ public class WanderNpc : MonoBehaviour
         {
             if (isSitting)
             {
-                StartCoroutine(SittingTalking(other.GetComponent<Bench>()));
+                Bench bench = GetCurrentBench();
+                if(bench != null && !isSittingTalking)
+                {
+                    isSittingTalking = true;
+                    StopCoroutine(SittingDuration(bench));
+                    sittingTalkingCoroutine = StartCoroutine(SittingTalking(bench));
+                }
             }
             else
             {
                 if (Time.time - lastConversationTime < conversationCoolTime)
                 {
-                    Debug.Log("대화 쿨타임 중");
+                    Debug.Log($"{transform.name} 대화 쿨타임 중");
                     return;
                 }
 
@@ -129,7 +137,7 @@ public class WanderNpc : MonoBehaviour
         {
             if(Time.time - lastSittingTime < sittingCoolTime)
             {
-                Debug.Log("앉기 쿨타임 중");
+                Debug.Log($"{transform.name} 앉기 쿨타임 중");
                 return;
             }
 
@@ -141,9 +149,24 @@ public class WanderNpc : MonoBehaviour
     {
         if (other.CompareTag("NPC"))
         {
-            Debug.Log("npc 헤어짐");
+            Debug.Log($"{transform.name} npc 헤어짐");
             targetNpc = null;
             StopConversation();
+
+            if (isSittingTalking && !isCloseNpcs(transform.position, minNpcDistance))
+            {
+                Debug.Log($"{transform.name} 대화중인 npc 떠남");
+                Bench bench = GetCurrentBench();
+
+                if(sittingTalkingCoroutine != null)
+                {
+                    StopCoroutine(sittingTalkingCoroutine);
+                    sittingTalkingCoroutine = null;
+                }
+
+                isSittingTalking = false;
+                StartCoroutine(SittingDuration(bench));
+            }
         }
     }
 
@@ -155,12 +178,23 @@ public class WanderNpc : MonoBehaviour
         Vector3 randomPosition;
         int safetyCounter = 0;
 
-        do
+        if (isJustStoodUp)
         {
-            randomPosition = spawnPosition + new Vector3(Random.Range(-walkingRange, walkingRange), 0f, Random.Range(-walkingRange, walkingRange));
-            safetyCounter++;
+            Vector3 forwardDirection = transform.forward.normalized; //NPC가 바라보는 방향
+            float moveDistance = Random.Range(arrivedDistance * 2f, walkingRange); //이동 거리 랜덤 설정
+            randomPosition = transform.position + (forwardDirection * moveDistance);
+
+            isJustStoodUp = false; //한번만 적용되도록 초기화
         }
-        while (Vector3.Distance(transform.position, randomPosition) < arrivedDistance * 2f && safetyCounter < 10);
+        else
+        {
+            do
+            {
+                randomPosition = spawnPosition + new Vector3(Random.Range(-walkingRange, walkingRange), 0f, Random.Range(-walkingRange, walkingRange));
+                safetyCounter++;
+            }
+            while (Vector3.Distance(transform.position, randomPosition) < arrivedDistance * 2f && safetyCounter < 10);
+        }
 
         targetPosition = randomPosition;
         animator.SetBool(walkingState, true);
@@ -265,7 +299,7 @@ public class WanderNpc : MonoBehaviour
         }
 
         lastConversationTime = Time.time;
-        Debug.Log("대화 종료");
+        Debug.Log($"{transform.name} 대화 종료");
 
         animator.SetTrigger(exitTrigger);
         animator.SetBool(talkingState, false);
@@ -313,16 +347,15 @@ public class WanderNpc : MonoBehaviour
 
     /// <summary>
     /// 의자가 근처에 있으면 앉기
-    /// 넣을지 말지 고민
     /// </summary>
     private void SittingAtBench(Collider collider)
     {
         Bench bench = collider.GetComponent<Bench>();
         if (bench == null) return;
 
-        Debug.Log("의자 인식");
+        Debug.Log($"{transform.name} 의자 인식");
 
-        if (Random.value <= 1)
+        if (Random.value <= 0.5f)
         {
             if (!animator.GetBool(sittingState))
             {
@@ -330,7 +363,7 @@ public class WanderNpc : MonoBehaviour
 
                 if (animator.GetBool(walkingState))
                 {
-                    Debug.Log("걷기 멈춤");
+                    Debug.Log($"{transform.name} 걷기 멈춤");
                     animator.SetBool(walkingState, false);
                     isMoving = false;
                 }
@@ -340,12 +373,12 @@ public class WanderNpc : MonoBehaviour
 
                 if(!bench.left)
                 {
-                    transform.position = bench.leftPosition;
+                    transform.position = bench.leftPosition.position;
                     bench.left = true;
                 }
                 else if(!bench.right)
                 {
-                    transform.position = bench.rightPosition;
+                    transform.position = bench.rightPosition.position;
                     bench.right = true;
                 }
                 else
@@ -356,35 +389,78 @@ public class WanderNpc : MonoBehaviour
                 
                 transform.rotation = collider.transform.rotation;
                 animator.SetBool(sittingState, true);
+
+                StartCoroutine(SittingDuration(bench));
             }
         }
     }
 
     private IEnumerator SittingTalking(Bench bench)
     {
+        int minConversations = Random.Range(3, 6);
+        int conversationCount = 0;
+
         while (isSitting)
         {
-            Debug.Log("앉은 상태로 대화 중");
+            Debug.Log($"{transform.name} 앉은 상태로 대화 중");
             yield return new WaitForSeconds(Random.Range(5f, 10f));
 
-            PlayRandomTrigger(sittingTriggers);
-
-            yield return new WaitForSeconds(Random.Range(2f, 3f));
-
-            if (Random.value <= 0.3f)
+            if(conversationCount < minConversations)
+            {
+                PlayRandomTrigger(sittingTriggers);
+                conversationCount++;
+            }
+            else
             {
                 isSitting = false;
+                Debug.Log($"{transform.name} 앉기 종료");
             }
         }
 
-        Debug.Log("대화 종료, 이동 시작");
+        Debug.Log($"{transform.name} 앉은 상태에서 대화 종료");
 
-        if (transform.position == bench.leftPosition) bench.left = false;
-        if (transform.position == bench.rightPosition) bench.right = false;
+        isSittingTalking = false;
+        StopSitting(bench);
+    }
 
+    private IEnumerator SittingDuration(Bench bench)
+    {
+        float sittingTime = Random.Range(15f, 30f);
+        Debug.Log($"{transform.name}이 {sittingTime}동안 앉아있음");
+        yield return new WaitForSeconds(sittingTime);
+
+        if(!isSittingTalking)
+            StopSitting(bench);
+    }
+
+    private void StopSitting(Bench bench)
+    {
+        Debug.Log($"{transform.name}이 일어남");
+        
+        isSitting = false;
         animator.SetBool(sittingState, false);
-        SetNextDestination();
         rb.isKinematic = false;
+
+        if (transform.position == bench.leftPosition.position) bench.left = false;
+        if (transform.position == bench.rightPosition.position) bench.right = false;
+ 
         lastSittingTime = Time.time;
+
+        isJustStoodUp = true;
+        SetNextDestination();
+    }
+
+    private Bench GetCurrentBench()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 0.5f);
+        foreach (Collider col in hitColliders)
+        {
+            Bench bench = col.GetComponent<Bench>();
+            if (bench != null)
+            {
+                return bench;
+            }
+        }
+        return null;
     }
 }
