@@ -36,7 +36,7 @@ public class InventoryUI : MonoBehaviour
 
     private void OnDisable()
     {
-
+        RemoveButtonListeners();
     }
 
     private void CategorizeItems()
@@ -61,10 +61,8 @@ public class InventoryUI : MonoBehaviour
 
     public void UpdateUI()
     {
-        Debug.Log("Close2");
         CategorizeItems();
         ClearUI();
-        Debug.Log("Close3");
 
         #region 골드 인벤토리로 이전
         playerGold.text = CharacterManager.PlayerCharacterData.gold.ToString();
@@ -82,7 +80,6 @@ public class InventoryUI : MonoBehaviour
                 break;
 
             case 8:
-                Debug.Log("Close4");
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
                 break;
 
@@ -153,25 +150,36 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    public void OnButtonClick(int buttonIndex)
+    public void RemoveButtonListeners()
     {
-        Debug.Log("Close1");
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            int index = i;
+            buttons[i].onClick.RemoveAllListeners();
+            Animator animator = buttons[i].GetComponent<Animator>();
+            if (animator != null) ButtonReset(animator);
+        }
+    }
+
+    private void OnButtonClick(int buttonIndex)
+    {
         if (buttons[currentButtonIndex].animator != null) buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);
         currentButtonIndex = buttonIndex;
-
         UpdateUI();
     }
 
-    #region 호출 로직 변경 
-    public void CurrentResetButton()
+    private void ButtonReset(Animator animator)
     {
-        if (buttons[currentButtonIndex].animator != null) buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);
-            currentButtonIndex = 8;
+        Image image1 = animator.transform.GetChild(0).GetComponent<Image>();
+        Color color1 = image1.color;
+        color1.a = 0f;
+        image1.color = color1;
 
-        CategorizeItems();
-        ClearUI();
+        Image image2 = animator.transform.GetChild(3).GetComponent<Image>();
+        Color color2 = image2.color;
+        color2.a = 0f;
+        image2.color = color2;
     }
-    #endregion
 }
 
 public enum CategotyItemType

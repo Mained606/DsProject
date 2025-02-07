@@ -242,30 +242,19 @@ public class CombatManager : BaseManager<CombatManager>
     {
         // defeatedCharacter가 BaseMonsterData를 갖고 있는지 확인
         BaseMonsterData baseMonsterData = defenderTransform.GetComponent<BaseMonsterData>();
+
         if (baseMonsterData != null)
         {
-            // monsterOrBossData가 MonsterData일 경우
-            MonsterData monsterData = baseMonsterData.monsterOrBossData as MonsterData;
-            if (monsterData != null)
+            switch (baseMonsterData.currentType)
             {
-                // 몬스터 처리
-                CharacterManager.Instance.OnMonsterDefeated(monsterData, defenderTransform.position);
-                return;
-            }
+                case SpawnnerType.Monster:
+                    CharacterManager.Instance.OnMonsterDefeated(baseMonsterData.GetMonsterData(), defenderTransform.position);
+                    break;
 
-            // monsterOrBossData가 BossData일 경우
-            BossData bossData = baseMonsterData.monsterOrBossData as BossData;
-            if (bossData != null)
-            {
-                // 보스 처리
-                CharacterManager.Instance.OnBossDefeated(bossData, defenderTransform.position);
-                return;
+                case SpawnnerType.Boss:
+                    CharacterManager.Instance.OnBossDefeated(baseMonsterData.GetBossData(), defenderTransform.position);
+                    break;
             }
         }
-
-        // 캐스팅 실패시 오류 처리
-        Debug.LogError("defeatedCharacter를 MonsterData 또는 BossData로 캐스팅할 수 없습니다.");
     }
-
-
 }
