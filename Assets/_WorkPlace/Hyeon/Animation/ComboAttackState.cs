@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class ComboAttackState : StateMachineBehaviour
@@ -31,14 +32,13 @@ public class ComboAttackState : StateMachineBehaviour
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        
         SetCombatComponent(animator);
         //animator.ResetTrigger("NextCombo");
         //combat?.CurrentComboStates(GetStateCombo(stateInfo));
         if (!combat.weaponCollider.enabled)
         {
             combat.weaponCollider.enabled = true;
-            Debug.LogWarning("OnStateEnter");
+            //Debug.LogWarning("OnStateEnter");
             //Debug.LogWarning("🔪 무기 콜라이더 활성화!");
         }
         combat?.LookEnemy(attackPerceptionRange);
@@ -47,6 +47,7 @@ public class ComboAttackState : StateMachineBehaviour
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         SetCombatComponent(animator);
+
         if (stateInfo.normalizedTime >= comboTime)
         {
             if (!isPressedAttackKey && InputManager.InputActions.actions["Attack"].triggered)
@@ -56,6 +57,10 @@ public class ComboAttackState : StateMachineBehaviour
                 nextComboInput = true;
                 animator.SetTrigger("NextCombo");
             }
+        }
+        if(stateInfo.normalizedTime > 0.8f)
+        {
+            combat.weaponCollider.enabled = false;
         }
         InputManager.InputActions.actions["Move"].Disable();
         InputManager.InputActions.actions["Jump"].Disable();
@@ -90,13 +95,13 @@ public class ComboAttackState : StateMachineBehaviour
         {
             animator.ResetTrigger("NextCombo");
             combat?.AttackFinished();
-            Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
+            //Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
             combat.firstAttack = false;
-            //if (combat.weaponCollider.enabled)
-            //{
-            //    combat.weaponCollider.enabled = false;
-            //    //Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
-            //}
+            if (combat.weaponCollider.enabled)
+            {
+                combat.weaponCollider.enabled = false;
+                //Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
+            }
         }
         InputManager.InputActions.actions["Move"].Enable();
         InputManager.InputActions.actions["Jump"].Enable();

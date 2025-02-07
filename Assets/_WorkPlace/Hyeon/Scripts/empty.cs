@@ -3,7 +3,7 @@ using UnityEngine;
 public class empty : MonoBehaviour
 {
     PlayerController controller;
-    Collider weaponCollider;
+    PlayerCombat combat;
     [SerializeField] LayerMask layer;
 
     void OnFootstep(AnimationEvent animationEvent)
@@ -73,19 +73,19 @@ public class empty : MonoBehaviour
         }
     }
 
-    private void DisableCollider()
-    {
-        WeaponInit();
-        if(weaponCollider != null)
-        {
-            Debug.LogWarning("DisableCollider");
-            weaponCollider.enabled = false;
-        }
-        
-    }
+    //private void DisableCollider()
+    //{
+    //    CombatInit();
+    //    if(combat.weaponCollider != null)
+    //    {
+    //        Debug.LogWarning("DisableCollider");
+    //        combat.canDamagable = false;
+    //        combat.weaponCollider.enabled = false;
+    //    }
+    //}
 
-    private void WeaponInit()
-    {
-        weaponCollider = transform.GetComponentInParent<PlayerCombat>().weaponCollider;
-    }
+    //private void CombatInit()
+    //{
+    //    combat = transform.GetComponentInParent<PlayerCombat>();
+    //}
 }

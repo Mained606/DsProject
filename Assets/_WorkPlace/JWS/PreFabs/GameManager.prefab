@@ -803,56 +803,6 @@ MonoBehaviour:
   quickSlot: {fileID: 0}
   questListParent: {fileID: 0}
   bossHud: {fileID: 0}
-  CurrentBossData:
-    characterName: 
-    characterType: 0
-    characterPrefab: {fileID: 0}
-    level: 0
-    currentExperience: 0
-    experienceToLevelUp: 0
-    strength: 0
-    agility: 0
-    vitality: 0
-    intelligence: 0
-    maxHp: 0
-    currentHp: 0
-    hpRecoveryRate: 0
-    maxMp: 0
-    currentMp: 0
-    mpRecoveryRate: 0
-    stamina: 0
-    staminaCurrent: 0
-    staminaRecoveryRate: 0
-    hpBuffBonus: 0
-    physicalDamageBuffMultiplier: 0
-    magicDamageBuffMultiplier: 0
-    moveSpeed: 0
-    attackSpeed: 0
-    attackRange: 0
-    physicalDefense: 0
-    magicDefense: 0
-    physicalDamage: 0
-    magicDamage: 0
-    criticalChance: 0
-    criticalDamage: 0
-    dodgeChance: 0
-    hasShield: 0
-    blockChance: 0
-    physicalDamageReduction: 0
-    magicDamageReduction: 0
-    statModifier:
-      vitalityMultiplier: 10
-      mpMultiplier: 5
-      levelMpBonus: 10
-      strengthMultiplier: 1.5
-      agilityMultiplier: 0.01
-      physicalResistanceMultiplier: 1
-      magicResistanceMultiplier: 2
-      intelligenceMultiplier: 1.5
-    instance: {fileID: 0}
-    dropItems: []
-    experienceReward: 0
-    goldReward: 0
 --- !u!1 &9196922504058191263
 GameObject:
   m_ObjectHideFlags: 0
