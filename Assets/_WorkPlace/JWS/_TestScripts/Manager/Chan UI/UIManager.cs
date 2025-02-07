@@ -25,6 +25,8 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject characterStaus;
     [SerializeField] private GameObject quickSlot;
     [SerializeField] private Transform questListParent;
+    [SerializeField] private GameObject bossHud;
+
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
     public GameObject MainTitleButton => mainTitleButton;
@@ -39,9 +41,6 @@ public class UIManager : BaseManager<UIManager>
     public static ShopUI ShopUI;
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
-
-    public GameObject bossHud;
-    public BossData CurrentBossData;
 
     protected override void OnEnable()
     {
@@ -298,6 +297,15 @@ public class UIManager : BaseManager<UIManager>
         dialogUI.DisplayQuestDialogWindow(title, quest);
     }
 
+    private void BossHudDisplay(bool isOnOff, BossData bossData = null)
+    {
+        if (isOnOff)
+        {
+            bossHud.GetComponent<BossHudUI>().SetBossData(bossData);
+        }
+        bossHud.SetActive(isOnOff && bossData != null);
+    }
+
     #region 구 퀘스트 구현부분
     //public void DisplayQuestDialogWindow(string title, Quest quest)
     //{
@@ -474,8 +482,12 @@ public class UIManager : BaseManager<UIManager>
                 string message = additionalData as string;
                 ToggleinfoMessageWindow(message);
                 break;
+            case GameSystemState.BossBattle:
+                BossData bossData = additionalData as BossData;
+                if (bossData !=null) BossHudDisplay(true, bossData);
+                break;
             case GameSystemState.Exploration:
-                BossHudDown();  // 02.04 = 차후에 보스 bud 온오프 조건 수정 요망 
+                BossHudDisplay(false);
                 break;
 
         }
@@ -518,17 +530,4 @@ public class UIManager : BaseManager<UIManager>
         }
         return "#FFFFFF"; // 기본 흰색
     }
-
-    public void BossHudUP (BossData bossData)
-    {
-        CurrentBossData = bossData;
-        // BossHud.SetActive(true);
-    }
-    private void BossHudDown()
-    {
-        // BossHud.SetActive(false);
-    }
-
-
-
 }

@@ -19,11 +19,12 @@ public class BuffInfo {
     public float duration;   // 버프 지속시간
 }
 
-/*
+
 // ========================================
 public class SkillManager : BaseManager<SkillManager>
 {
     [SerializeField] private SkillList skillDatabase;
+    public static SkillList SkillDatabase => Instance.skillDatabase;
     private Dictionary<(EntityType, string), Skills> skillList = new Dictionary<(EntityType, string), Skills>();
 
 
@@ -713,7 +714,8 @@ public class SkillManager : BaseManager<SkillManager>
         return tempList;
     }
 }
-*/
+
+/*
 
 public class SkillManager : BaseManager<SkillManager>
 {
@@ -843,7 +845,7 @@ public class SkillManager : BaseManager<SkillManager>
         {
             EntityType.Player => GameManager.playerTransform?.GetComponentInChildren<Animator>(),
             EntityType.Dragon => GameManager.DragonTransform?.GetComponent<Animator>(),
-            /*EntityType.Boss => GameManager.BossTransform?.GetComponent<Animator>(),*/
+            *//*EntityType.Boss => GameManager.BossTransform?.GetComponent<Animator>(),*//*
             _ => null
         };
     }
@@ -950,7 +952,7 @@ public class SkillManager : BaseManager<SkillManager>
         {
             EntityType.Dragon => CharacterManager.PlayerCharacterData,
             EntityType.Player => CharacterManager.PlayerCharacterData,
-            /* EntityType.Boss => CharacterManager.BossCharacterData, */
+            *//* EntityType.Boss => CharacterManager.BossCharacterData, *//*
             _ => null
         };
 
@@ -1036,3 +1038,4 @@ public class SkillManager : BaseManager<SkillManager>
 
     }
 }
+*/

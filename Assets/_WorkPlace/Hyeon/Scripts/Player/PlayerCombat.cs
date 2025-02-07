@@ -214,7 +214,7 @@ public class PlayerCombat : MonoBehaviour
                 continue;
             if (InputManager.InputActions.actions[skillTriggerName].triggered && hasWeapon)
             {
-                if (SkillManager.Instance.CheckMana(EntityType.Player, skillName) &&
+                if (SkillManager.Instance.CheckMana(skillName) &&
                     SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
                 {
                     controller.isUseSkill = true;
