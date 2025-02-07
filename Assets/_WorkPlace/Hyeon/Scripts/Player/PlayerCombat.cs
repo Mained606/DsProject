@@ -211,10 +211,10 @@ public class PlayerCombat : MonoBehaviour
         {
             // =========== 20245-02-01 15:00 HYO 수정 =========================================
             // 스킬 사용 가능 여부와 마나 체크를 먼저 진행
-            if (SkillManager.Instance.CheckMana("Fire") &&
-                SkillManager.Instance.CanActivateSkill(EntityType.Player, "Fire"))
+            if (SkillManager.Instance.CheckMana(EntityType.Player, "FireStrike") &&
+                SkillManager.Instance.CanActivateSkill(EntityType.Player, "FireStrike"))
             {
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Fire");
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "FireStrike");
             }
             else
             {
@@ -228,7 +228,7 @@ public class PlayerCombat : MonoBehaviour
             // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
             // SkillManager.Instance.ActivateSkill("Water", closestMonster);
             // ----------------------------------------------------------------
-            if (SkillManager.Instance.CheckMana("Water") &&
+            if (SkillManager.Instance.CheckMana(EntityType.Player, "Water") &&
                 SkillManager.Instance.CanActivateSkill(EntityType.Player, "Water"))
             {
                 SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Water");

@@ -19,11 +19,14 @@ public class BuffInfo {
     public float duration;   // 버프 지속시간
 }
 
+/*
 // ========================================
 public class SkillManager : BaseManager<SkillManager>
 {
     [SerializeField] private SkillList skillDatabase;
-    
+    private Dictionary<(EntityType, string), Skills> skillList = new Dictionary<(EntityType, string), Skills>();
+
+
     // ==========================2025-02-01 11:08 HYO 코드 추가 =============================================
     private Dictionary<string, Skills> playerSkillDictionary = new Dictionary<string, Skills>();
     private Dictionary<string, Skills> dragonSkillDictionary = new Dictionary<string, Skills>();
@@ -74,7 +77,21 @@ public class SkillManager : BaseManager<SkillManager>
     {
         CheckSkillCoolTime();
     }
-    
+
+    private void InitializeSkillDictionary()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            foreach (var skill in SkillManager.Instance.GetSkills((EntityType)i))
+            {
+                if (!skillList.ContainsKey(((EntityType)i, skill.skillName)))
+                {
+                    skillList[((EntityType)i, skill.skillName)] = skill;
+                }
+            }
+        }
+    }
+
     // ========================== 2025-02-01 11:08 HYO 코드 추가 ==============================================
     // 스킬을 Dictionary에 저장하는 함수
     private void InitializeSkillDictionary(List<Skills> skills, Dictionary<string, Skills> skillDictionary)
@@ -694,5 +711,320 @@ public class SkillManager : BaseManager<SkillManager>
         if(tempList == null) return new List<Skills>();
 
         return tempList;
+    }
+}
+*/
+
+public class SkillManager : BaseManager<SkillManager>
+{
+    [SerializeField] private SkillList skillDatabase;
+    public static SkillList SkillDatabase => Instance.skillDatabase;
+
+    // <(엔티티 타입, 스킬 이름), 스킬 정보> 형태로 모든 스킬 저장
+    private Dictionary<(EntityType, string), Skills> skillList = new Dictionary<(EntityType, string), Skills>();
+    public static Dictionary<(EntityType, string), Skills> SkillList => Instance.skillList;
+
+    private Dictionary<Skills, Image> activeSkill = new Dictionary<Skills, Image>();
+    private Dictionary<string, BuffInfo> activeBuffs = new Dictionary<string, BuffInfo>();
+
+    [SerializeField] private List<Skills> currentUsedSkills = new List<Skills>();
+
+    private Animator animator;
+    [SerializeField] private GameObject[] skillImage;
+    [SerializeField] private Transform skillPanel;
+
+    public bool isActivating;
+    private int currentMp;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        InitializeSkillDictionary();
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        animator = GameManager.playerTransform.GetComponent<PlayerController>().PlayerAnimator;
+        UpdateCurrentMana();
+    }
+
+    private void Update()
+    {
+        CheckSkillCoolTime();
+    }
+
+    private void InitializeSkillDictionary()
+    {
+        // 플레이어, 드래곤, 보스 스킬을 한 번에 등록
+        RegisterSkills(EntityType.Player, skillDatabase.playerSkills);
+        RegisterSkills(EntityType.Dragon, skillDatabase.dragonSkills);
+        RegisterSkills(EntityType.Boss, skillDatabase.bossSkills);
+    }
+
+    private void RegisterSkills(EntityType entityType, List<Skills> skills)
+    {
+        foreach (var skill in skills)
+        {
+            var key = (entityType, skill.skillName);
+            if (!skillList.ContainsKey(key))
+            {
+                skillList[key] = skill;
+                skill.Initialize();
+            }
+        }
+    }
+
+    public Skills GetSkill(EntityType entityType, string skillName)
+    {
+        return skillList.TryGetValue((entityType, skillName), out var skill) ? skill : null;
+    }
+
+    public bool CanActivateSkill(EntityType entityType, string skillName)
+    {
+        if (isActivating) return false;
+
+        Skills skill = GetSkill(entityType, skillName);
+        if (skill == null || skill.cooldownTimer.IsRunning) return false;
+
+        return true;
+    }
+
+    public void ActivateSkillForEntity(EntityType entityType, string skillName, GameObject target = null, Vector3? overridePosition = null)
+    {
+        if (!CanActivateSkill(entityType, skillName)) return;
+
+        Skills skill = GetSkill(entityType, skillName);
+        isActivating = true;
+
+        CharacterManager.PlayerCharacterData.UseMp(skill.energyCost);
+        TimerManager.Instance.StartTimer(skill.cooldownTimer);
+
+        StartCoroutine(ExecuteSkill(entityType, skill, target, overridePosition));
+    }
+
+    private IEnumerator ExecuteSkill(EntityType entityType, Skills skill, GameObject target, Vector3? overridePosition = null)
+    {
+        if (target == null) target = GameManager.playerTransform.gameObject;
+
+        Vector3 spawnPosition = overridePosition ?? target.transform.position;
+        Animator entityAnimator = GetEntityAnimator(entityType);
+
+        entityAnimator?.SetTrigger(skill.activeTriggerName);
+
+        if (skill.effectPrefab != null)
+        {
+            Instantiate(skill.effectPrefab, spawnPosition, Quaternion.LookRotation(target.transform.forward));
+        }
+
+        float animationLength = GetAnimationClipLength(entityAnimator, skill.activeTriggerName);
+        yield return new WaitForSeconds(animationLength + 0.5f);
+
+        isActivating = false;
+    }
+
+    private float GetAnimationClipLength(Animator animator, string triggerName)
+    {
+        if (animator == null) return 0;
+        return animator.runtimeAnimatorController.animationClips
+            .FirstOrDefault(clip => clip.name == triggerName)?.length ?? 0.5f;
+    }
+
+    private Animator GetEntityAnimator(EntityType entityType)
+    {
+        return entityType switch
+        {
+            EntityType.Player => GameManager.playerTransform?.GetComponentInChildren<Animator>(),
+            EntityType.Dragon => GameManager.DragonTransform?.GetComponent<Animator>(),
+            /*EntityType.Boss => GameManager.BossTransform?.GetComponent<Animator>(),*/
+            _ => null
+        };
+    }
+
+    public void CheckSkillCoolTime()
+    {
+        List<Skills> skillsToRemove = new List<Skills>();
+
+        foreach (var skill in skillList.Values)
+        {
+            if (!skill.cooldownTimer.IsRunning) continue;
+
+            if (skill.cooldownTimer.RemainingTime <= 0.1f)
+            {
+                if (activeSkill.ContainsKey(skill))
+                {
+                    Destroy(activeSkill[skill].transform.parent.gameObject);
+                    activeSkill.Remove(skill);
+                }
+                skillsToRemove.Add(skill);
+                skill.cooldownTimer.Stop();
+            }
+            else
+            {
+                if (skill.entityType != EntityType.Player) UpdateSkillCooldownUI(skill);
+            }
+        }
+
+        foreach (var skill in skillsToRemove)
+        {
+            currentUsedSkills.Remove(skill);
+        }
+    }
+
+    private void UpdateSkillCooldownUI(Skills skill)
+    {
+        if (!activeSkill.ContainsKey(skill))
+        {
+            var skillImg = Instantiate(skillImage[skill.skillType == SkillType.Support ? 0 : 1], skillPanel);
+            activeSkill[skill] = skillImg.transform.GetChild(1).GetComponent<Image>();
+        }
+        activeSkill[skill].transform.GetChild(1).GetComponent<Image>().fillAmount = skill.cooldownTimer.RemainingPercent;
+        activeSkill[skill].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = skill.cooldownTimer.RemainingTime.ToString("N0") + "s";
+    }
+
+    public List<string> GetAvailableSkills(EntityType entityType)
+    {
+        return skillList.Keys.Where(k => k.Item1 == entityType).Select(k => k.Item2).ToList();
+    }
+
+    public List<string> GetAvailableBuffs(EntityType entityType)
+    {
+        return skillList
+            .Where(kv => kv.Key.Item1 == entityType && kv.Value.skillType == SkillType.Support)
+            .Select(kv => kv.Key.Item2)
+            .ToList();
+    }
+
+    private void UpdateCurrentMana()
+    {
+        currentMp = CharacterManager.PlayerCharacterData.currentMp;
+    }
+    
+    public float GetCooldownForSkill(EntityType entityType, string skillName)
+    {
+        if (!skillList.TryGetValue((entityType, skillName), out Skills skill))
+        {
+            Debug.LogError($"[GetCooldownForSkill] 스킬을 찾을 수 없음: {skillName}");
+            return 60f; // 기본값 60초
+        }
+
+        return skill.cooldown;
+    }
+
+    public bool CheckMana(EntityType entity, string skillName)
+    {
+        UpdateCurrentMana(); // MP 정보 최신화
+
+        Skills skill = GetSkill(entity, skillName);
+        if (skill == null)
+        {
+            Debug.LogError($"CheckMana 오류: {skillName} 스킬이 SkillManager에 등록되지 않았습니다!");
+            return false;
+        }
+
+        if (currentMp < skill.energyCost)
+        {
+            Debug.Log($"MP 부족: {skillName} 사용 불가 (현재 MP: {currentMp}, 필요 MP: {skill.energyCost})");
+            return false;
+        }
+
+        return true;
+    }
+
+    // ========================== 🛠️ 버프 기능 추가 ==========================
+    // 기존 함수명: ApplyBuff → ApplyBuffToCharacter
+    public void ApplyBuffToCharacter(EntityType entityType, string skillName)
+    {
+        Skills skill = GetSkill(entityType, skillName);
+        if (skill == null) return;
+
+        CharacterData targetCharacter = entityType switch
+        {
+            EntityType.Dragon => CharacterManager.PlayerCharacterData,
+            EntityType.Player => CharacterManager.PlayerCharacterData,
+            /* EntityType.Boss => CharacterManager.BossCharacterData, */
+            _ => null
+        };
+
+        if (targetCharacter == null) return;
+
+        // 이미 활성화된 버프인지 확인
+        if (activeBuffs.ContainsKey(skillName))
+        {
+            StopCoroutine(activeBuffs[skillName].coroutine);
+            activeBuffs.Remove(skillName);
+        }
+
+        BuffInfo newBuffInfo = new BuffInfo
+        {
+            startTime = Time.time,
+            duration = skill.buffDuration,
+            coroutine = StartCoroutine(RemoveBuff(skillName, skill.buffDuration, targetCharacter))
+        };
+        activeBuffs[skillName] = newBuffInfo;
+
+        switch (skillName)
+        {
+            case "PlayerBuffPhysical":
+                targetCharacter.physicalDamageBuffMultiplier *= 1.2f;
+                break;
+            case "PlayerBuffMagic":
+                targetCharacter.magicDamageBuffMultiplier *= 1.2f;
+                break;
+            case "PlayerBuffHP":
+                targetCharacter.hpBuffBonus += 100;
+                targetCharacter.currentHp += 100;
+                break;
+        }
+
+        targetCharacter.UpdateDerivedStats();
+
+        if (skill.effectPrefab != null)
+        {
+            CreateBuffEffect(skill.effectPrefab, GameManager.playerTransform.position);
+        }
+
+        TimerManager.Instance.StartTimer(skill.cooldownTimer);
+    }
+
+    // 기존 함수명: RemoveBuffAfterDuration → RemoveBuff
+    private IEnumerator RemoveBuff(string skillName, float duration, CharacterData targetCharacter)
+    {
+        yield return new WaitForSeconds(duration);
+
+        switch (skillName)
+        {
+            case "PlayerBuffPhysical":
+                targetCharacter.physicalDamageBuffMultiplier /= 1.2f;
+                break;
+            case "PlayerBuffMagic":
+                targetCharacter.magicDamageBuffMultiplier /= 1.2f;
+                break;
+            case "PlayerBuffHP":
+                targetCharacter.hpBuffBonus -= 100;
+                break;
+        }
+
+        targetCharacter.UpdateDerivedStats();
+
+        if (targetCharacter.maxHp < targetCharacter.currentHp)
+        {
+            targetCharacter.currentHp = targetCharacter.maxHp;
+        }
+
+        activeBuffs.Remove(skillName);
+    }
+
+    // 기존 함수명: InstantiateBuffEffect → CreateBuffEffect
+    private void CreateBuffEffect(GameObject effectPrefab, Vector3 targetPosition)
+    {
+        var effect = Instantiate(effectPrefab, targetPosition, Quaternion.identity);
+        effect.transform.SetParent(GameManager.playerTransform);
+        Destroy(effect, 3f);
+    }
+
+    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
+    {
+
     }
 }
