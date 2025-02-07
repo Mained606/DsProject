@@ -535,7 +535,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillDatabase: {fileID: 11400000, guid: 49876a0e478f4ec45a7d558d3506fc22, type: 2}
   currentUsedSkills: []
-  skillImage: {fileID: 1832674940790419213, guid: 520aa0c1598fbd441bb4db1ef5412700, type: 3}
+  skillImage:
+  - {fileID: 1541731337070278605, guid: deb6c9cfd0c1bdc4998703511e11fd28, type: 3}
+  - {fileID: 2548780414738663918, guid: 494b5bca1cc14b347a42c7d9e1aa6180, type: 3}
   skillPanel: {fileID: 0}
   isActivating: 0
 --- !u!1 &3191311102163359365
