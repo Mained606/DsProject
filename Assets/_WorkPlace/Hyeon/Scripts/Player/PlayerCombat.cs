@@ -218,7 +218,7 @@ public class PlayerCombat : MonoBehaviour
                     SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
                 {
                     controller.isUseSkill = true;
-                    SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, closestMonster);
+                    SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
                 }
                 else
                 {
