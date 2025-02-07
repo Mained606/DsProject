@@ -16,6 +16,13 @@ public class CombatManager : BaseManager<CombatManager>
         Transform attackerTransform = isPlayerAttacking ? GameManager.playerTransform : defenderTransform;
         Transform defenderPosition = isPlayerAttacking ? defenderTransform : GameManager.playerTransform;
         
+        if (actualDefender == null)
+        {
+            Debug.LogWarning("actualDefender가 null입니다!");
+            return;
+        }
+        
+        Debug.Log($"현재 대상 타입: {actualDefender.characterType}");
         // 공격 대상이 보스인지 확인
         GameStateMachine.Instance.ChangeState(actualDefender.characterType == CharacterType.Boss
             ? GameSystemState.BossBattle
@@ -233,17 +240,32 @@ public class CombatManager : BaseManager<CombatManager>
     // 몬스터 사망 처리
     private void HandleDefeated(CharacterData defeatedCharacter, Transform defenderTransform)
     {
-        // defeatedCharacter를 MonsterData로 캐스팅
-        MonsterData monsterData = defeatedCharacter as MonsterData;
-        if (monsterData != null)
+        // defeatedCharacter가 BaseMonsterData를 갖고 있는지 확인
+        BaseMonsterData baseMonsterData = defenderTransform.GetComponent<BaseMonsterData>();
+        if (baseMonsterData != null)
         {
-            CharacterManager.Instance.OnMonsterDefeated(monsterData, defenderTransform.position);
+            // monsterOrBossData가 MonsterData일 경우
+            MonsterData monsterData = baseMonsterData.monsterOrBossData as MonsterData;
+            if (monsterData != null)
+            {
+                // 몬스터 처리
+                CharacterManager.Instance.OnMonsterDefeated(monsterData, defenderTransform.position);
+                return;
+            }
+
+            // monsterOrBossData가 BossData일 경우
+            BossData bossData = baseMonsterData.monsterOrBossData as BossData;
+            if (bossData != null)
+            {
+                // 보스 처리
+                CharacterManager.Instance.OnBossDefeated(bossData, defenderTransform.position);
+                return;
+            }
         }
-        else
-        {
-            Debug.LogError("defeatedCharacter를 MonsterData로 캐스팅할 수 없습니다.");
-        }
-        
-        // GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
+
+        // 캐스팅 실패시 오류 처리
+        Debug.LogError("defeatedCharacter를 MonsterData 또는 BossData로 캐스팅할 수 없습니다.");
     }
+
+
 }

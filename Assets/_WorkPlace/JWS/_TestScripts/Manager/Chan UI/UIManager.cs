@@ -484,8 +484,6 @@ public class UIManager : BaseManager<UIManager>
                 ToggleinfoMessageWindow(message);
                 break;
             case GameSystemState.BossBattle:
-                BossData bossData = additionalData as BossData;
-                if (bossData !=null) BossHudDisplay(true, bossData);
                 break;
             case GameSystemState.Exploration:
                 BossHudDisplay(false);
