@@ -877,6 +877,7 @@ public class SkillManager : BaseManager<SkillManager>
         {
             var skillImg = Instantiate(skillImage[skill.skillType == SkillType.Support ? 0 : 1], skillPanel);
             activeSkill[skill] = skillImg.transform.GetChild(1).GetComponent<Image>();
+            activeSkill[skill].sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
         }
         activeSkill[skill].transform.GetChild(1).GetComponent<Image>().fillAmount = skill.cooldownTimer.RemainingPercent;
         activeSkill[skill].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = skill.cooldownTimer.RemainingTime.ToString("N0") + "s";
