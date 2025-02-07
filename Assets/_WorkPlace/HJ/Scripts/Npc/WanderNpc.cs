@@ -45,7 +45,7 @@ public class WanderNpc : MonoBehaviour
     private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
     private Coroutine sittingTalkingCoroutine = null;
 
-    [SerializeField] private float sittingCoolTime = 0f; //5f
+    [SerializeField] private float sittingCoolTime = 5f;
     private float lastSittingTime = 0f;
 
     private Rigidbody rb;
@@ -324,7 +324,7 @@ public class WanderNpc : MonoBehaviour
         if (target == null) return;
 
         Vector3 direction = (target.position - transform.position).normalized;
-        direction.y = 0f; // 회전할 때 y축 회전만 하도록 제한
+        direction.y = 0f;
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         transform.rotation = targetRotation;
