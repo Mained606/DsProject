@@ -248,37 +248,14 @@ public class CombatManager : BaseManager<CombatManager>
             switch (baseMonsterData.currentType)
             {
                 case SpawnnerType.Monster:
-                    Debug.Log("몬스터 사망처리");
+
                     CharacterManager.Instance.OnMonsterDefeated(baseMonsterData.GetMonsterData(), defenderTransform.position);
                     break;
 
                 case SpawnnerType.Boss:
-                    Debug.Log("보스 사망처리");
                     CharacterManager.Instance.OnBossDefeated(baseMonsterData.GetBossData(), defenderTransform.position);
-                    break;
-                default:
-                    Debug.Log("타입 못 찾음");
                     break;
             }
         }
     }
-    // private void HandleDefeated(CharacterData defeatedCharacter, Transform defenderTransform)
-    // {
-    //     BaseMonsterData baseMonsterData = defenderTransform.GetComponent<BaseMonsterData>();
-    //     if (baseMonsterData != null)
-    //     {
-    //         if (defeatedCharacter.characterType == CharacterType.Monster)
-    //         {
-    //             MonsterData monsterData = baseMonsterData.monsterOrBossData as MonsterData;
-    //             CharacterManager.Instance.OnMonsterDefeated(monsterData, defenderTransform.position);
-    //         }
-    //         else
-    //         {
-    //             BossData bossData = baseMonsterData.monsterOrBossData as BossData;
-    //             CharacterManager.Instance.OnBossDefeated(bossData, defenderTransform.position);
-    //         }
-    //     }
-    // }
-
-
 }

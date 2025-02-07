@@ -108,7 +108,7 @@ public class ShopUI : MonoBehaviour
                 case 1:
                     if (shopItemInfoPosition.gameObject.activeSelf)
                     {
-                        ItemManager.Instance.SellItem(currentInfoItem, currentInfoItem.quantity);
+                        ItemManager.Instance.SellItem(currentInfoItem, shopNpcData.shopData.valueReductionRate, currentInfoItem.quantity);
                     }
                     break;
             }
