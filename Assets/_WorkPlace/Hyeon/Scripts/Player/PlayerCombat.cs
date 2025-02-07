@@ -107,7 +107,6 @@ public class PlayerCombat : MonoBehaviour
             {
                 if (!firstAttack)
                 {
-                    Debug.LogWarning("FirstAttack");
                     PerformComboAttack();
                 }
             }
@@ -172,7 +171,7 @@ public class PlayerCombat : MonoBehaviour
     {
         if (controller.isSprinting)
         {
-            Debug.LogWarning("대쉬공격");
+            //Debug.LogWarning("대쉬공격");
             StartCoroutine(controller.DashAttack());
             // 대쉬공격
         }
@@ -218,6 +217,7 @@ public class PlayerCombat : MonoBehaviour
                 if (SkillManager.Instance.CheckMana(EntityType.Player, skillName) &&
                     SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
                 {
+                    controller.isUseSkill = true;
                     SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, closestMonster);
                 }
                 else

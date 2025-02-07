@@ -814,7 +814,14 @@ public class SkillManager : BaseManager<SkillManager>
 
         if (skill.effectPrefab != null)
         {
-            Instantiate(skill.effectPrefab, spawnPosition, Quaternion.LookRotation(target.transform.forward));
+            var effect = Instantiate(skill.effectPrefab, spawnPosition, Quaternion.LookRotation(target.transform.forward));
+            if (skill.particleDelay > 0)
+            {
+                var particleEffect = effect.GetComponent<ParticleSystem>().main;
+                particleEffect.startDelay = skill.particleDelay;
+            }
+
+            Destroy(effect, 5f);
         }
 
         float animationLength = GetAnimationClipLength(entityAnimator, skill.activeTriggerName);
