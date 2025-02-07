@@ -616,18 +616,6 @@ public class BossData : MonsterData
             this.goldReward,
             new List<string>(this.SpecialSkills) // 특수 스킬 복사
         );
-
-        // MonsterData에서 관리되는 속성 복사
-        clone.level = this.level; // 레벨 복사
-        clone.currentExperience = this.currentExperience; // 현재 경험치 복사
-        clone.experienceToLevelUp = this.experienceToLevelUp; // 레벨업 경험치 복사
-        clone.currentHp = this.currentHp; // 현재 HP 복사
-        clone.currentMp = this.currentMp; // 현재 MP 복사
-        clone.staminaCurrent = this.staminaCurrent; // 현재 스태미나 복사
-
-        // StatModifier 복사
-        clone.statModifier = this.statModifier?.Clone();
-
         return clone;
     }
     
