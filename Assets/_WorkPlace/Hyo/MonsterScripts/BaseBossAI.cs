@@ -148,7 +148,8 @@ public class BaseBossAI : MonoBehaviour
         if (direction.magnitude < 0.3f)
             return;
         direction.Normalize();
-
+        
+        animator.SetBool(IsChasing, true);
         // 부드러운 회전 후 이동
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
         characterController.Move(direction * movementSpeed * Time.deltaTime);
@@ -156,6 +157,7 @@ public class BaseBossAI : MonoBehaviour
         // 플레이어와의 거리가 attackRange 이내면 어택 상태로 전환
         if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
         {
+            animator.SetBool(IsChasing, false);
             SetState(BossState.Attacking);
         }
     }
@@ -183,6 +185,8 @@ public class BaseBossAI : MonoBehaviour
     
     private void HandleReturningLogic()
     {
+        playerTarget = null;
+        
         Vector3 direction = (spawnPosition - transform.position);
         direction.y = 0;
 
@@ -237,6 +241,7 @@ public class BaseBossAI : MonoBehaviour
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
+            // UIManager.Instance.BossHudUP(this.bossData);
         }
         SetState(BossState.Roaring);
     }
@@ -405,15 +410,30 @@ public class BaseBossAI : MonoBehaviour
     private IEnumerator PerformDash()
     {
         Vector3 startPosition = transform.position;
-        Vector3 dashDirection = transform.forward;
+        Vector3 dashDirection = transform.forward; // 기존 대시 방향
         float distanceTravelled = 0f;
         animator.SetBool(IsDashing, true);
 
-        while(distanceTravelled < dashDistance)
+        while (distanceTravelled < dashDistance)
         {
             float step = dashSpeed * Time.deltaTime;
             characterController.Move(dashDirection * step);
             distanceTravelled = Vector3.Distance(startPosition, transform.position);
+
+            // 플레이어와 충돌했을 경우 밀어내기 (수평 방향으로 밀어내기)
+            if (playerTarget != null && Vector3.Distance(transform.position, playerTarget.position) < 3f) // 플레이어와의 거리 확인
+            {
+                // 플레이어와의 상대적인 수평 방향 계산 (y축을 무시)
+                Vector3 directionToPlayer = (playerTarget.position - transform.position).normalized;
+                directionToPlayer.y = 0; // y축을 0으로 설정해 수평 방향으로만 밀어내기
+
+                // 플레이어를 밀어낼 벡터는 대시 방향과 직각인 벡터로 설정 (벡터의 외적 사용)
+                Vector3 pushDirection = Vector3.Cross(directionToPlayer, Vector3.up).normalized;
+
+                float pushForce = 50f; // 밀어내는 힘 설정
+                playerTarget.GetComponent<CharacterController>().Move(pushDirection * pushForce * Time.deltaTime);
+            }
+
             yield return null;
         }
         animator.SetBool(IsDashing, false);
@@ -436,6 +456,20 @@ public class BaseBossAI : MonoBehaviour
             Vector3 newPosition = horizontalPosition;
             newPosition.y = startPosition.y + verticalOffset;
 
+            // 플레이어와 충돌했을 경우 밀어내기 (수평 방향으로 밀어내기)
+            if (playerTarget != null && Vector3.Distance(transform.position, playerTarget.position) < 4f) // 플레이어와의 거리 확인
+            {
+                // 플레이어와의 상대적인 수평 방향 계산 (y축을 무시)
+                Vector3 directionToPlayer = (playerTarget.position - transform.position).normalized;
+                directionToPlayer.y = 0; // y축을 0으로 설정해 수평 방향으로만 밀어내기
+
+                // 플레이어를 밀어낼 벡터는 대시 방향과 직각인 벡터로 설정 (벡터의 외적 사용)
+                Vector3 pushDirection = Vector3.Cross(directionToPlayer, Vector3.up).normalized;
+
+                float pushForce = 50f; // 밀어내는 힘 설정
+                playerTarget.GetComponent<CharacterController>().Move(pushDirection * pushForce * Time.deltaTime);
+            }
+            // 보스 점프 이동
             characterController.Move(newPosition - transform.position);
             yield return null;
         }
