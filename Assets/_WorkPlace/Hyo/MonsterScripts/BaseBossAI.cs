@@ -359,10 +359,8 @@ public class BaseBossAI : MonoBehaviour
             yield return new WaitForSeconds(roarDuration);
             // ROARING 후 플레이어를 향해 회전
             yield return StartCoroutine(RotateTowardsPlayerSmoothly());
-            // 점프 실행
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
             isPerformingSpecialMove = true;
-            yield return StartCoroutine(PerformJump());
+            yield return StartCoroutine(PerformJump(selectedSkill));
             isPerformingSpecialMove = false;
             break;
         default:
@@ -438,7 +436,7 @@ public class BaseBossAI : MonoBehaviour
         animator.SetBool(IsDashing, false);
     }
 
-    private IEnumerator PerformJump()
+    private IEnumerator PerformJump(Skills selectedSkill)
     {
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = playerTarget.position;
@@ -469,6 +467,8 @@ public class BaseBossAI : MonoBehaviour
             characterController.Move(newPosition - transform.position);
             yield return null;
         }
+        
+        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
     }
 
 
