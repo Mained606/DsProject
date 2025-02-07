@@ -43,6 +43,8 @@ GameObject:
   - component: {fileID: 8739684893439557517}
   - component: {fileID: 4624375542852831863}
   - component: {fileID: 1588519812854032513}
+  - component: {fileID: 1615551898735266575}
+  - component: {fileID: 8147755306521212584}
   m_Layer: 0
   m_Name: vfxgraph_Explosion
   m_TagString: Untagged
@@ -293,3 +295,36 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!135 &1615551898735266575
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8427581336272987722}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 3.4
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &8147755306521212584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8427581336272987722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f10b59a57b0e6454b8df1eff6b1a590e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

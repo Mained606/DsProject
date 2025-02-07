@@ -1257,7 +1257,7 @@ MonoBehaviour:
   dashSpeed: 30
   dashDistance: 30
   jumpSpeed: 20
-  jumpHeight: 7
+  jumpHeight: 12
   jumpDistance: 20
   currentState: 0
   playerTarget: {fileID: 0}

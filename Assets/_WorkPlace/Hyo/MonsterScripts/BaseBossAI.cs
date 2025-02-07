@@ -34,7 +34,7 @@ public class BaseBossAI : MonoBehaviour
 
     [Header("점프 설정")]
     public float jumpSpeed = 20f;     // 점프 시 수평 이동 속도
-    public float jumpHeight = 7f;     // 점프 최고 높이
+    public float jumpHeight = 12f;     // 점프 최고 높이
     public float jumpDistance = 20f;  // 점프 시 이동할 거리
 
     [SerializeField] private BossState currentState = BossState.Idle;
@@ -472,6 +472,11 @@ public class BaseBossAI : MonoBehaviour
         }
         
         SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
+        // JumpSkillController jumpController = skillEffect.GetComponent<JumpSkillController>();
+        // if (jumpController != null)
+        // {
+        //     jumpController.SetBoss(this); // 보스를 JumpSkillController에 전달
+        // }
     }
 
 
