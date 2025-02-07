@@ -104,6 +104,9 @@ public class CharacterManager : BaseManager<CharacterManager>
             case GameSystemState.BossBattle:
                 GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = true;
                 break;
+            default:
+                GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = false;
+                break;
         }
     }
     

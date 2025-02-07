@@ -589,6 +589,13 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetFloat("Speed", 0);
     }
 
+    public IEnumerator StopPlayer(float duration)
+    {
+        playerAnimator.speed = 0; // 애니메이션 정지
+        yield return new WaitForSecondsRealtime(duration); // 실제 시간 기준 대기
+        playerAnimator.speed = 1; // 애니메이션 원래 속도로 복구
+    }
+
 
     //private bool uiCheck = false;
     //// 키 활성화 변경

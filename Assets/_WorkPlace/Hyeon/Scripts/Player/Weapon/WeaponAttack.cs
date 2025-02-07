@@ -22,12 +22,10 @@ public class WeaponAttack : MonoBehaviour
         {
             interactable.Interact(toolTag); // 상호작용 호출
         }
-        
         if (!weaponCollider.enabled) return;
         if (!DamagedTargets.Contains(other.gameObject))
         {
             DamagedTargets.Add(other.gameObject);
-            int monsterHP = 0;
             
             // ================ 2025-02-07 09:18 HYO 코드 추가 ====================================================================================================================================
             if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
@@ -36,26 +34,14 @@ public class WeaponAttack : MonoBehaviour
 
                 if (enemyData != null)
                 {
+                    StartCoroutine(GameManager.playerTransform.GetComponent<PlayerController>().StopPlayer(0.05f));
                     CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyData, other.transform, true, false);
                 }
             }
             // ===================================================================================================================================================================================
-
-            // if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
-            // {
-            //     MonsterData monster = other.GetComponent<Test1>().monster;
-            //     if (monster != null)
-            //     {
-            //         monsterHP = monster.currentHp;
-            //         // 2025-01-27 HYO ProcessAttack 로직 변경으로 매개변수 마지막에 물리 공격인지 마법 공격인지 확인 추가 true = 마법데미지, false = 물리데미지 ---------------------------
-            //         CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monster, other.transform, true, false);
-            //         // -----------------------------------------------------------------------------------------------------------------------------------------------------
-            //         //Debug.LogWarning($"Damaged: {monster.characterName}, monsterHP: {monsterHP}, monsterCurrentHP: {monster.currentHp}");
-            //     }
-            // }
             else
             {
-                Debug.Log("암튼 뭔갈 침");
+                //Debug.Log("암튼 뭔갈 침");
             }
         }
     }
@@ -63,5 +49,7 @@ public class WeaponAttack : MonoBehaviour
     {
         DamagedTargets.Remove(other.gameObject);
     }
+
+
 
 }

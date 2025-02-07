@@ -113,7 +113,7 @@ public class DragonController : MonoBehaviour
     private void Update()
     {
         // 전투 상태일 때만 몬스터를 추적
-        if (GameStateMachine.Instance.CurrentState == GameSystemState.Combat)
+        if (GameStateMachine.Instance.CurrentState == GameSystemState.Combat || GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle )
         {
             HandleCombatLogic();
             
@@ -159,7 +159,7 @@ public class DragonController : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         // 아직도 탐지 범위 내 적이 없고, 게임 상태가 Combat이면 Exploration으로 전환
-        if (!IsEnemyInRange(detectRange) && GameStateMachine.Instance.CurrentState == GameSystemState.Combat)
+        if (!IsEnemyInRange(detectRange) && (GameStateMachine.Instance.CurrentState == GameSystemState.Combat || GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle))
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
         }
@@ -233,7 +233,7 @@ public class DragonController : MonoBehaviour
         }
     }
     
-    // 주변에서 가장 가까운 몬스터를 찾아서 타겟 설정
+// 주변에서 가장 가까운 몬스터를 찾아서 타겟 설정
     private void FindNearestTarget()
     {
         float closestDistance = float.MaxValue;
@@ -242,7 +242,7 @@ public class DragonController : MonoBehaviour
 
         Vector3 dragonPos = transform.position;
 
-        // 모든 캐릭터를 순회하면서 몬스터만 필터링하여 처리
+        // 모든 캐릭터를 순회하면서 몬스터와 보스를 필터링하여 처리
         foreach (var character in CharacterManager.Instance.CharacterList)
         {
             // 몬스터만 필터링
@@ -259,9 +259,27 @@ public class DragonController : MonoBehaviour
                     closestTransform = monster.instance.transform;
                 }
             }
+            else if (character is BossData boss)
+            {
+                // 보스일 경우 BossData를 MonsterData로 캐스팅
+                MonsterData bossMonster = boss as MonsterData;
+                if (bossMonster != null)
+                {
+                    // 보스와의 거리 계산
+                    float dist = Vector3.Distance(dragonPos, boss.instance.transform.position);
+
+                    // 탐지 범위 내에서 가장 가까운 보스를 찾음
+                    if (dist < closestDistance && dist <= detectRange)
+                    {
+                        closestDistance = dist;
+                        closestMonster = bossMonster; // 캐스팅된 몬스터 데이터 사용
+                        closestTransform = boss.instance.transform;
+                    }
+                }
+            }
         }
 
-        // 가장 가까운 몬스터를 타겟으로 설정
+        // 가장 가까운 몬스터 또는 보스를 타겟으로 설정
         if (closestMonster != null)
         {
             currentTarget = closestMonster;
@@ -274,6 +292,7 @@ public class DragonController : MonoBehaviour
         }
     }
 
+    
     private void MoveTowardTarget(Transform targetTransform)
     {
         if (!targetTransform) return;

@@ -25,6 +25,8 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject characterStaus;
     [SerializeField] private GameObject quickSlot;
     [SerializeField] private Transform questListParent;
+    [SerializeField] private GameObject bossHud;
+
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
     public GameObject MainTitleButton => mainTitleButton;
@@ -39,9 +41,6 @@ public class UIManager : BaseManager<UIManager>
     public static ShopUI ShopUI;
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
-
-    public GameObject bossHud;
-    public BossData CurrentBossData;
 
     protected override void OnEnable()
     {
@@ -133,7 +132,6 @@ public class UIManager : BaseManager<UIManager>
         mainCanvas.SetActive(!mainCanvas.activeSelf);
         MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(true);
-
     }
 
     public void ToggleQuestWindow()
@@ -299,6 +297,15 @@ public class UIManager : BaseManager<UIManager>
         dialogUI.DisplayQuestDialogWindow(title, quest);
     }
 
+    private void BossHudDisplay(bool isOnOff, BossData bossData = null)
+    {
+        if (isOnOff)
+        {
+            bossHud.GetComponent<BossHudUI>().SetBossData(bossData);
+        }
+        bossHud.SetActive(isOnOff && bossData != null);
+    }
+
     #region 구 퀘스트 구현부분
     //public void DisplayQuestDialogWindow(string title, Quest quest)
     //{
@@ -415,8 +422,6 @@ public class UIManager : BaseManager<UIManager>
         infoMessageWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
-
-      
     }
 
     public void InteractTextPopup(string keyname, string comment, bool isOn)
@@ -452,40 +457,42 @@ public class UIManager : BaseManager<UIManager>
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-
         if (newState != GameSystemState.InfoMessage) UIClose();
-            #region Delete
+        #region Delete
 
-            switch (newState)
-            {
-                case GameSystemState.MainMenu:
-                    UIClose();
-                    break;
-                case GameSystemState.Inventory:
-                    ToggleInventory();
-                    break;
-                case GameSystemState.QuestReview:
-                    ToggleQuestWindow();
-                    break;
-                case GameSystemState.StatusUI:
-                    ToggleStatusWindow();
-                    break;
-                case GameSystemState.Shopping:
-                    NPCData npcData = additionalData as NPCData;
-                    ToggleShopWindow(npcData);
-                    break;
-                case GameSystemState.InfoMessage:
-                    string message = additionalData as string;
-                    ToggleinfoMessageWindow(message);
-                    break;
-                case GameSystemState.Exploration:
-                    BossHudDown();  // 02.04 = 차후에 보스 bud 온오프 조건 수정 요망 
-                    break;
+        switch (newState)
+        {
+            case GameSystemState.MainMenu:
+                UIClose();
+                break;
+            case GameSystemState.Inventory:
+                ToggleInventory();
+                break;
+            case GameSystemState.QuestReview:
+                ToggleQuestWindow();
+                break;
+            case GameSystemState.StatusUI:
+                ToggleStatusWindow();
+                break;
+            case GameSystemState.Shopping:
+                NPCData npcData = additionalData as NPCData;
+                ToggleShopWindow(npcData);
+                break;
+            case GameSystemState.InfoMessage:
+                string message = additionalData as string;
+                ToggleinfoMessageWindow(message);
+                break;
+            case GameSystemState.BossBattle:
+                BossData bossData = additionalData as BossData;
+                if (bossData !=null) BossHudDisplay(true, bossData);
+                break;
+            case GameSystemState.Exploration:
+                BossHudDisplay(false);
+                break;
 
-            }
-            #endregion
+        }
+        #endregion
     }
-    
 
     private readonly Dictionary<MessageTag, string> tagColors = new Dictionary<MessageTag, string>
     {
@@ -523,18 +530,4 @@ public class UIManager : BaseManager<UIManager>
         }
         return "#FFFFFF"; // 기본 흰색
     }
-
-    public void BossHudUP (BossData bossData)
-    {
-        CurrentBossData = bossData;
-        // BossHud.SetActive(true);
-    }
-    private void BossHudDown()
-    {
-        // BossHud.SetActive(false);
-    }
-
-  
-
-
 }

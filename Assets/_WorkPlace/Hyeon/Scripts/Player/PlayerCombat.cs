@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -106,7 +107,6 @@ public class PlayerCombat : MonoBehaviour
             {
                 if (!firstAttack)
                 {
-                    Debug.LogWarning("FirstAttack");
                     PerformComboAttack();
                 }
             }
@@ -171,7 +171,7 @@ public class PlayerCombat : MonoBehaviour
     {
         if (controller.isSprinting)
         {
-            Debug.LogWarning("대쉬공격");
+            //Debug.LogWarning("대쉬공격");
             StartCoroutine(controller.DashAttack());
             // 대쉬공격
         }
@@ -202,50 +202,63 @@ public class PlayerCombat : MonoBehaviour
 
     private void HandleSkillInput()
     {
-        GameObject closestMonster = null;
-        if (GetClosestMonster(skillPerceptionRange) != null)
+        GameObject closestMonster = GetClosestMonster(skillPerceptionRange)?.gameObject;
+
+        int skillCounts = SkillManager.SkillDatabase.playerSkills.Count;
+
+        for (int i = 0; i < skillCounts; i++)
         {
-            closestMonster = GetClosestMonster(skillPerceptionRange).gameObject;
-        }
-        if (InputManager.InputActions.actions["PlayerSkill_1"].triggered && hasWeapon)
-        {
-            // =========== 20245-02-01 15:00 HYO 수정 =========================================
-            // 스킬 사용 가능 여부와 마나 체크를 먼저 진행
-            if (SkillManager.Instance.CheckMana("Fire") &&
-                SkillManager.Instance.CanActivateSkill(EntityType.Player, "Fire"))
+            string skillName = SkillManager.SkillDatabase.playerSkills[i].skillName;
+            string skillTriggerName = Enum.GetName(typeof(SkillTriggerName), i);
+            if (string.IsNullOrEmpty(skillTriggerName))
+                continue;
+            if (InputManager.InputActions.actions[skillTriggerName].triggered && hasWeapon)
             {
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Fire");
-            }
-            else
-            {
-                Debug.Log("스킬 사용 불가: 마나 부족 또는 쿨타임 중");
-            }
-        }
-        if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
-        {
-            //controller.CanMove = false;
-            //controller.CanAttack = false;
-            // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
-            // SkillManager.Instance.ActivateSkill("Water", closestMonster);
-            // ----------------------------------------------------------------
-            if (SkillManager.Instance.CheckMana("Water") &&
-                SkillManager.Instance.CanActivateSkill(EntityType.Player, "Water"))
-            {
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Water");
-            }
-            else
-            {
-                Debug.Log("스킬 사용 불가: 마나 부족 또는 쿨타임 중");
+                if (SkillManager.Instance.CheckMana(skillName) &&
+                    SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
+                {
+                    controller.isUseSkill = true;
+                    SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, closestMonster);
+                }
+                else
+                {
+                    Debug.Log($"스킬 사용 불가: {skillName} (마나 부족 또는 쿨타임 중)");
+                }
             }
         }
-        if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
-        {
-            controller.CanMove = false;
-            controller.CanAttack = false;
-            // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
-            // SkillManager.Instance.ActivateSkill("eee", closestMonster);
-            // ----------------------------------------------------------------
-        }
+        //if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
+        //{
+        //    //controller.CanMove = false;
+        //    //controller.CanAttack = false;
+        //    // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
+        //    // SkillManager.Instance.ActivateSkill("Water", closestMonster);
+        //    // ----------------------------------------------------------------
+        //    if (SkillManager.Instance.CheckMana(EntityType.Player, "Water") &&
+        //        SkillManager.Instance.CanActivateSkill(EntityType.Player, "Water"))
+        //    {
+        //        SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Water");
+        //    }
+        //    else
+        //    {
+        //        Debug.Log("스킬 사용 불가: 마나 부족 또는 쿨타임 중");
+        //    }
+        //}
+        //if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
+        //{
+        //    controller.CanMove = false;
+        //    controller.CanAttack = false;
+        //    // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
+        //    // SkillManager.Instance.ActivateSkill("eee", closestMonster);
+        //    // ----------------------------------------------------------------
+        //}
+    }
+
+    private enum SkillTriggerName
+    {
+        PlayerSkill_1,
+        PlayerSkill_2,
+        PlayerSkill_3,
+        PlayerSkill_4,
     }
 
     private void HandleBlockInput()
