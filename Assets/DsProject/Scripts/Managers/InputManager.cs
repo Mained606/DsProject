@@ -33,6 +33,10 @@ public class InputManager : BaseManager<InputManager>
 
         else
         {
+            Debug.Log("I 1");
+            UIManager.InventoryUI.CurrentResetButton();
+
+
             GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
             Debug.Log("MainMenu 상태로 복귀됨.");
         }

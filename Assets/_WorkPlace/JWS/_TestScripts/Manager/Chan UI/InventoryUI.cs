@@ -61,8 +61,10 @@ public class InventoryUI : MonoBehaviour
 
     public void UpdateUI()
     {
+        Debug.Log("Close2");
         CategorizeItems();
         ClearUI();
+        Debug.Log("Close3");
 
         #region 골드 인벤토리로 이전
         playerGold.text = CharacterManager.PlayerCharacterData.gold.ToString();
@@ -80,6 +82,7 @@ public class InventoryUI : MonoBehaviour
                 break;
 
             case 8:
+                Debug.Log("Close4");
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
                 break;
 
@@ -152,6 +155,7 @@ public class InventoryUI : MonoBehaviour
 
     public void OnButtonClick(int buttonIndex)
     {
+        Debug.Log("Close1");
         if (buttons[currentButtonIndex].animator != null) buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);
         currentButtonIndex = buttonIndex;
 
@@ -159,7 +163,14 @@ public class InventoryUI : MonoBehaviour
     }
 
     #region 호출 로직 변경 
-    
+    public void CurrentResetButton()
+    {
+        if (buttons[currentButtonIndex].animator != null) buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);
+            currentButtonIndex = 8;
+
+        CategorizeItems();
+        ClearUI();
+    }
     #endregion
 }
 
