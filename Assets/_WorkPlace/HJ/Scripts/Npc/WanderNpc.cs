@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using static Unity.Cinemachine.IInputAxisOwner.AxisDescriptor;
 
 public class WanderNpc : MonoBehaviour
 {
@@ -32,7 +33,7 @@ public class WanderNpc : MonoBehaviour
     private float lastConversationTime = 0f;
 
     //npc간의 거리가 너무 가까울 경우 경로 재설정
-    private float minNpcDistance = 0.5f;
+    private float minNpcDistance = 1f;
     private float nextDestinationTime = 0f;
     private float destinationCooldown = 1f;
 
@@ -69,7 +70,7 @@ public class WanderNpc : MonoBehaviour
 
         if (isMoving && isCloseNpcs(transform.position, minNpcDistance))
         {
-            if(Time.time > nextDestinationTime)
+            if(Time.time > nextDestinationTime && !isJustStoodUp)
             {
                 Debug.Log($"{transform.name} 다른 npc와 너무 가까움, 새로운 목적지 설정");
                 SetNextDestination();
@@ -107,7 +108,7 @@ public class WanderNpc : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("NPC"))
+        if (other.CompareTag("TownNPC"))
         {
             if (isSitting)
             {
@@ -147,7 +148,7 @@ public class WanderNpc : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("NPC"))
+        if (other.CompareTag("TownNPC"))
         {
             Debug.Log($"{transform.name} npc 헤어짐");
             targetNpc = null;
@@ -181,10 +182,10 @@ public class WanderNpc : MonoBehaviour
         if (isJustStoodUp)
         {
             Vector3 forwardDirection = transform.forward.normalized; //NPC가 바라보는 방향
-            float moveDistance = Random.Range(arrivedDistance * 2f, walkingRange); //이동 거리 랜덤 설정
-            randomPosition = transform.position + (forwardDirection * moveDistance);
+            float forwardDistance = Random.Range(5f, walkingRange);
+            randomPosition = transform.position + (forwardDirection * forwardDistance);
 
-            isJustStoodUp = false; //한번만 적용되도록 초기화
+            StartCoroutine(JustStoodUp());
         }
         else
         {
@@ -232,7 +233,7 @@ public class WanderNpc : MonoBehaviour
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
         //Raycast로 지형 높이 감지
-        if(Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
+        if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
         {
             nextPosition.y = hit.point.y;
         }
@@ -334,9 +335,9 @@ public class WanderNpc : MonoBehaviour
     {
         Collider[] colliders = Physics.OverlapSphere(position, minDistance);
 
-        foreach(Collider collider in colliders)
+        foreach (Collider collider in colliders)
         {
-            if(collider.CompareTag("NPC") && collider.transform != this.transform)
+            if (collider.CompareTag("TownNPC") && collider.transform != this.transform)
             {
                 return true;
             }
@@ -462,5 +463,12 @@ public class WanderNpc : MonoBehaviour
             }
         }
         return null;
+    }
+
+    private IEnumerator JustStoodUp()
+    {
+        yield return new WaitForSeconds(5f);
+
+        isJustStoodUp = false;
     }
 }

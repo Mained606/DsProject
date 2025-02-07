@@ -48,7 +48,7 @@ public class ActivityNpc : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("NPC"))
+        if (other.CompareTag("TownNPC") && other.transform != this.transform)
         {
             isNearNpc = true;
         }
@@ -61,7 +61,7 @@ public class ActivityNpc : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("NPC"))
+        if (other.CompareTag("TownNPC"))
         {
             isNearNpc = false;
         }
