@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
+using static UnityEngine.Rendering.PostProcessing.SubpixelMorphologicalAntialiasing;
 
 public class ItemManager : BaseManager<ItemManager>
 {
@@ -165,6 +166,7 @@ public class ItemManager : BaseManager<ItemManager>
             return;
         }
         int amount = ((int)(selltem.costValue * valueReductionRate) * quantity);
+        Debug.LogWarning($"판매 : {valueReductionRate}, {quantity}, {amount}");
         CharacterManager.PlayerCharacterData.AddGold(amount);
         InventoryManager.Instance.RemoveItemLogic(selltem.id, quantity);
     }
