@@ -9,6 +9,8 @@ public class BaseBossAI : MonoBehaviour
     public static readonly int IsJumping = Animator.StringToHash("IsJumping");
     public static readonly int Hit = Animator.StringToHash("Hit");
     public static readonly int IsDead = Animator.StringToHash("IsDead");
+    public static readonly int IsChasing = Animator.StringToHash("IsChasing");
+
 
     public enum BossState { Idle, Roaring, Chasing, Attacking, Returning, Hit, Stun, Dead }
 
@@ -28,12 +30,12 @@ public class BaseBossAI : MonoBehaviour
         
     [Header("대쉬 설정")]
     public float dashSpeed = 20f;     // 대쉬 시 이동 속도
-    public float dashDistance = 10f;  // 대쉬 시 이동할 거리
+    public float dashDistance = 30f;  // 대쉬 시 이동할 거리
 
     [Header("점프 설정")]
     public float jumpSpeed = 10f;     // 점프 시 수평 이동 속도
-    public float jumpHeight = 5f;     // 점프 최고 높이
-    public float jumpDistance = 10f;  // 점프 시 이동할 거리
+    public float jumpHeight = 7f;     // 점프 최고 높이
+    public float jumpDistance = 20f;  // 점프 시 이동할 거리
 
     [SerializeField] private BossState currentState = BossState.Idle;
     [SerializeField] private Transform playerTarget;
@@ -49,6 +51,8 @@ public class BaseBossAI : MonoBehaviour
     private bool isAttacking = false;
     private bool isStunned = false;
     private bool isPerformingSpecialMove = false;
+    private bool isRotating = true; // 회전 방지 플래그 추가
+    
 
     [SerializeField] private GameObject firePoint1;  // AoE 스킬 시 사용할 위치 (예시)
     [SerializeField] private bool respawn = false;
@@ -217,7 +221,7 @@ public class BaseBossAI : MonoBehaviour
     
     private void RotateTowardsPlayer()
     {
-        if (playerTarget == null)
+        if (playerTarget == null || !isRotating) // 회전 중지
             return;
 
         Vector3 direction = (playerTarget.position - transform.position).normalized;
@@ -281,113 +285,130 @@ public class BaseBossAI : MonoBehaviour
         SetState(BossState.Attacking);
     }
     private IEnumerator ExecuteBossAttack()
+{
+    if (isAttacking) yield break;
+    isAttacking = true;
+
+    List<string> bossSkillNames = SkillManager.Instance.GetAvailableSkills(EntityType.Boss);
+    if (bossSkillNames.Count == 0)
     {
-        if (isAttacking) yield break;
-        isAttacking = true;
+        Debug.LogWarning("보스의 사용 가능한 스킬이 없습니다.");
+        SetState(BossState.Idle);
+        isAttacking = false;
+        yield break;
+    }
 
-        // SkillManager에서 보스가 사용할 수 있는 스킬 목록 가져오기
-        List<string> bossSkillNames = SkillManager.Instance.GetAvailableSkills(EntityType.Boss);
-        if (bossSkillNames.Count == 0)
+    Skills selectedSkill = null;
+    int attempt = 0;
+    int maxAttempts = 10;
+    while (selectedSkill == null && attempt < maxAttempts)
+    {
+        string randomSkillName = bossSkillNames[Random.Range(0, bossSkillNames.Count)];
+        Skills skill = SkillManager.Instance.GetSkill(EntityType.Boss, randomSkillName);
+
+        if (skill != null && !skill.cooldownTimer.IsRunning)
         {
-            Debug.LogWarning("보스의 사용 가능한 스킬이 없습니다.");
-            SetState(BossState.Idle);
-            isAttacking = false;
-            yield break;
+            selectedSkill = skill;
         }
+        attempt++;
+    }
 
-        Skills selectedSkill = null;
-        int attempt = 0;
-        int maxAttempts = 10;
-        // 쿨타임이 진행 중이지 않은 스킬을 랜덤으로 선택
-        while (selectedSkill == null && attempt < maxAttempts)
+    if (selectedSkill == null)
+    {
+        Debug.LogWarning("사용 가능한 스킬을 찾지 못했습니다.");
+        SetState(BossState.Idle);
+        isAttacking = false;
+        yield break;
+    }
+
+    switch (selectedSkill.skillName)
+    {
+        case "OrbExplosion":
+            animator.SetTrigger(IsRoaring);
+            yield return new WaitForSeconds(roarDuration);
+            isRotating = false; // 회전 방지
+            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject);
+            yield return new WaitForSeconds(4f);
+            isRotating = true;  // 회전 가능
+            break;
+        case "Test2":
+            animator.SetTrigger(IsRoaring);
+            yield return new WaitForSeconds(5f);
+            isRotating = false; // 회전 방지
+            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1);
+            yield return new WaitForSeconds(4f);
+            isRotating = true;  // 회전 가능
+            break;
+        case "Dash":
+            animator.SetTrigger(IsRoaring);
+            yield return new WaitForSeconds(roarDuration);
+            // ROARING 후 플레이어를 향해 회전
+            yield return StartCoroutine(RotateTowardsPlayerSmoothly());
+            // 대쉬 실행
+            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
+            isPerformingSpecialMove = true;
+            yield return StartCoroutine(PerformDash());
+            isPerformingSpecialMove = false;
+            break;
+        case "Jump":
+            animator.SetTrigger(IsRoaring);
+            yield return new WaitForSeconds(roarDuration);
+            // ROARING 후 플레이어를 향해 회전
+            yield return StartCoroutine(RotateTowardsPlayerSmoothly());
+            // 점프 실행
+            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
+            isPerformingSpecialMove = true;
+            yield return StartCoroutine(PerformJump());
+            isPerformingSpecialMove = false;
+            break;
+        default:
+            Debug.LogWarning("처리되지 않은 스킬: " + selectedSkill.skillName);
+            break;
+    }
+
+    float skillDuration = selectedSkill.GetSkillDuration();
+    yield return new WaitForSeconds(skillDuration + attackCooldown);
+
+    if (playerTarget != null)
+    {
+        if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
         {
-            string randomSkillName = bossSkillNames[Random.Range(0, bossSkillNames.Count)];
-            Skills skill = SkillManager.Instance.GetSkill(EntityType.Boss, randomSkillName);
-
-            if (skill != null && !skill.cooldownTimer.IsRunning)
-            {
-                selectedSkill = skill;
-            }
-            attempt++;
-        }
-
-        if (selectedSkill == null)
-        {
-            Debug.LogWarning("사용 가능한 스킬을 찾지 못했습니다.");
-            SetState(BossState.Idle);
-            isAttacking = false;
-            yield break;
-        }
-
-        // 선택된 스킬에 따라 각기 다른 로직 실행
-        switch (selectedSkill.skillName)
-        {
-            case "OrbExplosion":
-                // 범위 장판기 1: 로어링 애니메이션 후 플레이어 위치에 스킬 실행
-                animator.SetTrigger(IsRoaring);
-                yield return new WaitForSeconds(roarDuration);
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject);
-                break;
-            case "Test2":
-                // 범위 장판기 2: 다른 애니메이션 (예: firePoint1 사용)
-                animator.SetTrigger(IsRoaring);
-                yield return new WaitForSeconds(5f);
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1);
-                break;
-            case "Dash":
-                // 돌진기: Dash 애니메이션 후 플레이어 방향으로 돌진 공격
-                animator.SetTrigger(IsDashing);
-                yield return new WaitForSeconds(0.5f);
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
-                isPerformingSpecialMove = true;
-                yield return StartCoroutine(PerformDash());
-                isPerformingSpecialMove = false;
-                break;
-            case "Jump":
-                // 점프: Jump 애니메이션 후 포물선 낙하, 착지 지점에 데미지 판정
-                animator.SetTrigger(IsJumping);
-                yield return new WaitForSeconds(0.5f);
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
-                isPerformingSpecialMove = true;
-                yield return StartCoroutine(PerformJump());
-                isPerformingSpecialMove = false;
-                break;
-            default:
-                Debug.LogWarning("처리되지 않은 스킬: " + selectedSkill.skillName);
-                break;
-        }
-
-        // 스킬 지속시간 및 쿨타임 대기
-        float skillDuration = selectedSkill.GetSkillDuration();
-        yield return new WaitForSeconds(skillDuration + attackCooldown);
-
-        // 스킬 사용 후 플레이어와의 거리에 따라 상태 전환
-        if (playerTarget != null)
-        {
-            if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
-            {
-                SetState(BossState.Attacking);
-            }
-            else
-            {
-                SetState(BossState.Chasing);
-            }
+            SetState(BossState.Attacking);
         }
         else
         {
-            SetState(BossState.Idle);
+            SetState(BossState.Chasing);
         }
-
-        isAttacking = false;
     }
-    
+    else
+    {
+        SetState(BossState.Idle);
+    }
+
+    isAttacking = false;
+}
+    private IEnumerator RotateTowardsPlayerSmoothly()
+    {
+        Vector3 targetDirection = (playerTarget.position - transform.position).normalized;
+        float timeToRotate = 1f; // 회전 시간 설정
+        float elapsedTime = 0f;
+
+        while (elapsedTime < timeToRotate)
+        {
+            elapsedTime += Time.deltaTime;
+            float smoothStep = Mathf.SmoothStep(0f, 1f, elapsedTime / timeToRotate);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(targetDirection), smoothStep);
+            yield return null;
+        }
+    }
+
     private IEnumerator PerformDash()
     {
         Vector3 startPosition = transform.position;
         Vector3 dashDirection = transform.forward;
         float distanceTravelled = 0f;
-        
-        // 대쉬 중에는 중력이나 다른 이동 로직의 영향을 받지 않도록 isPerformingSpecialMove 플래그 사용
+        animator.SetBool(IsDashing, true);
+
         while(distanceTravelled < dashDistance)
         {
             float step = dashSpeed * Time.deltaTime;
@@ -395,36 +416,31 @@ public class BaseBossAI : MonoBehaviour
             distanceTravelled = Vector3.Distance(startPosition, transform.position);
             yield return null;
         }
+        animator.SetBool(IsDashing, false);
     }
-    
+
     private IEnumerator PerformJump()
     {
         Vector3 startPosition = transform.position;
-        Vector3 targetPosition = startPosition + transform.forward * jumpDistance;
+        Vector3 targetPosition = playerTarget.position; // 플레이어 위치로 설정
         float jumpDuration = jumpDistance / jumpSpeed;
         float elapsed = 0f;
-        
-        while(elapsed < jumpDuration)
+
+        while (elapsed < jumpDuration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / jumpDuration;
-            
-            // 수평 위치 보간
+
             Vector3 horizontalPosition = Vector3.Lerp(startPosition, targetPosition, t);
-            // 포물선 형태의 수직 오프셋 (t=0,1에서 0, t=0.5에서 최고 높이)
             float verticalOffset = 4 * jumpHeight * t * (1 - t);
             Vector3 newPosition = horizontalPosition;
             newPosition.y = startPosition.y + verticalOffset;
-            
-            // 현재 위치에서 이동할 만큼의 벡터를 계산하여 이동
+
             characterController.Move(newPosition - transform.position);
             yield return null;
         }
-        
-        // 이동 완료 후 정확한 목표 위치로 설정
-        transform.position = targetPosition;
     }
-    
+
     protected virtual void HandleGravity()
     {
         // 대쉬나 점프와 같이 특별한 이동 동작 중에는 중력을 건너 뜀

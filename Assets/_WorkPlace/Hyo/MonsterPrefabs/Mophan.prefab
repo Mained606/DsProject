@@ -1254,7 +1254,13 @@ MonoBehaviour:
   movementSpeed: 0
   attackRange: 0
   attackCooldown: 10
+  dashSpeed: 20
+  dashDistance: 30
+  jumpSpeed: 10
+  jumpHeight: 7
+  jumpDistance: 20
   currentState: 0
+  playerTarget: {fileID: 0}
   bossData:
     characterName: 
     characterType: 0
@@ -1301,11 +1307,12 @@ MonoBehaviour:
       physicalResistanceMultiplier: 1
       magicResistanceMultiplier: 2
       intelligenceMultiplier: 1.5
+    instance: {fileID: 0}
     dropItems: []
     experienceReward: 0
     goldReward: 0
-    instance: {fileID: 0}
   firePoint1: {fileID: 5299003056017755789}
+  respawn: 0
 --- !u!1 &5299003056017755789
 GameObject:
   m_ObjectHideFlags: 0
