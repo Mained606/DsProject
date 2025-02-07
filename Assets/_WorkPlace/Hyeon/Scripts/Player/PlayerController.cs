@@ -971,16 +971,11 @@ public class PlayerController : MonoBehaviour
         if(playerData.currentHp <= 0)
         {
             Debug.Log("Player Death");
-            /////////////////////////////////////////////////////////////////////////////////
-            /// JWS 수정 UI오픈관련 키엑세스
-            //CanMove = false;
-            //CanAttack = false;
-            //CanParry = false;
-            //CanUseSkill = false;
             SetActionStates(false);
-            /////////////////////////////////////////////////////////////////////////////////
 
             // anim
+            playerAnimator.SetBool("Death", true);
+            SetState(PlayerState.Death);
         }
     }
 
