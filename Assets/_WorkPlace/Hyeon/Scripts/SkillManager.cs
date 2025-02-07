@@ -816,7 +816,13 @@ public class SkillManager : BaseManager<SkillManager>
             if (playerController != null)
             {
                 playerController.isUseSkill = true;
+                target = GameManager.playerTransform.gameObject;
             }
+        }
+
+        if (target == null)
+        {
+            target = GameManager.playerTransform.gameObject;
         }
 
         isActivating = true;
@@ -827,10 +833,6 @@ public class SkillManager : BaseManager<SkillManager>
 
     private IEnumerator ExecuteSkill(EntityType entityType, Skills skill, GameObject target)
     {
-        if (target == null)
-        {
-            target = GameManager.playerTransform.gameObject;
-        }
 
         Vector3 spawnPosition = target.transform.position;
 
@@ -842,7 +844,7 @@ public class SkillManager : BaseManager<SkillManager>
 
         if (skill.effectPrefab != null)
         {
-            Quaternion entityRotation = Quaternion.LookRotation(GameManager.playerTransform.forward);
+            Quaternion entityRotation = Quaternion.LookRotation(target.transform.forward);
             var effect = Instantiate(skill.effectPrefab, spawnPosition, entityRotation);
             if (skill.particleDelay > 0)
             {
