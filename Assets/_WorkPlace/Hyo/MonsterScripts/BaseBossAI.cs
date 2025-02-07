@@ -410,6 +410,8 @@ public class BaseBossAI : MonoBehaviour
         Vector3 dashDirection = transform.forward; // 기존 대시 방향
         float distanceTravelled = 0f;
         animator.SetBool(IsDashing, true);
+        isRotating = false; // 회전 방지
+
 
         while (distanceTravelled < dashDistance)
         {
@@ -434,6 +436,7 @@ public class BaseBossAI : MonoBehaviour
             yield return null;
         }
         animator.SetBool(IsDashing, false);
+        isRotating = true; // 회전 방지
     }
 
     private IEnumerator PerformJump(Skills selectedSkill)
