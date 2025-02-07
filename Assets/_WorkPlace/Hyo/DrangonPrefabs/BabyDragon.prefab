@@ -1495,7 +1495,7 @@ MonoBehaviour:
   hoverHeight: 2
   rotationSpeed: 5
   detectRange: 40
-  meleeRange: 1.5
+  meleeRange: 1.8
   maxDistanceFromPlayer: 15
   fireballPrefab: {fileID: 1949376083282614, guid: 4f8e896254c444d4e8162e9c534d6b27, type: 3}
   rangedDelayTime: 1.5
@@ -1547,9 +1547,6 @@ MonoBehaviour:
       magicResistanceMultiplier: 2
       intelligenceMultiplier: 1.5
     instance: {fileID: 0}
-    dropItems: []
-    experienceReward: 0
-    goldReward: 0
   currentTargetTransform: {fileID: 0}
   currentState: 0
 --- !u!1 &6947217215586214734
