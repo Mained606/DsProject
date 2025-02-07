@@ -333,13 +333,13 @@ public class NonePlayerCharacter : MonoBehaviour
 
         if (isPlayerInRange)
         {
+            SmoothLookAt(targetlook, turnSpeed);
             if (UIManager.Instance.IsUIWindowOpen())
             {
                 if (interActText.gameObject.activeSelf) interActText.gameObject.SetActive(false);
             }
             else
             {
-                SmoothLookAt(targetlook, turnSpeed);
                 if (!interActText.gameObject.activeSelf) interActText.gameObject.SetActive(true);
                 if (InputManager.InputActions.actions["Interact"].triggered)
                 {
