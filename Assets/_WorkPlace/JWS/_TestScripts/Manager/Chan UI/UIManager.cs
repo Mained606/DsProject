@@ -133,6 +133,7 @@ public class UIManager : BaseManager<UIManager>
         mainCanvas.SetActive(!mainCanvas.activeSelf);
         MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(true);
+
     }
 
     public void ToggleQuestWindow()
@@ -414,6 +415,8 @@ public class UIManager : BaseManager<UIManager>
         infoMessageWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
+
+      
     }
 
     public void InteractTextPopup(string keyname, string comment, bool isOn)
@@ -449,38 +452,40 @@ public class UIManager : BaseManager<UIManager>
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
+
         if (newState != GameSystemState.InfoMessage) UIClose();
-        #region Delete
+            #region Delete
 
-        switch (newState)
-        {
-            case GameSystemState.MainMenu:
-                UIClose();
-                break;
-            case GameSystemState.Inventory:
-                ToggleInventory();
-                break;
-            case GameSystemState.QuestReview:
-                ToggleQuestWindow();
-                break;
-            case GameSystemState.StatusUI:
-                ToggleStatusWindow();
-                break;
-            case GameSystemState.Shopping:
-                NPCData npcData = additionalData as NPCData;
-                ToggleShopWindow(npcData);
-                break;
-            case GameSystemState.InfoMessage:
-                string message = additionalData as string;
-                ToggleinfoMessageWindow(message);
-                break;
-            case GameSystemState.Exploration:
-                BossHudDown();  // 02.04 = 차후에 보스 bud 온오프 조건 수정 요망 
-                break;
+            switch (newState)
+            {
+                case GameSystemState.MainMenu:
+                    UIClose();
+                    break;
+                case GameSystemState.Inventory:
+                    ToggleInventory();
+                    break;
+                case GameSystemState.QuestReview:
+                    ToggleQuestWindow();
+                    break;
+                case GameSystemState.StatusUI:
+                    ToggleStatusWindow();
+                    break;
+                case GameSystemState.Shopping:
+                    NPCData npcData = additionalData as NPCData;
+                    ToggleShopWindow(npcData);
+                    break;
+                case GameSystemState.InfoMessage:
+                    string message = additionalData as string;
+                    ToggleinfoMessageWindow(message);
+                    break;
+                case GameSystemState.Exploration:
+                    BossHudDown();  // 02.04 = 차후에 보스 bud 온오프 조건 수정 요망 
+                    break;
 
-        }
-        #endregion
+            }
+            #endregion
     }
+    
 
     private readonly Dictionary<MessageTag, string> tagColors = new Dictionary<MessageTag, string>
     {
@@ -529,6 +534,7 @@ public class UIManager : BaseManager<UIManager>
         // BossHud.SetActive(false);
     }
 
+  
 
 
 }

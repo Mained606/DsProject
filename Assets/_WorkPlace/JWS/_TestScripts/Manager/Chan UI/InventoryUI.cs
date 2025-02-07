@@ -36,6 +36,7 @@ public class InventoryUI : MonoBehaviour
 
     private void OnDisable()
     {
+
     }
 
     private void CategorizeItems()
@@ -149,13 +150,37 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    private void OnButtonClick(int buttonIndex)
+    public void OnButtonClick(int buttonIndex)
     {
         if (buttons[currentButtonIndex].animator != null) buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);
         currentButtonIndex = buttonIndex;
 
         UpdateUI();
     }
+
+    #region 호출 로직 변경 
+    public void ToggleInventory()
+    {
+        if (gameObject.activeSelf)
+        {
+            ResetButtonAnimation(); // 🔥 애니메이션 초기화 추가
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu); // 🔥 상태 변경
+            gameObject.SetActive(false); // 🔥 UI 닫기
+        }
+        else
+        {
+            gameObject.SetActive(true);
+            GameStateMachine.Instance.ChangeState(GameSystemState.Inventory); // 🔥 UI 열릴 때 상태 변경
+        }
+    }
+    public void ResetButtonAnimation()
+    {
+        if (buttons[currentButtonIndex].animator != null)
+        {
+            buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);
+        }
+    }
+    #endregion 
 }
 
 public enum CategotyItemType
