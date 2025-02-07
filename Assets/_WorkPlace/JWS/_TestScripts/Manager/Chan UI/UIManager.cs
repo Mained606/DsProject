@@ -128,13 +128,14 @@ public class UIManager : BaseManager<UIManager>
 
     public void ToggleInventory()
     {
+
         inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
         MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(true);
     }
 
-    public void ToggleQuestWindow()
+        public void ToggleQuestWindow()
     {
         questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);

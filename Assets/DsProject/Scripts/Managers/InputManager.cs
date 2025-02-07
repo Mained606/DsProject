@@ -23,23 +23,19 @@ public class InputManager : BaseManager<InputManager>
    
     private void OnInventoryKey(InputAction.CallbackContext context)
     {
-        // 상태를 Inventory로 전환
-        /*  if (GameStateMachine.Instance.CurrentState != GameSystemState.Inventory)
-          {
-              GameStateMachine.Instance.ChangeState(GameSystemState.Inventory);
-              Debug.Log("Inventory 상태로 전환됨.");
-          }
-          else
-          {
-              GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-              Debug.Log("MainMenu 상태로 복귀됨.");
-          }*/
 
-        if (UIManager.InventoryUI != null)
+        // 상태를 Inventory로 전환
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Inventory)
         {
-            UIManager.InventoryUI.ToggleInventory(); // 🔥 이제 InventoryUI가 직접 상태를 변경하게 함
+            GameStateMachine.Instance.ChangeState(GameSystemState.Inventory);
+            Debug.Log("Inventory 상태로 전환됨.");
         }
 
+        else
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
 
     }
     private void OnQuestReview(InputAction.CallbackContext context)
