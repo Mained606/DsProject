@@ -134,6 +134,47 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   effectParticleDuration: 2
   particlePositionOffset: {x: 0, y: 0, z: 0}
+  count:
+    id: 
+    name: 
+    description: 
+    type: 0
+    costValue: 0
+    quantity: 0
+    maxStack: 0
+    isDiscardable: 0
+    isStackable: 0
+    sprite: {fileID: 0}
+    dropChance: 0
+    effect:
+      effectType: 0
+      itemSize: 0
+      duration: 0
+      effectParticle: {fileID: 0}
+      isAlreadyInitialize: 0
+    isQuestItem: 0
+    itemStat:
+      Strength: 0
+      Dexterity: 0
+      Intelligence: 0
+      Vitality: 0
+      Luck: 0
+      MaxHealth: 0
+      MaxMana: 0
+      PhysicalAttack: 0
+      MagicAttack: 0
+      PhysicalDefense: 0
+      MagicDefense: 0
+      CriticalChance: 0
+      AttackSpeed: 0
+      Evasion: 0
+    grade: 0
+    equipmentSlot: 0
+    weaponType: 0
+    isEquired: 0
+    consumableType: 0
+    effectAmount: 0
+    questId: 
 --- !u!1 &671535472939884910
 GameObject:
   m_ObjectHideFlags: 0
@@ -441,6 +482,7 @@ MonoBehaviour:
       physicalResistanceMultiplier: 1
       magicResistanceMultiplier: 2
       intelligenceMultiplier: 1.5
+    instance: {fileID: 0}
     skills: []
     gold: 0
   dragonData:
@@ -493,7 +535,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillDatabase: {fileID: 11400000, guid: 49876a0e478f4ec45a7d558d3506fc22, type: 2}
   currentUsedSkills: []
-  skillImage: {fileID: 1832674940790419213, guid: 520aa0c1598fbd441bb4db1ef5412700, type: 3}
+  skillImage:
+  - {fileID: 1541731337070278605, guid: deb6c9cfd0c1bdc4998703511e11fd28, type: 3}
+  - {fileID: 2548780414738663918, guid: 494b5bca1cc14b347a42c7d9e1aa6180, type: 3}
   skillPanel: {fileID: 0}
   isActivating: 0
 --- !u!1 &3191311102163359365
@@ -665,6 +709,8 @@ MonoBehaviour:
   mouseCursor: 0
   mouseCursorVisible: 0
   playerLayerName: Ds Player
+  npcLayerName: NPC
+  enemyLayerName: Enemy
   dragonLayerName: Dragon
 --- !u!114 &3541616797796708315
 MonoBehaviour:
@@ -756,6 +802,57 @@ MonoBehaviour:
   characterStaus: {fileID: 0}
   quickSlot: {fileID: 0}
   questListParent: {fileID: 0}
+  bossHud: {fileID: 0}
+  CurrentBossData:
+    characterName: 
+    characterType: 0
+    characterPrefab: {fileID: 0}
+    level: 0
+    currentExperience: 0
+    experienceToLevelUp: 0
+    strength: 0
+    agility: 0
+    vitality: 0
+    intelligence: 0
+    maxHp: 0
+    currentHp: 0
+    hpRecoveryRate: 0
+    maxMp: 0
+    currentMp: 0
+    mpRecoveryRate: 0
+    stamina: 0
+    staminaCurrent: 0
+    staminaRecoveryRate: 0
+    hpBuffBonus: 0
+    physicalDamageBuffMultiplier: 0
+    magicDamageBuffMultiplier: 0
+    moveSpeed: 0
+    attackSpeed: 0
+    attackRange: 0
+    physicalDefense: 0
+    magicDefense: 0
+    physicalDamage: 0
+    magicDamage: 0
+    criticalChance: 0
+    criticalDamage: 0
+    dodgeChance: 0
+    hasShield: 0
+    blockChance: 0
+    physicalDamageReduction: 0
+    magicDamageReduction: 0
+    statModifier:
+      vitalityMultiplier: 10
+      mpMultiplier: 5
+      levelMpBonus: 10
+      strengthMultiplier: 1.5
+      agilityMultiplier: 0.01
+      physicalResistanceMultiplier: 1
+      magicResistanceMultiplier: 2
+      intelligenceMultiplier: 1.5
+    instance: {fileID: 0}
+    dropItems: []
+    experienceReward: 0
+    goldReward: 0
 --- !u!1 &9196922504058191263
 GameObject:
   m_ObjectHideFlags: 0

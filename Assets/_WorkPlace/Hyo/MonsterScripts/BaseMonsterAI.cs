@@ -109,7 +109,7 @@ public class BaseMonsterAI : MonoBehaviour
         spawnPosition = transform.position; // 스폰 위치 저장
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
-        monsterData = GetComponent<Test1>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
+        monsterData = GetComponent<BaseMonsterData>().monster; // MonsterData 참조 (Test1 컴포넌트에서 캐싱)
         
         if (monsterData != null)
         {
