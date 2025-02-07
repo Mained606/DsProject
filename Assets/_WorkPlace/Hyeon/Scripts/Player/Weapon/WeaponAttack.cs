@@ -22,7 +22,6 @@ public class WeaponAttack : MonoBehaviour
         {
             interactable.Interact(toolTag); // 상호작용 호출
         }
-        
         if (!weaponCollider.enabled) return;
         if (!DamagedTargets.Contains(other.gameObject))
         {
