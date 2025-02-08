@@ -15,7 +15,7 @@ public class GenerateData
     /// 퀘스트 관련 제너레이터.
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public List<Quest> GenerateMainQuestLists()
-    {
+    { 
         List<Quest> questList = new List<Quest>
         {
             // 1장: 용사의 마지막 숨결
@@ -25,9 +25,9 @@ public class GenerateData
                 {
                     { "location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "용사의 마지막 전투 장소", 1) }
                 },
-                new List<Reward>
+                new List<Reward> 
                 {
-                    new Reward("소형 체력포션", 1, 10, 10),
+                    new Reward("용의알", 1, 10, 10),
                 }),
 
             // 1장 - 1: 마울로 향해
@@ -75,8 +75,7 @@ public class GenerateData
                 "하급 마족과의 첫 전투에서 승리하고 생존하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_Golem", new QuestCondition(QuestConditionType.Explore, "location_Golem", "하급 마족", 1) },
-                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 마족", 3) }
+                    { "Bear", new QuestCondition(QuestConditionType.Kill, "Bear", "하급 마족", 3) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 40, 50) }),
 
@@ -96,8 +95,7 @@ public class GenerateData
                 "엄마를 살해한 하급 관리자 3명을 처치하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_Golem", new QuestCondition(QuestConditionType.Explore, "Golem", "하급 관리자", 1) },
-                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) }
+                    { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 60, 60) }),
 
@@ -106,7 +104,7 @@ public class GenerateData
                 "숲 속에서 위험구역을 통해 전투 능력을 강화하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "위험구역 찾기", 1) }
+                    { "location_005", new QuestCondition(QuestConditionType.Explore, "location_005", "위험구역", 1) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 0, 70, 70) }),
 
@@ -115,8 +113,8 @@ public class GenerateData
                 "하급 관리자 3명을 처치하고 중급 관리자 모파안과 전투하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) },
-                    { "Mophan", new QuestCondition(QuestConditionType.Kill, "Mophan", "중급 관리자 모파안", 1) }
+                    { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) },
+                    { "SlimRabbit", new QuestCondition(QuestConditionType.Kill, "SlimRabbit", "중급 관리자 모파안", 1) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 80, 80) }),
 
@@ -125,7 +123,7 @@ public class GenerateData
                 "마을 사람들과 대화하여 마왕의 정보를 수집하고 여정을 시작하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "마왕의 성에 대하여", 1) }
+                    { "location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "마왕의 성", 1) }
                 },
                 new List<Reward>
                 {
@@ -133,7 +131,6 @@ public class GenerateData
                     new Reward("소형 체력포션", 1, 90, 90)
                 })
         };
-
         return questList;
     }
 

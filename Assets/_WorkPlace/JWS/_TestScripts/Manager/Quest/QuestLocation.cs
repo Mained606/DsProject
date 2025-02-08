@@ -1,16 +1,9 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(SphereCollider))]
 public class QuestLocation : MonoBehaviour
 {
     private bool isQuestUpdated = false;
-
-    private void Awake()
-    {
-        SphereCollider collider = GetComponent<SphereCollider>();
-        collider.radius = 5f;
-        collider.isTrigger = true;
-    }
 
     private void Start()
     {
@@ -29,15 +22,13 @@ public class QuestLocation : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            Vector3 target = new Vector3(transform.position.x, 0, transform.position.z);
-            Vector3 player = new Vector3(other.transform.position.x, 0, other.transform.position.z);
-            float distance = Vector3.Distance(target, player);
+            float distance = Vector3.Distance(this.transform.position, other.transform.position);
 
-            if (distance <= 2f && !isQuestUpdated)
+            if (distance <= 1f && !isQuestUpdated)
             {
                 isQuestUpdated = true;
-                CompassIndicater.RemoveTarget(QuestManager.GetQuestConditionPoint(this.gameObject.name));
                 QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Explore, this.gameObject.name);
+                CompassIndicater.RemoveTarget(QuestManager.GetQuestConditionPoint(this.gameObject.name));
             }
         }
     }
