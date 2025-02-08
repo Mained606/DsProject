@@ -339,7 +339,7 @@ public class BaseBossAI : MonoBehaviour
             animator.SetTrigger(IsRoaring);
             yield return new WaitForSeconds(roarDuration);
             isRotating = false; // 회전 방지
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject);
+            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject, this.transform);
             yield return new WaitForSeconds(4f);
             isRotating = true;  // 회전 가능
             break;
