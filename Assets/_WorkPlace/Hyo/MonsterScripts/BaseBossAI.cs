@@ -55,6 +55,7 @@ public class BaseBossAI : MonoBehaviour
     
     [SerializeField] private GameObject firePoint1;  // AoE 스킬 시 사용할 위치 (예시)
     [SerializeField] private bool respawn = false;
+    private bool hasAppliedDashDamage = false;
 
     protected virtual void OnDestroy()
     {
@@ -127,8 +128,8 @@ public class BaseBossAI : MonoBehaviour
         /////////////////////////////////////////////////////////////////////////////////////////////
         /// 2025.02.08 JWS 수정
         /////////////////////////////////////////////////////////////////////////////////////////////
-        if (currentState == BossState.Attacking) UIManager.Instance.BossHudDisplay(true, bossData);
-        else UIManager.Instance.BossHudDisplay(false);
+        //if (currentState == BossState.Roaring) UIManager.Instance.BossHudDisplay(true, bossData);
+        //else UIManager.Instance.BossHudDisplay(false);
         /////////////////////////////////////////////////////////////////////////////////////////////
 
         // 서치: 플레이어가 아직 탐지되지 않았다면 검색
@@ -247,7 +248,7 @@ public class BaseBossAI : MonoBehaviour
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
-            //UIManager.Instance.BossHudUP(this.bossData);
+            UIManager.Instance.BossHudUP(this.bossData);
         }
         SetState(BossState.Roaring);
     }
@@ -418,6 +419,7 @@ public class BaseBossAI : MonoBehaviour
         float distanceTravelled = 0f;
         animator.SetBool(IsDashing, true);
         isRotating = false; // 회전 방지
+        hasAppliedDashDamage = false;
 
 
         while (distanceTravelled < dashDistance)
@@ -438,6 +440,13 @@ public class BaseBossAI : MonoBehaviour
 
                 float pushForce = 50f; // 밀어내는 힘 설정
                 playerTarget.GetComponent<CharacterController>().Move(pushDirection * pushForce * Time.deltaTime);
+                
+                // 한 번만 데미지 들어가도록 플래그 사용
+                if (!hasAppliedDashDamage)
+                {
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.bossData, playerTarget, false, false, 3f, true);
+                    hasAppliedDashDamage = true;
+                }
             }
 
             yield return null;
