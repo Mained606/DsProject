@@ -7,11 +7,10 @@ public class CompassIndicater : MonoBehaviour
     public static CompassIndicater Instance { get; private set; }
     [SerializeField] private RectTransform compassBar;
     [SerializeField] private RectTransform markerPrefab;
+    [SerializeField] private List<Transform> targets;
+    [SerializeField] private List<RectTransform> activeMarkers = new List<RectTransform>();
     private Transform player;
     private RectTransform[] compassMarkers;
-    private List<Transform> targets;
-
-    private List<RectTransform> activeMarkers = new List<RectTransform>();
     private float compassWidth = 1600f;
 
     private float maxVisibleDistance = 200f;
@@ -116,7 +115,7 @@ public class CompassIndicater : MonoBehaviour
             marker.gameObject.SetActive(distance <= maxVisibleDistance);
         }
     }
-
+    
     public static void AddTarget(Transform newTarget)
     {
         if (Instance.targets.Contains(newTarget)) return;
@@ -127,7 +126,11 @@ public class CompassIndicater : MonoBehaviour
 
     public static void RemoveTarget(Transform targetToRemove)
     {
-        int index = Instance.targets.IndexOf(targetToRemove);
+        int index;
+        if (Instance.targets.Contains(targetToRemove)) index = Instance.targets.IndexOf(targetToRemove);
+        else return;
+
+        Debug.LogWarning($"마커지우기 : {index}");
         if (index >= 0)
         {
             Destroy(Instance.activeMarkers[index].gameObject);
