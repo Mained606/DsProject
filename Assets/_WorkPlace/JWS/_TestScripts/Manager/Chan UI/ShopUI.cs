@@ -114,7 +114,6 @@ public class ShopUI : MonoBehaviour
             }
         }
         UpdateUI();
-
     }
 
     private void ClearShopList()
