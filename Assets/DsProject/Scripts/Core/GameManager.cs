@@ -128,7 +128,7 @@ public class GameManager : MonoBehaviour
         maxX = terrainPos.x + terrainSize.x - borderMargin;
         minZ = terrainPos.z + borderMargin;
         maxZ = terrainPos.z + terrainSize.z - borderMargin;
-        Debug.LogWarning("Terrain정보를 확인했습니다.");
+        // Debug.LogWarning("Terrain정보를 확인했습니다.");
     }
 
     private void Update()

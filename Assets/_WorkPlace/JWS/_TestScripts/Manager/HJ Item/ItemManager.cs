@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
-using static UnityEngine.Rendering.PostProcessing.SubpixelMorphologicalAntialiasing;
 
 public class ItemManager : BaseManager<ItemManager>
 {
@@ -33,7 +32,7 @@ public class ItemManager : BaseManager<ItemManager>
             }
         }).Completed += handle =>
         {
-            Debug.Log($"{itemSpriteList.Count}개의 아이템 스프라이트를 로드했습니다.");
+            //Debug.Log($"{itemSpriteList.Count}개의 아이템 스프라이트를 로드했습니다.");
         };
         Addressables.LoadAssetsAsync<Sprite>("Skills", sprite =>
         {
@@ -43,7 +42,7 @@ public class ItemManager : BaseManager<ItemManager>
             }
         }).Completed += handle =>
         {
-            Debug.LogWarning($"{skillSpriteDictionary.Count}개의 아이템 스프라이트를 로드했습니다.");
+            //Debug.LogWarning($"{skillSpriteDictionary.Count}개의 아이템 스프라이트를 로드했습니다.");
         };
 
         if (itemList.itemList.Count <= 0)
@@ -184,6 +183,7 @@ public class ItemManager : BaseManager<ItemManager>
 
     public Sprite GetSkillSprite(string spriteName)
     {
+        if (skillSpriteDictionary.Count == 0) return null;
         if (skillSpriteDictionary.TryGetValue(spriteName, out Sprite sprite))
         {
             return sprite;
