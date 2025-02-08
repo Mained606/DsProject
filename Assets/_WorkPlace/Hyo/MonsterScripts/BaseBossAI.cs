@@ -240,7 +240,7 @@ public class BaseBossAI : MonoBehaviour
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
-            // UIManager.Instance.BossHudUP(this.bossData);
+            UIManager.Instance.BossHudUP(this.bossData);
         }
         SetState(BossState.Roaring);
     }
