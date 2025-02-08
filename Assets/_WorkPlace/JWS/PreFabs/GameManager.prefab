@@ -289,6 +289,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   compassBar: {fileID: 0}
   markerPrefab: {fileID: 8074778755176054646, guid: 4daac7d8ac07d2248b9756d68e1f5e4b, type: 3}
+  targets: []
+  activeMarkers: []
 --- !u!1 &2523794988520348759
 GameObject:
   m_ObjectHideFlags: 0
@@ -334,6 +336,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectZones:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -538,7 +543,9 @@ MonoBehaviour:
   skillImage:
   - {fileID: 1541731337070278605, guid: deb6c9cfd0c1bdc4998703511e11fd28, type: 3}
   - {fileID: 2548780414738663918, guid: 494b5bca1cc14b347a42c7d9e1aa6180, type: 3}
-  skillPanel: {fileID: 0}
+  skillPanel:
+  - {fileID: 0}
+  - {fileID: 0}
   isActivating: 0
 --- !u!1 &3191311102163359365
 GameObject:
