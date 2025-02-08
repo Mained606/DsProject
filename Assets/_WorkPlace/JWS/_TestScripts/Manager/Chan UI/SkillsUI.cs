@@ -23,12 +23,11 @@ public class SkillsUI : MonoBehaviour
         }
         skillCount = playerSkillList.Count;
         InitskillSlotItems();
-        Debug.LogWarning("스킬수 : " +  skillCount);
     }
 
     private void Update()
     {
-        CheckskillSlot();
+        if (ItemManager.Instance != null) CheckskillSlot();
     }
 
     private void InitskillSlotItems()
