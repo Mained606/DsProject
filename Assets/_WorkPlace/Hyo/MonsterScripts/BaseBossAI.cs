@@ -123,6 +123,13 @@ public class BaseBossAI : MonoBehaviour
                 // 스턴 상태 (필요 시 추가 구현)
                 break;
         }
+        
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        /// 2025.02.08 JWS 수정
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        if (currentState == BossState.Attacking) UIManager.Instance.BossHudDisplay(true, bossData);
+        else UIManager.Instance.BossHudDisplay(false);
+        /////////////////////////////////////////////////////////////////////////////////////////////
 
         // 서치: 플레이어가 아직 탐지되지 않았다면 검색
         SearchForPlayer();
@@ -240,7 +247,7 @@ public class BaseBossAI : MonoBehaviour
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
-            UIManager.Instance.BossHudUP(this.bossData);
+            //UIManager.Instance.BossHudUP(this.bossData);
         }
         SetState(BossState.Roaring);
     }
