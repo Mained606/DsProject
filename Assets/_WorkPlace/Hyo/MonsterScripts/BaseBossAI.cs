@@ -124,13 +124,6 @@ public class BaseBossAI : MonoBehaviour
                 break;
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////////////
-        /// 2025.02.08 JWS 수정
-        /////////////////////////////////////////////////////////////////////////////////////////////
-        if (currentState == BossState.Attacking) UIManager.Instance.BossHudDisplay(true, bossData);
-        else UIManager.Instance.BossHudDisplay(false);
-        /////////////////////////////////////////////////////////////////////////////////////////////
-
         // 서치: 플레이어가 아직 탐지되지 않았다면 검색
         SearchForPlayer();
     }
@@ -247,6 +240,7 @@ public class BaseBossAI : MonoBehaviour
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
+            UIManager.Instance.BossHudUP(this.bossData);
         }
         SetState(BossState.Roaring);
     }
@@ -477,12 +471,7 @@ public class BaseBossAI : MonoBehaviour
             yield return null;
         }
         
-        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
-        // JumpSkillController jumpController = skillEffect.GetComponent<JumpSkillController>();
-        // if (jumpController != null)
-        // {
-        //     jumpController.SetBoss(this); // 보스를 JumpSkillController에 전달
-        // }
+        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, this.transform);
     }
 
 
