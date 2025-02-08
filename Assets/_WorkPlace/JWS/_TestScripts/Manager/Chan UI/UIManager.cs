@@ -298,7 +298,7 @@ public class UIManager : BaseManager<UIManager>
         dialogUI.DisplayQuestDialogWindow(title, quest);
     }
 
-    public void BossHudDisplay(bool isOnOff, BossData bossData = null)
+    private void BossHudDisplay(bool isOnOff, BossData bossData = null)
     {
         if (isOnOff)
         {
@@ -486,6 +486,7 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.BossBattle:
                 break;
             case GameSystemState.Exploration:
+                BossHudDisplay(false);
                 break;
 
         }

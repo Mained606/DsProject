@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 public class QuestManager : BaseManager<QuestManager>
 {
@@ -17,11 +16,7 @@ public class QuestManager : BaseManager<QuestManager>
     public static List<Quest> CompletedQuests => Instance.completedQuests;
     public static Dictionary<string, Transform> QuestConditionPoint => Instance.questConditionPoint;
 
-    public static Transform GetQuestConditionPoint(string point)
-    {
-        if (QuestConditionPoint.ContainsKey(point)) { return Instance.questConditionPoint[point]; }
-        else { return null; }
-    }
+    public static Transform GetQuestConditionPoint(string point) => Instance.questConditionPoint[point];
 
     public static NPCList NpcDatabase => Instance.npcDataList;
 
@@ -199,7 +194,6 @@ public class QuestManager : BaseManager<QuestManager>
             if (!string.IsNullOrEmpty(reward.itemId))
             {
                 ItemManager.Instance.AddItemLogic(reward.itemId, reward.quantity);
-                UpdateQuestProgress(QuestConditionType.Collect, reward.itemId, reward.quantity);
                 UIManager.SystemGameMessage($"보상 아이템 '{reward.itemId}' {reward.quantity}개 지급됨.", MessageTag.아이템_획득);
             }
 

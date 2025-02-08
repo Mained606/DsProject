@@ -731,7 +731,7 @@ public class SkillManager : BaseManager<SkillManager>
 
     private Animator animator;
     [SerializeField] private GameObject[] skillImage;
-    [SerializeField] private Transform[] skillPanel;
+    [SerializeField] private Transform skillPanel;
 
     public bool isActivating;
     private int currentMp;
@@ -921,7 +921,7 @@ public class SkillManager : BaseManager<SkillManager>
     {
         if (!activeSkill.ContainsKey(skill))
         {
-            var skillImg = Instantiate(skillImage[skill.skillType == SkillType.Support ? 0 : 1], skill.entityType != EntityType.Boss ? skillPanel[0]: skillPanel[1]);
+            var skillImg = Instantiate(skillImage[skill.skillType == SkillType.Support ? 0 : 1], skillPanel);
             activeSkill[skill] = skillImg.transform.GetChild(1).GetComponent<Image>();
             activeSkill[skill].sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
         }
