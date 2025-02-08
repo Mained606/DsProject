@@ -74,12 +74,10 @@ public class ZonesManager : MonoBehaviour
             }
             else if (zone.name == "나뭇가지" && currentQuestIndex == 4)
             {
-                Debug.LogWarning("현2 : " + currentQuestIndex);
                 maxDistance = 100f;
             }
             else if ((zone.name == "돌" || zone.name == "나무") && currentQuestIndex == 6)
             {
-                Debug.LogWarning("현2 : " + currentQuestIndex);
                 maxDistance = 100f;
             }
             else
@@ -87,8 +85,6 @@ public class ZonesManager : MonoBehaviour
                 continue;
             }
 
-
-            Debug.LogWarning("현 : " + distanceToPlayer + ", " + currentQuestIndex);
             bool shouldBeActive = distanceToPlayer < maxDistance;
             if (zone.gameObject.activeSelf != shouldBeActive)
             {

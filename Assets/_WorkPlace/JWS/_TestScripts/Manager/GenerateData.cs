@@ -76,7 +76,7 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_Golem", new QuestCondition(QuestConditionType.Explore, "location_Golem", "하급 마족", 1) },
-                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 마족", 3) }
+                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 40, 50) }),
 

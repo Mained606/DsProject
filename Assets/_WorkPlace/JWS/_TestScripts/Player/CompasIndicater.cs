@@ -130,7 +130,6 @@ public class CompassIndicater : MonoBehaviour
         if (Instance.targets.Contains(targetToRemove)) index = Instance.targets.IndexOf(targetToRemove);
         else return;
 
-        Debug.LogWarning($"마커지우기 : {index}");
         if (index >= 0)
         {
             Destroy(Instance.activeMarkers[index].gameObject);
