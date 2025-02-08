@@ -3340,7 +3340,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000045776367}
+  m_AnchoredPosition: {x: 0, y: -0.000030517578}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4280711102194579312
@@ -12846,7 +12846,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4322583735175214281}
   m_HandleRect: {fileID: 6641997944002235093}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -14975,7 +14975,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 38, y: -600}
-  m_SizeDelta: {x: 700, y: 40}
+  m_SizeDelta: {x: 1100, y: 40}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &7171917166797542249
 CanvasRenderer:
@@ -61016,7 +61016,7 @@ MonoBehaviour:
     bottomLeft: {r: 1, g: 1, b: 1, a: 1}
     bottomRight: {r: 1, g: 1, b: 1, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
+  m_spriteAsset: {fileID: 11400000, guid: c41005c129ba4d66911b75229fd70b45, type: 2}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
   m_TextStyleHashCode: -1183493901
@@ -65741,6 +65741,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2243816913407215007}
     m_Modifications:
+    - target: {fileID: 2052489031771477013, guid: 74c5947de5783334ca13984d1b14f527, type: 3}
+      propertyPath: m_Spacing
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 2052489031771477013, guid: 74c5947de5783334ca13984d1b14f527, type: 3}
+      propertyPath: m_Padding.m_Top
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2052489031771477013, guid: 74c5947de5783334ca13984d1b14f527, type: 3}
+      propertyPath: m_Padding.m_Left
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 2052489031771477013, guid: 74c5947de5783334ca13984d1b14f527, type: 3}
+      propertyPath: m_Padding.m_Right
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2052489031771477013, guid: 74c5947de5783334ca13984d1b14f527, type: 3}
+      propertyPath: m_Padding.m_Bottom
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2991525536553136022, guid: 74c5947de5783334ca13984d1b14f527, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -65827,7 +65847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3077625431882513096, guid: 74c5947de5783334ca13984d1b14f527, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

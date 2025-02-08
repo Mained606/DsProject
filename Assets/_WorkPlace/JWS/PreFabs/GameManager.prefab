@@ -343,6 +343,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   visibleDistance: 200
 --- !u!1 &2881707320073850653
 GameObject:
