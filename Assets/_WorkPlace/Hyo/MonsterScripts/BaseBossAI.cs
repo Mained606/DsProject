@@ -471,12 +471,7 @@ public class BaseBossAI : MonoBehaviour
             yield return null;
         }
         
-        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
-        // JumpSkillController jumpController = skillEffect.GetComponent<JumpSkillController>();
-        // if (jumpController != null)
-        // {
-        //     jumpController.SetBoss(this); // 보스를 JumpSkillController에 전달
-        // }
+        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, this.transform);
     }
 
 
