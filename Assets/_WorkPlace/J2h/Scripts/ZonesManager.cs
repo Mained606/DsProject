@@ -12,9 +12,13 @@ public class ZonesManager : MonoBehaviour
         foreach (Transform zone in objectZones)
         {
             zone.gameObject.SetActive(false);
-            if (zone.name == "용의둥지" && zone.childCount > 3)
+            switch (zone.name)
             {
-                if (zone.GetChild(3).gameObject.activeSelf) zone.GetChild(3).gameObject.SetActive(false);
+                case "용의둥지":
+                    if (zone.GetChild(3).gameObject.activeSelf) zone.GetChild(3).gameObject.SetActive(false);
+                    break;
+                case "보스루인":
+                    break;
             }
         }
     }
@@ -48,8 +52,30 @@ public class ZonesManager : MonoBehaviour
                     }
                     break;
 
-                case "최고위험지역":
+                case "보스루인":
                     if (QuestManager.CurrentMainQuestIndex != 9) continue;
+                    maxDistance = 40f;
+                    break;
+
+                case "최고위험지역":
+                    if (QuestManager.CurrentMainQuestIndex != 7) continue;
+                    maxDistance = 40f;
+                    break;
+
+                case "Egg":
+                    if (QuestManager.CurrentMainQuestIndex != 3) continue;
+                    maxDistance = 10f;
+                    break;
+
+                case "나뭇가지":
+                    if (QuestManager.CurrentMainQuestIndex != 4) continue;
+                    maxDistance = 100f;
+                    break;
+
+                case "돌":
+                case "나무":
+                    if (QuestManager.CurrentMainQuestIndex != 6) continue;
+                    maxDistance = 100f;
                     break;
             }
 
