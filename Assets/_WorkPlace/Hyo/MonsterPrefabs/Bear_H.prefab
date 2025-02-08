@@ -742,8 +742,8 @@ MonoBehaviour:
   turnSpeed: 10
   maxPatrolDistance: 50
   arrivedDistance: 1
-  searchRange: 7
-  hitStateDuration: 3
+  searchRange: 10
+  hitStateDuration: 2
   currentState: 0
   spawnPosition: {x: 0, y: 0, z: 0}
   respawn: 0

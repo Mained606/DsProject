@@ -614,7 +614,7 @@ MonoBehaviour:
   patrolRange: 10
   idleTime: 2
   turnSpeed: 10
-  maxPatrolDistance: 10
+  maxPatrolDistance: 50
   arrivedDistance: 1
   searchRange: 7
   hitStateDuration: 0.7
