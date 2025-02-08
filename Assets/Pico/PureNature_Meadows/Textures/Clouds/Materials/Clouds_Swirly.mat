@@ -86,14 +86,10 @@ Material:
     - _CloudsColor: {r: 0.8490566, g: 0.8490566, b: 0.8490566, a: 1}
     - _DirectionSpeed: {r: -32.72, g: -2.35, b: 10, a: -7.6}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
-<<<<<<< HEAD
 <<<<<<< Updated upstream
     - _ScatteringColor: {r: 1, g: 0.61400634, b: 0.30907202, a: 1}
 =======
     - _ScatteringColor: {r: 1, g: 0.61385405, b: 0.30879933, a: 1}
 >>>>>>> Stashed changes
-=======
-    - _ScatteringColor: {r: 1, g: 0.61400807, b: 0.30907506, a: 1}
->>>>>>> parent of 8d22ee94 (NPC 소폰조정 퀘스트 수정 기타 자잘한 버그 수정)
   m_BuildTextureStacks: []
   m_AllowLocking: 1
