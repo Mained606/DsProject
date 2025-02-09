@@ -85,7 +85,7 @@ public class GenerateData
                 "숲 속에서 나무와 돌을 공격하며 힘을 연마하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
+                    { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무2", 1) },
                     { "돌", new QuestCondition(QuestConditionType.Collect, "돌", "돌", 5) },
                     { "나무", new QuestCondition(QuestConditionType.Collect, "나무", "나무", 5) }
                 },
