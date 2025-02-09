@@ -129,28 +129,12 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.038209625, y: -0.30987015, z: 0.012489339, w: 0.94992876}
   m_LocalPosition: {x: 171.2, y: 13.29, z: 193.1}
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  m_LocalScale: {x: 2.5, y: 2.5000005, z: 2.5}
-=======
   m_LocalScale: {x: 2.5, y: 2.5000002, z: 2.5}
->>>>>>> Stashed changes
-=======
-  m_LocalScale: {x: 2.5, y: 2.5000002, z: 2.5}
->>>>>>> Stashed changes
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1989038762103278051}
   - {fileID: 2129274934044987957}
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  m_Father: {fileID: 3770373697766697621}
-=======
   m_Father: {fileID: 7332155913482228316}
->>>>>>> Stashed changes
-=======
-  m_Father: {fileID: 7332155913482228316}
->>>>>>> Stashed changes
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3412187900484946967
 MonoBehaviour:
@@ -2829,10 +2813,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7332155913482228316}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 --- !u!1 &6238856231746847738
 GameObject:
   m_ObjectHideFlags: 0
@@ -3639,10 +3619,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   - {fileID: 4107724064944982928}
   - {fileID: 7330920970881259301}
   - {fileID: 6256694772496725973}
@@ -5565,16 +5541,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     - target: {fileID: 355211937878505235, guid: e15ac7e3c16b2774f97e3a4dce94d8d0, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     - target: {fileID: 367987435645263818, guid: e15ac7e3c16b2774f97e3a4dce94d8d0, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -6213,16 +6183,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     - target: {fileID: 640078671771665217, guid: eef95170f67bd4c49bf7db1647b82161, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     - target: {fileID: 679790923267487406, guid: eef95170f67bd4c49bf7db1647b82161, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -7253,16 +7217,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     - target: {fileID: 2618864116688502524, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     - target: {fileID: 2631138916889986131, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -9009,16 +8967,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     - target: {fileID: 6272462482690849584, guid: 406044db3600c5244b8b0039a4299bee, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     - target: {fileID: 6443403392806826111, guid: 406044db3600c5244b8b0039a4299bee, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -9793,16 +9745,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     - target: {fileID: 6364072787483343753, guid: a6961164d6c141b4d8ca44067c2cb76c, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     - target: {fileID: 6399234613139346318, guid: a6961164d6c141b4d8ca44067c2cb76c, type: 3}
       propertyPath: m_LocalScale.x
       value: 3
@@ -11575,16 +11521,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     - target: {fileID: 4599560939917860713, guid: f75c39d91bd86044ba94a24c2f016d3d, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     - target: {fileID: 4612658768244976687, guid: f75c39d91bd86044ba94a24c2f016d3d, type: 3}
       propertyPath: m_Layer
       value: 8
