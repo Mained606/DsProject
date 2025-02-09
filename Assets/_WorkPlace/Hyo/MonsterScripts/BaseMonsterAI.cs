@@ -615,18 +615,33 @@ public class BaseMonsterAI : MonoBehaviour
         SetState(AIState.Dead);
         StartCoroutine(OnDeathAnimationEnd(pooling));
     }
-    
+
     IEnumerator OnDeathAnimationEnd(bool pooling)
     {
-        characterController.Move(Vector3.zero); // 이동 정지
+        characterController.Move(Vector3.zero);
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2.5f);
+
+        float duration = 2.0f;
+        float elapsedTime = 0f;
+        Vector3 startPosition = transform.position;
+        Vector3 targetPosition = startPosition - new Vector3(0, 2f, 0);
+
+        while (elapsedTime < duration)
+        {
+            transform.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = targetPosition;
+
         if (pooling)
         {
             respawn = true;
             gameObject.SetActive(false);
 
-            // 데이터 초기화 부분
+            // 데이터 초기화
             monsterData.ResetDataByLevel();
         }
         else
@@ -634,7 +649,8 @@ public class BaseMonsterAI : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
-    
+
+
     // 상시 중력 적용
     protected virtual void HandleGravity()
     {
