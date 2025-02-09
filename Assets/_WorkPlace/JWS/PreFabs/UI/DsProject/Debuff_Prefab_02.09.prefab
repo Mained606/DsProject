@@ -284,7 +284,7 @@ GameObject:
   - component: {fileID: 3571503982446501846}
   - component: {fileID: 6083100820983499706}
   m_Layer: 5
-  m_Name: Debuff_Prefab
+  m_Name: Debuff_Prefab_02.09
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -302,8 +302,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4154875532733331906}
   - {fileID: 6339719586995036734}
+  - {fileID: 4154875532733331906}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -387,7 +387,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 1}
+  m_SizeDelta: {x: 130, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4001998114186624552
 CanvasRenderer:
