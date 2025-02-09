@@ -1253,6 +1253,7 @@ MonoBehaviour:
   hitDuration: 1
   movementSpeed: 0
   attackRange: 0
+  turnSpeed: 10
   attackCooldown: 10
   dashSpeed: 30
   dashDistance: 30
