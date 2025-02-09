@@ -789,7 +789,7 @@ public class SkillManager : BaseManager<SkillManager>
         return true;
     }
 
-    public void ActivateSkillForEntity(EntityType entityType, string skillName, GameObject target = null)
+    public void ActivateSkillForEntity(EntityType entityType, string skillName, GameObject target = null, Transform useTransform = null)
     {
         if (isActivating)
         {
@@ -828,10 +828,10 @@ public class SkillManager : BaseManager<SkillManager>
         isActivating = true;
         CharacterManager.PlayerCharacterData.UseMp(skill.energyCost);
         TimerManager.Instance.StartTimer(skill.cooldownTimer);
-        StartCoroutine(ExecuteSkill(entityType, skill, target));
+        StartCoroutine(ExecuteSkill(entityType, skill, target, useTransform));
     }
 
-    private IEnumerator ExecuteSkill(EntityType entityType, Skills skill, GameObject target)
+    private IEnumerator ExecuteSkill(EntityType entityType, Skills skill, GameObject target, Transform useTransform = null)
     {
 
         Vector3 spawnPosition = target.transform.position;
@@ -846,6 +846,30 @@ public class SkillManager : BaseManager<SkillManager>
         {
             Quaternion entityRotation = Quaternion.LookRotation(target.transform.forward);
             var effect = Instantiate(skill.effectPrefab, spawnPosition, entityRotation);
+            switch (effect.name)
+            {
+                case "OrbExplosion(Clone)":
+                    OrbExplosionSkillController obrctrl = effect.GetComponentInChildren<OrbExplosionSkillController>();
+                    if (useTransform != null)
+                    {
+                        obrctrl.bossData = useTransform.transform.GetComponent<BaseMonsterData>().GetBossData();
+                    }
+                    break;
+                case "RapidFireball(Clone)":
+                    RapidFireballSkillController rapidf = effect.GetComponentInChildren<RapidFireballSkillController>();
+                    if (useTransform != null)
+                    {
+                        rapidf.bossData = useTransform.transform.GetComponent<BaseMonsterData>().GetBossData();
+                    }
+                    break;
+                case "JumpSkill(Clone)":
+                    JumpSkillController jumpSkillCtrl = effect.GetComponentInChildren<JumpSkillController>();
+                    if (useTransform != null)
+                    {
+                        jumpSkillCtrl.bossData = useTransform.transform.GetComponent<BaseMonsterData>().GetBossData();
+                    }
+                    break;
+            }
             if (skill.particleDelay > 0)
             {
                 var particleEffect = effect.GetComponent<ParticleSystem>().main;
@@ -882,7 +906,7 @@ public class SkillManager : BaseManager<SkillManager>
         {
             EntityType.Player => GameManager.playerTransform?.GetComponentInChildren<Animator>(),
             EntityType.Dragon => GameManager.DragonTransform?.GetComponent<Animator>(),
-            /*EntityType.Boss => GameManager.BossTransform?.GetComponent<Animator>(),*/
+            // EntityType.Boss => GameManager.BossTransform?.GetComponent<Animator>(),
             _ => null
         };
     }

@@ -41,4 +41,12 @@ public class QuestLocation : MonoBehaviour
             }
         }
     }
+    
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            isQuestUpdated = false;
+        }
+    }
 }

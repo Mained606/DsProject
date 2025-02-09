@@ -43,18 +43,23 @@ public class QuestDistanceCheck : MonoBehaviour
             switch (questCondition.type)
             {
                 case QuestConditionType.Kill:
-                    if (targetTransform == null) continue;
+                    // if (targetTransform == null) continue;
                     float killDistance;
-                    string killColor = CheckDistance(targetTransform, questCondition.isCompleted, out killDistance);
+                    string killColor;
                     int currentProgress = quest.progress.ContainsKey(keyWord) ? quest.progress[keyWord] : 0;
-                    distanceColor += $" {subMainColor}{questCondition.targetName}</color>";
-                    distanceColor += !questCondition.isCompleted ? $"<color=green>{currentProgress} / {questCondition.requiredQuantity}</color>   <color={killColor}>{killDistance:F1}m</color>\n" : "\n";
+                    distanceColor += $" {subMainColor}{questCondition.targetName} 처치하기</color>";
+                    distanceColor += !questCondition.isCompleted ? $" <color=green>{currentProgress} / {questCondition.requiredQuantity}</color>" : "";
+                    if (targetTransform != null)
+                    {
+                        killColor = CheckDistance(targetTransform, questCondition.isCompleted, out killDistance);
+                        distanceColor += targetTransform != null ? $"  <color={killColor}>{killDistance:F1}m</color>\n" : "\n";
+                    }
                     break;
 
                 case QuestConditionType.Collect:
                     int collectProgress = quest.progress.ContainsKey(keyWord) ? quest.progress[keyWord] : 0;
                     distanceColor += $" {subMainColor}{questCondition.targetName} 수집하기</color>";
-                    distanceColor += !questCondition.isCompleted ? $"<color=green>{collectProgress} / {questCondition.requiredQuantity}</color>\n" : "\n";
+                    distanceColor += !questCondition.isCompleted ? $" <color=green>{collectProgress} / {questCondition.requiredQuantity}</color>\n" : "\n";
                     break;
 
                 case QuestConditionType.Explore:

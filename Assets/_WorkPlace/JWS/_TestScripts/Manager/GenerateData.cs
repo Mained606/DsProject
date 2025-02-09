@@ -66,7 +66,7 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
-                    { "나뭇가지", new QuestCondition(QuestConditionType.Collect, "Item_branch", "나뭇가지", 5) }
+                    { "나뭇가지", new QuestCondition(QuestConditionType.Collect, "나뭇가지", "나뭇가지", 5) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 30, 30) }),
 
@@ -76,7 +76,7 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_Golem", new QuestCondition(QuestConditionType.Explore, "location_Golem", "하급 마족", 1) },
-                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 마족", 3) }
+                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 40, 50) }),
 
@@ -85,7 +85,7 @@ public class GenerateData
                 "숲 속에서 나무와 돌을 공격하며 힘을 연마하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
+                    { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무2", 1) },
                     { "돌", new QuestCondition(QuestConditionType.Collect, "돌", "돌", 5) },
                     { "나무", new QuestCondition(QuestConditionType.Collect, "나무", "나무", 5) }
                 },
