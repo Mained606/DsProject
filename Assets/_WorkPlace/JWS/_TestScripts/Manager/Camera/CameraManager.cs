@@ -63,7 +63,7 @@ public class CameraManager : BaseManager<CameraManager>
     /// </summary>
     [SerializeField] private float shakeAmount = 0.05f; // 흔들림의 강도
     [SerializeField] private float shakeDuration = 0.2f; // 흔들림 지속 시간
-    private float shakeTime = 0f; // 현재 쉐이크 타이머
+    private BasicTimer shakeTimer; // 현재 쉐이크 타이머
     // ====================================================================================
     #endregion
 
@@ -83,6 +83,7 @@ public class CameraManager : BaseManager<CameraManager>
         mouseCursor = CursorLockMode.Locked;
         Cursor.lockState = mouseCursor;
         Cursor.visible = mouseCursorVisible;
+        shakeTimer = new BasicTimer(shakeDuration);
 
         playerLayerMask = 1 << LayerMask.NameToLayer(playerLayerName);
         dragonLayerMask = 1 << LayerMask.NameToLayer(dragonLayerName);
@@ -560,27 +561,25 @@ public class CameraManager : BaseManager<CameraManager>
         }
     }
     
-    
     /// <summary>
     /// 2025-02-09 HYO 코드 추가 카메라 쉐이크 기능 ============================================
     /// </summary>
     private void UpdateCameraShake()
     {
-        if (shakeTime > 0)
+        if (shakeTimer.IsRunning)
         {
             // 랜덤한 방향으로 위치를 살짝 변화시켜서 흔드는 효과를 낸다
             Vector3 shakeOffset = Random.insideUnitSphere * shakeAmount;
 
             // 카메라의 위치를 흔들리게 할 때, 기존 위치에 변화를 추가
             mainCamera.transform.position += shakeOffset;
-
-            // 쉐이크 타이머 감소
-            shakeTime -= Time.deltaTime;
         }
     }
+
     public void StartCameraShake()
     {
-        shakeTime = shakeDuration; // 쉐이크 지속 시간 설정
+        if (shakeTimer == null ) shakeTimer = new BasicTimer(shakeDuration);
+        TimerManager.Instance.StartTimer(shakeTimer);
     }
     // ====================================================================================
 }
