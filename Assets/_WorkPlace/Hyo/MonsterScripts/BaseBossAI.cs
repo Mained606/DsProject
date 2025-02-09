@@ -43,6 +43,7 @@ public class BaseBossAI : MonoBehaviour
     [SerializeField] private BossState currentState = BossState.Idle;
     [SerializeField] private Transform playerTarget;
     private Vector3 spawnPosition;
+    private Transform origianlTransform;
 
     private Animator animator;
     private CharacterController characterController;
@@ -88,6 +89,7 @@ public class BaseBossAI : MonoBehaviour
             CharacterManager.Instance.AddCharacter(this.bossData);
         }
     }
+
     private void Start()
     {
         spawnPosition = transform.position;
@@ -102,11 +104,12 @@ public class BaseBossAI : MonoBehaviour
             attackCooldown = bossData.attackSpeed;
             attackRange = bossData.attackRange;
         }
+        origianlTransform = this.transform;
     }
 
     private void Update()
     {
-        if (currentState == BossState.Dead || currentState == BossState.Returning) return;
+        if (currentState == BossState.Dead/* || currentState == BossState.Returning*/) return;
         
         HandleGravity();
 
@@ -151,12 +154,13 @@ public class BaseBossAI : MonoBehaviour
                 // 스턴 상태 (필요 시 추가 구현)
                 break;
         }
-        
+
         /////////////////////////////////////////////////////////////////////////////////////////////
         /// 2025.02.08 JWS 수정
         /////////////////////////////////////////////////////////////////////////////////////////////
-        //if (currentState == BossState.Roaring) UIManager.Instance.BossHudDisplay(true, bossData);
-        //else UIManager.Instance.BossHudDisplay(false);
+        if (currentState == BossState.Returning || currentState == BossState.Dead || currentState == BossState.Idle)
+            UIManager.Instance.BossHudDisplay(false);
+        else UIManager.Instance.BossHudDisplay(true, bossData);
         /////////////////////////////////////////////////////////////////////////////////////////////
 
         // 서치: 플레이어가 아직 탐지되지 않았다면 검색
@@ -229,7 +233,7 @@ public class BaseBossAI : MonoBehaviour
     {
         animator.SetBool(IsDashing, false);
         animator.SetBool(IsChasing, false);
-        animator.ResetTrigger(IsDead);
+        //animator.ResetTrigger(IsDead);
         animator.ResetTrigger(IsJumping);
         animator.ResetTrigger(IsRoaring);
         animator.ResetTrigger(Hit);
@@ -237,32 +241,33 @@ public class BaseBossAI : MonoBehaviour
         isAttacking = false;
         isPerformingSpecialMove = false;
         isRotating = true;
-        
-        Debug.Log("스폰 포인트로 보스 이동시작");
-        MoveTowards(spawnPosition); // 스폰 위치로 돌아감
-
-        if (Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance * 1.1f)
-        {
-            SetState(BossState.Idle); // 스폰 위치에 도달하면 패트롤 상태로 전환
-        }
+        SearchForPlayer();
+        MoveTowards();
     }
     
     // 목표 지점으로 이동
-    protected virtual void MoveTowards(Vector3 destination)
+    protected virtual void MoveTowards()
     {
-        if (isStunned) return;
-        
+        if (isStunned || currentState == BossState.Roaring || currentState == BossState.Hit || currentState == BossState.Stun ||
+            currentState == BossState.Dead || Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance)
+        {
+            animator.SetBool(IsChasing, false);
+            SetState(BossState.Idle); // 스폰 위치에 도달하면 패트롤 상태로 전환
+            return;
+        }
+
         // 이동 방향 계산
-        Vector3 direction = (destination - transform.position).normalized;
-        direction.y = 0; // 수직 방향을 0으로 설정하여 수평 이동만 처리
+        Vector3 direction = (origianlTransform.position - transform.position).normalized;
+        //direction.y = 0; // 수직 방향을 0으로 설정하여 수평 이동만 처리
         
         isRotating = true;
 
         // 이동 처리
-        Vector3 movement = direction * (movementSpeed * Time.deltaTime);
+        Vector3 movement = direction * movementSpeed * Time.deltaTime;
 
         // CharacterController의 Move 메서드를 사용
         Debug.Log("보스 이동중");
+
         characterController.Move(movement);
 
         // 부드러운 회전 처리
@@ -270,7 +275,7 @@ public class BaseBossAI : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
 
         // 애니메이션 처리
-        animator.SetBool(IsChasing, true);
+        if (!animator.GetBool(IsChasing)) animator.SetBool(IsChasing, true);
     }
 
     private void SearchForPlayer()
@@ -311,8 +316,7 @@ public class BaseBossAI : MonoBehaviour
     {
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
-            UIManager.Instance.BossHudUP(this.bossData);
+            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle);
         }
         Debug.Log("스타트 배틀");
         SetState(BossState.Roaring);
@@ -444,21 +448,21 @@ public class BaseBossAI : MonoBehaviour
     float skillDuration = selectedSkill.GetSkillDuration();
     yield return new WaitForSeconds(skillDuration + attackCooldown);
 
-    if (playerTarget != null)
-    {
-        if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+        if (playerTarget != null)
         {
-            SetState(BossState.Attacking);
+            if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+            {
+                SetState(BossState.Attacking);
+            }
+            else
+            {
+                SetState(BossState.Chasing);
+            }
         }
         else
         {
-            SetState(BossState.Chasing);
+            SetState(BossState.Idle);
         }
-    }
-    else
-    {
-        SetState(BossState.Idle);
-    }
 
     isAttacking = false;
 }
@@ -578,16 +582,18 @@ public class BaseBossAI : MonoBehaviour
         {
             playerTarget = attacker;
         }
-        else
-        {
-            // 만약 attacker가 플레이어가 아니라면, 올바른 플레이어 참조(예: GameManager.playerTransform)로 설정
-            playerTarget = GameManager.playerTransform;
-        }
+
+        // 이부분은 불필요. 플레이어를 강제로 재설정하면 데미지가 이상해짐.
+        //else
+        //{
+        //    // 만약 attacker가 플레이어가 아니라면, 올바른 플레이어 참조(예: GameManager.playerTransform)로 설정
+        //    playerTarget = GameManager.playerTransform;
+        //}
 
         // 보스 배틀 상태가 아니라면 전환
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
+            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle);
         }
         SetState(BossState.Roaring);
     }
