@@ -849,6 +849,18 @@ public class SkillManager : BaseManager<SkillManager>
             switch (effect.name)
             {
                 case "OrbExplosion(Clone)":
+                    OrbExplosionSkillController obrctrl = effect.GetComponentInChildren<OrbExplosionSkillController>();
+                    if (useTransform != null)
+                    {
+                        obrctrl.bossData = useTransform.transform.GetComponent<BaseMonsterData>().GetBossData();
+                    }
+                    break;
+                case "RapidFireball(Clone)":
+                    RapidFireballSkillController rapidf = effect.GetComponentInChildren<RapidFireballSkillController>();
+                    if (useTransform != null)
+                    {
+                        rapidf.bossData = useTransform.transform.GetComponent<BaseMonsterData>().GetBossData();
+                    }
                     break;
                 case "JumpSkill(Clone)":
                     JumpSkillController jumpSkillCtrl = effect.GetComponentInChildren<JumpSkillController>();
