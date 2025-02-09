@@ -43,7 +43,6 @@ public class BaseBossAI : MonoBehaviour
     [SerializeField] private BossState currentState = BossState.Idle;
     [SerializeField] private Transform playerTarget;
     private Vector3 spawnPosition;
-    private Transform origianlTransform;
 
     private Animator animator;
     private CharacterController characterController;
@@ -104,7 +103,6 @@ public class BaseBossAI : MonoBehaviour
             attackCooldown = bossData.attackSpeed;
             attackRange = bossData.attackRange;
         }
-        origianlTransform = this.transform;
     }
 
     private void Update()
@@ -257,8 +255,8 @@ public class BaseBossAI : MonoBehaviour
         }
 
         // 이동 방향 계산
-        Vector3 direction = (origianlTransform.position - transform.position).normalized;
-        //direction.y = 0; // 수직 방향을 0으로 설정하여 수평 이동만 처리
+        Vector3 direction = (spawnPosition - transform.position).normalized;
+        direction.y = 0; // 수직 방향을 0으로 설정하여 수평 이동만 처리
         
         isRotating = true;
 
