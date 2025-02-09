@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -941,17 +942,75 @@ public class SkillManager : BaseManager<SkillManager>
         }
     }
 
+    private Dictionary<Skills, Coroutine> blinkCoroutines = new Dictionary<Skills, Coroutine>();
+
     private void UpdateSkillCooldownUI(Skills skill)
     {
         if (!activeSkill.ContainsKey(skill))
         {
-            var skillImg = Instantiate(skillImage[skill.skillType == SkillType.Support ? 0 : 1], skill.entityType != EntityType.Boss ? skillPanel[0]: skillPanel[1]);
+            var skillImg = Instantiate(skillImage[skill.skillType == SkillType.Support ? 0 : 1], skill.entityType != EntityType.Boss ? skillPanel[0] : skillPanel[1]);
+            skillImg.AddComponent<CanvasGroup>();
             activeSkill[skill] = skillImg.transform.GetChild(1).GetComponent<Image>();
             activeSkill[skill].sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
         }
-        activeSkill[skill].transform.GetChild(1).GetComponent<Image>().fillAmount = skill.cooldownTimer.RemainingPercent;
-        activeSkill[skill].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = skill.cooldownTimer.RemainingTime.ToString("N0") + "s";
-        activeSkill[skill].transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = skill.skillName;
+
+        if (skill.cooldownTimer.RemainingTime < 10f)
+        {
+            if (!blinkCoroutines.ContainsKey(skill))
+            {
+                blinkCoroutines[skill] = StartCoroutine(BlinkSkillIcon(skill));
+            }
+        }
+    }
+
+    private IEnumerator BlinkSkillIcon(Skills skill)
+    {
+        if (!activeSkill.ContainsKey(skill)) yield break;
+        CanvasGroup canvasGroup = activeSkill[skill].GetComponent<CanvasGroup>();
+        while (skill.cooldownTimer.RemainingTime > 0 && skill.cooldownTimer.RemainingTime < 10f)
+        {
+            if (canvasGroup == null || canvasGroup.gameObject == null || !canvasGroup.gameObject.activeInHierarchy)
+            {
+                yield break;
+            }
+
+            float remainingTime = skill.cooldownTimer.RemainingTime;
+            float blinkSpeed = Mathf.Lerp(1f, 0.2f, remainingTime / 10f); // 시간이 줄어들수록 빠르게 깜빡임
+            float alphaMin = Mathf.Lerp(0.3f, 0.1f, remainingTime / 10f); // 시간이 줄어들수록 더 투명하게
+
+            // 점점 투명하게 만들기
+            for (float t = 0; t < 1f; t += Time.deltaTime / blinkSpeed)
+            {
+                if (canvasGroup == null) yield break;
+                canvasGroup.alpha = Mathf.Lerp(1f, alphaMin, t);
+                yield return null;
+            }
+
+            // 다시 원래 상태로 만들기
+            for (float t = 0; t < 1f; t += Time.deltaTime / blinkSpeed)
+            {
+                if (canvasGroup == null) yield break;
+                canvasGroup.alpha = Mathf.Lerp(alphaMin, 1f, t);
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        ResetSkillAlpha(skill);
+        blinkCoroutines.Remove(skill);
+    }
+
+    private void ResetSkillAlpha(Skills skill)
+    {
+        if (activeSkill.ContainsKey(skill))
+        {
+            CanvasGroup canvasGroup = activeSkill[skill].GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+            }
+        }
     }
 
     public List<string> GetAvailableSkills(EntityType entityType)
