@@ -215,15 +215,32 @@ public class GenerateData
     private List<NPCData> CreateShopNPC()
     {
         List<NPCData> shopNpcList = new List<NPCData>();
-        for (int i = 0; i < 20 ; i++)
+        for (int i = 0; i < 4 ; i++)
         {
             string npcName = GetRandomName();
+            ItemType itemType = ItemType.무기;
+            switch (i)
+            {
+                case 0:
+                    itemType = ItemType.무기;
+                    break;
+                case 1:
+                    itemType = ItemType.방어구;
+                    break;
+                case 2:
+                    itemType = ItemType.소모품;
+                    break;
+                case 3:
+                    itemType = ItemType.장신구;
+                    break;
+            }
+
             var shopData = new ShopData
             {
                 shopId = $"ShopNPC_{i + 1}",
                 shopName = npcName,
-                grade = 0, //(ItemGrade)UnityEngine.Random.Range(0, Enum.GetValues(typeof(ItemGrade)).Length),
-                type = (ItemType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(ItemType)).Length),
+                grade = 0,
+                type = itemType,
                 //isSpecific = UnityEngine.Random.Range(0, 2) == 1
             };
             shopData.Initialize();

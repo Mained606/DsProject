@@ -7,11 +7,11 @@ public class RapidFireballSkillController : MonoBehaviour
     public float skillMultiplier = 1f;
     private int maxHit = 4;
     private int currentHit = 0;
-    private ParticleSystem particleSystem;
+    // private ParticleSystem particleSystem;
 
     private void Start()
     {
-        particleSystem = GetComponent<ParticleSystem>();
+        // particleSystem = GetComponent<ParticleSystem>();
     }
     private void OnParticleCollision(GameObject other)
     {
