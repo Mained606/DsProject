@@ -855,6 +855,13 @@ public class SkillManager : BaseManager<SkillManager>
                         obrctrl.bossData = useTransform.transform.GetComponent<BaseMonsterData>().GetBossData();
                     }
                     break;
+                case "RapidFireball(Clone)":
+                    RapidFireballSkillController rapidf = effect.GetComponentInChildren<RapidFireballSkillController>();
+                    if (useTransform != null)
+                    {
+                        rapidf.bossData = useTransform.transform.GetComponent<BaseMonsterData>().GetBossData();
+                    }
+                    break;
                 case "JumpSkill(Clone)":
                     JumpSkillController jumpSkillCtrl = effect.GetComponentInChildren<JumpSkillController>();
                     if (useTransform != null)

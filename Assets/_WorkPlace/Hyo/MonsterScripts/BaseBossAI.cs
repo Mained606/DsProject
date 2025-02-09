@@ -343,11 +343,11 @@ public class BaseBossAI : MonoBehaviour
             yield return new WaitForSeconds(4f);
             isRotating = true;  // 회전 가능
             break;
-        case "Test2":
+        case "RapidFireball":
             animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(roarDuration);
             isRotating = false; // 회전 방지
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1);
+            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1, this.transform);
             yield return new WaitForSeconds(4f);
             isRotating = true;  // 회전 가능
             break;
