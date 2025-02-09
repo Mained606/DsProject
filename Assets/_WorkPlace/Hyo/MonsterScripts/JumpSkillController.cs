@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class JumpSkillController : MonoBehaviour
@@ -5,11 +6,33 @@ public class JumpSkillController : MonoBehaviour
     public BossData bossData;
     public float skillMultiplier = 3f;
     private bool hasAttacked = false;
+    private Collider triggerCollider;
     
     private void OnEnable()
     {
         // 이펙트가 활성화될 때 초기화 작업이 필요하면 여기서 처리합니다.
         hasAttacked = false;
+        StartCoroutine(ActivateTriggerAfterDelay(0.1f));
+    }
+    
+    private void Awake()
+    {
+        triggerCollider = GetComponent<Collider>();
+        if (triggerCollider == null)
+        {
+            Debug.LogError("Collider가 이 오브젝트에 존재하지 않습니다!");
+            return;
+        }
+
+        triggerCollider.enabled = false; // 초기에는 트리거 비활성화
+    }
+    
+    private IEnumerator ActivateTriggerAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        triggerCollider.enabled = true; // 지연 후 트리거 활성화
+        yield return new WaitForSeconds(0.5f);
+        triggerCollider.enabled = false; // 지연 후 트리거 활성화
     }
     
     private void OnTriggerEnter(Collider other)

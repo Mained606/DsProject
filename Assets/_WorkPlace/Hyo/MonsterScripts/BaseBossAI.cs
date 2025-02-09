@@ -79,6 +79,9 @@ public class BaseBossAI : MonoBehaviour
             animator.ResetTrigger(IsRoaring);
             animator.ResetTrigger(Hit);
             playerTarget = null;
+            isAttacking = false;
+            isPerformingSpecialMove = false;
+            isRotating = true;
             currentState = BossState.Idle;
             
             // 풀링된 몬스터를 다시 캐릭터 리스트에 추가
@@ -224,8 +227,16 @@ public class BaseBossAI : MonoBehaviour
     
     private void HandleReturningLogic()
     {
+        animator.SetBool(IsDashing, false);
+        animator.SetBool(IsChasing, false);
+        animator.ResetTrigger(IsDead);
+        animator.ResetTrigger(IsJumping);
+        animator.ResetTrigger(IsRoaring);
+        animator.ResetTrigger(Hit);
         playerTarget = null;
         isAttacking = false;
+        isPerformingSpecialMove = false;
+        isRotating = true;
         
         Debug.Log("스폰 포인트로 보스 이동시작");
         MoveTowards(spawnPosition); // 스폰 위치로 돌아감
@@ -303,6 +314,7 @@ public class BaseBossAI : MonoBehaviour
             GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
             UIManager.Instance.BossHudUP(this.bossData);
         }
+        Debug.Log("스타트 배틀");
         SetState(BossState.Roaring);
     }
 
