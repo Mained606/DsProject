@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -11,6 +12,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private List<NPCSpawner> bossSpawnerList = new List<NPCSpawner>();
     [SerializeField] private List<NPCSpawner> monsterSpawnerList = new List<NPCSpawner>();
 
+    private Transform playerTransform;
     private float uiUpdateInterval = 0.5f;
     private float uiTimer = 0f;
 
@@ -107,9 +109,14 @@ public class SpawnManager : MonoBehaviour
             int totalCount = npcSpawnerList.Count + monsterSpawnerList.Count + bossSpawnerList.Count;
             string uiStatus = $"스폰 정보 ( 스폰갯수 : <color=green>{totalCount}</color>개 )\n";
             uiStatus += npcSpawnerList.Count > 0 ? $"========== NPC 스폰 ==========\n" : "";
+            Vector3 playerPosition = GameManager.playerTransform.position;
+
             foreach (var spawner in npcSpawnerList)
             {
-                float distance = Vector3.Distance(GameManager.playerTransform.position, spawner.SpawnData.spawnPosition);
+
+                Vector3 spawnPosition = new Vector3(spawner.SpawnData.spawnPosition.x, playerPosition.y, spawner.SpawnData.spawnPosition.z);
+
+                float distance = Vector3.Distance(playerPosition, spawnPosition);
 
                 string distanceColor;
                 if (distance < 60)
@@ -126,7 +133,9 @@ public class SpawnManager : MonoBehaviour
             uiStatus += monsterSpawnerList.Count > 0 ? $"\n========== 몬스터 스폰 ==========\n" : "";
             foreach (var spawner in monsterSpawnerList)
             {
-                float distance = Vector3.Distance(GameManager.playerTransform.position, spawner.SpawnData.spawnPosition);
+                Vector3 spawnPosition = new Vector3(spawner.SpawnData.spawnPosition.x, playerPosition.y, spawner.SpawnData.spawnPosition.z);
+
+                float distance = Vector3.Distance(playerPosition, spawnPosition);
 
                 // 거리별 컬러 지정
                 string distanceColor;
@@ -144,7 +153,9 @@ public class SpawnManager : MonoBehaviour
             uiStatus += bossSpawnerList.Count > 0 ? $"\n========== 보스 스폰 ==========\n" : "";
             foreach (var spawner in bossSpawnerList)
             {
-                float distance = Vector3.Distance(GameManager.playerTransform.position, spawner.SpawnData.spawnPosition);
+                Vector3 spawnPosition = new Vector3(spawner.SpawnData.spawnPosition.x, playerPosition.y, spawner.SpawnData.spawnPosition.z);
+
+                float distance = Vector3.Distance(playerPosition, spawnPosition);
 
                 // 거리별 컬러 지정
                 string distanceColor;

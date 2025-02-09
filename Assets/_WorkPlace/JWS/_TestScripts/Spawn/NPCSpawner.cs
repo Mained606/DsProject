@@ -86,6 +86,8 @@ public class NPCSpawner : MonoBehaviour
 
     private void SpawnObjectAction()
     {
+        //if (spawnData.spwanType == SpawnnerType.Boss && QuestManager.CurrentMainQuestIndex != 8)
+        //    return;
         if (!spawnDelayTimer.IsRunning && ActiveObjectCount == 0)
         {
             TimerManager.Instance.StartTimer(spawnDelayTimer);

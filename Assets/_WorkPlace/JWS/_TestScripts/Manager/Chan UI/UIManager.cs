@@ -528,11 +528,4 @@ public class UIManager : BaseManager<UIManager>
         }
         return "#FFFFFF"; // 기본 흰색
     }
-    public void BossHudUP(BossData bossData)
-    {
-      bossHud.GetComponent<BossHudUI>().SetBossData(bossData);
-        bossHud.SetActive(true);
-    }
-
-
 }
