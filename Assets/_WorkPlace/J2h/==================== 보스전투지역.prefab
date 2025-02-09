@@ -84,7 +84,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7121798805332616517, guid: c97bba9e776653543850d6bfb1f8b846, type: 3}
       propertyPath: m_Name
-      value: Platform_Skull_02
+      value: "\uBCF4\uC2A4\uB8E8\uC778"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
