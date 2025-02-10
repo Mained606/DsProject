@@ -156,7 +156,7 @@ public class BaseBossAI : MonoBehaviour
         /////////////////////////////////////////////////////////////////////////////////////////////
         /// 2025.02.08 JWS 수정
         /////////////////////////////////////////////////////////////////////////////////////////////
-        if (currentState == BossState.Returning || currentState == BossState.Dead || currentState == BossState.Idle)
+        if (currentState == BossState.Returning || currentState == BossState.Dead || currentState == BossState.Idle || GameStateMachine.Instance.CurrentState == GameSystemState.Exploration)
             UIManager.Instance.BossHudDisplay(false);
         else UIManager.Instance.BossHudDisplay(true, bossData);
         /////////////////////////////////////////////////////////////////////////////////////////////
@@ -599,6 +599,10 @@ public class BaseBossAI : MonoBehaviour
     private void HandleDeath()
     {
         animator.SetBool(IsDead, true);
+        playerTarget = null;
+        isAttacking = false;
+        isPerformingSpecialMove = false;
+        isRotating = true;
         Debug.Log("보스가 사망했습니다.");
     }
     
