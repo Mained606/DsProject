@@ -544,11 +544,12 @@ MonoBehaviour:
   skillDatabase: {fileID: 11400000, guid: 49876a0e478f4ec45a7d558d3506fc22, type: 2}
   currentUsedSkills: []
   skillImage:
-  - {fileID: 1541731337070278605, guid: deb6c9cfd0c1bdc4998703511e11fd28, type: 3}
-  - {fileID: 2548780414738663918, guid: 494b5bca1cc14b347a42c7d9e1aa6180, type: 3}
+  - {fileID: 1541731337070278605, guid: 20ad94272664f7247a60550c68c0160f, type: 3}
+  - {fileID: 2548780414738663918, guid: 7cb85752ecb552b45a27abd7dd72c03e, type: 3}
   skillPanel:
   - {fileID: 0}
   - {fileID: 0}
+  blinkInterval: 0.075
   isActivating: 0
 --- !u!1 &3191311102163359365
 GameObject:
@@ -815,6 +816,7 @@ MonoBehaviour:
   quickSlot: {fileID: 0}
   questListParent: {fileID: 0}
   bossHud: {fileID: 0}
+  levelUpEffect: {fileID: 6532625474870085665, guid: fcbc3a598b83c0249b1e455fba1f60b7, type: 3}
 --- !u!1 &9196922504058191263
 GameObject:
   m_ObjectHideFlags: 0
