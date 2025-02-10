@@ -167,7 +167,6 @@ public class BaseBossAI : MonoBehaviour
             SearchForPlayer();
         }
     }
-    
     private void HandleIdleLogic()
     {
         // 플레이어가 이미 감지되었다면 배틀 시작 (StartBossBattle 내부에서 상태 전환 처리)
@@ -603,6 +602,7 @@ public class BaseBossAI : MonoBehaviour
         isAttacking = false;
         isPerformingSpecialMove = false;
         isRotating = true;
+        UIManager.Instance.BossHudDisplay(false);
         Debug.Log("보스가 사망했습니다.");
     }
     
@@ -616,7 +616,7 @@ public class BaseBossAI : MonoBehaviour
     {
         characterController.Move(Vector3.zero); // 이동 정지
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(3f);
         if (pooling)
         {
             respawn = true;

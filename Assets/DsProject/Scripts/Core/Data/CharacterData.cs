@@ -242,7 +242,10 @@ public class CharacterData
     private void LevelUp()
     {
         isLevelingUp = true; // 레벨업 시작
-
+        
+        // 이펙트 추가
+        UIManager.LevelUpEfeect();
+        
         // 레벨 증가
         level++;
 
