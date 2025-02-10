@@ -159,6 +159,9 @@ public class PlayerController : MonoBehaviour
         //OnGliding();
     }
 
+    bool cheatStatSwitch = false;
+    float prevPhysicalDamage = 0;
+    float prevMagicalDamage = 0;
     // 치트 모드 전환
     private void CheatMode()
     {
@@ -166,6 +169,24 @@ public class PlayerController : MonoBehaviour
         {
             cheatMode = !cheatMode;
             Debug.LogWarning($"CheatMode : {cheatMode}");
+            if (cheatMode && cheatStatSwitch == false)
+            {
+                walkSpeed = 15f;
+                sprintSpeed = 30f;
+                prevPhysicalDamage = playerData.physicalDamage;
+                playerData.physicalDamage += 10000f;
+                prevMagicalDamage = playerData.magicDamage;
+                playerData.magicDamage += 10000f;
+                cheatStatSwitch = true;
+            }
+            else if (!cheatMode && cheatStatSwitch == true)
+            {
+                walkSpeed = playerData.moveSpeed;
+                sprintSpeed = playerData.moveSpeed * 2f;
+                playerData.physicalDamage = prevPhysicalDamage;
+                playerData.magicDamage = prevMagicalDamage;
+                cheatStatSwitch = false;
+            }
         }
     }
 
