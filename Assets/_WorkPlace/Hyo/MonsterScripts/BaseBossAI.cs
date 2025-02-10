@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class BaseBossAI : MonoBehaviour
 {
@@ -19,11 +21,12 @@ public class BaseBossAI : MonoBehaviour
     public float maxDistance = 50f;           // 보스 스폰 위치로부터 플레이어가 벗어나면 복귀 처리할 거리
     public float roarDuration = 5f;           // 로어링(울부짖기) 애니메이션 지속 시간
     public float teleportInterval = 80f;      // 텔레포트 간격 (미사용)
-    public float teleportRange = 10f;         // 텔레포트 범위 (미사용)
+    public float teleportRange = 10f;         // 텔레포트 범위
     public float hitDuration = 1f;            // 피격 상태 지속 시간
     public float movementSpeed;               // 이동 속도 (BossData에서 할당)
     public float attackRange;                 // 공격 가능 거리 (또는 체이싱→어택 전환 기준)
-
+    public float turnSpeed = 10f;
+    
     [Header("스킬 설정")]
     public float attackCooldown = 10f; // 공격 간격
     private float attackCooldownTimer;
@@ -55,11 +58,37 @@ public class BaseBossAI : MonoBehaviour
     
     [SerializeField] private GameObject firePoint1;  // AoE 스킬 시 사용할 위치 (예시)
     [SerializeField] private bool respawn = false;
+    private bool hasAppliedDashDamage = false;
+    private float arrivedDistance = 1f;
 
     protected virtual void OnDestroy()
     {
         if (bossData != null) bossData.OnTakeDamage -= HandleTakeDamage;
     }
+    
+    protected virtual void OnEnable()
+    {
+        // 풀링 적용 후 리스폰 상태일 때 초기화
+        if (respawn)
+        {
+            // 상태 초기화
+            animator.SetBool(IsDashing, false);
+            animator.SetBool(IsChasing, false);
+            animator.ResetTrigger(IsDead);
+            animator.ResetTrigger(IsJumping);
+            animator.ResetTrigger(IsRoaring);
+            animator.ResetTrigger(Hit);
+            playerTarget = null;
+            isAttacking = false;
+            isPerformingSpecialMove = false;
+            isRotating = true;
+            currentState = BossState.Idle;
+            
+            // 풀링된 몬스터를 다시 캐릭터 리스트에 추가
+            CharacterManager.Instance.AddCharacter(this.bossData);
+        }
+    }
+
     private void Start()
     {
         spawnPosition = transform.position;
@@ -78,7 +107,7 @@ public class BaseBossAI : MonoBehaviour
 
     private void Update()
     {
-        if (currentState == BossState.Dead || currentState == BossState.Returning) return;
+        if (currentState == BossState.Dead/* || currentState == BossState.Returning*/) return;
         
         HandleGravity();
 
@@ -124,8 +153,19 @@ public class BaseBossAI : MonoBehaviour
                 break;
         }
 
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        /// 2025.02.08 JWS 수정
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        if (currentState == BossState.Returning || currentState == BossState.Dead || currentState == BossState.Idle)
+            UIManager.Instance.BossHudDisplay(false);
+        else UIManager.Instance.BossHudDisplay(true, bossData);
+        /////////////////////////////////////////////////////////////////////////////////////////////
+
         // 서치: 플레이어가 아직 탐지되지 않았다면 검색
-        SearchForPlayer();
+        if (currentState != BossState.Returning)
+        {
+            SearchForPlayer();
+        }
     }
     
     private void HandleIdleLogic()
@@ -139,7 +179,12 @@ public class BaseBossAI : MonoBehaviour
     
     private void HandleChasingLogic()
     {
-        if (playerTarget == null) return;
+        if (!playerTarget || Vector3.Distance(transform.position, spawnPosition) > maxDistance)
+        {
+            playerTarget = null; // 플레이어를 잃거나 최대 이동 범위를 벗어난 경우
+            SetState(BossState.Returning); // 복귀 상태로 전환
+            return;
+        }
 
         // 플레이어 방향 계산
         Vector3 direction = (playerTarget.position - transform.position);
@@ -184,21 +229,51 @@ public class BaseBossAI : MonoBehaviour
     
     private void HandleReturningLogic()
     {
+        animator.SetBool(IsDashing, false);
+        animator.SetBool(IsChasing, false);
+        //animator.ResetTrigger(IsDead);
+        animator.ResetTrigger(IsJumping);
+        animator.ResetTrigger(IsRoaring);
+        animator.ResetTrigger(Hit);
         playerTarget = null;
-        
-        Vector3 direction = (spawnPosition - transform.position);
-        direction.y = 0;
-
-        if (direction.magnitude < 0.5f)
+        isAttacking = false;
+        isPerformingSpecialMove = false;
+        isRotating = true;
+        SearchForPlayer();
+        MoveTowards();
+    }
+    
+    // 목표 지점으로 이동
+    protected virtual void MoveTowards()
+    {
+        if (isStunned || currentState == BossState.Roaring || currentState == BossState.Hit || currentState == BossState.Stun ||
+            currentState == BossState.Dead || Vector3.Distance(transform.position, spawnPosition) <= arrivedDistance)
         {
-            transform.position = spawnPosition; // 정확히 스폰 위치로 이동
-            SetState(BossState.Idle);
+            animator.SetBool(IsChasing, false);
+            SetState(BossState.Idle); // 스폰 위치에 도달하면 패트롤 상태로 전환
             return;
         }
 
-        direction.Normalize();
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * 5f);
-        characterController.Move(direction * movementSpeed * Time.deltaTime);
+        // 이동 방향 계산
+        Vector3 direction = (spawnPosition - transform.position).normalized;
+        direction.y = 0; // 수직 방향을 0으로 설정하여 수평 이동만 처리
+        
+        isRotating = true;
+
+        // 이동 처리
+        Vector3 movement = direction * movementSpeed * Time.deltaTime;
+
+        // CharacterController의 Move 메서드를 사용
+        Debug.Log("보스 이동중");
+
+        characterController.Move(movement);
+
+        // 부드러운 회전 처리
+        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+
+        // 애니메이션 처리
+        if (!animator.GetBool(IsChasing)) animator.SetBool(IsChasing, true);
     }
 
     private void SearchForPlayer()
@@ -239,9 +314,9 @@ public class BaseBossAI : MonoBehaviour
     {
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
-            // UIManager.Instance.BossHudUP(this.bossData);
+            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle);
         }
+        Debug.Log("스타트 배틀");
         SetState(BossState.Roaring);
     }
 
@@ -331,15 +406,15 @@ public class BaseBossAI : MonoBehaviour
             animator.SetTrigger(IsRoaring);
             yield return new WaitForSeconds(roarDuration);
             isRotating = false; // 회전 방지
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject);
+            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject, this.transform);
             yield return new WaitForSeconds(4f);
             isRotating = true;  // 회전 가능
             break;
-        case "Test2":
+        case "RapidFireball":
             animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(roarDuration);
             isRotating = false; // 회전 방지
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1);
+            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1, this.transform);
             yield return new WaitForSeconds(4f);
             isRotating = true;  // 회전 가능
             break;
@@ -371,21 +446,21 @@ public class BaseBossAI : MonoBehaviour
     float skillDuration = selectedSkill.GetSkillDuration();
     yield return new WaitForSeconds(skillDuration + attackCooldown);
 
-    if (playerTarget != null)
-    {
-        if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+        if (playerTarget != null)
         {
-            SetState(BossState.Attacking);
+            if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+            {
+                SetState(BossState.Attacking);
+            }
+            else
+            {
+                SetState(BossState.Chasing);
+            }
         }
         else
         {
-            SetState(BossState.Chasing);
+            SetState(BossState.Idle);
         }
-    }
-    else
-    {
-        SetState(BossState.Idle);
-    }
 
     isAttacking = false;
 }
@@ -411,6 +486,7 @@ public class BaseBossAI : MonoBehaviour
         float distanceTravelled = 0f;
         animator.SetBool(IsDashing, true);
         isRotating = false; // 회전 방지
+        hasAppliedDashDamage = false;
 
 
         while (distanceTravelled < dashDistance)
@@ -431,6 +507,13 @@ public class BaseBossAI : MonoBehaviour
 
                 float pushForce = 50f; // 밀어내는 힘 설정
                 playerTarget.GetComponent<CharacterController>().Move(pushDirection * pushForce * Time.deltaTime);
+                
+                // 한 번만 데미지 들어가도록 플래그 사용
+                if (!hasAppliedDashDamage)
+                {
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.bossData, playerTarget, false, false, 3f, true);
+                    hasAppliedDashDamage = true;
+                }
             }
 
             yield return null;
@@ -471,30 +554,22 @@ public class BaseBossAI : MonoBehaviour
             yield return null;
         }
         
-        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
-        // JumpSkillController jumpController = skillEffect.GetComponent<JumpSkillController>();
-        // if (jumpController != null)
-        // {
-        //     jumpController.SetBoss(this); // 보스를 JumpSkillController에 전달
-        // }
+        SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject, this.transform);
     }
-
-
-
+    
     protected virtual void HandleGravity()
     {
-        // 대쉬나 점프와 같이 특별한 이동 동작 중에는 중력을 건너 뜀
         if (isPerformingSpecialMove) return;
-        
-        if (!characterController.isGrounded)
-        {
-            velocity.y += gravity * Time.deltaTime;
-        }
-        else
+    
+        if (characterController.isGrounded)
         {
             velocity.y = 0;
         }
-
+        else
+        {
+            velocity.y += gravity * Time.deltaTime;  // 중력 적용
+        }
+    
         characterController.Move(velocity * Time.deltaTime);
     }
     
@@ -505,16 +580,18 @@ public class BaseBossAI : MonoBehaviour
         {
             playerTarget = attacker;
         }
-        else
-        {
-            // 만약 attacker가 플레이어가 아니라면, 올바른 플레이어 참조(예: GameManager.playerTransform)로 설정
-            playerTarget = GameManager.playerTransform;
-        }
+
+        // 이부분은 불필요. 플레이어를 강제로 재설정하면 데미지가 이상해짐.
+        //else
+        //{
+        //    // 만약 attacker가 플레이어가 아니라면, 올바른 플레이어 참조(예: GameManager.playerTransform)로 설정
+        //    playerTarget = GameManager.playerTransform;
+        //}
 
         // 보스 배틀 상태가 아니라면 전환
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle, bossData);
+            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle);
         }
         SetState(BossState.Roaring);
     }
@@ -561,5 +638,17 @@ public class BaseBossAI : MonoBehaviour
         float randomZ = Random.Range(-teleportRange, teleportRange);
         Vector3 randomPosition = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
         return randomPosition;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(spawnPosition, 3f);
+        
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(this.transform.position, searchRange);
+        
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(this.spawnPosition, maxDistance);
     }
 }

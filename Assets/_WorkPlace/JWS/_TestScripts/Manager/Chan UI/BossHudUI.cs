@@ -33,4 +33,9 @@ public class BossHudUI : MonoBehaviour
     {
         this.bossData = bossData;
     }
+
+    public Transform BossBuffZone()
+    {
+        return transform.GetChild(3);
+    }
 }
