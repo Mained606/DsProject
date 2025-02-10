@@ -534,7 +534,7 @@ public class UIManager : BaseManager<UIManager>
 
     public static void LevelUpEfeect()
     {
-        GameObject effect = Instantiate(Instance.levelUpEffect, GameManager.playerTransform.position, Quaternion.identity);
+        GameObject effect = Instantiate(Instance.levelUpEffect, GameManager.playerTransform.position, Quaternion.identity, GameManager.playerTransform);
         Destroy(effect, 3f);
     }
 }
