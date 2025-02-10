@@ -57,8 +57,8 @@ public class PlayerController : MonoBehaviour
     public bool isInvincible = false;
 
     [Header("공격")]
-    [SerializeField] private float dashAttackDuration = 0.5f;
-    [SerializeField] private float dashAttackMoveDistance = 10f;
+    private float dashAttackDuration = 0.5f;
+    private float dashAttackMoveDistance = 10f;
     public bool isCombatState;
     public bool CanAttack;
     public bool CanUseSkill;
@@ -587,6 +587,13 @@ public class PlayerController : MonoBehaviour
         }
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
+    }
+
+    public IEnumerator StopPlayer(float duration)
+    {
+        playerAnimator.speed = 0; // 애니메이션 정지
+        yield return new WaitForSecondsRealtime(duration); // 실제 시간 기준 대기
+        playerAnimator.speed = 1; // 애니메이션 원래 속도로 복구
     }
 
 

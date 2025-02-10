@@ -17,12 +17,16 @@ public class ActivityNpc : MonoBehaviour
     private NpcController npcController;
 
     [SerializeField] private bool isNearNpc = false;
+    [SerializeField] private bool isSitting = false;
 
 
     private void Start()
     {
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
+        Rigidbody rb = GetComponent<Rigidbody>();
+
+        rb.isKinematic = true;
 
         if (npcController.npcType == NpcType.Fishing)
         {
@@ -44,15 +48,20 @@ public class ActivityNpc : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("NPC"))
+        if (other.CompareTag("TownNPC") && other.transform != this.transform)
         {
             isNearNpc = true;
+        }
+
+        if(npcController.npcType == NpcType.Sitting && other.name.Contains("Bench") && !isSitting)
+        {
+            SittingAtBench(other.GetComponent<Bench>());
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("NPC"))
+        if (other.CompareTag("TownNPC"))
         {
             isNearNpc = false;
         }
@@ -132,5 +141,28 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetTrigger(randomTrigger);
         }
+    }
+
+    private void SittingAtBench(Bench bench)
+    {
+        if(!bench.right)
+        {
+            transform.position = bench.rightPosition.position;
+            transform.rotation = bench.rightPosition.rotation;
+            bench.right = true;
+            isSitting = true;
+            return;
+        }
+
+        if(!bench.left)
+        {
+            transform.position = bench.leftPosition.position;
+            transform.rotation = bench.leftPosition.rotation;
+            bench.left = true;
+            isSitting = true;
+            return;
+        }
+
+        Debug.Log("비어있는 벤치 없음");
     }
 }

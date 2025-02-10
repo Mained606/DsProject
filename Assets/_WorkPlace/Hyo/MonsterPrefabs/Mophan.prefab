@@ -1179,7 +1179,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 142.38219, y: 11.833273, z: 205.9042}
-  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1862750226635736781}
@@ -1247,14 +1247,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   searchRange: 30
   maxDistance: 50
-  roarDuration: 3
+  roarDuration: 5
   teleportInterval: 80
   teleportRange: 10
   hitDuration: 1
   movementSpeed: 0
   attackRange: 0
+  turnSpeed: 10
   attackCooldown: 10
+  dashSpeed: 30
+  dashDistance: 30
+  jumpSpeed: 20
+  jumpHeight: 12
+  jumpDistance: 20
   currentState: 0
+  playerTarget: {fileID: 0}
   bossData:
     characterName: 
     characterType: 0
@@ -1301,11 +1308,12 @@ MonoBehaviour:
       physicalResistanceMultiplier: 1
       magicResistanceMultiplier: 2
       intelligenceMultiplier: 1.5
+    instance: {fileID: 0}
     dropItems: []
     experienceReward: 0
     goldReward: 0
-    instance: {fileID: 0}
   firePoint1: {fileID: 5299003056017755789}
+  respawn: 0
 --- !u!1 &5299003056017755789
 GameObject:
   m_ObjectHideFlags: 0
@@ -1330,13 +1338,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5299003056017755789}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.3011459e-10, y: 0.3222924, z: 0.044604976}
+  m_LocalRotation: {x: -0.23872708, y: -3.9015884e-11, z: 9.19878e-11, w: 0.9710867}
+  m_LocalPosition: {x: -1.310747e-10, y: 0.3223437, z: 0.04460899}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6167759041613499547}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -27.623, y: 0, z: 0}
 --- !u!1 &5498884121071274135
 GameObject:
   m_ObjectHideFlags: 0

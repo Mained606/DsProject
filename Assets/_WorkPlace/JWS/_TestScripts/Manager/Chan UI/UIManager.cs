@@ -25,6 +25,8 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject characterStaus;
     [SerializeField] private GameObject quickSlot;
     [SerializeField] private Transform questListParent;
+    [SerializeField] private GameObject bossHud;
+
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
     public GameObject MainTitleButton => mainTitleButton;
@@ -39,9 +41,6 @@ public class UIManager : BaseManager<UIManager>
     public static ShopUI ShopUI;
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
-
-    public GameObject bossHud;
-    public BossData CurrentBossData;
 
     protected override void OnEnable()
     {
@@ -129,13 +128,14 @@ public class UIManager : BaseManager<UIManager>
 
     public void ToggleInventory()
     {
+
         inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
         MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(true);
     }
 
-    public void ToggleQuestWindow()
+        public void ToggleQuestWindow()
     {
         questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
@@ -296,6 +296,15 @@ public class UIManager : BaseManager<UIManager>
         if (dialogWindow == null) return;
         ToggleDialog();
         dialogUI.DisplayQuestDialogWindow(title, quest);
+    }
+
+    public void BossHudDisplay(bool isOnOff, BossData bossData = null)
+    {
+        if (isOnOff)
+        {
+            bossHud.GetComponent<BossHudUI>().SetBossData(bossData);
+        }
+        bossHud.SetActive(isOnOff && bossData != null);
     }
 
     #region 구 퀘스트 구현부분
@@ -474,8 +483,9 @@ public class UIManager : BaseManager<UIManager>
                 string message = additionalData as string;
                 ToggleinfoMessageWindow(message);
                 break;
+            case GameSystemState.BossBattle:
+                break;
             case GameSystemState.Exploration:
-                BossHudDown();  // 02.04 = 차후에 보스 bud 온오프 조건 수정 요망 
                 break;
 
         }
@@ -518,17 +528,4 @@ public class UIManager : BaseManager<UIManager>
         }
         return "#FFFFFF"; // 기본 흰색
     }
-
-    public void BossHudUP (BossData bossData)
-    {
-        CurrentBossData = bossData;
-        // BossHud.SetActive(true);
-    }
-    private void BossHudDown()
-    {
-        // BossHud.SetActive(false);
-    }
-
-
-
 }

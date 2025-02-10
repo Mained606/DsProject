@@ -96,13 +96,20 @@ public class CharacterManager : BaseManager<CharacterManager>
         switch (newState)
         {
             case GameSystemState.Combat:
+                if (GameManager.playerTransform == null) return;
                 GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = true;
                 break;
             case GameSystemState.Exploration:
+                if (GameManager.playerTransform == null) return;
                 GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = false;
                 break;
             case GameSystemState.BossBattle:
+                if (GameManager.playerTransform == null) return;
                 GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = true;
+                break;
+            default:
+                if (GameManager.playerTransform == null) return;
+                GameManager.playerTransform.GetComponent<PlayerController>().isCombatState = false;
                 break;
         }
     }
@@ -244,8 +251,8 @@ public class CharacterManager : BaseManager<CharacterManager>
             // 생성된 인스턴스를 MonsterData에 연결
             monster.instance = monsterInstance;
             // 필요한 컴포넌트 추가 및 초기화
-            var testComponent = monsterInstance.AddComponent<Test1>();
-            testComponent.monster = monster;
+            var testComponent = monsterInstance.AddComponent<BaseMonsterData>();
+            testComponent.monsterOrBossData = monster;
         }
     }
     
@@ -262,8 +269,8 @@ public class CharacterManager : BaseManager<CharacterManager>
             {
                 GameObject monsterInstance = Instantiate(monster.characterPrefab, parent);
                 monster.instance = monsterInstance;
-                var testComponent = monsterInstance.AddComponent<Test1>();
-                testComponent.monster = monster;
+                var testComponent = monsterInstance.AddComponent<BaseMonsterData>();
+                testComponent.SetData(spawnType, monster);
                 return monsterInstance;
             }
         }
@@ -271,9 +278,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         {
             // 템플릿에서 이름에 해당하는 캐릭터 데이터 검색
             BossData template = characterTemplates.boss.Find(c => c.characterName == templateName);
-            Debug.LogWarning("보스타입1 : " + template.characterType.ToString());
             BossData cloned = template.Clone();
-            Debug.LogWarning("보스타입2 : " + cloned.characterType.ToString());
             cloned.InitializeStats();
             cloned.UpdateDerivedStats();
 
@@ -288,9 +293,8 @@ public class CharacterManager : BaseManager<CharacterManager>
 
             GameObject monsterInstance = Instantiate(cloned.characterPrefab, parent);
             cloned.instance = monsterInstance;
-            var testComponent = monsterInstance.AddComponent<Test1>();
-            Debug.LogWarning("보스타입 : " + cloned.characterType.ToString());
-            testComponent.bossData = cloned;
+            var testComponent = monsterInstance.AddComponent<BaseMonsterData>();
+            testComponent.SetData(spawnType, cloned);
             return monsterInstance;
         }
         return null;
@@ -335,6 +339,44 @@ public class CharacterManager : BaseManager<CharacterManager>
         ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, false);
         
         characterList.Remove(monster);
+    }
+    
+    public void OnBossDefeated(BossData boss, Vector3 position)
+    {
+        // AI 상태를 Dead로 변경
+        if (boss.instance != null)
+        {
+            // BaseBossAI 검색 및 처리
+            BaseBossAI baseAI = boss.instance.GetComponent<BaseBossAI>();
+
+            if (boss.instance.transform.parent != null) // 부모가 있는지 확인
+            {
+                if (baseAI != null)
+                {
+                    baseAI.SetDeadState(true);
+                    Debug.Log("캐릭터매니저 보스 사망처리");
+                }
+            }
+            else
+            {
+                baseAI.SetDeadState(false); // 부모가 없으면 파괴
+                Debug.Log("캐릭터매니저 보스 사망처리 파괴");
+            }
+        }
+
+        // 보스 처치 시 추가 보상 처리 (예: 추가 경험치, 더 많은 골드)
+        if (PlayerCharacterData != null)
+        {
+            PlayerCharacterData.AddExperience(boss.experienceReward);
+            PlayerCharacterData.AddGold(boss.goldReward);
+            UIManager.SystemGameMessage($"{boss.characterName} 처치! 경험치 +{boss.experienceReward}, 골드 +{boss.goldReward}", MessageTag.아이템_획득);
+        }
+
+        // 보스 아이템 드롭 (특수 아이템 포함)
+        ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), boss, true);  // `true`를 전달하여 보스 드롭 아이템 처리
+        
+        // 보스 리스트에서 제거
+        characterList.Remove(boss);
     }
     
     // 가장 가까운 몬스터를 찾는 함수

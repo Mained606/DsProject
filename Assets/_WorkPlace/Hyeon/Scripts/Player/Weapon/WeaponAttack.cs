@@ -22,27 +22,38 @@ public class WeaponAttack : MonoBehaviour
         {
             interactable.Interact(toolTag); // 상호작용 호출
         }
-        
         if (!weaponCollider.enabled) return;
         if (!DamagedTargets.Contains(other.gameObject))
         {
             DamagedTargets.Add(other.gameObject);
-            int monsterHP = 0;
+            
+            // ================ 2025-02-07 09:18 HYO 코드 추가 ====================================================================================================================================
             if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
             {
-                MonsterData monster = other.GetComponent<Test1>().monster;
-                if (monster != null)
+                // BaseMonsterData에서 monsterOrBossData를 가져오고, 타입에 맞게 처리
+                BaseMonsterData baseMonsterData = other.GetComponent<BaseMonsterData>();
+                if (baseMonsterData != null)
                 {
-                    monsterHP = monster.currentHp;
-                    // 2025-01-27 HYO ProcessAttack 로직 변경으로 매개변수 마지막에 물리 공격인지 마법 공격인지 확인 추가 true = 마법데미지, false = 물리데미지 ---------------------------
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, monster, other.transform, true, false);
-                    // -----------------------------------------------------------------------------------------------------------------------------------------------------
-                    //Debug.LogWarning($"Damaged: {monster.characterName}, monsterHP: {monsterHP}, monsterCurrentHP: {monster.currentHp}");
+                    // monsterOrBossData가 MonsterData일 경우 처리
+                    MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
+                    if (enemyMonsterData != null)
+                    {
+                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, false);
+                        return;  // MonsterData 처리 완료 후 반환
+                    }
+
+                    // monsterOrBossData가 BossData일 경우 처리
+                    BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
+                    if (enemyBossData != null)
+                    {
+                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, false);
+                    }
                 }
             }
+            // ===================================================================================================================================================================================
             else
             {
-                Debug.Log("암튼 뭔갈 침");
+                //Debug.Log("암튼 뭔갈 침");
             }
         }
     }
@@ -50,5 +61,7 @@ public class WeaponAttack : MonoBehaviour
     {
         DamagedTargets.Remove(other.gameObject);
     }
+
+
 
 }
