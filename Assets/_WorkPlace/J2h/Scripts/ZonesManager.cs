@@ -56,27 +56,27 @@ public class ZonesManager : MonoBehaviour
                     }
                 }
             }
-            else if (zone.name == "보스루인" && currentQuestIndex == 9)
+            else if (zone.name == "보스루인" && currentQuestIndex == 7)
+            {
+                maxDistance = 200f;
+            }
+            else if (zone.name == "최고위험지역" && currentQuestIndex == 5)
             {
                 maxDistance = 40f;
             }
-            else if (zone.name == "최고위험지역" && currentQuestIndex == 7)
-            {
-                maxDistance = 40f;
-            }
-            else if (zone.name == "Egg" && currentQuestIndex == 2)
+            else if (zone.name == "Egg" && currentQuestIndex == 1)
             {
                 maxDistance = 10f;
             }
-            else if (zone.name == "Strawberry" && currentQuestIndex == 2)
+            else if (zone.name == "Strawberry" && currentQuestIndex == 1)
             {
                 maxDistance = 30f;
             }
-            else if (zone.name == "나뭇가지" && currentQuestIndex == 4)
+            else if (zone.name == "나뭇가지" && currentQuestIndex == 2)
             {
                 maxDistance = 100f;
             }
-            else if ((zone.name == "돌" || zone.name == "나무") && currentQuestIndex == 6)
+            else if ((zone.name == "돌" || zone.name == "나무") && currentQuestIndex == 4)
             {
                 maxDistance = 100f;
             }

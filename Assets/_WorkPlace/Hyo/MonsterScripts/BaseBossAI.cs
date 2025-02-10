@@ -74,7 +74,7 @@ public class BaseBossAI : MonoBehaviour
             // 상태 초기화
             animator.SetBool(IsDashing, false);
             animator.SetBool(IsChasing, false);
-            animator.ResetTrigger(IsDead);
+            animator.SetBool(IsDead, false);
             animator.ResetTrigger(IsJumping);
             animator.ResetTrigger(IsRoaring);
             animator.ResetTrigger(Hit);
@@ -156,7 +156,7 @@ public class BaseBossAI : MonoBehaviour
         /////////////////////////////////////////////////////////////////////////////////////////////
         /// 2025.02.08 JWS 수정
         /////////////////////////////////////////////////////////////////////////////////////////////
-        if (currentState == BossState.Returning || currentState == BossState.Dead || currentState == BossState.Idle)
+        if (currentState == BossState.Returning || currentState == BossState.Dead || currentState == BossState.Idle || GameStateMachine.Instance.CurrentState == GameSystemState.Exploration)
             UIManager.Instance.BossHudDisplay(false);
         else UIManager.Instance.BossHudDisplay(true, bossData);
         /////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +167,6 @@ public class BaseBossAI : MonoBehaviour
             SearchForPlayer();
         }
     }
-    
     private void HandleIdleLogic()
     {
         // 플레이어가 이미 감지되었다면 배틀 시작 (StartBossBattle 내부에서 상태 전환 처리)
@@ -231,7 +230,7 @@ public class BaseBossAI : MonoBehaviour
     {
         animator.SetBool(IsDashing, false);
         animator.SetBool(IsChasing, false);
-        //animator.ResetTrigger(IsDead);
+        animator.SetBool(IsDead, false);
         animator.ResetTrigger(IsJumping);
         animator.ResetTrigger(IsRoaring);
         animator.ResetTrigger(Hit);
@@ -598,7 +597,12 @@ public class BaseBossAI : MonoBehaviour
     
     private void HandleDeath()
     {
-        animator.SetTrigger(IsDead);
+        animator.SetBool(IsDead, true);
+        playerTarget = null;
+        isAttacking = false;
+        isPerformingSpecialMove = false;
+        isRotating = true;
+        UIManager.Instance.BossHudDisplay(false);
         Debug.Log("보스가 사망했습니다.");
     }
     
@@ -612,7 +616,7 @@ public class BaseBossAI : MonoBehaviour
     {
         characterController.Move(Vector3.zero); // 이동 정지
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(3f);
         if (pooling)
         {
             respawn = true;

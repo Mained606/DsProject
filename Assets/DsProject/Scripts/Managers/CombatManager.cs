@@ -113,7 +113,9 @@ public class CombatManager : BaseManager<CombatManager>
             if (GameManager.playerTransform.GetComponent<PlayerCombat>().onParry)
             {
                 UIManager.DisplayPopupText("패링", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
-                attackerTransform.GetComponent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
+                //Debug.Log($"attackerTransform: {attackerTransform.name}");
+                //Debug.Log($"defenderTrasnform: {defenderTransform.name}");
+                attackerTransform.GetComponentInParent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
                 return;
             }
             
@@ -128,6 +130,12 @@ public class CombatManager : BaseManager<CombatManager>
             if (GameManager.playerTransform.GetComponent<PlayerController>().isInvincible)
             {
                 UIManager.DisplayPopupText("무효", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
+                return;
+            }
+            
+            if(!isPlayerAttacking && GameManager.playerTransform.GetComponent<PlayerController>().cheatMode)
+            {
+                UIManager.DisplayPopupText("무적", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
                 return;
             }
             // 250131 2:00PM Hyeon ===============================================

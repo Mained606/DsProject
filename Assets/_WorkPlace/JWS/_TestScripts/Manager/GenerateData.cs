@@ -20,16 +20,16 @@ public class GenerateData
         List<Quest> questList = new List<Quest>
         {
             // 1장: 용사의 마지막 숨결
-            new Quest("메인퀘스트", "quest101", "용사의 마지막 숨결",
-                "용사의 마지막 전투를 목격하고, 남긴 검의 빛을 확인하세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "용사의 마지막 전투 장소", 1) }
-                },
-                new List<Reward>
-                {
-                    new Reward("소형 체력포션", 1, 10, 10),
-                }),
+            //new Quest("메인퀘스트", "quest101", "용사의 마지막 숨결",
+            //    "용사의 마지막 전투를 목격하고, 남긴 검의 빛을 확인하세요.",
+            //    new Dictionary<string, QuestCondition>
+            //    {
+            //        { "location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "용사의 마지막 전투 장소", 1) }
+            //    },
+            //    new List<Reward>
+            //    {
+            //        new Reward("소형 체력포션", 1, 10, 10),
+            //    }),
 
             // 1장 - 1: 마울로 향해
             new Quest("메인퀘스트", "quest101-1", "마을을 찾아가기",
@@ -53,13 +53,13 @@ public class GenerateData
                 new List<Reward> { new Reward("소형 체력포션", 1, 15, 15) }),
 
             // 3장: 알에서 태어난 생명체
-            new Quest("메인퀘스트", "quest103", "알의 신비",
-                "알에서 깨어난 생명체를 몰래 숨길곳으로 데려가세요.",
-                new Dictionary<string, QuestCondition>
-                {
-                    { "location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "알의 은신처", 1) }
-                },
-                new List<Reward> { new Reward("소형 체력포션", 1, 20, 20) }),
+            //new Quest("메인퀘스트", "quest103", "알의 신비",
+            //    "알에서 깨어난 생명체를 몰래 숨길곳으로 데려가세요.",
+            //    new Dictionary<string, QuestCondition>
+            //    {
+            //        { "location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "알의 은신처", 1) }
+            //    },
+            //    new List<Reward> { new Reward("소형 체력포션", 1, 20, 20) }),
 
             // 4장: 소년과 생물체의 우정
             new Quest("메인퀘스트", "quest104", "신비한 동물의 도움",
@@ -113,7 +113,7 @@ public class GenerateData
 
             // 9장: 마족과의 전투
             new Quest("메인퀘스트", "quest109", "마을을 지켜라",
-                "하급 관리자 3명을 처치하고 중급 관리자 모파안과 전투하세요.",
+                "중급 관리자 모파안과 전투하세요.",
                 new Dictionary<string, QuestCondition>
                 {
                     { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) },
@@ -121,18 +121,18 @@ public class GenerateData
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 80, 80) }),
 
-            //// 10장: 새로운 여정의 시작
-            //new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
-            //    "마을 사람들과 대화하여 마왕의 정보를 수집하고 여정을 시작하세요.",
-            //    new Dictionary<string, QuestCondition>
-            //    {
-            //        { "location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "마왕의 성에 대하여", 1) }
-            //    },
-            //    new List<Reward>
-            //    {
-            //        new Reward("소형 체력포션", 1, 90, 90),
-            //        new Reward("소형 체력포션", 1, 90, 90)
-            //    })
+            // 10장: 새로운 여정의 시작
+            new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
+                "마을 사람들과 대화하여 마왕의 정보를 수집하고 여정을 시작하세요.",
+                new Dictionary<string, QuestCondition>
+                {
+                    { "location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "마왕의 성에 대하여", 1) }
+                },
+                new List<Reward>
+                {
+                    new Reward("소형 체력포션", 1, 90, 90),
+                    new Reward("소형 체력포션", 1, 90, 90)
+                })
         };
 
         return questList;
