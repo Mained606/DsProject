@@ -58,7 +58,7 @@ public class ZonesManager : MonoBehaviour
             }
             else if (zone.name == "보스루인" && currentQuestIndex == 7)
             {
-                maxDistance = 40f;
+                maxDistance = 200f;
             }
             else if (zone.name == "최고위험지역" && currentQuestIndex == 5)
             {
