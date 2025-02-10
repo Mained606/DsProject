@@ -10,28 +10,30 @@ public class NPCDataEditor : Editor
         serializedObject.Update();
 
         // 기본 NPC 설정
-        SerializedProperty npctypeProperty = serializedObject.FindProperty("npcType");
-        SerializedProperty isMainQuestProperty = serializedObject.FindProperty("isMainQuest");
-        SerializedProperty mainIndexProperty = serializedObject.FindProperty("mainIndex");
+        SerializedProperty npcTypeProperty = serializedObject.FindProperty("npcType");
+        SerializedProperty shopItemTypeProperty = serializedObject.FindProperty("shopItemType");
+        SerializedProperty shopIndexProperty = serializedObject.FindProperty("shopIndex");
 
         EditorGUILayout.LabelField("▣ NPC 설정");
-        EditorGUILayout.PropertyField(npctypeProperty, new GUIContent("      NPC Type"));
-        EditorGUILayout.PropertyField(isMainQuestProperty, new GUIContent("      Is Main Quest"));
+        EditorGUILayout.PropertyField(npcTypeProperty, new GUIContent("      NPC Type"));
 
-        // 메인 퀘스트 관련 설정
-        if (isMainQuestProperty.boolValue)
+        if (npcTypeProperty.enumValueIndex == (int)NPCType.상점)
         {
-            string[] indexOptions = new string[11]; // "None" + 1~10
-            indexOptions[0] = "None";
-            for (int i = 1; i <= 10; i++) indexOptions[i] = i.ToString();
-
-            int selectedIndex = mainIndexProperty.intValue;
-            selectedIndex = EditorGUILayout.Popup("      Main Index", selectedIndex, indexOptions);
-
-            if (selectedIndex != mainIndexProperty.intValue) mainIndexProperty.intValue = selectedIndex;
+            EditorGUILayout.PropertyField(shopItemTypeProperty, new GUIContent("      Shop ItemType"));
+            string[] indexOptions = new string[4];
+            for (int i = 0; i <= 3; i++) indexOptions[i] = i.ToString();
+            // int selectedIndex = shopIndexProperty.intValue;
+            // selectedIndex = EditorGUILayout.Popup("      Shop Index", selectedIndex, indexOptions);
+            //if (selectedIndex != shopIndexProperty.intValue)
+            //{
+            //    shopIndexProperty.intValue = selectedIndex;
+            //}
+            EditorGUILayout.PropertyField(shopIndexProperty, new GUIContent("      Shop Index"));
         }
 
         serializedObject.ApplyModifiedProperties();
+
+
 
         // 읽기 전용 처리
         GUI.enabled = false;

@@ -300,6 +300,7 @@ public class CharacterData
     public void TakeDamage(int damage, Transform attacker = null)
     {
         currentHp = Mathf.Max(0, currentHp - damage);
+        CameraManager.Instance.StartCameraShake();
         OnTakeDamage?.Invoke(attacker);
     }
 

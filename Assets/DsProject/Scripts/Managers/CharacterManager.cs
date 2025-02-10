@@ -270,7 +270,7 @@ public class CharacterManager : BaseManager<CharacterManager>
                 GameObject monsterInstance = Instantiate(monster.characterPrefab, parent);
                 monster.instance = monsterInstance;
                 var testComponent = monsterInstance.AddComponent<BaseMonsterData>();
-                testComponent.monsterOrBossData = monster;
+                testComponent.SetData(spawnType, monster);
                 return monsterInstance;
             }
         }
@@ -278,9 +278,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         {
             // 템플릿에서 이름에 해당하는 캐릭터 데이터 검색
             BossData template = characterTemplates.boss.Find(c => c.characterName == templateName);
-            Debug.LogWarning("보스타입1 : " + template.characterType.ToString());
             BossData cloned = template.Clone();
-            Debug.LogWarning("보스타입2 : " + cloned.characterType.ToString());
             cloned.InitializeStats();
             cloned.UpdateDerivedStats();
 
@@ -296,8 +294,7 @@ public class CharacterManager : BaseManager<CharacterManager>
             GameObject monsterInstance = Instantiate(cloned.characterPrefab, parent);
             cloned.instance = monsterInstance;
             var testComponent = monsterInstance.AddComponent<BaseMonsterData>();
-            Debug.LogWarning("보스타입 : " + cloned.characterType.ToString());
-            testComponent.monsterOrBossData = cloned;
+            testComponent.SetData(spawnType, cloned);
             return monsterInstance;
         }
         return null;
@@ -357,11 +354,13 @@ public class CharacterManager : BaseManager<CharacterManager>
                 if (baseAI != null)
                 {
                     baseAI.SetDeadState(true);
+                    Debug.Log("캐릭터매니저 보스 사망처리");
                 }
             }
             else
             {
                 baseAI.SetDeadState(false); // 부모가 없으면 파괴
+                Debug.Log("캐릭터매니저 보스 사망처리 파괴");
             }
         }
 

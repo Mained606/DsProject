@@ -8,7 +8,7 @@ public class CombatManager : BaseManager<CombatManager>
     }
     
     // 공격 처리 메서드
-    public void ProcessAttack(CharacterData playerData, CharacterData monsterData, Transform defenderTransform, bool isPlayerAttacking, bool isMagicAttack, float skillMultiplier = 1f)
+    public void ProcessAttack(CharacterData playerData, CharacterData monsterData, Transform defenderTransform, bool isPlayerAttacking, bool isMagicAttack, float skillMultiplier = 1f, bool isBossAttacking = false)
     {
         // 공격자와 방어자 설정
         CharacterData actualAttacker = isPlayerAttacking ? playerData : monsterData;
@@ -21,12 +21,19 @@ public class CombatManager : BaseManager<CombatManager>
             Debug.LogWarning("actualDefender가 null입니다!");
             return;
         }
-        
-        Debug.Log($"현재 대상 타입: {actualDefender.characterType}");
-        // 공격 대상이 보스인지 확인
-        GameStateMachine.Instance.ChangeState(actualDefender.characterType == CharacterType.Boss
-            ? GameSystemState.BossBattle
-            : GameSystemState.Combat);
+
+        if (isBossAttacking)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle);
+        }
+        else
+        {
+            Debug.Log($"현재 대상 타입: {actualDefender.characterType}");
+            // 공격 대상이 보스인지 확인
+            GameStateMachine.Instance.ChangeState(actualDefender.characterType == CharacterType.Boss
+                ? GameSystemState.BossBattle
+                : GameSystemState.Combat);
+        }
         
         // 현재 타겟의 실제높이 계산을 위한부분
         Collider collider = defenderTransform.GetComponent<Collider>();
@@ -86,6 +93,7 @@ public class CombatManager : BaseManager<CombatManager>
         if (skillMultiplier > 1f)
         {
             damage *= skillMultiplier;
+            Debug.Log($"스킬 배율 적용{skillMultiplier}%");
         }
         
         // 크리티컬 데미지 배율 적용
@@ -242,30 +250,19 @@ public class CombatManager : BaseManager<CombatManager>
     {
         // defeatedCharacter가 BaseMonsterData를 갖고 있는지 확인
         BaseMonsterData baseMonsterData = defenderTransform.GetComponent<BaseMonsterData>();
+
         if (baseMonsterData != null)
         {
-            // monsterOrBossData가 MonsterData일 경우
-            MonsterData monsterData = baseMonsterData.monsterOrBossData as MonsterData;
-            if (monsterData != null)
+            switch (baseMonsterData.currentType)
             {
-                // 몬스터 처리
-                CharacterManager.Instance.OnMonsterDefeated(monsterData, defenderTransform.position);
-                return;
-            }
+                case SpawnnerType.Monster:
+                    CharacterManager.Instance.OnMonsterDefeated(baseMonsterData.GetMonsterData(), defenderTransform.position);
+                    break;
 
-            // monsterOrBossData가 BossData일 경우
-            BossData bossData = baseMonsterData.monsterOrBossData as BossData;
-            if (bossData != null)
-            {
-                // 보스 처리
-                CharacterManager.Instance.OnBossDefeated(bossData, defenderTransform.position);
-                return;
+                case SpawnnerType.Boss:
+                    CharacterManager.Instance.OnBossDefeated(baseMonsterData.GetBossData(), defenderTransform.position);
+                    break;
             }
         }
-
-        // 캐스팅 실패시 오류 처리
-        Debug.LogError("defeatedCharacter를 MonsterData 또는 BossData로 캐스팅할 수 없습니다.");
     }
-
-
 }

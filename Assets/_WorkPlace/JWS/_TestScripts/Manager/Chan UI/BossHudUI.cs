@@ -26,12 +26,16 @@ public class BossHudUI : MonoBehaviour
             bossHudText[0].text = bossData.characterName;
             bossHudText[1].text = $"{bossData.currentHp} / {bossData.maxHp}";
             bossHealthBar.fillAmount = (float)((float)bossData.currentHp / (float)bossData.maxHp);
-            Debug.LogWarning("보스피 : " + bossHealthBar.fillAmount);
         }
     }
 
     public void SetBossData(BossData bossData)
     {
         this.bossData = bossData;
+    }
+
+    public Transform BossBuffZone()
+    {
+        return transform.GetChild(3);
     }
 }

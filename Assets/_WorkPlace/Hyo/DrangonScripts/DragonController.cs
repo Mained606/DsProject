@@ -177,6 +177,7 @@ public class DragonController : MonoBehaviour
         
         // 플레이어와 너무 멀어졌으면 타겟 해제 후 Idle 로
         float distanceFromPlayer = Vector3.Distance(transform.position, player.position);
+        float distanceFromTarget = currentTargetTransform != null ? Vector3.Distance(transform.position, currentTargetTransform.position) : 0f ;
         if (distanceFromPlayer > maxDistanceFromPlayer)
         {
             currentTarget = null;
@@ -213,7 +214,7 @@ public class DragonController : MonoBehaviour
                 UseSkillAttack();
             }
         }
-        else if (!rangedCooldown.IsRunning)
+        else if (!rangedCooldown.IsRunning && distanceFromTarget < teleportDistance)
         {
             if (currentState == DragonState.Moving || currentState == DragonState.Idle)
             {
@@ -221,19 +222,24 @@ public class DragonController : MonoBehaviour
                 StartCoroutine(UseRangedAttack());
             }
         }
-        else if (!meleeCooldown.IsRunning)
-        {
-            if (currentState == DragonState.Moving || currentState == DragonState.Idle)
-            {
-                currentState = DragonState.MeleeAttack;
-            
-                // 타겟 위치로 이동(근접 공격 등을 위해)
-                MoveTowardTarget(currentTargetTransform);
-            }
-        }
+        /// //////////////////////////////////////////////////////////
+        /// 2025.01.10 JWS  시연을 위해 잠시 막아둠.
+        //else if (!meleeCooldown.IsRunning)
+        //{
+        //    if (currentState == DragonState.Moving || currentState == DragonState.Idle)
+        //    {
+        //        currentState = DragonState.MeleeAttack;
+
+        //        // 타겟 위치로 이동(근접 공격 등을 위해)
+        //        MoveTowardTarget(currentTargetTransform);
+        //    }
+        //}
+        /// //////////////////////////////////////////////////////////
+
+        FollowPlayerLogic();
     }
-    
-// 주변에서 가장 가까운 몬스터를 찾아서 타겟 설정
+
+    // 주변에서 가장 가까운 몬스터를 찾아서 타겟 설정
     private void FindNearestTarget()
     {
         float closestDistance = float.MaxValue;

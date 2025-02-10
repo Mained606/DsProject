@@ -16,6 +16,7 @@ public class Quest
     public string targetID;
     public string questGiver;
     public int acceptCount;
+    public Transform questNpcTransform;
     [Header("퀘스트 상태정보")]
     public bool isCompleted;
     public Dictionary<string, QuestCondition> requiredConditions; // 퀘스트 조건
@@ -38,7 +39,38 @@ public class Quest
         {
             this.progress.Add(condition, 0);
         }
+        questNpcTransform = null;
     }
+
+    public void CheckQuestCondition()
+    {
+        //bool allConditionsMet = true; // 모든 조건을 충족했는지 체크
+
+        foreach (var condition in requiredConditions)
+        {
+            string keyWord = condition.Key;
+            QuestCondition questCondition = condition.Value;
+
+            switch (questCondition.type)
+            {
+                case QuestConditionType.Collect:
+                    int currentQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
+                    progress[keyWord] = currentQuantity;
+                    if (currentQuantity >= questCondition.requiredQuantity)
+                    {
+                        questCondition.isCompleted = true;
+                    }
+                    else
+                    {
+                        questCondition.isCompleted = false;
+                        //allConditionsMet = false;
+                    }
+                    break;
+            }
+        }
+        //isCompleted = allConditionsMet;
+    }
+
 
     public string ToStringTMPro()
     {
