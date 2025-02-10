@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator playerAnimator;
     public Animator PlayerAnimator => playerAnimator;
 
-    [SerializeField] private bool cheatMode;
+    public bool cheatMode;
 
     [Header("이동")]
     public Vector2 moveInput;

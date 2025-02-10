@@ -130,6 +130,12 @@ public class CombatManager : BaseManager<CombatManager>
                 UIManager.DisplayPopupText("무효", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
                 return;
             }
+            
+            if(!isPlayerAttacking && GameManager.playerTransform.GetComponent<PlayerController>().cheatMode)
+            {
+                UIManager.DisplayPopupText("무적", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
+                return;
+            }
             // 250131 2:00PM Hyeon ===============================================
             actualDefender.TakeDamage(finalDamage, attackerTransform);
         }
