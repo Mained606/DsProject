@@ -113,7 +113,9 @@ public class CombatManager : BaseManager<CombatManager>
             if (GameManager.playerTransform.GetComponent<PlayerCombat>().onParry)
             {
                 UIManager.DisplayPopupText("패링", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
-                attackerTransform.GetComponent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
+                //Debug.Log($"attackerTransform: {attackerTransform.name}");
+                //Debug.Log($"defenderTrasnform: {defenderTransform.name}");
+                attackerTransform.GetComponentInParent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
                 return;
             }
             

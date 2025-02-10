@@ -26,6 +26,8 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject quickSlot;
     [SerializeField] private Transform questListParent;
     [SerializeField] private GameObject bossHud;
+    [SerializeField] private GameObject levelUpEffect;
+    
 
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -41,6 +43,7 @@ public class UIManager : BaseManager<UIManager>
     public static ShopUI ShopUI;
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
+    
 
     protected override void OnEnable()
     {
@@ -527,5 +530,11 @@ public class UIManager : BaseManager<UIManager>
             return color;
         }
         return "#FFFFFF"; // 기본 흰색
+    }
+
+    public static void LevelUpEfeect()
+    {
+        GameObject effect = Instantiate(Instance.levelUpEffect, GameManager.playerTransform.position, Quaternion.identity);
+        Destroy(effect, 3f);
     }
 }
