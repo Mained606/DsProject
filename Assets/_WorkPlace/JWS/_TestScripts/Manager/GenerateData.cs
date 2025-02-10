@@ -116,23 +116,23 @@ public class GenerateData
                 "중급 관리자 모파안과 전투하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    //{ "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) },
+                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) },
                     { "Mophan", new QuestCondition(QuestConditionType.Kill, "Mophan", "중급 관리자 모파안", 1) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 80, 80) }),
 
-            //// 10장: 새로운 여정의 시작
-            //new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
-            //    "마을 사람들과 대화하여 마왕의 정보를 수집하고 여정을 시작하세요.",
-            //    new Dictionary<string, QuestCondition>
-            //    {
-            //        { "location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "마왕의 성에 대하여", 1) }
-            //    },
-            //    new List<Reward>
-            //    {
-            //        new Reward("소형 체력포션", 1, 90, 90),
-            //        new Reward("소형 체력포션", 1, 90, 90)
-            //    })
+            // 10장: 새로운 여정의 시작
+            new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
+                "마을 사람들과 대화하여 마왕의 정보를 수집하고 여정을 시작하세요.",
+                new Dictionary<string, QuestCondition>
+                {
+                    { "location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "마왕의 성에 대하여", 1) }
+                },
+                new List<Reward>
+                {
+                    new Reward("소형 체력포션", 1, 90, 90),
+                    new Reward("소형 체력포션", 1, 90, 90)
+                })
         };
 
         return questList;
