@@ -74,7 +74,7 @@ public class BaseBossAI : MonoBehaviour
             // 상태 초기화
             animator.SetBool(IsDashing, false);
             animator.SetBool(IsChasing, false);
-            animator.ResetTrigger(IsDead);
+            animator.SetBool(IsDead, false);
             animator.ResetTrigger(IsJumping);
             animator.ResetTrigger(IsRoaring);
             animator.ResetTrigger(Hit);
@@ -231,7 +231,7 @@ public class BaseBossAI : MonoBehaviour
     {
         animator.SetBool(IsDashing, false);
         animator.SetBool(IsChasing, false);
-        //animator.ResetTrigger(IsDead);
+        animator.SetBool(IsDead, false);
         animator.ResetTrigger(IsJumping);
         animator.ResetTrigger(IsRoaring);
         animator.ResetTrigger(Hit);
@@ -598,7 +598,7 @@ public class BaseBossAI : MonoBehaviour
     
     private void HandleDeath()
     {
-        animator.SetTrigger(IsDead);
+        animator.SetBool(IsDead, true);
         Debug.Log("보스가 사망했습니다.");
     }
     
