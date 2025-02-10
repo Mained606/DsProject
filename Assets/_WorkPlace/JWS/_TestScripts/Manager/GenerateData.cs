@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.Collections;
 using UnityEngine;
 
 public class GenerateData
@@ -16,7 +15,7 @@ public class GenerateData
     /// 퀘스트 관련 제너레이터.
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public List<Quest> GenerateMainQuestLists()
-    {
+    { 
         List<Quest> questList = new List<Quest>
         {
             // 1장: 용사의 마지막 숨결
@@ -26,9 +25,9 @@ public class GenerateData
                 {
                     { "location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "용사의 마지막 전투 장소", 1) }
                 },
-                new List<Reward>
+                new List<Reward> 
                 {
-                    new Reward("소형 체력포션", 1, 10, 10),
+                    new Reward("용의알", 1, 10, 10),
                 }),
 
             // 1장 - 1: 마울로 향해
@@ -67,7 +66,7 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
-                    { "나뭇가지", new QuestCondition(QuestConditionType.Collect, "나뭇가지", "나뭇가지", 5) }
+                    { "나뭇가지", new QuestCondition(QuestConditionType.Collect, "Item_branch", "나뭇가지", 5) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 30, 30) }),
 
@@ -76,8 +75,7 @@ public class GenerateData
                 "하급 마족과의 첫 전투에서 승리하고 생존하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_Golem", new QuestCondition(QuestConditionType.Explore, "location_Golem", "하급 마족", 1) },
-                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) }
+                    { "Bear", new QuestCondition(QuestConditionType.Kill, "Bear", "하급 마족", 3) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 40, 50) }),
 
@@ -86,7 +84,7 @@ public class GenerateData
                 "숲 속에서 나무와 돌을 공격하며 힘을 연마하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무2", 1) },
+                    { "location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "숲 속의 나무", 1) },
                     { "돌", new QuestCondition(QuestConditionType.Collect, "돌", "돌", 5) },
                     { "나무", new QuestCondition(QuestConditionType.Collect, "나무", "나무", 5) }
                 },
@@ -97,8 +95,7 @@ public class GenerateData
                 "엄마를 살해한 하급 관리자 3명을 처치하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_Golem", new QuestCondition(QuestConditionType.Explore, "location_Golem", "하급 관리자", 1) },
-                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) }
+                    { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 60, 60) }),
 
@@ -107,7 +104,7 @@ public class GenerateData
                 "숲 속에서 위험구역을 통해 전투 능력을 강화하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "위험구역 찾기", 1) }
+                    { "location_005", new QuestCondition(QuestConditionType.Explore, "location_005", "위험구역", 1) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 0, 70, 70) }),
 
@@ -116,25 +113,24 @@ public class GenerateData
                 "하급 관리자 3명을 처치하고 중급 관리자 모파안과 전투하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "Golem", new QuestCondition(QuestConditionType.Kill, "Golem", "하급 관리자", 3) },
-                    { "Mophan", new QuestCondition(QuestConditionType.Kill, "Mophan", "중급 관리자 모파안", 1) }
+                    { "Mushroom", new QuestCondition(QuestConditionType.Kill, "Mushroom", "하급 관리자", 3) },
+                    { "SlimRabbit", new QuestCondition(QuestConditionType.Kill, "SlimRabbit", "중급 관리자 모파안", 1) }
                 },
                 new List<Reward> { new Reward("소형 체력포션", 1, 80, 80) }),
 
-            //// 10장: 새로운 여정의 시작
-            //new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
-            //    "마을 사람들과 대화하여 마왕의 정보를 수집하고 여정을 시작하세요.",
-            //    new Dictionary<string, QuestCondition>
-            //    {
-            //        { "location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "마왕의 성에 대하여", 1) }
-            //    },
-            //    new List<Reward>
-            //    {
-            //        new Reward("소형 체력포션", 1, 90, 90),
-            //        new Reward("소형 체력포션", 1, 90, 90)
-            //    })
+            // 10장: 새로운 여정의 시작
+            new Quest("메인퀘스트", "quest110", "마왕을 찾아서",
+                "마을 사람들과 대화하여 마왕의 정보를 수집하고 여정을 시작하세요.",
+                new Dictionary<string, QuestCondition>
+                {
+                    { "location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "마왕의 성", 1) }
+                },
+                new List<Reward>
+                {
+                    new Reward("소형 체력포션", 1, 90, 90),
+                    new Reward("소형 체력포션", 1, 90, 90)
+                })
         };
-
         return questList;
     }
 
@@ -142,11 +138,11 @@ public class GenerateData
     {
         List<Quest> questList = new List<Quest>
         {
-            new Quest("서브퀘스트", "소형 체력포션", "회복 포션 수집",
+            new Quest("서브퀘스트", "소형체력포션", "회복 포션 수집",
                 "회복 포션 10개를 수집하세요.",
                 new Dictionary<string, QuestCondition>
                 {
-                    { "소형 체력포션", new QuestCondition(QuestConditionType.Collect, "소형 체력포션", "회복 포션 수집", 10) }
+                    { "소형체력포션", new QuestCondition(QuestConditionType.Collect, "소형체력포션", "회복 포션", 10) }
                 },
                 new List<Reward>
                 {
@@ -215,32 +211,15 @@ public class GenerateData
     private List<NPCData> CreateShopNPC()
     {
         List<NPCData> shopNpcList = new List<NPCData>();
-        for (int i = 0; i < 4 ; i++)
+        for (int i = 0; i < 20 ; i++)
         {
             string npcName = GetRandomName();
-            ItemType itemType = ItemType.무기;
-            switch (i)
-            {
-                case 0:
-                    itemType = ItemType.무기;
-                    break;
-                case 1:
-                    itemType = ItemType.방어구;
-                    break;
-                case 2:
-                    itemType = ItemType.소모품;
-                    break;
-                case 3:
-                    itemType = ItemType.장신구;
-                    break;
-            }
-
             var shopData = new ShopData
             {
                 shopId = $"ShopNPC_{i + 1}",
                 shopName = npcName,
-                grade = 0,
-                type = itemType,
+                grade = 0, //(ItemGrade)UnityEngine.Random.Range(0, Enum.GetValues(typeof(ItemGrade)).Length),
+                type = (ItemType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(ItemType)).Length),
                 //isSpecific = UnityEngine.Random.Range(0, 2) == 1
             };
             shopData.Initialize();
@@ -268,7 +247,7 @@ public class GenerateData
             case NPCType.퀘스트:
                 npc.isQuestGiver = true;
                 npc.isInteractable = true;
-                //npc.quests = GenerateRandomQuests(availableQuests, 1, 3); // 1~3개의 랜덤 퀘스트
+                npc.quests = GenerateRandomQuests(availableQuests, 1, 3); // 1~3개의 랜덤 퀘스트
                 npc.description = "퀘스트를 제공하는 NPC입니다.";
                 break;
 
@@ -343,135 +322,50 @@ public class GenerateData
     //    return items;
     //}
 
-
-    private static string[] questString = new string[5];
-    private static int questCount = 0;
-
-    public static Quest GenerateQuest(QuestConditionType type)
+    private Quest[] GenerateRandomQuests(List<Quest> availableQuests, int min, int max)
     {
-        // 퀘스트 기본 정보 설정
-        questString[0] = "서브퀘스트";
-        questString[1] = type.ToString() + $"_{questCount:D5}";
-        questString[2] = GetQuestTitle(type);
-        questString[3] = GetQuestDescription(type);
-        questString[4] = GetQuestTarget(type);
+        int questCount = UnityEngine.Random.Range(min, max + 1);
+        Quest[] quests = new Quest[questCount];
 
-        questCount++;
+        bool hasMainQuest = false;
 
-        return CreateQuest(type);
-    }
-
-    private static Quest CreateQuest(QuestConditionType type)
-    {
-        return new Quest(
-            questString[0],
-            questString[1],
-            questString[2],
-            questString[3],
-            new Dictionary<string, QuestCondition>
+        for (int i = 0; i < questCount; i++)
+        {
+            Quest randomQuest = availableQuests[UnityEngine.Random.Range(0, availableQuests.Count)];
+            if (randomQuest.questType == "메인퀘스트")
             {
-                { questString[4], new QuestCondition(type, questString[4], questString[2], GetRequiredQuantity(type)) }
-            },
-            new List<Reward>
-            {
-                new Reward(GetRewardItem(type), GetRewardQuantity(type), GetRewardExp(type), GetRewardGold(type))
+                if (hasMainQuest)
+                {
+                    i--;
+                    continue;
+                }
+                else
+                {
+                    hasMainQuest = true;
+                }
             }
-        );
+            quests[i] = randomQuest;
+        }
+        return quests;
     }
 
-    private static string GetQuestTitle(QuestConditionType type)
+    private Quest[] GenerateRandomQuests(List<Quest> availableQuests, int min, int max, string questTypeFilter = null)
     {
-        return type switch
-        {
-            QuestConditionType.Collect => "회복 포션 수집",
-            QuestConditionType.Explore => "미지의 숲 탐험",
-            QuestConditionType.Kill => "슬라임 처치",
-            QuestConditionType.Meet => "마을 장로 만나기",
-            _ => "알 수 없는 퀘스트"
-        };
-    }
+        int questCount = UnityEngine.Random.Range(min, max + 1);
+        Quest[] quests = new Quest[questCount];
 
-    private static string GetQuestDescription(QuestConditionType type)
-    {
-        return type switch
+        for (int i = 0; i < questCount; i++)
         {
-            QuestConditionType.Collect => "회복 포션 10개를 수집하세요.",
-            QuestConditionType.Explore => "미지의 숲을 탐험하세요.",
-            QuestConditionType.Kill => "슬라임을 5마리 처치하세요.",
-            QuestConditionType.Meet => "마을 장로를 만나서 이야기를 나누세요.",
-            _ => "퀘스트 설명이 없습니다."
-        };
-    }
+            Quest randomQuest = availableQuests[UnityEngine.Random.Range(0, availableQuests.Count)];
 
-    private static string GetQuestTarget(QuestConditionType type)
-    {
-        return type switch
-        {
-            QuestConditionType.Collect => "소형 체력포션",
-            QuestConditionType.Explore => "mystic_forest",
-            QuestConditionType.Kill => "slime",
-            QuestConditionType.Meet => "village_elder",
-            _ => "unknown_target"
-        };
-    }
+            if (!string.IsNullOrEmpty(questTypeFilter) && randomQuest.questType != questTypeFilter)
+            {
+                i--; // 필터에 맞지 않는 퀘스트를 다시 선택
+                continue;
+            }
 
-    private static int GetRequiredQuantity(QuestConditionType type)
-    {
-        return type switch
-        {
-            QuestConditionType.Collect => 10,
-            QuestConditionType.Explore => 1,
-            QuestConditionType.Kill => 5,
-            QuestConditionType.Meet => 1,
-            _ => 1
-        };
-    }
-
-    private static string GetRewardItem(QuestConditionType type)
-    {
-        return type switch
-        {
-            QuestConditionType.Collect => "소형 체력포션",
-            QuestConditionType.Explore => "탐험자 배지",
-            QuestConditionType.Kill => "슬라임 젤리",
-            QuestConditionType.Meet => "신뢰의 증표",
-            _ => "미정"
-        };
-    }
-
-    private static int GetRewardQuantity(QuestConditionType type)
-    {
-        return type switch
-        {
-            QuestConditionType.Collect => 10,
-            QuestConditionType.Explore => 1,
-            QuestConditionType.Kill => 5,
-            QuestConditionType.Meet => 1,
-            _ => 1
-        };
-    }
-
-    private static int GetRewardExp(QuestConditionType type)
-    {
-        return type switch
-        {
-            QuestConditionType.Collect => 100,
-            QuestConditionType.Explore => 150,
-            QuestConditionType.Kill => 200,
-            QuestConditionType.Meet => 250,
-            _ => 0
-        };
-    }
-
-    private static int GetRewardGold(QuestConditionType type)
-    {
-        return type switch
-        {
-            QuestConditionType.Collect => 50,
-            QuestConditionType.Explore => 70,
-            QuestConditionType.Kill => 100,
-            QuestConditionType.Meet => 120,
-            _ => 0
-        };
+            quests[i] = randomQuest;
+        }
+        return quests;
     }
 }
