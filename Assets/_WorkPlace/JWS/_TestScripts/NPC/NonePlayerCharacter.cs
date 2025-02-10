@@ -13,7 +13,7 @@ public class NonePlayerCharacter : MonoBehaviour
     private InterActText interActText = null;
     private Transform targetlook;
     private float offSetHeight = 0;
-    private float interactionRadius = 4f;
+    private float interactionRadius = 3f;
     private float turnSpeed = 5f;
     private bool isPlayerInRange = false;
     private bool isInitNPC = false;
@@ -121,7 +121,7 @@ public class NonePlayerCharacter : MonoBehaviour
                 interActText.InteractTextSetting("상점열기", 0, offSetHeight);
                 break;
             default:
-                capsuleCollider[0].radius = interactionRadius * 2.5f;
+                capsuleCollider[0].radius = interactionRadius;
                 string msg = string.Empty;
                 if (currentNPCData.dialogue != null)
                 {
@@ -158,7 +158,7 @@ public class NonePlayerCharacter : MonoBehaviour
                 GiveQuest();
                 break;
             default:
-                HandleState();
+                //HandleState();
                 break;
         }
 
@@ -172,13 +172,13 @@ public class NonePlayerCharacter : MonoBehaviour
         {
             case NPCState.중립:  // 일반 NPC 대화.
                 Debug.Log($"{currentNPCData.name}은(는) 중립 상태입니다.");
-                ShowDialogue();
+                //ShowDialogue();
                 break;
             case NPCState.동료:
-                FollowPlayer();
+                //FollowPlayer();
                 break;
             case NPCState.적:
-                AttackPlayer();
+                //AttackPlayer();
                 break;
         }
     }

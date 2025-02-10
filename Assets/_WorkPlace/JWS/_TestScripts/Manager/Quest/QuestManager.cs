@@ -42,7 +42,7 @@ public class QuestManager : BaseManager<QuestManager>
         mainQuestDatabase = generater.GenerateMainQuestLists();
         subQuestDatabase = generater.GenerateQuestLists();
         
-        generater.GenerateRandomNPCs(20, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
+        generater.GenerateRandomNPCs(200, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
         npcDatabase = npcDataList.npcLists;
         GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
     }
