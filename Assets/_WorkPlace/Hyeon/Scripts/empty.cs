@@ -72,20 +72,4 @@ public class empty : MonoBehaviour
             }
         }
     }
-
-    //private void DisableCollider()
-    //{
-    //    CombatInit();
-    //    if(combat.weaponCollider != null)
-    //    {
-    //        Debug.LogWarning("DisableCollider");
-    //        combat.canDamagable = false;
-    //        combat.weaponCollider.enabled = false;
-    //    }
-    //}
-
-    //private void CombatInit()
-    //{
-    //    combat = transform.GetComponentInParent<PlayerCombat>();
-    //}
 }

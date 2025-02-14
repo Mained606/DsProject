@@ -25,25 +25,9 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private bool CanParry;
     public bool onParry;
 
-    // public bool inputReceived = false;
-    // private bool inputReceived = false;
-
     public Quaternion targetRotation;
     private AnimatorStateInfo stateInfo;
     public bool firstCombo = false;
-
-
-    ////////////////////////////////////////////////////////////
-    /// /// JWS 2025.01.27 13:00 수정
-    // 사용처가 없어서 주석처리
-    // public HashSet<GameObject> DamagedTargets { get; set; } = new HashSet<GameObject>();
-    //   
-    // private static readonly int[] AttackStateHash = {
-    //    Animator.StringToHash("Base Layer.ComboAttack.Attack_1"),
-    //    Animator.StringToHash("Base Layer.ComboAttack.Attack_2"),
-    //    Animator.StringToHash("Base Layer.ComboAttack.Attack_3")
-    //};
-    ////////////////////////////////////////////////////////////
 
     private static readonly int[] SkillStateHash = {
         Animator.StringToHash("Base Layer.Skill_1"),
@@ -82,12 +66,6 @@ public class PlayerCombat : MonoBehaviour
         HandleSkillInput();
         HandleBlockInput();
 
-        // 2025.01.29 JWS 주석처리 사용안해서
-
-        //if (controller.isAttack)
-        //{
-        //    AttackFinishedCheck();
-        //}
         SkillFinishedCheck();
         ParryFinishedCheck();
     }
@@ -103,41 +81,16 @@ public class PlayerCombat : MonoBehaviour
                 OnParry();
                 return;
             }
-            if(CanReceiveInput && hasWeapon)
+            if (CanReceiveInput && hasWeapon)
             {
                 if (!firstAttack)
                 {
                     PerformComboAttack();
                 }
             }
-
-            // 2025.01.29 JWS 주석처리 사용안해서
-            //inputReceived = true;
             
         }
     }
-
-    ////////////////////////////////////////////////////////////
-    // 스테이트머신에서 처리하는걸로 옮겨서 불필요
-    /// JWS 2025.01.29 12:00 수정
-    //private void PerformComboAttack()
-    //{
-    //    controller.isAttack = true;
-    //    closestMonster = GetClosestMonster(attackPerceptionRange);
-    //    if (closestMonster != null)
-    //    {
-    //        //Debug.Log("Closest Monster: " + closestMonster.name);
-    //        LookEnemy();
-    //    }
-
-    //    if (inputReceived)
-    //    {
-    //        inputReceived = false;
-    //        CanReceiveInput = false;
-
-    //        playerAnimator.SetTrigger("NextCombo");
-    //    }
-    //}
 
     private void AttackFinishedCheck()
     {
@@ -152,21 +105,8 @@ public class PlayerCombat : MonoBehaviour
             firstAttack = false;
         }
     }
-    ////////////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////
-    ///// JWS 2025.01.29 12:00 수정
-    //private void PerformComboAttack()
-    //{
-    //    controller.isAttack = true;
-    //    closestMonster = GetClosestMonster(attackPerceptionRange);
-    //    if (closestMonster != null)
-    //    {
-    //        //Debug.Log("Closest Monster: " + closestMonster.name);
-    //        LookEnemy();
-    //    }
-    //    playerAnimator.SetTrigger("NextCombo");
-    //}
+    //
     private void PerformComboAttack()
     {
         if (controller.isSprinting)
@@ -228,31 +168,6 @@ public class PlayerCombat : MonoBehaviour
                 }
             }
         }
-        //if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
-        //{
-        //    //controller.CanMove = false;
-        //    //controller.CanAttack = false;
-        //    // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
-        //    // SkillManager.Instance.ActivateSkill("Water", closestMonster);
-        //    // ----------------------------------------------------------------
-        //    if (SkillManager.Instance.CheckMana(EntityType.Player, "Water") &&
-        //        SkillManager.Instance.CanActivateSkill(EntityType.Player, "Water"))
-        //    {
-        //        SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Water");
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("스킬 사용 불가: 마나 부족 또는 쿨타임 중");
-        //    }
-        //}
-        //if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
-        //{
-        //    controller.CanMove = false;
-        //    controller.CanAttack = false;
-        //    // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
-        //    // SkillManager.Instance.ActivateSkill("eee", closestMonster);
-        //    // ----------------------------------------------------------------
-        //}
     }
 
     private enum SkillTriggerName
@@ -351,16 +266,6 @@ public class PlayerCombat : MonoBehaviour
         return closestTransform;
     }
 
-    ////////////////////////////////////////////////////////////
-    ///// JWS 2025.01.29 12:00 수정
-    //private void LookEnemy()
-    //{
-    //    Vector3 dir = (closestMonster.position - transform.position).normalized;
-    //    dir.y = 0f;
-    //    targetRotation = Quaternion.LookRotation(dir);
-    //    controller.transform.rotation = targetRotation;
-    //}
-
     public void LookEnemy(float perceptionRange)
     {
         closestMonster = GetClosestMonster(perceptionRange);
@@ -370,11 +275,10 @@ public class PlayerCombat : MonoBehaviour
         targetRotation = Quaternion.LookRotation(dir);
         controller.transform.rotation = targetRotation;
     }
-    ////////////////////////////////////////////////////////////
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, attackPerceptionRange);
-    }
+    //private void OnDrawGizmosSelected()
+    //{
+    //    Gizmos.color = Color.yellow;
+    //    Gizmos.DrawWireSphere(transform.position, attackPerceptionRange);
+    //}
 }
