@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using static Unity.Cinemachine.IInputAxisOwner.AxisDescriptor;
 
 public class WanderNpc : MonoBehaviour
 {
@@ -68,7 +67,8 @@ public class WanderNpc : MonoBehaviour
             return;
         }
 
-        if (isMoving && isCloseNpcs(transform.position, minNpcDistance))
+        Bench bench = GetCurrentBench();
+        if (isMoving && (IsCloseNpcs(transform.position, minNpcDistance) || bench != null))
         {
             if(Time.time > nextDestinationTime && !isJustStoodUp)
             {
@@ -106,14 +106,14 @@ public class WanderNpc : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        if (other.CompareTag("TownNPC"))
+        if (collision.transform.CompareTag("TownNPC"))
         {
             if (isSitting)
             {
                 Bench bench = GetCurrentBench();
-                if(bench != null && !isSittingTalking)
+                if (bench != null && !isSittingTalking)
                 {
                     isSittingTalking = true;
                     StopCoroutine(SittingDuration(bench));
@@ -129,37 +129,37 @@ public class WanderNpc : MonoBehaviour
                 }
 
                 Debug.Log($"{transform.name} npc 만남");
-                targetNpc = other.transform;
+                targetNpc = collision.transform;
                 StartConversation();
             }
         }
 
-        if (other.name.Contains("Bench"))
+        if (collision.transform.name.Contains("Bench"))
         {
-            if(Time.time - lastSittingTime < sittingCoolTime)
+            if (Time.time - lastSittingTime < sittingCoolTime)
             {
                 Debug.Log($"{transform.name} 앉기 쿨타임 중");
                 return;
             }
 
-            SittingAtBench(other);
+            SittingAtBench(collision);
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnCollisionExit(Collision collision)
     {
-        if (other.CompareTag("TownNPC"))
+        if (collision.transform.CompareTag("TownNPC"))
         {
             Debug.Log($"{transform.name} npc 헤어짐");
             targetNpc = null;
             StopConversation();
 
-            if (isSittingTalking && !isCloseNpcs(transform.position, minNpcDistance))
+            if (isSittingTalking && !IsCloseNpcs(transform.position, minNpcDistance))
             {
                 Debug.Log($"{transform.name} 대화중인 npc 떠남");
                 Bench bench = GetCurrentBench();
 
-                if(sittingTalkingCoroutine != null)
+                if (sittingTalkingCoroutine != null)
                 {
                     StopCoroutine(sittingTalkingCoroutine);
                     sittingTalkingCoroutine = null;
@@ -170,6 +170,71 @@ public class WanderNpc : MonoBehaviour
             }
         }
     }
+
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (other.CompareTag("TownNPC"))
+    //    {
+    //        if (isSitting)
+    //        {
+    //            Bench bench = GetCurrentBench();
+    //            if(bench != null && !isSittingTalking)
+    //            {
+    //                isSittingTalking = true;
+    //                StopCoroutine(SittingDuration(bench));
+    //                sittingTalkingCoroutine = StartCoroutine(SittingTalking(bench));
+    //            }
+    //        }
+    //        else
+    //        {
+    //            if (Time.time - lastConversationTime < conversationCoolTime)
+    //            {
+    //                Debug.Log($"{transform.name} 대화 쿨타임 중");
+    //                return;
+    //            }
+
+    //            Debug.Log($"{transform.name} npc 만남");
+    //            targetNpc = other.transform;
+    //            StartConversation();
+    //        }
+    //    }
+
+    //    if (other.name.Contains("Bench"))
+    //    {
+    //        if(Time.time - lastSittingTime < sittingCoolTime)
+    //        {
+    //            Debug.Log($"{transform.name} 앉기 쿨타임 중");
+    //            return;
+    //        }
+
+    //        SittingAtBench(other);
+    //    }
+    //}
+
+    //private void OnTriggerExit(Collider other)
+    //{
+    //    if (other.CompareTag("TownNPC"))
+    //    {
+    //        Debug.Log($"{transform.name} npc 헤어짐");
+    //        targetNpc = null;
+    //        StopConversation();
+
+    //        if (isSittingTalking && !isCloseNpcs(transform.position, minNpcDistance))
+    //        {
+    //            Debug.Log($"{transform.name} 대화중인 npc 떠남");
+    //            Bench bench = GetCurrentBench();
+
+    //            if(sittingTalkingCoroutine != null)
+    //            {
+    //                StopCoroutine(sittingTalkingCoroutine);
+    //                sittingTalkingCoroutine = null;
+    //            }
+
+    //            isSittingTalking = false;
+    //            StartCoroutine(SittingDuration(bench));
+    //        }
+    //    }
+    //}
 
     //이동 위치 설정
     private void SetNextDestination()
@@ -331,7 +396,7 @@ public class WanderNpc : MonoBehaviour
         transform.rotation = targetRotation;
     }
 
-    private bool isCloseNpcs(Vector3 position, float minDistance)
+    private bool IsCloseNpcs(Vector3 position, float minDistance)
     {
         Collider[] colliders = Physics.OverlapSphere(position, minDistance);
 
@@ -349,9 +414,9 @@ public class WanderNpc : MonoBehaviour
     /// <summary>
     /// 의자가 근처에 있으면 앉기
     /// </summary>
-    private void SittingAtBench(Collider collider)
+    private void SittingAtBench(Collision collider)
     {
-        Bench bench = collider.GetComponent<Bench>();
+        Bench bench = collider.transform.GetComponent<Bench>();
         if (bench == null) return;
 
         Debug.Log($"{transform.name} 의자 인식");

@@ -8,6 +8,7 @@ using UnityEngine;
 /// 01.23 아이템 장착위치 enum에 방패 추가, 아이템 등급은 장착 아이템에만 적용, 아이템 생성자에 제작재료 타입 조건 추가,
 /// 양손검, 한손검 아이템 추가로 인해서 weapontype 변수 추가
 /// 01.24 퀘스트 아이템인지 확인하기 위한 변수 추가
+/// 2.19 스탯 합산 함수 추가
 /// </summary>
 [Serializable]
 public class Item
@@ -243,6 +244,31 @@ public class ItemStat
         newStat.Evasion = this.Evasion;
 
         return newStat;
+    }
+
+    public ItemStat AddStats(ItemStat baseStat, ItemStat additionalStat)
+    {
+        // 새로운 ItemStat 객체를 생성하고, 스탯을 합산하여 반환
+        ItemStat result = new ItemStat(
+            baseStat.Strength + additionalStat.Strength,
+            baseStat.Dexterity + additionalStat.Dexterity,
+            baseStat.Intelligence + additionalStat.Intelligence,
+            baseStat.Vitality + additionalStat.Vitality,
+            baseStat.Luck + additionalStat.Luck
+        )
+        {
+            MaxHealth = baseStat.MaxHealth + additionalStat.MaxHealth,
+            MaxMana = baseStat.MaxMana + additionalStat.MaxMana,
+            PhysicalAttack = baseStat.PhysicalAttack + additionalStat.PhysicalAttack,
+            MagicAttack = baseStat.MagicAttack + additionalStat.MagicAttack,
+            PhysicalDefense = baseStat.PhysicalDefense + additionalStat.PhysicalDefense,
+            MagicDefense = baseStat.MagicDefense + additionalStat.MagicDefense,
+            CriticalChance = baseStat.CriticalChance + additionalStat.CriticalChance,
+            AttackSpeed = baseStat.AttackSpeed + additionalStat.AttackSpeed,
+            Evasion = baseStat.Evasion + additionalStat.Evasion
+        };
+
+        return result;
     }
 }
 
