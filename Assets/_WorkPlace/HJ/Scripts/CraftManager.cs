@@ -6,33 +6,51 @@ using System;
 [Serializable]
 public class Recipe
 {
-    public string itemName;  //제작 아이템 이름 (아이템 ID와 동일)
+    public string itemId;  //제작 아이템 Id (아이템 데이터의 Id와 동일)
     public List<string> requiredIngredientIds;  //필요한 재료 ID 리스트
     public RecipeType recipeType;   //레시피타입
-    public bool isAlreadyInit = false;
+    //public bool isAlreadyInit = false;
 
-    public List<Item> requiredIngredients = new List<Item>();
+    //public List<Item> requiredIngredients = new List<Item>();
 
-    public void Initialize()
-    {
-        if (isAlreadyInit)
-            return;
+    //public void Initialize()
+    //{
+    //    if (isAlreadyInit)
+    //        return;
 
-        foreach (var itemId in requiredIngredientIds)
-        {
-            Item item = ItemManager.Instance.GetItemById(itemId);
-            if (item != null)
-            {
-                requiredIngredients.Add(item);
-            }
-        }
-        isAlreadyInit = true;
-    }
+    //    foreach (var itemId in requiredIngredientIds)
+    //    {
+    //        Item item = ItemManager.Instance.GetItemById(itemId);
+    //        if (item != null)
+    //        {
+    //            requiredIngredients.Add(item);
+    //        }
+    //    }
+    //    isAlreadyInit = true;
+    //}
 
+    //레시피와 선택된 아이템 비교
     public bool IsMatch(List<Item> selectedIngredients)
     {
-        return requiredIngredients.All(rec => selectedIngredients.Contains(rec)) &&
-               selectedIngredients.All(sel => requiredIngredients.Contains(sel));
+        List<string> required = new List<string>(requiredIngredientIds);
+        List<string> selected = selectedIngredients.Select(i => i.id).ToList();
+
+        if(recipeType == RecipeType.Craft)  //제작은 레시피와 정확히 일치해야 가능
+        {
+            var requiredCount = required.GroupBy(r => r).ToDictionary(r => r.Key, r => r.Count());
+            var selectedCount = selected.GroupBy(s => s).ToDictionary(s => s.Key, s => s.Count());
+
+
+            return requiredCount.Count == selectedCount.Count &&    //수가 동일한지 확인
+                requiredCount.All(req => selectedCount.TryGetValue(req.Key, out int count) && count == req.Value);  //모든 키값이 존재하는지 확인하고 개수가 동일한지 확인
+        }
+        else if(recipeType == RecipeType.Cook)  //요리는 레시피에 해당하는 아이템이기만 하면 갯수는 상관없음
+        {
+            return required.All(rec => selected.Contains(rec)) &&
+                   selected.All(sel => required.Contains(sel));
+        }
+
+        return false;
     }
 }
 
@@ -48,26 +66,25 @@ public class CraftManager : BaseManager<CraftManager>
     [SerializeField] protected List<Recipe> recipes = new List<Recipe>();
     [SerializeField] protected int maxIngredients = 5;
 
-    protected override void Awake()
-    {
-        base.Awake();
-        foreach (var recipe in recipes)
-        {
-            recipe.Initialize();
-        }
-    }
+    //protected override void Awake()
+    //{
+    //    base.Awake();
+    //    foreach (var recipe in recipes)
+    //    {
+    //        recipe.Initialize();
+    //    }
+    //}
 
     public void AddIngredient(Item ingredient)
     {
-        if (selectedIngredients.Count < maxIngredients)
+        if (selectedIngredients.Count >= maxIngredients)
         {
-            selectedIngredients.Add(ingredient);
-            Debug.Log("재료 추가됨: " + ingredient.id);
+            Debug.Log("최대 갯수 초과");
+            return;
         }
-        else
-        {
-            Debug.Log("최대 개수 초과");
-        }
+
+        selectedIngredients.Add(ingredient);
+        Debug.Log("재료 추가됨: " + ingredient.id);
     }
 
     public void Craft()
@@ -78,25 +95,24 @@ public class CraftManager : BaseManager<CraftManager>
         if (match != null)
         {
             CompleteCrafting(match);
+            selectedIngredients.Clear();
         }
         else
         {
             FailedCrafting();
         }
-
-        selectedIngredients.Clear();
     }
 
     protected virtual void CompleteCrafting(Recipe recipe)
     {
-        foreach(string item in recipe.requiredIngredientIds)
+        foreach(string itemId in recipe.requiredIngredientIds)
         {
-            ItemManager.Instance.RemoveItemLogic(item);
+            ItemManager.Instance.RemoveItemLogic(itemId);
         }
 
-        ItemManager.Instance.AddItemLogic(recipe.itemName);
+        ItemManager.Instance.AddItemLogic(recipe.itemId);
 
-        Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemName);
+        Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
     }
 
     protected virtual void FailedCrafting()
@@ -106,6 +122,12 @@ public class CraftManager : BaseManager<CraftManager>
 
     private Recipe FindMatchingRecipe(List<Item> ingredients)
     {
+        if (recipes == null || recipes.Count == 0)
+        {
+            Debug.Log("레시피가 존재하지 않음");
+            return null;
+        }
+
         return recipes.FirstOrDefault(recipe => recipe.IsMatch(ingredients));
     }
 

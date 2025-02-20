@@ -6,54 +6,11 @@ public class CookingManager : CraftManager
 {
     [SerializeField] private float failedEffectAmount = 5f;
 
-    protected override void Awake()
-    {
-        base.Awake();
-
-        foreach (var recipe in recipes)
-        {
-            recipe.Initialize();
-        }
-    }
-
-    //요리
-    public void Cook()
-    {
-        if (selectedIngredients.Count < 0) return;
-
-        Recipe dish = FindMatchingRecipe(selectedIngredients);
-
-        if (dish != null)
-        {
-            //요리 완성
-        }
-        else
-        {
-            //요리 실패
-        }
-
-        selectedIngredients.Clear();
-    }
-
-    //매칭되는 레시피 찾기
-    private Recipe FindMatchingRecipe(List<Item> ingredients)
-    {
-        foreach (var recipe in recipes)
-        {
-            if (recipe.IsMatch(ingredients))
-            {
-                return recipe;
-            }
-        }
-
-        return null;
-    }
-
     //요리 효과 계산
     private ItemStat CalculateDishStat(List<Item> ingredients, Recipe recipe)
     {
         //기본 요리 스탯
-        Item baseItem = ItemManager.Instance.GetItemById(recipe.itemName);  //요리
+        Item baseItem = ItemManager.Instance.GetItemById(recipe.itemId);  //요리
         ItemStat totalStat = baseItem.itemStat;
 
         //각 재료 갯수
