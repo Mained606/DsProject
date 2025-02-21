@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float fallDamageThreshold = 5f;
     [SerializeField] private float fallDamageMultiplier = 5f;
     [SerializeField] private bool isFreefall;
+    [SerializeField] private GravityState currentGravityState;
 
     [Header("벽타기")]
     [SerializeField] private float detectionRange = 2f;
@@ -49,6 +50,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isGliding;
     [SerializeField] private bool CanGliding;
     [SerializeField] private float glidableHeight = 6f;
+    [SerializeField] private float glidingGravityFactor = 2f;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 3f;
@@ -125,11 +127,11 @@ public class PlayerController : MonoBehaviour
         }
 
         // 치트
-        CheatMode();
-        HpMpRecovery();
+        CheatMode();        // 치트 토글
+        HpMpRecovery();     // 치트 활성화시 Hp, Mp 무한
 
-        DeathCheck();
-        HitFinishedCheck();
+        DeathCheck();       // 죽음 체크
+        //HitFinishedCheck();
         StateCheck();
         StateBoolChange();
         isGrounded = characterController.isGrounded;
@@ -287,6 +289,7 @@ public class PlayerController : MonoBehaviour
 
         if (!isGrounded)
         {
+
             if (verticalVelocity.y <= fallDamageThreshold && !isFreefall && !isClimb)
             {
                 isFreefall = true;
@@ -307,12 +310,12 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            
+
             if (isFreefall)
             {
                 float fallDistance = lastGroundHeight - transform.position.y;
 
-                if(fallDistance > fallDamageThreshold)
+                if (fallDistance > fallDamageThreshold)
                 {
                     ApplyFallDamage(fallDistance);
                 }
@@ -325,6 +328,65 @@ public class PlayerController : MonoBehaviour
             {
                 verticalVelocity.y = -0.5f;
             }
+        }
+    }
+
+    //private void HandleGravity()
+    //{
+    //    if (isClimb) return;
+
+    //    if (!isGrounded)
+    //    {
+    //        ApplyGravity();
+    //    }
+    //    else
+    //    {
+    //        Land();
+    //    }
+    //}
+
+    private void SetGravityState(GravityState gravityState)
+    {
+        if (currentGravityState == gravityState) return;
+
+        currentGravityState = gravityState;
+    }
+
+    private void ApplyGravity()
+    {
+        switch (currentGravityState)
+        {
+            case GravityState.Grounded:
+                verticalVelocity.y = -2f;
+                break;
+            case GravityState.Freefall:
+                verticalVelocity.y += gravity * Time.deltaTime;
+                break;
+            case GravityState.Gliding:
+                verticalVelocity.y += (gravity * glidingGravityFactor) * Time.deltaTime;
+                break;
+            case GravityState.Jumping:
+                verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                break;
+            case GravityState.Climbing:
+                verticalVelocity.y = 0f;
+                break;
+        }
+
+        characterController.Move(new Vector3(0f, verticalVelocity.y, 0f) * Time.deltaTime);
+    }
+
+    private void Land()
+    {
+        if(currentGravityState == GravityState.Freefall)
+        {
+            float fallDistance = lastGroundHeight - transform.position.y;
+
+            if (fallDistance > fallDamageThreshold)
+            {
+                ApplyFallDamage(fallDistance);
+            }
+
         }
     }
 
@@ -390,18 +452,21 @@ public class PlayerController : MonoBehaviour
                 CanAttack = true;
                 CanUseSkill = true;
                 CanBlock = true;
+                SetGravityState(GravityState.Grounded);
                 break;
             case PlayerState.Move:
                 CanMove = true;
                 CanAttack = true;
                 CanUseSkill = true;
                 CanBlock = true;
+                SetGravityState(GravityState.Grounded);
                 break;
             case PlayerState.InAir:
                 CanMove = true;
                 CanAttack = false;
                 CanUseSkill = false;
                 CanBlock = false;
+                SetGravityState(GravityState.Freefall);
                 break;
             case PlayerState.Attack:
                 CanMove = false;
@@ -426,6 +491,7 @@ public class PlayerController : MonoBehaviour
                 CanAttack = false;
                 CanUseSkill = false;
                 CanBlock = false;
+                SetGravityState(GravityState.Climbing);
                 break;
             case PlayerState.Hit:
                 CanMove = false;
@@ -434,6 +500,10 @@ public class PlayerController : MonoBehaviour
                 CanBlock = true;
                 break;
             case PlayerState.Death:
+                CanMove = false;
+                CanAttack = false;
+                CanUseSkill = false;
+                CanBlock = false;
                 break;
         }
     }
@@ -630,35 +700,40 @@ public class PlayerController : MonoBehaviour
         if (uiCheck != UIManager.Instance.IsUIWindowOpen())
         {
             uiCheck = UIManager.Instance.IsUIWindowOpen();
-            SetActionStates(!uiCheck);
+            InputManager.Instance.SetAllInputs(!uiCheck);
+            //SetActionStates(!uiCheck);
             Debug.LogWarning($"uiCheck : {uiCheck}");
         }
-        UpdateInputActions(CanMove, "Move");
-        UpdateInputActions(CanAttack, "Attack");
-        UpdateInputActions(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
-        UpdateInputActions(CanBlock, "Block");
+        InputManager.Instance.SetInputEnabled(CanMove, "Move");
+        InputManager.Instance.SetInputEnabled(CanAttack, "Attack");
+        InputManager.Instance.SetMultipleInputsEnabled(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
+        InputManager.Instance.SetInputEnabled(CanBlock, "Block");
+        //UpdateInputActions(CanMove, "Move");
+        //UpdateInputActions(CanAttack, "Attack");
+        //UpdateInputActions(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
+        //UpdateInputActions(CanBlock, "Block");
     }
 
-    private void SetActionStates(bool state)
-    {
-        CanMove = state;
-        CanAttack = state;
-        CanUseSkill = state;
-        CanBlock = state;
-        CanWeaponSwitch = state;
-        CanGliding = state;
-    }
+    //private void SetActionStates(bool state)
+    //{
+    //    CanMove = state;
+    //    CanAttack = state;
+    //    CanUseSkill = state;
+    //    CanBlock = state;
+    //    CanWeaponSwitch = state;
+    //    CanGliding = state;
+    //}
 
-    private void UpdateInputActions(bool state, params string[] actions)
-    {
-        foreach (var action in actions)
-        {
-            if (state)
-                InputManager.InputActions.actions[action].Enable();
-            else
-                InputManager.InputActions.actions[action].Disable();
-        }
-    }
+    //private void UpdateInputActions(bool state, params string[] actions)
+    //{
+    //    foreach (var action in actions)
+    //    {
+    //        if (state)
+    //            InputManager.InputActions.actions[action].Enable();
+    //        else
+    //            InputManager.InputActions.actions[action].Disable();
+    //    }
+    //}
     ///////////////////////////////////////////////////////////////////////////////////
     ///// JWS 수정 UI오픈관련 키엑세스 2025.01.26 19:30  End
     ///////////////////////////////////////////////////////////////////////////////////
@@ -897,23 +972,15 @@ public class PlayerController : MonoBehaviour
         {
             isHit = true;
             playerAnimator.SetTrigger("Hit");
-            Debug.LogWarning("Hit신호 감지");
+            //Debug.LogWarning("Hit신호 감지");
+            StartCoroutine(Hit());
         }
     }
 
-    private void HitFinishedCheck()
+    private IEnumerator Hit()
     {
-        if (currentState != PlayerState.Hit)
-        {
-            isHit = false;
-            return;
-        }
-
-        if (isHit && AnimFinishCheck())
-        {
-            isHit = false;
-        }
-
+        yield return new WaitForSeconds(0.1f);
+        isHit = false;
     }
 
     private void DeathCheck()
@@ -921,7 +988,7 @@ public class PlayerController : MonoBehaviour
         if(playerData.currentHp <= 0)
         {
             Debug.Log("Player Death");
-            SetActionStates(false);
+            InputManager.Instance.SetAllInputs(false);
 
             // anim
             playerAnimator.SetBool("Death", true);
@@ -963,4 +1030,13 @@ public class PlayerController : MonoBehaviour
             obj.gameObject.SetActive(isOnOff);
         }
     }
+}
+
+public enum GravityState
+{
+    Grounded,
+    Freefall,
+    Jumping,
+    Gliding,
+    Climbing
 }

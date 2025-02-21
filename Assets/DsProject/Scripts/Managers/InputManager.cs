@@ -1,13 +1,21 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class InputManager : BaseManager<InputManager>
 {
     public static PlayerInput InputActions;
+
+    // 모든 입력의 활성 상태를 관리하는 딕셔너리
+    private Dictionary<string, bool> inputStates = new Dictionary<string, bool>();
+
     protected override void Awake()
     {
         base.Awake();
         InputActions = GetComponent<PlayerInput>();
+
+        InputInitialize();
 
         #region Delete
         // ui키 연결
@@ -18,9 +26,56 @@ public class InputManager : BaseManager<InputManager>
         #endregion
     }
 
+    private void InputInitialize()
+    {
+        foreach(var action in InputActions.actions)
+        {
+            inputStates[action.name] = true;
+        }
+    }
+
+    public void SetInputEnabled(bool enabled, string actionName)
+    {
+        var action = InputActions.actions.FindAction(actionName, false);
+        if (action != null)
+        {
+            inputStates[actionName] = enabled;
+
+            if (enabled)
+            {
+                InputActions.actions[actionName].Enable();
+            }
+            else
+            {
+                InputActions.actions[actionName].Disable();
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"입력 액션 '{actionName}'을 찾을 수 없습니다.");
+        }
+    }
+
+    // 여러 개의 입력을 한 번에 설정하는 함수
+    public void SetMultipleInputsEnabled(bool enabled, params string[] actionNames)
+    {
+        foreach(var actionName in actionNames)
+        {
+            SetInputEnabled(enabled, actionName);
+        }
+    }
+
+    public void SetAllInputs(bool enabled)
+    {
+        foreach(var action in InputActions.actions)
+        {
+            SetInputEnabled(enabled, action.name);
+        }
+    }
+
     #region Delete
 
-   
+
     private void OnInventoryKey(InputAction.CallbackContext context)
     {
 

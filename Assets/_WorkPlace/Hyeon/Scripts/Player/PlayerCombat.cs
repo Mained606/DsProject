@@ -92,19 +92,19 @@ public class PlayerCombat : MonoBehaviour
         }
     }
 
-    private void AttackFinishedCheck()
-    {
-        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        float normalizedTime = stateInfo.normalizedTime;
+    //private void AttackFinishedCheck()
+    //{
+    //    AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+    //    float normalizedTime = stateInfo.normalizedTime;
 
-        if (normalizedTime >= 0.95f)
-        {
-            Debug.LogWarning("콤보 끝");
-            controller.CanMove = true;
-            controller.isAttack = false;
-            firstAttack = false;
-        }
-    }
+    //    if (normalizedTime >= 0.95f)
+    //    {
+    //        Debug.LogWarning("콤보 끝");
+    //        controller.CanMove = true;
+    //        controller.isAttack = false;
+    //        firstAttack = false;
+    //    }
+    //}
 
     //
     private void PerformComboAttack()
