@@ -77,6 +77,9 @@ public class CookingManager : CraftManager
     }
 
     //요리 설명 수정
+    /// <summary>
+    /// TODO 추가되는 모든 아이템 반영 필요
+    /// </summary>
     private void EditDescription(Item item, List<string> extraIngredients)
     {
         string newDescription = item.GetEffectDescription();
