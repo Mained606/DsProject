@@ -120,7 +120,7 @@ public class CraftManager : BaseManager<CraftManager>
         Debug.Log("제작 실패");
     }
 
-    private Recipe FindMatchingRecipe(List<Item> ingredients)
+    protected Recipe FindMatchingRecipe(List<Item> ingredients)
     {
         if (recipes == null || recipes.Count == 0)
         {

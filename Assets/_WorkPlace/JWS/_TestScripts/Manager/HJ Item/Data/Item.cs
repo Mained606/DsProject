@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -8,7 +9,9 @@ using UnityEngine;
 /// 01.23 아이템 장착위치 enum에 방패 추가, 아이템 등급은 장착 아이템에만 적용, 아이템 생성자에 제작재료 타입 조건 추가,
 /// 양손검, 한손검 아이템 추가로 인해서 weapontype 변수 추가
 /// 01.24 퀘스트 아이템인지 확인하기 위한 변수 추가
+/// 
 /// 2.19 스탯 합산 함수 추가
+/// 2.20 스탯에 요리용 회복 스탯 추가, 스탯 관련 함수 수정
 /// </summary>
 [Serializable]
 public class Item
@@ -178,6 +181,33 @@ public class Item
         }
     }
 
+    //아이템 효과 설명
+    public string GetEffectDescription()
+    {
+        List<string> effects = new List<string>();
+
+        if (itemStat.HealHp > 0) effects.Add($"HP +{itemStat.HealHp}");
+        if (itemStat.HealMp > 0) effects.Add($"MP +{itemStat.HealMp}");
+
+        if (itemStat.Strength > 0) effects.Add($"힘 +{itemStat.Strength}");
+        if (itemStat.Dexterity > 0) effects.Add($"민첩 +{itemStat.Dexterity}");
+        if (itemStat.Intelligence > 0) effects.Add($"지능 +{itemStat.Intelligence}");
+        if (itemStat.Vitality > 0) effects.Add($"활력 +{itemStat.Vitality}");
+        if (itemStat.Luck > 0) effects.Add($"운 +{itemStat.Luck}");
+
+        if (itemStat.MaxHealth > 0) effects.Add($"최대 체력 +{itemStat.MaxHealth}");
+        if (itemStat.MaxMana > 0) effects.Add($"최대 마나 +{itemStat.MaxMana}");
+        if (itemStat.PhysicalAttack > 0) effects.Add($"물리 공격력 +{itemStat.PhysicalAttack}");
+        if (itemStat.MagicAttack > 0) effects.Add($"마법 공격력 +{itemStat.MagicAttack}");
+        if (itemStat.PhysicalDefense > 0) effects.Add($"물리 방어력 +{itemStat.PhysicalDefense}");
+        if (itemStat.MagicDefense > 0) effects.Add($"마법 방어력 +{itemStat.MagicDefense}");
+
+        if (itemStat.CriticalChance > 0) effects.Add($"치명타 확률 +{itemStat.CriticalChance}%");
+        if (itemStat.AttackSpeed > 0) effects.Add($"공격 속도 +{itemStat.AttackSpeed}");
+        if (itemStat.Evasion > 0) effects.Add($"회피율 +{itemStat.Evasion}%");
+
+        return effects.Count > 0 ? string.Join(", ", effects) : string.Empty;
+    }
 }
 
 [Serializable]
@@ -202,6 +232,10 @@ public class ItemStat
     public int CriticalChance;    // 치명타 확률 (%)
     public int AttackSpeed;       // 공격 속도
     public int Evasion;           // 회피율 (%)
+
+    [Header("요리용 회복 스탯")]
+    public int HealHp;
+    public int HealMp;
 
     // 생성자
     public ItemStat(int strength, int dexterity, int intelligence, int vitality, int luck)
@@ -243,6 +277,9 @@ public class ItemStat
         newStat.AttackSpeed = this.AttackSpeed;
         newStat.Evasion = this.Evasion;
 
+        newStat.HealHp = this.HealHp;
+        newStat.HealMp = this.HealMp;
+
         return newStat;
     }
 
@@ -265,7 +302,9 @@ public class ItemStat
             MagicDefense = baseStat.MagicDefense + additionalStat.MagicDefense,
             CriticalChance = baseStat.CriticalChance + additionalStat.CriticalChance,
             AttackSpeed = baseStat.AttackSpeed + additionalStat.AttackSpeed,
-            Evasion = baseStat.Evasion + additionalStat.Evasion
+            Evasion = baseStat.Evasion + additionalStat.Evasion,
+            HealHp = baseStat.HealHp + additionalStat.HealHp,
+            HealMp = baseStat.HealMp + additionalStat.HealMp
         };
 
         return result;
@@ -306,7 +345,8 @@ public enum ConsumableType
     없음,       // None
     체력포션,   // HealthPotion
     마나포션,   // ManaPotion
-    버프        // Buff
+    버프,        // Buff
+    요리
 }
 
 
