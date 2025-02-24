@@ -72,7 +72,7 @@ public class WanderNpc : MonoBehaviour
         {
             if(Time.time > nextDestinationTime && !isJustStoodUp)
             {
-                Debug.Log($"{transform.name} 다른 npc와 너무 가까움, 새로운 목적지 설정");
+                //Debug.Log($"{transform.name} 다른 npc와 너무 가까움, 새로운 목적지 설정");
                 SetNextDestination();
                 nextDestinationTime = Time.time + destinationCooldown;
             }            
@@ -87,7 +87,7 @@ public class WanderNpc : MonoBehaviour
             //y축 차이가 너무 크면 새로운 목적지 설정
             if(Mathf.Abs(transform.position.y - targetPosition.y) > 2f)
             {
-                Debug.Log($"{transform.name} y축 차이가 큼, 새로운 목적지 설정");
+                //Debug.Log($"{transform.name} y축 차이가 큼, 새로운 목적지 설정");
                 SetNextDestination();
                 return;
             }
@@ -124,11 +124,11 @@ public class WanderNpc : MonoBehaviour
             {
                 if (Time.time - lastConversationTime < conversationCoolTime)
                 {
-                    Debug.Log($"{transform.name} 대화 쿨타임 중");
+                    //Debug.Log($"{transform.name} 대화 쿨타임 중");
                     return;
                 }
 
-                Debug.Log($"{transform.name} npc 만남");
+                //Debug.Log($"{transform.name} npc 만남");
                 targetNpc = collision.transform;
                 StartConversation();
             }
@@ -138,7 +138,7 @@ public class WanderNpc : MonoBehaviour
         {
             if (Time.time - lastSittingTime < sittingCoolTime)
             {
-                Debug.Log($"{transform.name} 앉기 쿨타임 중");
+                //Debug.Log($"{transform.name} 앉기 쿨타임 중");
                 return;
             }
 
@@ -150,13 +150,13 @@ public class WanderNpc : MonoBehaviour
     {
         if (collision.transform.CompareTag("TownNPC"))
         {
-            Debug.Log($"{transform.name} npc 헤어짐");
+            //Debug.Log($"{transform.name} npc 헤어짐");
             targetNpc = null;
             StopConversation();
 
             if (isSittingTalking && !IsCloseNpcs(transform.position, minNpcDistance))
             {
-                Debug.Log($"{transform.name} 대화중인 npc 떠남");
+                //Debug.Log($"{transform.name} 대화중인 npc 떠남");
                 Bench bench = GetCurrentBench();
 
                 if (sittingTalkingCoroutine != null)
@@ -365,7 +365,7 @@ public class WanderNpc : MonoBehaviour
         }
 
         lastConversationTime = Time.time;
-        Debug.Log($"{transform.name} 대화 종료");
+        //Debug.Log($"{transform.name} 대화 종료");
 
         animator.SetTrigger(exitTrigger);
         animator.SetBool(talkingState, false);
@@ -419,7 +419,7 @@ public class WanderNpc : MonoBehaviour
         Bench bench = collider.transform.GetComponent<Bench>();
         if (bench == null) return;
 
-        Debug.Log($"{transform.name} 의자 인식");
+        //Debug.Log($"{transform.name} 의자 인식");
 
         if (Random.value <= 0.5f)
         {
@@ -429,7 +429,7 @@ public class WanderNpc : MonoBehaviour
 
                 if (animator.GetBool(walkingState))
                 {
-                    Debug.Log($"{transform.name} 걷기 멈춤");
+                    //Debug.Log($"{transform.name} 걷기 멈춤");
                     animator.SetBool(walkingState, false);
                     isMoving = false;
                 }
@@ -449,7 +449,7 @@ public class WanderNpc : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("벤치에 빈 자리 없음");
+                    //Debug.Log("벤치에 빈 자리 없음");
                     return;
                 }
                 
@@ -468,7 +468,7 @@ public class WanderNpc : MonoBehaviour
 
         while (isSitting)
         {
-            Debug.Log($"{transform.name} 앉은 상태로 대화 중");
+            //Debug.Log($"{transform.name} 앉은 상태로 대화 중");
             yield return new WaitForSeconds(Random.Range(5f, 10f));
 
             if(conversationCount < minConversations)
@@ -479,11 +479,11 @@ public class WanderNpc : MonoBehaviour
             else
             {
                 isSitting = false;
-                Debug.Log($"{transform.name} 앉기 종료");
+                //Debug.Log($"{transform.name} 앉기 종료");
             }
         }
 
-        Debug.Log($"{transform.name} 앉은 상태에서 대화 종료");
+        //Debug.Log($"{transform.name} 앉은 상태에서 대화 종료");
 
         isSittingTalking = false;
         StopSitting(bench);
@@ -492,7 +492,7 @@ public class WanderNpc : MonoBehaviour
     private IEnumerator SittingDuration(Bench bench)
     {
         float sittingTime = Random.Range(15f, 30f);
-        Debug.Log($"{transform.name}이 {sittingTime}동안 앉아있음");
+        //Debug.Log($"{transform.name}이 {sittingTime}동안 앉아있음");
         yield return new WaitForSeconds(sittingTime);
 
         if(!isSittingTalking)
@@ -501,7 +501,7 @@ public class WanderNpc : MonoBehaviour
 
     private void StopSitting(Bench bench)
     {
-        Debug.Log($"{transform.name}이 일어남");
+        //Debug.Log($"{transform.name}이 일어남");
         
         isSitting = false;
         animator.SetBool(sittingState, false);
