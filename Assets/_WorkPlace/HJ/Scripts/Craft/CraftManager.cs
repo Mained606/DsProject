@@ -9,25 +9,6 @@ public class Recipe
     public string itemId;  //제작 아이템 Id (아이템 데이터의 Id와 동일)
     public List<string> requiredIngredientIds;  //필요한 재료 ID 리스트
     public RecipeType recipeType;   //레시피타입
-    //public bool isAlreadyInit = false;
-
-    //public List<Item> requiredIngredients = new List<Item>();
-
-    //public void Initialize()
-    //{
-    //    if (isAlreadyInit)
-    //        return;
-
-    //    foreach (var itemId in requiredIngredientIds)
-    //    {
-    //        Item item = ItemManager.Instance.GetItemById(itemId);
-    //        if (item != null)
-    //        {
-    //            requiredIngredients.Add(item);
-    //        }
-    //    }
-    //    isAlreadyInit = true;
-    //}
 
     //레시피와 선택된 아이템 비교
     public bool IsMatch(List<Item> selectedIngredients)
@@ -62,18 +43,21 @@ public enum RecipeType
 
 public class CraftManager : BaseManager<CraftManager>
 {
+    [SerializeField] protected RecipeList recipeList;
+
+    [SerializeField] protected virtual List<Recipe> Recipes { get; set; }
     [SerializeField] protected List<Item> selectedIngredients = new List<Item>();
-    [SerializeField] protected List<Recipe> recipes = new List<Recipe>();
     [SerializeField] protected int maxIngredients = 5;
 
-    //protected override void Awake()
-    //{
-    //    base.Awake();
-    //    foreach (var recipe in recipes)
-    //    {
-    //        recipe.Initialize();
-    //    }
-    //}
+    protected override void Awake()
+    {
+        base.Awake();
+
+        if(recipeList != null)
+        {
+            Recipes = recipeList.recipeList.Where(r => r.recipeType == RecipeType.Craft).ToList();
+        }
+    }
 
     public void AddIngredient(Item ingredient)
     {
@@ -122,13 +106,13 @@ public class CraftManager : BaseManager<CraftManager>
 
     protected Recipe FindMatchingRecipe(List<Item> ingredients)
     {
-        if (recipes == null || recipes.Count == 0)
+        if (Recipes == null || Recipes.Count == 0)
         {
             Debug.Log("레시피가 존재하지 않음");
             return null;
         }
 
-        return recipes.FirstOrDefault(recipe => recipe.IsMatch(ingredients));
+        return recipeList.recipeList.FirstOrDefault(recipe => recipe.IsMatch(ingredients));
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)

@@ -12,6 +12,7 @@ using UnityEngine;
 /// 
 /// 2.19 스탯 합산 함수 추가
 /// 2.20 스탯에 요리용 회복 스탯 추가, 스탯 관련 함수 수정
+/// 2.24 아이템타입에 요리재료 추가
 /// </summary>
 [Serializable]
 public class Item
@@ -32,7 +33,7 @@ public class Item
     public ItemEffect effect;              // 아이템 이펙트
     public bool isQuestItem;               // 퀘스트 아이템 여부
 
-    [Header("스탯(장착아이템: 적용할 전체 값,\n 버프 물약: 해당하는 스탯만 값을 1로 설정)")]
+    [Header("스탯(장착아이템: 적용할 전체 값\n버프 물약: 해당하는 스탯만 값을 1로 설정\n요리재료 효과량 전체)")]
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
     public Durability durability;          // 내구도
     public ItemGrade grade;                // 아이템 등급
@@ -180,34 +181,6 @@ public class Item
             default: return "#FFFFFF";                 // 기본 흰색
         }
     }
-
-    //아이템 효과 설명
-    public string GetEffectDescription()
-    {
-        List<string> effects = new List<string>();
-
-        if (itemStat.HealHp > 0) effects.Add($"HP +{itemStat.HealHp}");
-        if (itemStat.HealMp > 0) effects.Add($"MP +{itemStat.HealMp}");
-
-        if (itemStat.Strength > 0) effects.Add($"힘 +{itemStat.Strength}");
-        if (itemStat.Dexterity > 0) effects.Add($"민첩 +{itemStat.Dexterity}");
-        if (itemStat.Intelligence > 0) effects.Add($"지능 +{itemStat.Intelligence}");
-        if (itemStat.Vitality > 0) effects.Add($"활력 +{itemStat.Vitality}");
-        if (itemStat.Luck > 0) effects.Add($"운 +{itemStat.Luck}");
-
-        if (itemStat.MaxHealth > 0) effects.Add($"최대 체력 +{itemStat.MaxHealth}");
-        if (itemStat.MaxMana > 0) effects.Add($"최대 마나 +{itemStat.MaxMana}");
-        if (itemStat.PhysicalAttack > 0) effects.Add($"물리 공격력 +{itemStat.PhysicalAttack}");
-        if (itemStat.MagicAttack > 0) effects.Add($"마법 공격력 +{itemStat.MagicAttack}");
-        if (itemStat.PhysicalDefense > 0) effects.Add($"물리 방어력 +{itemStat.PhysicalDefense}");
-        if (itemStat.MagicDefense > 0) effects.Add($"마법 방어력 +{itemStat.MagicDefense}");
-
-        if (itemStat.CriticalChance > 0) effects.Add($"치명타 확률 +{itemStat.CriticalChance}%");
-        if (itemStat.AttackSpeed > 0) effects.Add($"공격 속도 +{itemStat.AttackSpeed}");
-        if (itemStat.Evasion > 0) effects.Add($"회피율 +{itemStat.Evasion}%");
-
-        return effects.Count > 0 ? string.Join(", ", effects) : string.Empty;
-    }
 }
 
 [Serializable]
@@ -309,6 +282,34 @@ public class ItemStat
 
         return result;
     }
+
+    //아이템 효과 설명
+    public string GetEffectDescription()
+    {
+        List<string> effects = new List<string>();
+
+        if (HealHp > 0) effects.Add($"HP +{HealHp}");
+        if (HealMp > 0) effects.Add($"MP +{HealMp}");
+
+        if (Strength > 0) effects.Add($"힘 +{Strength}");
+        if (Dexterity > 0) effects.Add($"민첩 +{Dexterity}");
+        if (Intelligence > 0) effects.Add($"지능 +{Intelligence}");
+        if (Vitality > 0) effects.Add($"활력 +{Vitality}");
+        if (Luck > 0) effects.Add($"운 +{Luck}");
+
+        if (MaxHealth > 0) effects.Add($"최대 체력 +{MaxHealth}");
+        if (MaxMana > 0) effects.Add($"최대 마나 +{MaxMana}");
+        if (PhysicalAttack > 0) effects.Add($"물리 공격력 +{PhysicalAttack}");
+        if (MagicAttack > 0) effects.Add($"마법 공격력 +{MagicAttack}");
+        if (PhysicalDefense > 0) effects.Add($"물리 방어력 +{PhysicalDefense}");
+        if (MagicDefense > 0) effects.Add($"마법 방어력 +{MagicDefense}");
+
+        if (CriticalChance > 0) effects.Add($"치명타 확률 +{CriticalChance}%");
+        if (AttackSpeed > 0) effects.Add($"공격 속도 +{AttackSpeed}");
+        if (Evasion > 0) effects.Add($"회피율 +{Evasion}%");
+
+        return effects.Count > 0 ? string.Join(", ", effects) : string.Empty;
+    }
 }
 
 // 아이템 타입 Enum
@@ -320,6 +321,7 @@ public enum ItemType
     퀘스트,       // QuestItem
     제작재료,     // Material
     장신구,        // Accessory
+    요리재료
 }
 
 public enum WeaponType

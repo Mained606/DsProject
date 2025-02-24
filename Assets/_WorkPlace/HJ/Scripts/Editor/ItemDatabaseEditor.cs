@@ -126,13 +126,17 @@ public class ItemDatabaseEditor : Editor
                 DrawPropertyIfExists(itemProperty, "consumableType");
                 DrawPropertyIfExists(itemProperty, "effectAmount");
 
-                if (consumableType == ConsumableType.버프)
+                if (consumableType == ConsumableType.버프 || consumableType == ConsumableType.요리)
                 {
                     DrawPropertyIfExists(itemProperty, "itemStat");
                 }
                 break;
             case ItemType.퀘스트:
                 DrawPropertyIfExists(itemProperty, "questId");
+                break;
+            case ItemType.제작재료:
+            case ItemType.요리재료:
+                DrawPropertyIfExists(itemProperty, "itemStat");
                 break;
         }
 

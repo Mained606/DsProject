@@ -1,10 +1,23 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
 public class CookingManager : CraftManager
 {
-    [SerializeField] private float failedEffectAmount = 5f;
+    [SerializeField] private string failedDishId = "실패한 요리";
+
+    [SerializeField] protected override List<Recipe> Recipes { get; set; }
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        if (recipeList != null)
+        {
+            Recipes = recipeList.recipeList.Where(r => r.recipeType == RecipeType.Cook).ToList();
+        }
+    }
 
     //요리 효과 계산
     private Item CalculateDishStat(List<Item> ingredients, Recipe recipe)
@@ -39,16 +52,22 @@ public class CookingManager : CraftManager
             }
         }
 
-        //스탯 총합 계산
-        foreach (string item in extraIngredients)
+        //추가되는 스탯 계산
+        ItemStat extraStat = null;
+
+        foreach (string id in extraIngredients)
         {
-            totalStat = totalStat.AddStats(totalStat, ItemManager.Instance.GetItemById(item).itemStat);
+            Item extra = ItemManager.Instance.GetItemById(id);
+            extraStat = extraStat.AddStats(extraStat, extra.itemStat);
         }
 
+        //스탯 총합 계산
+        totalStat = totalStat.AddStats(totalStat, extraStat);
         totalItem.itemStat = totalStat;
 
+        //아이템 id, 설명 수정
         EditId(totalItem, ingredientsCount);
-        EditDescription(totalItem, extraIngredients);
+        EditDescription(totalItem, extraStat);
 
         return totalItem;
     }
@@ -59,9 +78,9 @@ public class CookingManager : CraftManager
         string mostIngredientId = null;
         int maxCount = 0;
 
-        foreach(var pair in ingredientsCount)
+        foreach (var pair in ingredientsCount)
         {
-            if(pair.Value > maxCount)
+            if (pair.Value > maxCount)
             {
                 mostIngredientId = pair.Key;
                 maxCount = pair.Value;
@@ -73,44 +92,56 @@ public class CookingManager : CraftManager
         if (mostIngredient != null)
         {
             item.id = $"{mostIngredient.id} 듬뿍 {item.id}";
-        }        
+        }
     }
 
     //요리 설명 수정
-    /// <summary>
-    /// TODO 추가되는 모든 아이템 반영 필요
-    /// </summary>
-    private void EditDescription(Item item, List<string> extraIngredients)
+    private void EditDescription(Item item, ItemStat stat)
     {
-        string newDescription = item.GetEffectDescription();
+        string newDescription = stat.GetEffectDescription();
+
         item.description += $"\n추가효과: {newDescription}";
     }
 
     //요리 완성
     private Item CookedDish(Recipe recipe)
     {
-        foreach (Item item in selectedIngredients)
-        {
-            ItemManager.Instance.RemoveItemLogic(item.id);
-        }
-
         Item cookedDish = CalculateDishStat(selectedIngredients, recipe);
+
+        //foreach (Item item in selectedIngredients)
+        //{
+        //    ItemManager.Instance.RemoveItemLogic(item.id);
+        //}
 
         return cookedDish;
     }
 
-    
-    protected override void CompleteCrafting(Recipe recipe)
+    //요리 실패
+    private Item FailedDish()
     {
-        foreach (string itemId in recipe.requiredIngredientIds)
+        Item failedDish = ItemManager.Instance.GetItemById(failedDishId).Clone();
+        ItemStat failedStat = failedDish.itemStat.Clone();
+
+        for (int i = 0; i < selectedIngredients.Count; i++)
         {
-            ItemManager.Instance.RemoveItemLogic(itemId);
+            failedDish.itemStat = failedDish.itemStat.AddStats(failedDish.itemStat, failedStat);
         }
 
+        return failedDish;
+    }
+
+    protected override void CompleteCrafting(Recipe recipe)
+    {
         Item cookedDish = CookedDish(recipe);
 
         InventoryManager.Instance.AddItemLogic(cookedDish);
 
         Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
+    }
+
+    protected override void FailedCrafting()
+    {
+        FailedDish();
+        Debug.Log("요리 실패");
     }
 }
