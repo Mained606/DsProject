@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     public PlayerData playerData;
     public PlayerCombat playerCombat;
     private WeaponManager weapon;
+
     [SerializeField] private float staminaRecoveryRate;
 
     public PlayerState currentState = PlayerState.Idle;
@@ -18,7 +19,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("이동")]
     public Vector2 moveInput;
-    [SerializeField] private Transform cameraTransform;
+    public Transform cameraTransform;
     private float walkSpeed;
     private float sprintSpeed;
     private Vector3 direction;
@@ -70,11 +71,11 @@ public class PlayerController : MonoBehaviour
     public bool isParry;
 
     [Header("디버그용")]
-    [SerializeField] private bool CanSprint;
-    [SerializeField] private float staminaUseAmount;
+    public bool CanSprint;
+    public float staminaUseAmount;
     [SerializeField] private float currentStamina;
     [SerializeField] private bool isEnoughMana;
-    [SerializeField] private bool isRecovery;
+    public bool isRecovery;
     [SerializeField] private bool isHit;
     public bool CanWeaponSwitch;
 
@@ -113,6 +114,8 @@ public class PlayerController : MonoBehaviour
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
 
         ValueInitialize();
+        PlayerBehaviourManager.Instance.AddBehaviour(new MoveBehaviour(characterController, playerAnimator, walkSpeed, sprintSpeed, CanSprint, isGliding));
+
     }
 
     private void Update()
@@ -146,7 +149,7 @@ public class PlayerController : MonoBehaviour
         if (!isDodging)
         {
             CheckCombatState();
-            ControlMovement();
+            //ControlMovement();
             ControlJump();
             OnDodge();
         }
