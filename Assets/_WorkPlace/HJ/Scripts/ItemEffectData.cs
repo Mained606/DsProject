@@ -107,6 +107,10 @@ public class ItemEffect
             {
                 effectType = EffectType.Buff;
             }
+            else if(consumableType == ConsumableType.요리)
+            {
+                effectType = EffectType.Dish;
+            }
             else
             {
                 effectType = EffectType.None;
@@ -207,6 +211,7 @@ public class ItemEffect
                 effectParticle = Resources.Load<GameObject>("Particles/MpEffect");
                 break;
             case EffectType.Buff:
+            case EffectType.Dish:
                 effectParticle = Resources.Load<GameObject>("Particles/BuffEffect");
                 break;
             default:
@@ -222,7 +227,8 @@ public enum EffectType
     Equip,
     Hp,
     Mp,
-    Buff
+    Buff,
+    Dish
 }
 
 public enum ItemSize
