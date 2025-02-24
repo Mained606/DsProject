@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float fallDamageThreshold = 5f;
     [SerializeField] private float fallDamageMultiplier = 5f;
     [SerializeField] private bool isFreefall;
+    bool isJumping = false;
 
     [Header("벽타기")]
     [SerializeField] private float detectionRange = 2f;
@@ -318,6 +319,7 @@ public class PlayerController : MonoBehaviour
             }
             isFreefall = false;
             isGliding = false;
+            isJumping = false;
             playerAnimator.SetBool("Freefall", false);
             playerAnimator.SetBool("Jump", false);
             if (verticalVelocity.y < 0)
@@ -353,12 +355,16 @@ public class PlayerController : MonoBehaviour
                 SetState(PlayerState.Move);
 
             }
-            else if (isFreefall || !isGrounded && !isClimb)
+            else if (isFreefall || !isGrounded && !isClimb && !isAttack)
             {
                 SetState(PlayerState.InAir);
+                isJumping = true;
+                isAttack = false;
+                playerCombat.firstAttack = false;
+                playerAnimator.ResetTrigger("NextCombo");
             }
-
-            if (isAttack)
+                
+            if (isAttack && isFreefall && !isJumping)
             {
                 SetState(PlayerState.Attack);
             }
