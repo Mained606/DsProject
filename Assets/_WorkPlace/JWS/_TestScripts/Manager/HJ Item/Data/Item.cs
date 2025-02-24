@@ -77,7 +77,7 @@ public class Item
             this.isDiscardable = false; // 퀘스트 아이템은 버릴 수 없음
             this.isEquired = false;
         }
-        else if (type == ItemType.소모품 || type == ItemType.제작재료)
+        else if (type == ItemType.소모품 || type == ItemType.제작재료 || type == ItemType.요리재료)
         {
             // 소모품 초기화
             this.effectAmount = 0;
@@ -88,6 +88,10 @@ public class Item
         {
             // 퀘스트 아이템 초기화
             this.isDiscardable = false; // 퀘스트 아이템은 버릴 수 없음
+        }
+        else if(consumableType == ConsumableType.요리)
+        {
+            this.isStackable = false;
         }
     }
 

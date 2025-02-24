@@ -42,6 +42,12 @@ public class ItemList : ScriptableObject
                     item.effect.itemSize = ItemSize.Small;
                     item.effect.Initialize(item);
                 }
+                else if(item.consumableType == ConsumableType.요리)
+                {
+                    item.maxStack = 1;
+                    item.isStackable = false;
+                    item.effect.Initialize(item);
+                }
             }
             else if (item.type == ItemType.퀘스트)
             {
@@ -49,7 +55,7 @@ public class ItemList : ScriptableObject
                 item.isQuestItem = true;
             }
 #if UNITY_EDITOR
-            EditorUtility.SetDirty(this); //변경 사항을 반영
+                EditorUtility.SetDirty(this); //변경 사항을 반영
 #endif
         }
     }

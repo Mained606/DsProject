@@ -41,19 +41,21 @@ public enum RecipeType
     Cook
 }
 
+
 public class CraftManager : BaseManager<CraftManager>
 {
     [SerializeField] protected RecipeList recipeList;
-
-    [SerializeField] protected virtual List<Recipe> Recipes { get; set; }
     [SerializeField] protected List<Item> selectedIngredients = new List<Item>();
     [SerializeField] protected int maxIngredients = 5;
+
+    [SerializeField] protected virtual List<Recipe> Recipes { get; set; }
 
     protected override void Awake()
     {
         base.Awake();
 
-        if(recipeList != null)
+        //레시피 리스트
+        if (recipeList != null)
         {
             Recipes = recipeList.recipeList.Where(r => r.recipeType == RecipeType.Craft).ToList();
         }
@@ -67,40 +69,47 @@ public class CraftManager : BaseManager<CraftManager>
             return;
         }
 
+        ItemManager.Instance.RemoveItemLogic(ingredient.id);
+
         selectedIngredients.Add(ingredient);
+
         Debug.Log("재료 추가됨: " + ingredient.id);
     }
 
     public void Craft()
     {
         if (selectedIngredients.Count == 0) return;
+        if (InventoryManager.Instance.GetRemainingInventory() <= 0) return;
 
         Recipe match = FindMatchingRecipe(selectedIngredients);
         if (match != null)
         {
             CompleteCrafting(match);
-            selectedIngredients.Clear();
         }
         else
         {
             FailedCrafting();
         }
+
+        selectedIngredients.Clear();
     }
 
     protected virtual void CompleteCrafting(Recipe recipe)
     {
-        foreach(string itemId in recipe.requiredIngredientIds)
-        {
-            ItemManager.Instance.RemoveItemLogic(itemId);
-        }
-
         ItemManager.Instance.AddItemLogic(recipe.itemId);
+
+        
 
         Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
     }
 
     protected virtual void FailedCrafting()
     {
+        foreach(Item item in selectedIngredients)
+        {
+            ItemManager.Instance.AddItemLogic(item.id);
+        }
+
         Debug.Log("제작 실패");
     }
 

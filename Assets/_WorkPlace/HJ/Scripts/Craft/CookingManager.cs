@@ -23,7 +23,7 @@ public class CookingManager : CraftManager
     private Item CalculateDishStat(List<Item> ingredients, Recipe recipe)
     {
         //기본 요리 스탯
-        Item totalItem = ItemManager.Instance.GetItemById(recipe.itemId).Clone();  //요리
+        Item totalItem = ItemManager.Instance.GetItemById(recipe.itemId).Clone();
         ItemStat totalStat = totalItem.itemStat;
 
         //각 재료 갯수
@@ -42,32 +42,37 @@ public class CookingManager : CraftManager
         }
 
         //베이스 재료 빼기(-1)
-        List<string> extraIngredients = new List<string>(recipe.requiredIngredientIds); //추가로 넣은 재료 아이디를 담는 리스트
-        foreach (string required in extraIngredients)
+        List<string> extraIngredients = selectedIngredients.Select(i => i.id).ToList(); //추가로 넣은 재료 아이디를 담는 리스트
+
+        foreach (string required in recipe.requiredIngredientIds.ToList())
         {
             if (ingredientsCount.ContainsKey(required) && ingredientsCount[required] > 0)    //재료 갯수 세는 딕셔너리에 필수 재료에 대한 키값이 존재하고 0개보다 많으면
             {
                 ingredientsCount[required]--;   //재료 갯수에서 한개 차감
-                extraIngredients.Remove(required);  //추가로 넣은 재료 리스트에서 삭제
+                extraIngredients.Remove(required);
             }
         }
 
-        //추가되는 스탯 계산
-        ItemStat extraStat = null;
-
-        foreach (string id in extraIngredients)
+        //추가되는 재료가 있을 때만
+        if(extraIngredients.Count > 0)
         {
-            Item extra = ItemManager.Instance.GetItemById(id);
-            extraStat = extraStat.AddStats(extraStat, extra.itemStat);
-        }
+            //추가되는 스탯 계산
+            ItemStat extraStat = null;
 
-        //스탯 총합 계산
-        totalStat = totalStat.AddStats(totalStat, extraStat);
-        totalItem.itemStat = totalStat;
+            foreach (string id in extraIngredients)
+            {
+                Item extra = ItemManager.Instance.GetItemById(id);
+                extraStat = extraStat == null ? extra.itemStat.Clone() : extraStat.AddStats(extraStat, extra.itemStat);
+            }
 
-        //아이템 id, 설명 수정
-        EditId(totalItem, ingredientsCount);
-        EditDescription(totalItem, extraStat);
+            //스탯 총합 계산
+            totalStat = totalStat.AddStats(totalStat, extraStat);
+            totalItem.itemStat = totalStat;
+
+            //아이템 id, 설명 수정
+            EditId(totalItem, ingredientsCount);
+            EditDescription(totalItem, extraStat);
+        }        
 
         return totalItem;
     }
@@ -108,11 +113,6 @@ public class CookingManager : CraftManager
     {
         Item cookedDish = CalculateDishStat(selectedIngredients, recipe);
 
-        //foreach (Item item in selectedIngredients)
-        //{
-        //    ItemManager.Instance.RemoveItemLogic(item.id);
-        //}
-
         return cookedDish;
     }
 
@@ -122,7 +122,7 @@ public class CookingManager : CraftManager
         Item failedDish = ItemManager.Instance.GetItemById(failedDishId).Clone();
         ItemStat failedStat = failedDish.itemStat.Clone();
 
-        for (int i = 0; i < selectedIngredients.Count; i++)
+        for (int i = 0; i < selectedIngredients.Count - 1; i++)
         {
             failedDish.itemStat = failedDish.itemStat.AddStats(failedDish.itemStat, failedStat);
         }
@@ -136,12 +136,15 @@ public class CookingManager : CraftManager
 
         InventoryManager.Instance.AddItemLogic(cookedDish);
 
-        Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
+        Debug.Log("제작 성공 인벤토리에 추가: " + cookedDish.id);
     }
 
     protected override void FailedCrafting()
     {
-        FailedDish();
+        Item failedDish = FailedDish();
+
+        InventoryManager.Instance.AddItemLogic(failedDish);
+
         Debug.Log("요리 실패");
     }
 }
