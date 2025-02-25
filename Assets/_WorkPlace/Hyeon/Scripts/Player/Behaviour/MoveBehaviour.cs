@@ -3,7 +3,6 @@ using UnityEngine;
 public class MoveBehaviour : IBehaviour
 {
     private PlayerController controller;
-    private CharacterController characterController;
     private Animator animator;
     private float walkSpeed;
     private float sprintSpeed;
@@ -14,7 +13,6 @@ public class MoveBehaviour : IBehaviour
     public MoveBehaviour()
     {
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
-        characterController = controller.characterController;
         animator = controller.PlayerAnimator;
         walkSpeed = controller.playerData.moveSpeed;
         sprintSpeed = walkSpeed * 2f;
@@ -22,11 +20,20 @@ public class MoveBehaviour : IBehaviour
 
     public void Enter()
     {
-        //Debug.Log("Move 가능 상태 진입");
         controller.isMove = false;
     }
 
     public void Execute()
+    {
+        HandleMovement();
+    }
+
+    public void Exit()
+    {
+        controller.isMove = false;
+    }
+
+    private void HandleMovement()
     {
         Vector2 moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
 
@@ -60,7 +67,7 @@ public class MoveBehaviour : IBehaviour
         Vector3 movement = moveDirection * currentSpeed * Time.deltaTime;
         movement.y = controller.verticalVelocity.y * Time.deltaTime;
 
-        characterController.Move(movement);
+        controller.characterController.Move(movement);
         controller.UsingStamina();
 
         if (direction != Vector3.zero)
@@ -73,12 +80,6 @@ public class MoveBehaviour : IBehaviour
                 GameManager.playerTransform.rotation = Quaternion.Slerp(GameManager.playerTransform.rotation, Quaternion.LookRotation(direction), 0.2f);
             }
         }
-    }
-
-    public void Exit()
-    {
-        //Debug.Log("Move 불가능 상태");
-        controller.isMove = false;
     }
 
     private void RunableCheck()

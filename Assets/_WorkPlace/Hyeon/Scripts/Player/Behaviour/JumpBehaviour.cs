@@ -5,7 +5,6 @@ using UnityEngine;
 public class JumpBehaviour : IBehaviour
 {
     private PlayerController controller;
-    private CharacterController characterController;
     private Animator animator;
     private float jumpHeight = 3.0f;    // 점프 높이
     private float gravity = -9.81f;     // 중력
@@ -13,7 +12,6 @@ public class JumpBehaviour : IBehaviour
     public JumpBehaviour()
     {
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
-        characterController = controller.characterController;
         animator = controller.PlayerAnimator;
     }
 
@@ -32,7 +30,7 @@ public class JumpBehaviour : IBehaviour
             GroundedCheck();
         }
 
-        if (InputManager.InputActions.actions["Jump"].triggered)
+        if (InputManager.InputActions.actions["Jump"].triggered && !controller.isJumping)
         {
             OnJump();
         }

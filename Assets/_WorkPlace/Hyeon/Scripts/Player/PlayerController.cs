@@ -119,8 +119,11 @@ public class PlayerController : MonoBehaviour
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
 
         ValueInitialize();
+
+        // 임시로 모든 행동 추가
         PlayerBehaviourManager.Instance.AddBehaviour(new MoveBehaviour());
         PlayerBehaviourManager.Instance.AddBehaviour(new JumpBehaviour());
+        PlayerBehaviourManager.Instance.AddBehaviour(new AttackBehaviour());
 
     }
 
@@ -156,8 +159,6 @@ public class PlayerController : MonoBehaviour
         if (!isDodging)
         {
             CheckCombatState();
-            //ControlMovement();
-            //ControlJump();
             OnDodge();
         }
 
@@ -239,30 +240,6 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("Combat", isCombatState);
     }
 
-    // 스프린트 가능 여부 체크 함수
-    //private void RunableCheck()
-    //{
-    //    if (InputManager.InputActions.actions["Sprint"].IsPressed())
-    //    {
-    //        currentStamina = playerData.staminaCurrent;
-    //        if (isRecovery && currentStamina > 10f)
-    //        {
-    //            CanSprint = true;
-    //            return;
-    //        }
-    //        else if (!isRecovery)
-    //        {
-    //            CanSprint = currentStamina >= staminaUseAmount ? true : false;
-    //            return;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        CanSprint = false;
-    //        isSprinting = false;
-    //    }
-    //}
-
     // 실제 플레이어 스태미나 소모 함수
     public void UsingStamina()
     {
@@ -270,7 +247,6 @@ public class PlayerController : MonoBehaviour
         if (isSprinting)
         {
             playerData.UseStamina(staminaUseAmount);
-            Debug.Log($"UseStamina");
         }
     }
 
@@ -368,14 +344,25 @@ public class PlayerController : MonoBehaviour
     {
         if (isGrounded)
         {
-            if(verticalVelocity.y < 0)
+            isFreefall = false;
+            playerAnimator.SetBool("Freefall", false);
+            if (verticalVelocity.y < 0)
             {
                 verticalVelocity.y = -2f;
             }
         }
         else
         {
-            verticalVelocity.y += gravity * 2.5f * Time.deltaTime;
+            if (isGliding)
+            {
+                // TODO
+            }
+            else
+            {
+                isFreefall = true;
+                playerAnimator.SetBool("Freefall", true);
+                verticalVelocity.y += gravity * 2.5f * Time.deltaTime;
+            }
         }
     }
     //private void ApplyGravity()
@@ -448,7 +435,7 @@ public class PlayerController : MonoBehaviour
                 SetState(PlayerState.InAir);
                 isJumping = true;
                 isAttack = false;
-                playerCombat.firstAttack = false;
+                playerCombat.firstAttack = true;
                 playerAnimator.ResetTrigger("NextCombo");
             }
 
@@ -582,84 +569,6 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    // 캐릭터 이동
-    //private void ControlMovement()
-    //{
-    //    if (!CanMove) return;
-
-    //    if (isClimb)
-    //    {
-    //        ControlCliffMovement();
-    //        return;
-    //    }
-
-    //    moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
-
-    //    direction = GetDirection(moveInput);
-    //    moveDirection = direction;
-    //    moveDirection.y = verticalVelocity.y;
-
-    //    RunableCheck();
-    //    float currentSpeed = CanSprint ? sprintSpeed : walkSpeed;
-    //    if (isGliding)
-    //    {
-    //        currentSpeed = walkSpeed;
-    //    }
-
-    //    if (moveInput == Vector2.zero)
-    //    {
-    //        playerAnimator.SetFloat("MotionSpeed", 1);
-    //        playerAnimator.SetFloat("Speed", 0);
-    //        isMove = false;
-    //        isSprinting = false;
-    //    }
-    //    else
-    //    {
-    //        playerAnimator.SetFloat("MotionSpeed", 1);
-    //        playerAnimator.SetFloat("Speed", currentSpeed);
-    //        isMove = true;
-    //        if (CanSprint)
-    //        {
-    //            isSprinting = true;
-    //        }
-    //    }
-
-    //    playerAnimator.SetBool("Sprint", isSprinting);
-
-    //    characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
-    //    UsingStamina();
-
-    //    if (direction != Vector3.zero)
-    //    {
-    //        Vector3 forward = transform.forward;
-    //        float angle = Vector3.SignedAngle(forward, direction, Vector3.up);
-
-    //        if (Mathf.Abs(angle) > 0.1f)
-    //        {
-    //            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
-    //        }
-    //    }
-    //}
-
-    // 캐릭터 점프 제어
-    private void ControlJump()
-    {
-        //if (!CanMove) return;
-
-        if (InputManager.InputActions.actions["Jump"].triggered && isGrounded)
-        {
-            OnJump();
-        }
-    }
-
-    // 점프
-    private void OnJump()
-    {
-        playerAnimator.SetBool("Jump", true);
-
-        verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-    }
-
     // 캐릭터 구르기
     private void OnDodge()
     {
@@ -699,7 +608,22 @@ public class PlayerController : MonoBehaviour
     }
 
     // 플레이어 대쉬 어택 (플레이어를 이동 시키고 있기 때문에 Controller에서 구현 중)
-    public IEnumerator DashAttack()
+    //public IEnumerator DashAttack()
+    //{
+    //    Vector3 dashDirection = GetDirection(moveInput);
+    //    dashDirection.y = verticalVelocity.y;
+    //    float elapsedTime = 0f;
+    //    while (elapsedTime < dashAttackDuration)
+    //    {
+    //        characterController.Move(dashDirection * (dashAttackMoveDistance / dashAttackDuration) * Time.deltaTime);
+    //        elapsedTime += Time.deltaTime;
+    //        yield return null;
+    //    }
+    //    playerAnimator.SetBool("Sprint", false);
+    //    playerAnimator.SetFloat("Speed", 0);
+    //}
+
+    public void DashAttack()
     {
         Vector3 dashDirection = GetDirection(moveInput);
         dashDirection.y = verticalVelocity.y;
@@ -708,7 +632,6 @@ public class PlayerController : MonoBehaviour
         {
             characterController.Move(dashDirection * (dashAttackMoveDistance / dashAttackDuration) * Time.deltaTime);
             elapsedTime += Time.deltaTime;
-            yield return null;
         }
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
@@ -915,7 +838,7 @@ public class PlayerController : MonoBehaviour
         if (moveInput.y < 0 && InputManager.InputActions.actions["Jump"].triggered)
         {
             EndClimbing(false);
-            OnJump();
+            //OnJump();
         }
     }
     private void ControlCliffMovement()

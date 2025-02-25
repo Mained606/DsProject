@@ -9,11 +9,9 @@ public class PlayerCombat : MonoBehaviour
 {
     private PlayerController controller;
     private PlayerBehaviourManager behaviour;
-    private CharacterController characterController;
     public WeaponManager weapon;
-    private PlayerData playerData;
     public Collider weaponCollider;
-    [SerializeField] private float attackPerceptionRange = 2.5f;
+    public float attackPerceptionRange = 2.5f;
     [SerializeField] private float skillPerceptionRange = 5f;
 
     public Animator playerAnimator;
@@ -28,7 +26,6 @@ public class PlayerCombat : MonoBehaviour
 
     public Quaternion targetRotation;
     private AnimatorStateInfo stateInfo;
-    public bool firstCombo = false;
 
     private static readonly int[] SkillStateHash = {
         Animator.StringToHash("Base Layer.Skill_1"),
@@ -38,10 +35,9 @@ public class PlayerCombat : MonoBehaviour
     private void Start()
     {
         controller = GetComponent<PlayerController>();
-        characterController = GetComponent<CharacterController>();
         //weaponCollider = currentWeapon.GetComponent<Collider>();
-        playerData = controller.playerData;
         behaviour = PlayerBehaviourManager.Instance;
+        firstAttack = true;
 
         if (weaponCollider != null)
         {
@@ -63,68 +59,11 @@ public class PlayerCombat : MonoBehaviour
         {
             ParryCheck();
         }
-
-        HandleAttackInput();
         HandleSkillInput();
         HandleBlockInput();
 
         SkillFinishedCheck();
         ParryFinishedCheck();
-    }
-
-    private void HandleAttackInput()
-    {
-
-        if (InputManager.InputActions.actions["Attack"].triggered)
-        {
-            if (isBlocking && CanParry && hasWeapon)
-            {
-                isBlocking = false;
-                OnParry();
-                return;
-            }
-            if (CanReceiveInput && hasWeapon)
-            {
-                if (!firstAttack)
-                {
-                    PerformComboAttack();
-                }
-            }
-            
-        }
-    }
-
-    //private void AttackFinishedCheck()
-    //{
-    //    AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-    //    float normalizedTime = stateInfo.normalizedTime;
-
-    //    if (normalizedTime >= 0.95f)
-    //    {
-    //        Debug.LogWarning("콤보 끝");
-    //        controller.CanMove = true;
-    //        controller.isAttack = false;
-    //        firstAttack = false;
-    //    }
-    //}
-
-    //
-    private void PerformComboAttack()
-    {
-        if (controller.isSprinting)
-        {
-            //Debug.LogWarning("대쉬공격");
-            StartCoroutine(controller.DashAttack());
-            // 대쉬공격
-        }
-        else
-        {
-            LookEnemy(attackPerceptionRange);
-        }
-        firstAttack = true;
-        controller.isAttack = true;
-        playerAnimator.SetTrigger("NextCombo");
-        
     }
 
     // 현재 콤보진행상태 받아보는 함수 의미 없음.
@@ -137,7 +76,7 @@ public class PlayerCombat : MonoBehaviour
     public void AttackFinished()
     {
         //Debug.LogWarning("콤보종료함");
-        behaviour.CanMove = true;
+        //behaviour.CanMove = true;
         controller.isAttack = false;
     }
     ////////////////////////////////////////////////////////////
@@ -277,10 +216,4 @@ public class PlayerCombat : MonoBehaviour
         targetRotation = Quaternion.LookRotation(dir);
         controller.transform.rotation = targetRotation;
     }
-
-    //private void OnDrawGizmosSelected()
-    //{
-    //    Gizmos.color = Color.yellow;
-    //    Gizmos.DrawWireSphere(transform.position, attackPerceptionRange);
-    //}
 }

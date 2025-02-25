@@ -94,7 +94,7 @@ public class ComboAttackState : StateMachineBehaviour
             animator.ResetTrigger("NextCombo");
             combat?.AttackFinished();
             //Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
-            combat.firstAttack = false;
+            combat.firstAttack = true;
             if (combat.weaponCollider.enabled)
             {
                 combat.weaponCollider.enabled = false;

@@ -1,16 +1,66 @@
+using UnityEditor;
 using UnityEngine;
 
-public class AttackBehaviour : MonoBehaviour
+public class AttackBehaviour : IBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private PlayerController controller;
+    private Animator animator;
+    private float attackPerceptionRange;
+
+    public AttackBehaviour()
     {
-        
+        controller = GameManager.playerTransform.GetComponent<PlayerController>();
+        animator = controller.PlayerAnimator;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Enter()
     {
-        
+        controller.playerCombat.firstAttack = true;
+        attackPerceptionRange = controller.playerCombat.attackPerceptionRange;
+        animator.SetBool("Attack", false);
+        controller.isAttack = false;
+    }
+
+    public void Execute()
+    {
+        HandleAttackInput();
+    }
+
+    public void Exit()
+    {
+        animator.SetBool("Attack", false);
+        controller.isAttack = false;
+    }
+
+    private void HandleAttackInput()
+    {
+
+        if (InputManager.InputActions.actions["Attack"].triggered)
+        {
+            if (controller.playerCombat.hasWeapon)
+            {
+                if (controller.playerCombat.firstAttack)
+                {
+                    PerformComboAttack();
+                }
+            }
+
+        }
+    }
+
+    private void PerformComboAttack()
+    {
+        if (controller.isSprinting)
+        {
+            //Debug.LogWarning("대쉬공격");
+            //controller.DashAttack();
+        }
+        else
+        {
+            controller.playerCombat.LookEnemy(attackPerceptionRange);
+        }
+        controller.playerCombat.firstAttack = false;
+        controller.isAttack = true;
+        animator.SetTrigger("NextCombo");
     }
 }
