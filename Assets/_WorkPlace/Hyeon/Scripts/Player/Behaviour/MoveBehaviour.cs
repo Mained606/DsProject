@@ -2,65 +2,66 @@ using UnityEngine;
 
 public class MoveBehaviour : IBehaviour
 {
-    private PlayerController playerController;
+    private PlayerController controller;
     private CharacterController characterController;
-    private Transform cameraTransform;
     private Animator animator;
     private float walkSpeed;
     private float sprintSpeed;
-    private bool isGliding;
     private bool canSprint;
 
     private float currentStamina;
 
-    public MoveBehaviour(CharacterController controller, Animator anim, float walk, float sprint)
+    public MoveBehaviour()
     {
-        characterController = controller;
-        animator = anim;
-        walkSpeed = walk;
-        sprintSpeed = sprint;
-        //isGliding = gliding;
-        playerController = GameManager.playerTransform.GetComponent<PlayerController>();
-
+        controller = GameManager.playerTransform.GetComponent<PlayerController>();
+        characterController = controller.characterController;
+        animator = controller.PlayerAnimator;
+        walkSpeed = controller.playerData.moveSpeed;
+        sprintSpeed = walkSpeed * 2f;
     }
 
     public void Enter()
     {
-        
+        //Debug.Log("Move 가능 상태 진입");
+        controller.isMove = false;
     }
 
     public void Execute()
     {
         Vector2 moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
 
-        Vector3 direction = playerController.GetDirection(moveInput);
+        Vector3 direction = controller.GetDirection(moveInput);
         Vector3 moveDirection = direction;
-        moveDirection.y = playerController.verticalVelocity.y;
+        //moveDirection.y = controller.verticalVelocity.y;
 
         RunableCheck();
         float currentSpeed = canSprint ? sprintSpeed : walkSpeed;
-        if (isGliding) currentSpeed = walkSpeed;
 
         if (moveInput == Vector2.zero)
         {
             animator.SetFloat("MotionSpeed", 1);
             animator.SetFloat("Speed", 0);
-            playerController.isSprinting = false;
+            controller.isMove = false;
+            controller.isSprinting = false;
         }
         else
         {
             animator.SetFloat("MotionSpeed", 1);
             animator.SetFloat("Speed", currentSpeed);
+            controller.isMove = true;
             if (canSprint)
             {
-                playerController.isSprinting = true;
+                controller.isSprinting = true;
             }
         }
 
-        animator.SetBool("Sprint", playerController.isSprinting);
+        animator.SetBool("Sprint", controller.isSprinting);
 
-        characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
-        playerController.UsingStamina();
+        Vector3 movement = moveDirection * currentSpeed * Time.deltaTime;
+        movement.y = controller.verticalVelocity.y * Time.deltaTime;
+
+        characterController.Move(movement);
+        controller.UsingStamina();
 
         if (direction != Vector3.zero)
         {
@@ -76,29 +77,30 @@ public class MoveBehaviour : IBehaviour
 
     public void Exit()
     {
-
+        //Debug.Log("Move 불가능 상태");
+        controller.isMove = false;
     }
 
     private void RunableCheck()
     {
         if (InputManager.InputActions.actions["Sprint"].IsPressed())
         {
-            currentStamina = playerController.playerData.staminaCurrent;
-            if (playerController.isRecovery && currentStamina > 10f)
+            currentStamina = controller.playerData.staminaCurrent;
+            if (controller.isRecovery && currentStamina > 10f)
             {
                 canSprint = true;
                 return;
             }
-            else if (!playerController.isRecovery)
+            else if (!controller.isRecovery)
             {
-                canSprint = currentStamina >= playerController.staminaUseAmount ? true : false;
+                canSprint = currentStamina >= controller.staminaUseAmount ? true : false;
                 return;
             }
         }
         else
         {
             canSprint = false;
-            playerController.isSprinting = false;
+            controller.isSprinting = false;
         }
     }
 }

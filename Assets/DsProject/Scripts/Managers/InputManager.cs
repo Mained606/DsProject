@@ -48,6 +48,7 @@ public class InputManager : BaseManager<InputManager>
             else
             {
                 InputActions.actions[actionName].Disable();
+                Debug.Log("InputAction Disable");
             }
         }
         else

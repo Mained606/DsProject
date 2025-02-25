@@ -7,15 +7,31 @@ public class PlayerController : MonoBehaviour
     public PlayerData playerData;
     public PlayerCombat playerCombat;
     private WeaponManager weapon;
+    private PlayerBehaviourManager manager;
 
     [SerializeField] private float staminaRecoveryRate;
 
     public PlayerState currentState = PlayerState.Idle;
-    private CharacterController characterController;
+    public CharacterController characterController;
     [SerializeField] private Animator playerAnimator;
     public Animator PlayerAnimator => playerAnimator;
 
     public bool cheatMode;
+
+    [Header("행동 확인 용")]
+    public bool isGrounded;
+    public bool isMove;
+    public bool isSprinting;
+    [SerializeField] private bool isFreefall;
+    public bool isJumping = false;
+    public bool isClimb;
+    [SerializeField] private bool isGliding;
+    [SerializeField] private bool isDodging = false;
+    public bool isAttack;
+    public bool isUseSkill;
+    public bool isParry;
+    [SerializeField] private bool isHit;
+
 
     [Header("이동")]
     public Vector2 moveInput;
@@ -24,61 +40,48 @@ public class PlayerController : MonoBehaviour
     private float sprintSpeed;
     private Vector3 direction;
     private Vector3 moveDirection;
-    public bool CanMove;
-    [SerializeField] private bool isGrounded;
-    [SerializeField] private bool isMove;
-    public bool isSprinting;
-
+    
     [Header("점프 / 중력")]
-    [SerializeField] private float jumpHeight = 0.5f;
+    public float jumpHeight = 0.5f;
     private float gravity = -9.81f;
     public Vector3 verticalVelocity;
     private float lastGroundHeight;
     [SerializeField] private float fallDamageThreshold = 5f;
     [SerializeField] private float fallDamageMultiplier = 5f;
-    [SerializeField] private bool isFreefall;
-    [SerializeField] private bool isJumping = false;
-    [SerializeField] private GravityState currentGravityState;
+
+    //[SerializeField] private GravityState currentGravityState;
 
     [Header("벽타기")]
     [SerializeField] private float detectionRange = 2f;
     [SerializeField] private float climbRange = 1f;
     private Vector3 currentCliffNormal;
-    public bool isClimb;
-    public bool CanClimb;
+
+    
     [SerializeField] private float climbEndCheckOffset = 0.2f; // 절벽 끝 검사 오프셋
 
     [Header("글라이딩")]
-    [SerializeField] private bool isGliding;
-    [SerializeField] private bool CanGliding;
+
     [SerializeField] private float glidableHeight = 6f;
     [SerializeField] private float glidingGravityFactor = 2f;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 3f;
     [SerializeField] private float dodgeDuration = 0.3f;
-    [SerializeField] private bool isDodging = false;
+
     public bool isInvincible = false;
 
     [Header("공격")]
     private float dashAttackDuration = 0.5f;
     private float dashAttackMoveDistance = 10f;
     public bool isCombatState;
-    public bool CanAttack;
-    public bool CanUseSkill;
-    public bool CanBlock;
-    public bool isAttack;
-    public bool isUseSkill;
-    public bool isParry;
 
     [Header("디버그용")]
-    public bool CanSprint;
     public float staminaUseAmount;
     [SerializeField] private float currentStamina;
     [SerializeField] private bool isEnoughMana;
     public bool isRecovery;
-    [SerializeField] private bool isHit;
-    public bool CanWeaponSwitch;
+
+    
 
     private BasicTimer RecoveryTimer;
     [SerializeField] private float RecoveryTime = 1f;
@@ -104,10 +107,11 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         playerCombat = GetComponent<PlayerCombat>();
         weapon = playerCombat.weapon;
+        manager = PlayerBehaviourManager.Instance;
 
         SetState(PlayerState.Idle);
         playerAnimator.Play("Idle Walk Run Blend");
-        CanWeaponSwitch = true;
+        //CanWeaponSwitch = true;
         playerData = CharacterManager.PlayerCharacterData;
         RecoveryTimer = new BasicTimer(RecoveryTime);
 
@@ -115,7 +119,8 @@ public class PlayerController : MonoBehaviour
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
 
         ValueInitialize();
-        PlayerBehaviourManager.Instance.AddBehaviour(new MoveBehaviour(characterController, playerAnimator, walkSpeed, sprintSpeed));
+        PlayerBehaviourManager.Instance.AddBehaviour(new MoveBehaviour());
+        PlayerBehaviourManager.Instance.AddBehaviour(new JumpBehaviour());
 
     }
 
@@ -137,12 +142,13 @@ public class PlayerController : MonoBehaviour
         DeathCheck();       // 죽음 체크
         //HitFinishedCheck();
         StateCheck();
-        StateBoolChange();
+        //StateBoolChange();
         isGrounded = characterController.isGrounded;
         playerAnimator.SetBool("Grounded", isGrounded);
 
         RecoverStats();
-        HandleGravity();
+        ApplyGravity();
+        //HandleGravity();
         AvoidKeyInput();
 
         DetectCliff();
@@ -151,7 +157,7 @@ public class PlayerController : MonoBehaviour
         {
             CheckCombatState();
             //ControlMovement();
-            ControlJump();
+            //ControlJump();
             OnDodge();
         }
 
@@ -234,28 +240,28 @@ public class PlayerController : MonoBehaviour
     }
 
     // 스프린트 가능 여부 체크 함수
-    private void RunableCheck()
-    {
-        if (InputManager.InputActions.actions["Sprint"].IsPressed())
-        {
-            currentStamina = playerData.staminaCurrent;
-            if (isRecovery && currentStamina > 10f)
-            {
-                CanSprint = true;
-                return;
-            }
-            else if (!isRecovery)
-            {
-                CanSprint = currentStamina >= staminaUseAmount ? true : false;
-                return;
-            }
-        }
-        else
-        {
-            CanSprint = false;
-            isSprinting = false;
-        }
-    }
+    //private void RunableCheck()
+    //{
+    //    if (InputManager.InputActions.actions["Sprint"].IsPressed())
+    //    {
+    //        currentStamina = playerData.staminaCurrent;
+    //        if (isRecovery && currentStamina > 10f)
+    //        {
+    //            CanSprint = true;
+    //            return;
+    //        }
+    //        else if (!isRecovery)
+    //        {
+    //            CanSprint = currentStamina >= staminaUseAmount ? true : false;
+    //            return;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        CanSprint = false;
+    //        isSprinting = false;
+    //    }
+    //}
 
     // 실제 플레이어 스태미나 소모 함수
     public void UsingStamina()
@@ -351,50 +357,64 @@ public class PlayerController : MonoBehaviour
     //    }
     //}
 
-    private void SetGravityState(GravityState gravityState)
-    {
-        if (currentGravityState == gravityState) return;
+    //private void SetGravityState(GravityState gravityState)
+    //{
+    //    if (currentGravityState == gravityState) return;
 
-        currentGravityState = gravityState;
-    }
+    //    currentGravityState = gravityState;
+    //}
 
-    private void ApplyGravity()
+    public void ApplyGravity()
     {
-        switch (currentGravityState)
+        if (isGrounded)
         {
-            case GravityState.Grounded:
-                verticalVelocity.y = -2f;
-                break;
-            case GravityState.Freefall:
-                verticalVelocity.y += gravity * Time.deltaTime;
-                break;
-            case GravityState.Gliding:
-                verticalVelocity.y += (gravity * glidingGravityFactor) * Time.deltaTime;
-                break;
-            case GravityState.Jumping:
-                verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-                break;
-            case GravityState.Climbing:
-                verticalVelocity.y = 0f;
-                break;
-        }
-
-        characterController.Move(new Vector3(0f, verticalVelocity.y, 0f) * Time.deltaTime);
-    }
-
-    private void Land()
-    {
-        if (currentGravityState == GravityState.Freefall)
-        {
-            float fallDistance = lastGroundHeight - transform.position.y;
-
-            if (fallDistance > fallDamageThreshold)
+            if(verticalVelocity.y < 0)
             {
-                ApplyFallDamage(fallDistance);
+                verticalVelocity.y = -2f;
             }
-
+        }
+        else
+        {
+            verticalVelocity.y += gravity * 2.5f * Time.deltaTime;
         }
     }
+    //private void ApplyGravity()
+    //{
+    //    switch (currentGravityState)
+    //    {
+    //        case GravityState.Grounded:
+    //            verticalVelocity.y = -2f;
+    //            break;
+    //        case GravityState.Freefall:
+    //            verticalVelocity.y += gravity * Time.deltaTime;
+    //            break;
+    //        case GravityState.Gliding:
+    //            verticalVelocity.y += (gravity * glidingGravityFactor) * Time.deltaTime;
+    //            break;
+    //        case GravityState.Jumping:
+    //            verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+    //            break;
+    //        case GravityState.Climbing:
+    //            verticalVelocity.y = 0f;
+    //            break;
+    //    }
+
+        //    characterController.Move(new Vector3(0f, verticalVelocity.y, 0f) * Time.deltaTime);
+        //}
+
+    //private void Land()
+    //{
+    //    if (currentGravityState == GravityState.Freefall)
+    //    {
+    //        float fallDistance = lastGroundHeight - transform.position.y;
+
+    //        if (fallDistance > fallDamageThreshold)
+    //        {
+    //            ApplyFallDamage(fallDistance);
+    //        }
+
+    //    }
+    //}
 
     // 낙뎀 적용
     private void ApplyFallDamage(float fallDistance)
@@ -453,70 +473,70 @@ public class PlayerController : MonoBehaviour
     }
 
     // 플레이어 상태에 따라 실행 가능한 행동들 제어
-    private void StateBoolChange()
-    {
-        switch (currentState)
-        {
-            case PlayerState.Idle:
-                CanMove = true;
-                CanAttack = true;
-                CanUseSkill = true;
-                CanBlock = true;
-                SetGravityState(GravityState.Grounded);
-                break;
-            case PlayerState.Move:
-                CanMove = true;
-                CanAttack = true;
-                CanUseSkill = true;
-                CanBlock = true;
-                SetGravityState(GravityState.Grounded);
-                break;
-            case PlayerState.InAir:
-                CanMove = true;
-                CanAttack = false;
-                CanUseSkill = false;
-                CanBlock = false;
-                SetGravityState(GravityState.Freefall);
-                break;
-            case PlayerState.Attack:
-                CanMove = false;
-                CanAttack = true;
-                CanUseSkill = false;
-                CanBlock = false;
-                break;
-            case PlayerState.Block:
-                CanMove = false;
-                CanAttack = true;
-                CanUseSkill = false;
-                CanBlock = true;
-                break;
-            case PlayerState.UseSkill:
-                CanMove = false;
-                CanAttack = false;
-                CanUseSkill = false;
-                CanBlock = false;
-                break;
-            case PlayerState.Climb:
-                CanMove = true;
-                CanAttack = false;
-                CanUseSkill = false;
-                CanBlock = false;
-                SetGravityState(GravityState.Climbing);
-                break;
-            case PlayerState.Hit:
-                CanMove = false;
-                CanAttack = true;
-                CanUseSkill = false;
-                CanBlock = true;
-                break;
-            case PlayerState.Death:
-                CanMove = false;
-                CanAttack = false;
-                CanUseSkill = false;
-                CanBlock = false;
-                break;
-        }
-    }
+    //private void StateBoolChange()
+    //{
+    //    switch (currentState)
+    //    {
+    //        case PlayerState.Idle:
+    //            CanMove = true;
+    //            CanAttack = true;
+    //            CanUseSkill = true;
+    //            CanBlock = true;
+    //            SetGravityState(GravityState.Grounded);
+    //            break;
+    //        case PlayerState.Move:
+    //            CanMove = true;
+    //            CanAttack = true;
+    //            CanUseSkill = true;
+    //            CanBlock = true;
+    //            SetGravityState(GravityState.Grounded);
+    //            break;
+    //        case PlayerState.InAir:
+    //            CanMove = true;
+    //            CanAttack = false;
+    //            CanUseSkill = false;
+    //            CanBlock = false;
+    //            SetGravityState(GravityState.Freefall);
+    //            break;
+    //        case PlayerState.Attack:
+    //            CanMove = false;
+    //            CanAttack = true;
+    //            CanUseSkill = false;
+    //            CanBlock = false;
+    //            break;
+    //        case PlayerState.Block:
+    //            CanMove = false;
+    //            CanAttack = true;
+    //            CanUseSkill = false;
+    //            CanBlock = true;
+    //            break;
+    //        case PlayerState.UseSkill:
+    //            CanMove = false;
+    //            CanAttack = false;
+    //            CanUseSkill = false;
+    //            CanBlock = false;
+    //            break;
+    //        case PlayerState.Climb:
+    //            CanMove = true;
+    //            CanAttack = false;
+    //            CanUseSkill = false;
+    //            CanBlock = false;
+    //            SetGravityState(GravityState.Climbing);
+    //            break;
+    //        case PlayerState.Hit:
+    //            CanMove = false;
+    //            CanAttack = true;
+    //            CanUseSkill = false;
+    //            CanBlock = true;
+    //            break;
+    //        case PlayerState.Death:
+    //            CanMove = false;
+    //            CanAttack = false;
+    //            CanUseSkill = false;
+    //            CanBlock = false;
+    //            break;
+    //    }
+    //}
 
     AnimatorStateInfo stateInfo;
     AnimatorClipInfo[] clipInfo;
@@ -563,68 +583,68 @@ public class PlayerController : MonoBehaviour
     }
 
     // 캐릭터 이동
-    private void ControlMovement()
-    {
-        if (!CanMove) return;
+    //private void ControlMovement()
+    //{
+    //    if (!CanMove) return;
 
-        if (isClimb)
-        {
-            ControlCliffMovement();
-            return;
-        }
+    //    if (isClimb)
+    //    {
+    //        ControlCliffMovement();
+    //        return;
+    //    }
 
-        moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
+    //    moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
 
-        direction = GetDirection(moveInput);
-        moveDirection = direction;
-        moveDirection.y = verticalVelocity.y;
+    //    direction = GetDirection(moveInput);
+    //    moveDirection = direction;
+    //    moveDirection.y = verticalVelocity.y;
 
-        RunableCheck();
-        float currentSpeed = CanSprint ? sprintSpeed : walkSpeed;
-        if (isGliding)
-        {
-            currentSpeed = walkSpeed;
-        }
+    //    RunableCheck();
+    //    float currentSpeed = CanSprint ? sprintSpeed : walkSpeed;
+    //    if (isGliding)
+    //    {
+    //        currentSpeed = walkSpeed;
+    //    }
 
-        if (moveInput == Vector2.zero)
-        {
-            playerAnimator.SetFloat("MotionSpeed", 1);
-            playerAnimator.SetFloat("Speed", 0);
-            isMove = false;
-            isSprinting = false;
-        }
-        else
-        {
-            playerAnimator.SetFloat("MotionSpeed", 1);
-            playerAnimator.SetFloat("Speed", currentSpeed);
-            isMove = true;
-            if (CanSprint)
-            {
-                isSprinting = true;
-            }
-        }
+    //    if (moveInput == Vector2.zero)
+    //    {
+    //        playerAnimator.SetFloat("MotionSpeed", 1);
+    //        playerAnimator.SetFloat("Speed", 0);
+    //        isMove = false;
+    //        isSprinting = false;
+    //    }
+    //    else
+    //    {
+    //        playerAnimator.SetFloat("MotionSpeed", 1);
+    //        playerAnimator.SetFloat("Speed", currentSpeed);
+    //        isMove = true;
+    //        if (CanSprint)
+    //        {
+    //            isSprinting = true;
+    //        }
+    //    }
 
-        playerAnimator.SetBool("Sprint", isSprinting);
+    //    playerAnimator.SetBool("Sprint", isSprinting);
 
-        characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
-        UsingStamina();
+    //    characterController.Move(moveDirection * currentSpeed * Time.deltaTime);
+    //    UsingStamina();
 
-        if (direction != Vector3.zero)
-        {
-            Vector3 forward = transform.forward;
-            float angle = Vector3.SignedAngle(forward, direction, Vector3.up);
+    //    if (direction != Vector3.zero)
+    //    {
+    //        Vector3 forward = transform.forward;
+    //        float angle = Vector3.SignedAngle(forward, direction, Vector3.up);
 
-            if (Mathf.Abs(angle) > 0.1f)
-            {
-                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
-            }
-        }
-    }
+    //        if (Mathf.Abs(angle) > 0.1f)
+    //        {
+    //            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), 0.2f);
+    //        }
+    //    }
+    //}
 
     // 캐릭터 점프 제어
     private void ControlJump()
     {
-        if (!CanMove) return;
+        //if (!CanMove) return;
 
         if (InputManager.InputActions.actions["Jump"].triggered && isGrounded)
         {
@@ -645,7 +665,7 @@ public class PlayerController : MonoBehaviour
     {
         if (InputManager.InputActions.actions["Dodge"].triggered && moveInput != Vector2.zero)
         {
-            CanMove = false;
+            //CanMove = false;
             StartCoroutine(Dodging());
         }
     }
@@ -672,7 +692,7 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
-        CanMove = true;
+        //CanMove = true;
         isDodging = false;
         playerAnimator.SetBool("Dodge", isDodging);
         isInvincible = false;
@@ -714,14 +734,10 @@ public class PlayerController : MonoBehaviour
             //SetActionStates(!uiCheck);
             Debug.LogWarning($"uiCheck : {uiCheck}");
         }
-        InputManager.Instance.SetInputEnabled(CanMove, "Move");
-        InputManager.Instance.SetInputEnabled(CanAttack, "Attack");
-        InputManager.Instance.SetMultipleInputsEnabled(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
-        InputManager.Instance.SetInputEnabled(CanBlock, "Block");
-        //UpdateInputActions(CanMove, "Move");
-        //UpdateInputActions(CanAttack, "Attack");
-        //UpdateInputActions(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
-        //UpdateInputActions(CanBlock, "Block");
+        //InputManager.Instance.SetInputEnabled(CanMove, "Move");
+        //InputManager.Instance.SetInputEnabled(CanAttack, "Attack");
+        //InputManager.Instance.SetMultipleInputsEnabled(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
+        //InputManager.Instance.SetInputEnabled(CanBlock, "Block");
     }
 
     //private void SetActionStates(bool state)
@@ -768,7 +784,7 @@ public class PlayerController : MonoBehaviour
             }
             if (angle > 75f && angle < 105f)
             {
-                CanClimb = true;
+                //CanClimb = true;
                 //Debug.Log("매달릴 수 있는 벽");
                 if (hit.distance <= climbRange)
                 {
@@ -782,13 +798,13 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                CanClimb = false;
+                //CanClimb = false;
                 //Debug.Log("매달릴 수 없는 벽");
             }
         }
         else
         {
-            CanClimb = false;
+            //CanClimb = false;
             //playerAnimator.SetBool("Climb", false);
             //Debug.Log("Ray에 감지 안 됨");
             CheckClimbEnd();
@@ -808,7 +824,7 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("Jump", false);
         transform.position = climbStartPosition;
         weapon.SwitchWeapon(-1);
-        CanWeaponSwitch = false;
+        //CanWeaponSwitch = false;
         // Anim
     }
 
@@ -848,10 +864,10 @@ public class PlayerController : MonoBehaviour
         if (successful)
         {
             isClimb = false;
-            CanMove = false;
+            //CanMove = false;
             playerAnimator.SetBool("ClimbUp", true);
 
-            CanWeaponSwitch = true;
+            //CanWeaponSwitch = true;
 
             weapon.SwitchWeapon(-1);
 
@@ -862,7 +878,7 @@ public class PlayerController : MonoBehaviour
             isClimb = false;
             playerAnimator.SetBool("Climb", false);
             Debug.Log("절벽타기 취소됨");
-            CanWeaponSwitch = true;
+            //CanWeaponSwitch = true;
 
             weapon.SwitchWeapon(-1);
             //SetState(PlayerState.Idle);
@@ -1012,25 +1028,25 @@ public class PlayerController : MonoBehaviour
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, glidableHeight))
         {
-            CanGliding = false;
+            //CanGliding = false;
             Debug.DrawLine(transform.position, hit.point, Color.magenta);
         }
         else
         {
             if (!isGrounded && isFreefall)
             {
-                CanGliding = true;
+                //CanGliding = true;
             }
         }
     }
 
-    private void OnGliding()
-    {
-        if (InputManager.InputActions.actions["Jump"].triggered && CanGliding)
-        {
-            isGliding = true;
-        }
-    }
+    //private void OnGliding()
+    //{
+    //    if (InputManager.InputActions.actions["Jump"].triggered && CanGliding)
+    //    {
+    //        isGliding = true;
+    //    }
+    //}
     #endregion
 
     public void SetVisible(bool isOnOff)
@@ -1040,13 +1056,14 @@ public class PlayerController : MonoBehaviour
             obj.gameObject.SetActive(isOnOff);
         }
     }
+
+    private void RemoteBehaviours()
+    {
+        if (isJumping)
+        {
+            
+        }
+    }
 }
 
-public enum GravityState
-{
-    Grounded,
-    Freefall,
-    Jumping,
-    Gliding,
-    Climbing
-}
+

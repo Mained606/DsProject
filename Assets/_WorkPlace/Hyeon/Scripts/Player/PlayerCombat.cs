@@ -8,6 +8,7 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     private PlayerController controller;
+    private PlayerBehaviourManager behaviour;
     private CharacterController characterController;
     public WeaponManager weapon;
     private PlayerData playerData;
@@ -40,8 +41,9 @@ public class PlayerCombat : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         //weaponCollider = currentWeapon.GetComponent<Collider>();
         playerData = controller.playerData;
+        behaviour = PlayerBehaviourManager.Instance;
 
-        if(weaponCollider != null)
+        if (weaponCollider != null)
         {
             weaponCollider.enabled = false;
         }
@@ -135,7 +137,7 @@ public class PlayerCombat : MonoBehaviour
     public void AttackFinished()
     {
         //Debug.LogWarning("콤보종료함");
-        controller.CanMove = true;
+        behaviour.CanMove = true;
         controller.isAttack = false;
     }
     ////////////////////////////////////////////////////////////
@@ -153,8 +155,8 @@ public class PlayerCombat : MonoBehaviour
             if (string.IsNullOrEmpty(skillTriggerName)) continue;
             if (InputManager.InputActions.actions[skillTriggerName].triggered && hasWeapon)
             {
-                controller.CanMove = false;
-                controller.CanAttack = false;
+                behaviour.CanMove = false;
+                behaviour.CanAttack = false;
      
                 if (SkillManager.Instance.CheckMana(EntityType.Player, skillName) &&
                     SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
@@ -180,7 +182,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void HandleBlockInput()
     {
-        if (InputManager.InputActions.actions["Block"].IsPressed() && controller.CanBlock && hasWeapon)
+        if (InputManager.InputActions.actions["Block"].IsPressed() && behaviour.CanBlock && hasWeapon)
         {
             isBlocking = true;
             CanParry = true;
