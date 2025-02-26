@@ -1,147 +1,93 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Linq;
 
 public class InputManager : BaseManager<InputManager>
 {
     public static PlayerInput InputActions;
+
+    // 입력 상태 관리
+    private static Dictionary<string, bool> inputStates = new Dictionary<string, bool>();
+    private static Dictionary<string, InputAction> inputActions = new Dictionary<string, InputAction>();
+
     protected override void Awake()
     {
         base.Awake();
         InputActions = GetComponent<PlayerInput>();
 
-        #region Delete
-        // ui키 연결
-        InputActions.actions["Inventory"].performed += OnInventoryKey;
-        InputActions.actions["Quest"].performed += OnQuestReview;
-        InputActions.actions["StatusUI"].performed += OnStatKey;
-        InputActions.actions["ESC"].performed += OnMainMenu;
-        #endregion
+        InputInitialize();  // 입력 초기화
     }
 
-    #region Delete
-
-   
-    private void OnInventoryKey(InputAction.CallbackContext context)
+    private void InputInitialize()
     {
-
-        // 상태를 Inventory로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.Inventory)
+        foreach (var action in InputActions.actions)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Inventory);
-            Debug.Log("Inventory 상태로 전환됨.");
-        }
-
-        else
-        {
-            Debug.Log("I 1");
-
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
-        }
-
-    }
-    private void OnQuestReview(InputAction.CallbackContext context)
-    {
-        // 상태를 Inventory로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.QuestReview)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.QuestReview);
-            Debug.Log("Quest 상태로 전환됨.");
-        }
-        else
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
+            string actionName = action.name;
+            inputActions[actionName] = action;
+            inputStates[actionName] = false;
+            action.performed += ctx => UpdateInputState(actionName, true);
+            action.canceled += ctx => UpdateInputState(actionName, false);
         }
     }
-    private void OnStatKey(InputAction.CallbackContext context)
+
+    private void UpdateInputState(string actionName, bool state)
     {
-        // 상태를 Inventory로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.StatusUI)
+        if (inputStates.ContainsKey(actionName))
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.StatusUI);
-            Debug.Log("Quest 상태로 전환됨.");
+            inputStates[actionName] = state;
+        }
+    }
+
+    public static bool GetInputState(string actionName)
+    {
+        return inputStates.ContainsKey(actionName) && inputStates[actionName];
+    }
+
+    public void SetInputEnabled(bool enabled, string actionName)
+    {
+        if (inputActions.ContainsKey(actionName))
+        {
+            inputStates[actionName] = enabled;
+
+            if (enabled)
+                inputActions[actionName].Enable();
+            else
+                inputActions[actionName].Disable();
         }
         else
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
+            Debug.LogWarning($"[경고] 입력 액션 '{actionName}'을 찾을 수 없습니다.");
         }
     }
 
-    private void OnMainMenu(InputAction.CallbackContext context)
+    public void SetMultipleInputsEnabled(bool enabled, params string[] actionNames)
     {
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.MainMenu)
+        foreach (var actionName in actionNames)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("ESC로 MainMenu상태로 전환.");
+            SetInputEnabled(enabled, actionName);
         }
     }
 
-    #endregion
+    public void SetAllInputs(bool enabled)
+    {
+        foreach (var actionName in inputActions.Keys)
+        {
+            SetInputEnabled(enabled, actionName);
+        }
+    }
+
+    private void OnDisable()
+    {
+        foreach (var action in InputActions.actions)
+        {
+            string actionName = action.name;
+            action.performed -= ctx => UpdateInputState(actionName, true);
+            action.canceled -= ctx => UpdateInputState(actionName, false);
+        }
+    }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-
     }
 }
-
-/* #region 테스트용 추가 메서드 불필요시 삭제
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            Debug.Log("I키 입력 확인");
-            ToggleInventoryState();
-        }
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            ToggleInventoryState2();
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            ToggleInventoryState3();
-        }
-    }
-
-    private void ToggleInventoryState()
-    {
-        var currentState = GameStateMachine.Instance.CurrentState;
-
-        if (currentState != GameSystemState.Inventory)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Inventory, null);
-        }
-        else if (currentState == GameSystemState.Inventory)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu, null);
-        }
-    }
-    private void ToggleInventoryState2()
-    {
-        var currentState = GameStateMachine.Instance.CurrentState;
-
-        if (currentState != GameSystemState.QuestReview)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.QuestReview, null);
-        }
-        else if (currentState == GameSystemState.QuestReview)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu, null);
-        }
-    }
-    private void ToggleInventoryState3()
-    {
-        var currentState = GameStateMachine.Instance.CurrentState;
-
-        if (currentState != GameSystemState.Stat)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Stat, null);
-        }
-        else if (currentState == GameSystemState.Stat)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu, null);
-        }
-    }
-    #endregion*/
