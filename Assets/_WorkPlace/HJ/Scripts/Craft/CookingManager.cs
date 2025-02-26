@@ -6,6 +6,8 @@ using UnityEngine;
 public class CookingManager : CraftManager
 {
     [SerializeField] private string failedDishId = "실패한 요리";
+    [SerializeField] private float ingredientDuraion = 5f;  //추가 재료 하나당 버프 지속시간
+    [SerializeField] private float maxDuration = 120f;      //최대 버프 지속시간
 
     [SerializeField] protected override List<Recipe> Recipes { get; set; }
 
@@ -72,7 +74,10 @@ public class CookingManager : CraftManager
             //아이템 id, 설명 수정
             EditId(totalItem, ingredientsCount);
             EditDescription(totalItem, extraStat);
-        }        
+        }
+
+        //버프 지속시간 설정
+        totalItem.effect.duration = CalculateDishDuration(recipe, extraIngredients, ingredientDuraion, maxDuration);
 
         return totalItem;
     }
@@ -106,6 +111,22 @@ public class CookingManager : CraftManager
         string newDescription = stat.GetEffectDescription();
 
         item.description += $"\n추가효과: {newDescription}";
+    }
+
+    //요리 버프 지속시간 설정
+    private float CalculateDishDuration(Recipe recipe, List<string> ingredients, float duration, float maxDuration)
+    {
+        float totalDuration = recipe.baseDuration;
+
+        if (ingredients.Count > 0)
+        {
+            for (int i = 0; i < ingredients.Count - 1; i++)
+            {
+                totalDuration += duration;
+            }
+        }
+
+        return Mathf.Clamp(totalDuration, recipe.baseDuration, maxDuration);
     }
 
     //요리 완성

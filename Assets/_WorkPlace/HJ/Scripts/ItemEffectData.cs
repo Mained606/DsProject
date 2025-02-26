@@ -93,6 +93,10 @@ public class ItemEffect
         {
             effectType = EffectType.Equip;
         }
+        else if(itemType == ItemType.요리)
+        {
+            effectType = EffectType.Dish;
+        }
         else if (itemType == ItemType.소모품)
         {
             if (consumableType == ConsumableType.체력포션)
@@ -106,10 +110,6 @@ public class ItemEffect
             else if (consumableType == ConsumableType.버프)
             {
                 effectType = EffectType.Buff;
-            }
-            else if(consumableType == ConsumableType.요리)
-            {
-                effectType = EffectType.Dish;
             }
             else
             {
@@ -193,8 +193,7 @@ public class ItemEffect
         itemStat.CriticalChance += Mathf.RoundToInt(itemStat.CriticalChance * (bonusPercentage));
         itemStat.AttackSpeed += Mathf.RoundToInt(itemStat.AttackSpeed * (bonusPercentage));
         itemStat.Evasion += Mathf.RoundToInt(itemStat.Evasion * (bonusPercentage));
-    }
-    
+    }        
 
     //이펙트 타입에 따라 파티클 프리팹 적용
     public void AddEffectParticle()

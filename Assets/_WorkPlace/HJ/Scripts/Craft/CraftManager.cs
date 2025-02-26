@@ -9,6 +9,7 @@ public class Recipe
     public string itemId;  //제작 아이템 Id (아이템 데이터의 Id와 동일)
     public List<string> requiredIngredientIds;  //필요한 재료 ID 리스트
     public RecipeType recipeType;   //레시피타입
+    public float baseDuration;      //기본 요리 버프 지속시간
 
     //레시피와 선택된 아이템 비교
     public bool IsMatch(List<Item> selectedIngredients)
@@ -20,7 +21,6 @@ public class Recipe
         {
             var requiredCount = required.GroupBy(r => r).ToDictionary(r => r.Key, r => r.Count());
             var selectedCount = selected.GroupBy(s => s).ToDictionary(s => s.Key, s => s.Count());
-
 
             return requiredCount.Count == selectedCount.Count &&    //수가 동일한지 확인
                 requiredCount.All(req => selectedCount.TryGetValue(req.Key, out int count) && count == req.Value);  //모든 키값이 존재하는지 확인하고 개수가 동일한지 확인

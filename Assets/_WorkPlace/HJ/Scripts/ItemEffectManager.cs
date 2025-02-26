@@ -268,6 +268,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using static UnityEngine.Rendering.PostProcessing.SubpixelMorphologicalAntialiasing;
 
 public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
@@ -315,6 +316,10 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             case ItemType.방어구:
             case ItemType.장신구:
                 ApplyEquipmentEffect(item);
+                break;
+
+            case ItemType.요리:
+                ApplyDishEffect(item);
                 break;
 
             default:
@@ -419,6 +424,32 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"{item.name} 버프 아이템 사용, 효과량: {item.effectAmount}");
 
         StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
+    }
+
+    private void ApplyDishEffect(Item item)
+    {
+        if (item.itemStat == null) return;
+
+        if (item.itemStat.HasBuffStat())
+        {
+            UpdatePlayerStats(item.itemStat, 1);
+        }
+
+        if (item.itemStat.HealHp > 0)
+        {
+            Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + item.itemStat.HealHp);
+            Debug.Log($"{item.name}을 사용하여 체력 {item.itemStat.HealHp}만큼 회복");
+        }
+
+        if (item.itemStat.HealMp > 0)
+        {
+            Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + item.itemStat.HealMp);
+            Debug.Log($"{item.name}을 사용하여 마나 {item.itemStat.HealMp}만큼 회복");
+        }
+
+        PlayParticle(item);
+
+        StartCoroutine(RemoveBuffAfterDuration(item, item.effect.duration, -1));
     }
 
     private void UpdatePlayerStats(ItemStat stat, int multiplier)
