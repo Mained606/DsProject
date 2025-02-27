@@ -15,12 +15,17 @@ public class TestCraft : MonoBehaviour
 
         if (InputManager.InputActions.actions["Interact"].triggered)
         {
-            CraftManager.Instance.AddIngredient(InventoryManager.InventoryList[index]);
+            CookingManager.Instance.AddIngredient(InventoryManager.InventoryList[index]);
         }
 
         if (InputManager.InputActions.actions["SkillUI"].triggered)
         {
-            CraftManager.Instance.Craft();
+            CookingManager.Instance.Craft();
+        }
+
+        if (InputManager.InputActions.actions["Jump"].triggered)
+        {
+            ItemEffectManager.Instance.ApplyItemEffect(InventoryManager.InventoryList[index]);
         }
     }
 }

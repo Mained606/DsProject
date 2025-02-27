@@ -25,10 +25,15 @@ public class Recipe
             return requiredCount.Count == selectedCount.Count &&    //수가 동일한지 확인
                 requiredCount.All(req => selectedCount.TryGetValue(req.Key, out int count) && count == req.Value);  //모든 키값이 존재하는지 확인하고 개수가 동일한지 확인
         }
-        else if(recipeType == RecipeType.Cook)  //요리는 레시피에 해당하는 아이템이기만 하면 갯수는 상관없음
+        else if(recipeType == RecipeType.Cook)  //요리는 레시피에 해당하는 아이템이기만 하면 갯수는 상관없음 + 특수 아이템은 레시피에 없어도 성공
         {
-            return required.All(rec => selected.Contains(rec)) &&
-                   selected.All(sel => required.Contains(sel));
+            if (!required.All(r => selected.Contains(r))) return false;     //필수재료가 빠지면 실패
+
+            List<string> extraIngredients = selected.Where(i => !required.Contains(i)).ToList();    //필수 재료 외에 들어가는 재료
+
+            bool isAllSpecial = extraIngredients.All(i => CookingManager.Instance.specialIngredients.Contains(i));   //추가 재료가 특수 아이템인지 확인
+
+            return isAllSpecial || extraIngredients.Count == 0;
         }
 
         return false;
@@ -42,17 +47,30 @@ public enum RecipeType
 }
 
 
-public class CraftManager : BaseManager<CraftManager>
+public class CraftManager : MonoBehaviour
 {
+    public static CraftManager Instance { get; private set; }
+
     [SerializeField] protected RecipeList recipeList;
     [SerializeField] protected List<Item> selectedIngredients = new List<Item>();
     [SerializeField] protected int maxIngredients = 5;
 
+    //public List<string> specialIngredients = new List<string>();    //특수 제작 재료
+
     [SerializeField] protected virtual List<Recipe> Recipes { get; set; }
 
-    protected override void Awake()
+    protected virtual void Awake()
     {
-        base.Awake();
+        //base.Awake();
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
 
         //레시피 리스트
         if (recipeList != null)
@@ -122,9 +140,5 @@ public class CraftManager : BaseManager<CraftManager>
         }
 
         return recipeList.recipeList.FirstOrDefault(recipe => recipe.IsMatch(ingredients));
-    }
-
-    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
-    {
     }
 }

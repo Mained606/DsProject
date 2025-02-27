@@ -433,6 +433,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         if (item.itemStat.HasBuffStat())
         {
             UpdatePlayerStats(item.itemStat, 1);
+            Debug.Log($"버프 지속시간: {item.effect.duration}");
         }
 
         if (item.itemStat.HealHp > 0)
@@ -449,7 +450,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
         PlayParticle(item);
 
-        StartCoroutine(RemoveBuffAfterDuration(item, item.effect.duration, -1));
+        StartCoroutine(RemoveBuffAfterDuration(item, item.effect.duration, 1));
     }
 
     private void UpdatePlayerStats(ItemStat stat, int multiplier)
@@ -468,7 +469,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Player.criticalChance += stat.CriticalChance * multiplier;
         Player.attackSpeed += stat.AttackSpeed * multiplier;
 
-        Debug.Log($"플레이어 스탯 업데이트: {stat.Strength * multiplier}");
+        Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
     }
 
     private IEnumerator RemoveBuffAfterDuration(Item item, float duration, int amount)

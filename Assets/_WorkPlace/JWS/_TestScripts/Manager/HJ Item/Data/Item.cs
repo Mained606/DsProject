@@ -13,7 +13,7 @@ using UnityEngine;
 /// 2.19 스탯 합산 함수 추가
 /// 2.20 스탯에 요리용 회복 스탯 추가, 스탯 관련 함수 수정
 /// 2.24 아이템타입에 요리재료, 요리 추가
-/// 2.26 버프 스탯이 있는지 확인하는 함수 추가
+/// 2.26 버프 스탯이 있는지 확인하는 함수 추가, 버프 스탯에 요리재료 지속시간 추가
 /// </summary>
 [Serializable]
 public class Item
@@ -214,6 +214,9 @@ public class ItemStat
     [Header("요리용 회복 스탯")]
     public int HealHp;
     public int HealMp;
+
+    [Header("요리 추가 버프 지속시간")]
+    public float durationBonus;
 
     // 생성자
     public ItemStat(int strength, int dexterity, int intelligence, int vitality, int luck)

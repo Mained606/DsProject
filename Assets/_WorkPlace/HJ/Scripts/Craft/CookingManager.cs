@@ -1,19 +1,30 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using Unity.Collections;
 using UnityEngine;
 
 
 public class CookingManager : CraftManager
 {
+    public static new CookingManager Instance { get; private set; }
     [SerializeField] private string failedDishId = "실패한 요리";
-    [SerializeField] private float ingredientDuraion = 5f;  //추가 재료 하나당 버프 지속시간
-    [SerializeField] private float maxDuration = 120f;      //최대 버프 지속시간
+    [SerializeField] private float maxDuration = 300f;      //최대 버프 지속시간
+
+    public List<string> specialIngredients = new List<string>();    //특수 요리 재료
 
     [SerializeField] protected override List<Recipe> Recipes { get; set; }
 
     protected override void Awake()
     {
-        base.Awake();
+        if (Instance == null || Instance == this)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
 
         if (recipeList != null)
         {
@@ -24,6 +35,7 @@ public class CookingManager : CraftManager
     //요리 효과 계산
     private Item CalculateDishStat(List<Item> ingredients, Recipe recipe)
     {
+
         //기본 요리 스탯
         Item totalItem = ItemManager.Instance.GetItemById(recipe.itemId).Clone();
         ItemStat totalStat = totalItem.itemStat;
@@ -55,8 +67,15 @@ public class CookingManager : CraftManager
             }
         }
 
+        Debug.Log($"extraIngredients.Count: {extraIngredients.Count}");
+
+        //버프 지속시간 설정
+        totalItem.effect.duration = CalculateDishDuration(recipe, extraIngredients, maxDuration);
+
+        Debug.Log($"Calculated Duration: {totalItem.effect.duration}");
+
         //추가되는 재료가 있을 때만
-        if(extraIngredients.Count > 0)
+        if (extraIngredients.Count > 0)
         {
             //추가되는 스탯 계산
             ItemStat extraStat = null;
@@ -76,9 +95,6 @@ public class CookingManager : CraftManager
             EditDescription(totalItem, extraStat);
         }
 
-        //버프 지속시간 설정
-        totalItem.effect.duration = CalculateDishDuration(recipe, extraIngredients, ingredientDuraion, maxDuration);
-
         return totalItem;
     }
 
@@ -92,16 +108,23 @@ public class CookingManager : CraftManager
         {
             if (pair.Value > maxCount)
             {
+                if (specialIngredients.Contains(pair.Key)) continue;
+
                 mostIngredientId = pair.Key;
                 maxCount = pair.Value;
             }
         }
-
+        
         Item mostIngredient = ItemManager.Instance.GetItemById(mostIngredientId);
 
         if (mostIngredient != null)
         {
             item.id = $"{mostIngredient.id} 듬뿍 {item.id}";
+        }
+
+        if(ingredientsCount.ContainsKey(specialIngredients.FirstOrDefault()))
+        {
+            item.id = $"강화 {item.id}";
         }
     }
 
@@ -114,18 +137,21 @@ public class CookingManager : CraftManager
     }
 
     //요리 버프 지속시간 설정
-    private float CalculateDishDuration(Recipe recipe, List<string> ingredients, float duration, float maxDuration)
+    private float CalculateDishDuration(Recipe recipe, List<string> extraIngredients, float maxDuration)
     {
-        float totalDuration = recipe.baseDuration;
+        Debug.Log("요리 지속시간 설정 함수 실행됨!");
 
-        if (ingredients.Count > 0)
+        float totalDuration = recipe.baseDuration;
+        Debug.Log($"초기 지속시간: {totalDuration}");
+
+        foreach (string ingredient in extraIngredients)
         {
-            for (int i = 0; i < ingredients.Count - 1; i++)
-            {
-                totalDuration += duration;
-            }
+            float bonus = ItemManager.Instance.GetItemById(ingredient).itemStat.durationBonus;
+            totalDuration += bonus;
+            Debug.Log($"보너스 지속시간 : {bonus}");
         }
 
+        Debug.Log($"최종 지속시간: {totalDuration}");
         return Mathf.Clamp(totalDuration, recipe.baseDuration, maxDuration);
     }
 
