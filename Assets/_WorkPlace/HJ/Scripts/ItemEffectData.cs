@@ -40,8 +40,6 @@ public class ItemEffect
         isAlreadyInitialize = true;
     }
 
-
-
     public class MultiValue
     {
         public float bonusPercnetage;
