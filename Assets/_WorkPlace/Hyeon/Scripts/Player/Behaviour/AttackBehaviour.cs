@@ -17,7 +17,7 @@ public class AttackBehaviour : IBehaviour
     {
         controller.playerCombat.firstAttack = true;
         attackPerceptionRange = controller.playerCombat.attackPerceptionRange;
-        animator.SetBool("Attack", false);
+        animator.ResetTrigger("NextCombo");
         controller.isAttack = false;
     }
 
@@ -28,7 +28,7 @@ public class AttackBehaviour : IBehaviour
 
     public void Exit()
     {
-        animator.SetBool("Attack", false);
+        animator.ResetTrigger("NextCombo");
         controller.isAttack = false;
     }
 
@@ -48,11 +48,17 @@ public class AttackBehaviour : IBehaviour
         }
     }
 
+
+
     private void PerformComboAttack()
     {
+        PlayerBehaviourManager.Instance.CanBlock = false;
+        PlayerBehaviourManager.Instance.CanMove = false;
+        PlayerBehaviourManager.Instance.CanJump = false;
+        PlayerBehaviourManager.Instance.CanUseSkill = false;
         if (controller.isSprinting)
         {
-            //Debug.LogWarning("대쉬공격");
+            Debug.LogWarning("대쉬공격");
             //controller.DashAttack();
         }
         else

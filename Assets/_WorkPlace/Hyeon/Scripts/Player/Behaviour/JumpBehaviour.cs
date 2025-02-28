@@ -32,6 +32,9 @@ public class JumpBehaviour : IBehaviour
 
         if (InputManager.InputActions.actions["Jump"].triggered && !controller.isJumping)
         {
+            PlayerBehaviourManager.Instance.CanAttack = false;
+            PlayerBehaviourManager.Instance.CanBlock = false;
+            PlayerBehaviourManager.Instance.CanUseSkill = false;
             OnJump();
         }
     }
@@ -54,6 +57,9 @@ public class JumpBehaviour : IBehaviour
     {
         if (controller.isGrounded)
         {
+            PlayerBehaviourManager.Instance.CanAttack = true;
+            PlayerBehaviourManager.Instance.CanBlock = true;
+            PlayerBehaviourManager.Instance.CanUseSkill = true;
             controller.isJumping = false;
             animator.SetBool("Jump", false);
         }

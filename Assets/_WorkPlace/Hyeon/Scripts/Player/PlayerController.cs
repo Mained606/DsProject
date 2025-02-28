@@ -55,25 +55,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float detectionRange = 2f;
     [SerializeField] private float climbRange = 1f;
     private Vector3 currentCliffNormal;
-
-    
     [SerializeField] private float climbEndCheckOffset = 0.2f; // 절벽 끝 검사 오프셋
 
     [Header("글라이딩")]
-
     [SerializeField] private float glidableHeight = 6f;
-    [SerializeField] private float glidingGravityFactor = 2f;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 3f;
     [SerializeField] private float dodgeDuration = 0.3f;
 
-    public bool isInvincible = false;
-
     [Header("공격")]
-    private float dashAttackDuration = 0.5f;
-    private float dashAttackMoveDistance = 10f;
+    [SerializeField] private float dashAttackDuration = 0.5f;
+    [SerializeField] private float dashAttackMoveDistance = 10f;
     public bool isCombatState;
+    public bool isInvincible = false;
 
     [Header("디버그용")]
     public float staminaUseAmount;
@@ -120,11 +115,9 @@ public class PlayerController : MonoBehaviour
 
         ValueInitialize();
 
-        // 임시로 모든 행동 추가
-        PlayerBehaviourManager.Instance.AddBehaviour(new MoveBehaviour());
-        PlayerBehaviourManager.Instance.AddBehaviour(new JumpBehaviour());
-        PlayerBehaviourManager.Instance.AddBehaviour(new AttackBehaviour());
-
+        // 초기에 움직이기 가능하도록 초기화
+        PlayerBehaviourManager.Instance.CanMove = true;
+        PlayerBehaviourManager.Instance.CanJump = true;
     }
 
     private void Update()
@@ -574,7 +567,7 @@ public class PlayerController : MonoBehaviour
     {
         if (InputManager.InputActions.actions["Dodge"].triggered && moveInput != Vector2.zero)
         {
-            //CanMove = false;
+            PlayerBehaviourManager.Instance.CanMove = false;
             StartCoroutine(Dodging());
         }
     }
@@ -601,7 +594,7 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
-        //CanMove = true;
+        PlayerBehaviourManager.Instance.CanMove = true;
         isDodging = false;
         playerAnimator.SetBool("Dodge", isDodging);
         isInvincible = false;

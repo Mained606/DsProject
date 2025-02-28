@@ -39,9 +39,9 @@ public class BlockParryState : StateMachineBehaviour
     //}
 
     // OnStateMachineExit is called when exiting a state machine via its Exit Node
-    override public void OnStateMachineExit(Animator animator, int stateMachinePathHash)
-    {
-        animator.SetBool("Parry", false);
-        animator.SetBool("Block", false);
-    }
+    //override public void OnStateMachineExit(Animator animator, int stateMachinePathHash)
+    //{
+    //    animator.SetBool("Parry", false);
+    //    animator.SetBool("Block", false);
+    //}
 }

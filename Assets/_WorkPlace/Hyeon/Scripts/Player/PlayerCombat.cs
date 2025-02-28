@@ -12,7 +12,7 @@ public class PlayerCombat : MonoBehaviour
     public WeaponManager weapon;
     public Collider weaponCollider;
     public float attackPerceptionRange = 2.5f;
-    [SerializeField] private float skillPerceptionRange = 5f;
+    //[SerializeField] private float skillPerceptionRange = 5f;
 
     public Animator playerAnimator;
     private Transform closestMonster;
@@ -25,7 +25,6 @@ public class PlayerCombat : MonoBehaviour
     public bool onParry;
 
     public Quaternion targetRotation;
-    private AnimatorStateInfo stateInfo;
 
     private static readonly int[] SkillStateHash = {
         Animator.StringToHash("Base Layer.Skill_1"),
@@ -54,14 +53,6 @@ public class PlayerCombat : MonoBehaviour
         if (controller.uiCheck) return;
         ////////////////////////////////////////////////////////////
 
-        //Debug.Log($"Current CanMove : {controller.CanMove}");
-        if (controller.isParry)
-        {
-            ParryCheck();
-        }
-        HandleSkillInput();
-        HandleBlockInput();
-
         SkillFinishedCheck();
         ParryFinishedCheck();
     }
@@ -76,86 +67,11 @@ public class PlayerCombat : MonoBehaviour
     public void AttackFinished()
     {
         //Debug.LogWarning("콤보종료함");
-        //behaviour.CanMove = true;
         controller.isAttack = false;
-    }
-    ////////////////////////////////////////////////////////////
-
-    private void HandleSkillInput()
-    {
-        GameObject closestMonster = GetClosestMonster(skillPerceptionRange)?.gameObject;
-
-        int skillCounts = SkillManager.SkillDatabase.playerSkills.Count;
-
-        for (int i = 0; i < skillCounts; i++)
-        {
-            string skillName = SkillManager.SkillDatabase.playerSkills[i].skillName;
-            string skillTriggerName = Enum.GetName(typeof(SkillTriggerName), i);
-            if (string.IsNullOrEmpty(skillTriggerName)) continue;
-            if (InputManager.InputActions.actions[skillTriggerName].triggered && hasWeapon)
-            {
-                behaviour.CanMove = false;
-                behaviour.CanAttack = false;
-     
-                if (SkillManager.Instance.CheckMana(EntityType.Player, skillName) &&
-                    SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
-                {
-                    controller.isUseSkill = true;
-                    SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
-                }
-                else
-                {
-                    Debug.Log($"스킬 사용 불가: {skillName} (마나 부족 또는 쿨타임 중)");
-                }
-            }
-        }
-    }
-
-    private enum SkillTriggerName
-    {
-        PlayerSkill_1,
-        PlayerSkill_2,
-        PlayerSkill_3,
-        PlayerSkill_4,
-    }
-
-    private void HandleBlockInput()
-    {
-        if (InputManager.InputActions.actions["Block"].IsPressed() && behaviour.CanBlock && hasWeapon)
-        {
-            isBlocking = true;
-            CanParry = true;
-        }
-        else
-        {
-            isBlocking = false;
-            CanParry = false;
-        }
-        playerAnimator.SetBool("Block", isBlocking);
-    }
-
-    private void OnParry()
-    {
-        controller.isParry = true;
-        playerAnimator.SetBool("Parry", true);
-        //ParryCheck();
-    }
-    private void ParryCheck()
-    {
-        InputManager.InputActions.actions["Block"].Disable();
-        isBlocking = false;
-        stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        float normalized = stateInfo.normalizedTime;
-
-        if (normalized >= 0.1f && normalized <= 0.9f)
-        {
-            //Debug.LogWarning("onParry");
-            onParry = true;
-        }
-        else
-        {
-            onParry = false;
-        }
+        behaviour.CanMove = true;
+        behaviour.CanBlock = true;
+        behaviour.CanJump = true;
+        behaviour.CanUseSkill = true;
     }
 
     // 스킬 애니메이션이 끝났는지 검사
@@ -168,6 +84,8 @@ public class PlayerCombat : MonoBehaviour
 
             if (normalizedTime >= 0.95f)
             {
+                PlayerBehaviourManager.Instance.CanMove = true;
+                PlayerBehaviourManager.Instance.CanAttack = true;
                 controller.isUseSkill = false;
             }
         }
@@ -182,11 +100,13 @@ public class PlayerCombat : MonoBehaviour
                 controller.isParry = false;
                 onParry = false;
                 playerAnimator.SetBool("Parry", false);
+                PlayerBehaviourManager.Instance.CanBlock = true;
+                PlayerBehaviourManager.Instance.CanAttack = true;
             }
         }
     }
 
-    private Transform GetClosestMonster(float perceptionRange)
+    public Transform GetClosestMonster(float perceptionRange)
     {
         Collider[] colliders = Physics.OverlapSphere(transform.position, perceptionRange);
         Transform closestTransform = null;

@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
 {
-    private List<IBehaviour> behaviours = new List<IBehaviour>();
+    private List<IBehaviour> behaviours = new List<IBehaviour>();       // 현재 가동 가능한 행동 리스트
+    private Queue<IBehaviour> removeQueue = new Queue<IBehaviour>();    // 지워져야 할 행동 큐
     private PlayerController controller;
 
-    private Dictionary<Func<bool>, Type> behaviourMappings;
+    private Dictionary<Func<bool>, Type> behaviourMappings;             // can bool 변수에 따라 각자에게 맞는 행동 매핑
 
     [SerializeField] private bool canMove;
     [SerializeField] private bool canJump;
@@ -16,48 +17,61 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
     [SerializeField] private bool canAttack;
     [SerializeField] private bool canUseSkill;
     [SerializeField] private bool canBlock;
-    //[SerializeField] private bool canSprint;
+    [SerializeField] private bool canParry;
     [SerializeField] private bool canWeaponSwitch;
 
+    #region Bool Properties
     public bool CanMove { get => canMove; set { if (canMove != value) { canMove = value; UpdateBehaviours(); } } }
     public bool CanJump { get => canJump; set { if (canJump != value) { canJump = value; UpdateBehaviours(); } } }
-    public bool CanClimb { get => canClimb; set { if (canClimb != value) { canClimb = value; UpdateBehaviours(); } } }
-    public bool CanGliding { get => canGliding; set { if (canGliding != value) { canGliding = value; UpdateBehaviours(); } } }
+    //public bool CanClimb { get => canClimb; set { if (canClimb != value) { canClimb = value; UpdateBehaviours(); } } }
+    //public bool CanGliding { get => canGliding; set { if (canGliding != value) { canGliding = value; UpdateBehaviours(); } } }
     public bool CanAttack { get => canAttack; set { if (canAttack != value) { canAttack = value; UpdateBehaviours(); } } }
     public bool CanUseSkill { get => canUseSkill; set { if (canUseSkill != value) { canUseSkill = value; UpdateBehaviours(); } } }
     public bool CanBlock { get => canBlock; set { if (canBlock != value) { canBlock = value; UpdateBehaviours(); } } }
-    //public bool CanSprint { get => canSprint; set { if (canSprint != value) { canSprint = value; UpdateBehaviours(); } } }
-    public bool CanWeaponSwitch { get => canWeaponSwitch; set { if (canWeaponSwitch != value) { canWeaponSwitch = value; UpdateBehaviours(); } } }
+    public bool CanParry { get => canParry; set { if (canParry != value) { canParry = value; UpdateBehaviours(); } } }
+    //public bool CanWeaponSwitch { get => canWeaponSwitch; set { if (canWeaponSwitch != value) { canWeaponSwitch = value; UpdateBehaviours(); } } }
+    #endregion
 
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
 
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
 
-        behaviourMappings = new Dictionary<Func<bool>, Type>()
+        behaviourMappings = new Dictionary<Func<bool>, Type>()  // 행동매핑
         {
             { () => CanMove, typeof(MoveBehaviour) },
             { () => CanJump, typeof(JumpBehaviour) },
             //{ () => CanClimb, typeof(ClimbBehaviour) },
             //{ () => CanGliding, typeof(GlidingBehaviour) },
-            //{ () => CanAttack, typeof(AttackBehaviour) },
-            //{ () => CanUseSkill, typeof(SkillBehaviour) },
-            //{ () => CanBlock, typeof(BlockBehaviour) },
-            //{ () => CanSprint, typeof(SprintBehaviour) },
+            { () => CanAttack, typeof(AttackBehaviour) },
+            { () => CanUseSkill, typeof(SkillBehaviour) },
+            { () => CanBlock, typeof(BlockBehaviour) },
+            { () => CanParry, typeof(ParryBehaviour) },
             //{ () => CanWeaponSwitch, typeof(WeaponSwitchBehaviour) }
         };
     }
 
+    // 행동가능 리스트에 있는 요소들의 Execute() 함수를 실행시켜줌
     private void Update()
     {
-        foreach(var behaviour in behaviours)
+        if(behaviours.Count > 0)    // 리스트가 비어있지 않을 때
         {
-            behaviour.Execute();
-            //Debug.Log($"{behaviour} 행동 중");
+            for (int i = behaviours.Count - 1; i >= 0; i--)
+            {
+                Debug.Log($"{behaviours[i]} 행동 가능");
+                behaviours[i].Execute();
+            }
+        }
+
+        if(removeQueue.Count > 0)   // removeQueue에 요소가 있으면 Dequeue후, 리스트에서도 삭제
+        {
+            IBehaviour behaviourToRemove = removeQueue.Dequeue();
+            behaviours.Remove(behaviourToRemove);
         }
     }
 
+    // 행동 가능 리스트에 추가
     public void AddBehaviour(IBehaviour behaviour)
     {
         if (!behaviours.Contains(behaviour))
@@ -67,15 +81,18 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
         }
     }
 
+    // 행동 가능 리스트에서 삭제
     public void RemoveBehaviour(IBehaviour behaviour)
     {
         if (behaviours.Contains(behaviour))
         {
             behaviour.Exit();
-            behaviours.Remove(behaviour);
+            removeQueue.Enqueue(behaviour);     // 바로 리스트에서 Remove하지 않는 이유 : 리스트 순회하는 도중에 리스트 요소가 삭제 됐을 때 에러가 뜨는 것을 방지하기 위함
         }
     }
 
+    // bool 변수에 변화가 있을 때 호출되는 함수.
+    // 매핑된 맵을 돌며 true면 Add, false면 Remove
     private void UpdateBehaviours()
     {
         Debug.Log("UpdateBehaviours 함수 진입");
