@@ -268,13 +268,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using static UnityEngine.Rendering.PostProcessing.SubpixelMorphologicalAntialiasing;
 
 public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
     #region Variables
 
     private Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
+    private Dictionary<BuffType, ActiveBuff> activeBuffs = new Dictionary<BuffType, ActiveBuff>();
 
     [SerializeField] private float effectParticleDuration = 2f; // 아이템 이펙트 파티클 재생 시간
     [SerializeField] private Vector3 particlePositionOffset = new Vector3(); // 파티클 위치 오프셋
@@ -425,6 +425,10 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
         StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
     }
+    private void ApplyBuff(Item item)
+    {
+        
+    }
 
     private void ApplyDishEffect(Item item)
     {
@@ -453,6 +457,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         StartCoroutine(RemoveBuffAfterDuration(item, item.effect.duration, 1));
     }
 
+    
     private void UpdatePlayerStats(ItemStat stat, int multiplier)
     {
         Player.strength += stat.Strength * multiplier;

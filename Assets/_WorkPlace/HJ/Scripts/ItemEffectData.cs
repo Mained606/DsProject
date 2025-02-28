@@ -220,6 +220,22 @@ public class ItemEffect
     }
 }
 
+public class ActiveBuff
+{
+    public BuffType category;   //버프타입
+    public string statName;     //버프이름
+    public float value;         //효과 수치
+    public float duration;      //지속시간
+
+    public ActiveBuff(BuffType category, string statName, float value, float duration)
+    {
+        this.category = category;
+        this.statName = statName;
+        this.value = value;
+        this.duration = duration;
+    }
+}
+
 public enum EffectType
 {
     None,
@@ -236,4 +252,11 @@ public enum ItemSize
     Small,
     Medium,
     Big
+}
+
+public enum BuffType
+{
+    Basic,  //힘, 민첩, 지능, 활력, 운
+    Combat, //최대체력, 최대마나, 물리공격력, 마법공격력, 물리방어력, 마법방어력
+    Support //치명타확률, 공격속도, 회피율
 }

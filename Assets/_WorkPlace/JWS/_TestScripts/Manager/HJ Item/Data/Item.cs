@@ -328,6 +328,8 @@ public class ItemStat
 
         return false;
     }
+
+    
 }
 
 // 아이템 타입 Enum

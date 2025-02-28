@@ -19,6 +19,7 @@ public class ActivityNpc : MonoBehaviour
     [SerializeField] private bool isNearNpc = false;
     [SerializeField] private bool isSitting = false;
 
+    [SerializeField] private Vector3 sittingOffset = new Vector3(0, 0.4f, 0);
 
     private void Start()
     {
@@ -56,6 +57,7 @@ public class ActivityNpc : MonoBehaviour
         if(npcController.npcType == NpcType.Sitting && other.name.Contains("Bench") && !isSitting)
         {
             SittingAtBench(other.GetComponent<Bench>());
+            this.transform.position += sittingOffset;
         }
     }
 
