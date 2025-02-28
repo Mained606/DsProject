@@ -93,6 +93,10 @@ public class ItemEffect
         {
             effectType = EffectType.Equip;
         }
+        else if(itemType == ItemType.요리)
+        {
+            effectType = EffectType.Dish;
+        }
         else if (itemType == ItemType.소모품)
         {
             if (consumableType == ConsumableType.체력포션)
@@ -106,10 +110,6 @@ public class ItemEffect
             else if (consumableType == ConsumableType.버프)
             {
                 effectType = EffectType.Buff;
-            }
-            else if(consumableType == ConsumableType.요리)
-            {
-                effectType = EffectType.Dish;
             }
             else
             {
@@ -193,8 +193,7 @@ public class ItemEffect
         itemStat.CriticalChance += Mathf.RoundToInt(itemStat.CriticalChance * (bonusPercentage));
         itemStat.AttackSpeed += Mathf.RoundToInt(itemStat.AttackSpeed * (bonusPercentage));
         itemStat.Evasion += Mathf.RoundToInt(itemStat.Evasion * (bonusPercentage));
-    }
-    
+    }        
 
     //이펙트 타입에 따라 파티클 프리팹 적용
     public void AddEffectParticle()
@@ -221,6 +220,22 @@ public class ItemEffect
     }
 }
 
+public class ActiveBuff
+{
+    public BuffType category;   //버프타입
+    public string statName;     //버프이름
+    public float value;         //효과 수치
+    public float duration;      //지속시간
+
+    public ActiveBuff(BuffType category, string statName, float value, float duration)
+    {
+        this.category = category;
+        this.statName = statName;
+        this.value = value;
+        this.duration = duration;
+    }
+}
+
 public enum EffectType
 {
     None,
@@ -237,4 +252,11 @@ public enum ItemSize
     Small,
     Medium,
     Big
+}
+
+public enum BuffType
+{
+    Basic,  //힘, 민첩, 지능, 활력, 운
+    Combat, //최대체력, 최대마나, 물리공격력, 마법공격력, 물리방어력, 마법방어력
+    Support //치명타확률, 공격속도, 회피율
 }
