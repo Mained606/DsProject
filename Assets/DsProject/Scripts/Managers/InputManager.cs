@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Linq;
 
 public class InputManager : BaseManager<InputManager>
 {
@@ -77,8 +76,9 @@ public class InputManager : BaseManager<InputManager>
         }
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         foreach (var action in InputActions.actions)
         {
             string actionName = action.name;
