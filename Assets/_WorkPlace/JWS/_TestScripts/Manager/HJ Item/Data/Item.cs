@@ -12,7 +12,8 @@ using UnityEngine;
 /// 
 /// 2.19 스탯 합산 함수 추가
 /// 2.20 스탯에 요리용 회복 스탯 추가, 스탯 관련 함수 수정
-/// 2.24 아이템타입에 요리재료 추가
+/// 2.24 아이템타입에 요리재료, 요리 추가
+/// 2.26 버프 스탯이 있는지 확인하는 함수 추가, 버프 스탯에 요리재료 지속시간 추가
 /// </summary>
 [Serializable]
 public class Item
@@ -77,7 +78,7 @@ public class Item
             this.isDiscardable = false; // 퀘스트 아이템은 버릴 수 없음
             this.isEquired = false;
         }
-        else if (type == ItemType.소모품 || type == ItemType.제작재료)
+        else if (type == ItemType.소모품 || type == ItemType.제작재료 || type == ItemType.요리재료)
         {
             // 소모품 초기화
             this.effectAmount = 0;
@@ -88,6 +89,10 @@ public class Item
         {
             // 퀘스트 아이템 초기화
             this.isDiscardable = false; // 퀘스트 아이템은 버릴 수 없음
+        }
+        else if(type == ItemType.요리)
+        {
+            this.isStackable = false;
         }
     }
 
@@ -210,6 +215,9 @@ public class ItemStat
     public int HealHp;
     public int HealMp;
 
+    [Header("요리 추가 버프 지속시간")]
+    public float durationBonus;
+
     // 생성자
     public ItemStat(int strength, int dexterity, int intelligence, int vitality, int luck)
     {
@@ -245,7 +253,7 @@ public class ItemStat
         newStat.MagicAttack = this.MagicAttack;
         newStat.PhysicalDefense = this.PhysicalDefense;
         newStat.MagicDefense = this.MagicDefense;
-        
+
         newStat.CriticalChance = this.CriticalChance;
         newStat.AttackSpeed = this.AttackSpeed;
         newStat.Evasion = this.Evasion;
@@ -310,6 +318,18 @@ public class ItemStat
 
         return effects.Count > 0 ? string.Join(", ", effects) : string.Empty;
     }
+
+    public bool HasBuffStat()
+    {
+        if (Strength > 0 || Dexterity > 0 || Intelligence > 0 || Vitality > 0 || Luck > 0 ||
+            MaxHealth > 0 || MaxMana > 0 || PhysicalAttack > 0 || MagicAttack > 0 || PhysicalDefense > 0 || MagicDefense > 0 ||
+            CriticalChance > 0 || AttackSpeed > 0 || Evasion > 0)
+            return true;
+
+        return false;
+    }
+
+    
 }
 
 // 아이템 타입 Enum
@@ -321,7 +341,8 @@ public enum ItemType
     퀘스트,       // QuestItem
     제작재료,     // Material
     장신구,        // Accessory
-    요리재료
+    요리재료,
+    요리
 }
 
 public enum WeaponType
@@ -348,7 +369,6 @@ public enum ConsumableType
     체력포션,   // HealthPotion
     마나포션,   // ManaPotion
     버프,        // Buff
-    요리
 }
 
 
