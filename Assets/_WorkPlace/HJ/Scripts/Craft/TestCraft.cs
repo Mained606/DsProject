@@ -22,5 +22,10 @@ public class TestCraft : MonoBehaviour
         {
             CookingManager.Instance.Craft();
         }
+
+        if (InputManager.InputActions.actions["Jump"].triggered)
+        {
+            ItemEffectManager.Instance.ApplyItemEffect(InventoryManager.InventoryList[index]);
+        }
     }
 }
