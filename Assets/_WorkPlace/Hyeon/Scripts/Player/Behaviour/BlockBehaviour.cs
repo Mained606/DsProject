@@ -25,7 +25,6 @@ public class BlockBehaviour : IBehaviour
     {
         controller.playerCombat.isBlocking = false;
         animator.SetBool("Block", false);
-        Debug.Log("Block Exit");
     }
 
     private void HandleBlockInput()
@@ -41,12 +40,19 @@ public class BlockBehaviour : IBehaviour
         }
         else
         {
-            //PlayerBehaviourManager.Instance.CanBlock = false;    // 테스트때문에 넣어줌 bool수로 잘 제어되면 삭제할 것
-            PlayerBehaviourManager.Instance.CanMove = true;
-            PlayerBehaviourManager.Instance.CanAttack = true;
-            controller.playerCombat.isBlocking = false;
-            PlayerBehaviourManager.Instance.CanParry = false;
+            if (controller.playerCombat.isBlocking)
+            {
+                BlockFinished();
+            }
         }
         animator.SetBool("Block", controller.playerCombat.isBlocking);
+    }
+
+    private void BlockFinished()
+    {
+        PlayerBehaviourManager.Instance.CanMove = true;
+        PlayerBehaviourManager.Instance.CanAttack = true;
+        PlayerBehaviourManager.Instance.CanParry = false;
+        controller.playerCombat.isBlocking = false;
     }
 }

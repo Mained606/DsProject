@@ -68,10 +68,13 @@ public class PlayerCombat : MonoBehaviour
     {
         //Debug.LogWarning("콤보종료함");
         controller.isAttack = false;
-        behaviour.CanMove = true;
-        behaviour.CanBlock = true;
-        behaviour.CanJump = true;
-        behaviour.CanUseSkill = true;
+        if (!controller.isDodging)
+        {
+            behaviour.CanMove = true;
+            behaviour.CanBlock = true;
+            behaviour.CanJump = true;
+            behaviour.CanUseSkill = true;
+        }
     }
 
     // 스킬 애니메이션이 끝났는지 검사

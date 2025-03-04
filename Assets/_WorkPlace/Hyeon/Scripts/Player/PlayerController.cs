@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     public bool isJumping = false;
     public bool isClimb;
     [SerializeField] private bool isGliding;
-    [SerializeField] private bool isDodging = false;
+    public bool isDodging = false;
     public bool isAttack;
     public bool isUseSkill;
     public bool isParry;
@@ -61,8 +61,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float glidableHeight = 6f;
 
     [Header("닷지")]
-    [SerializeField] private float dodgeDist = 3f;
-    [SerializeField] private float dodgeDuration = 0.3f;
+    [SerializeField] private float dodgeDist = 6.5f;
+    [SerializeField] private float dodgeDuration = 0.67f;
 
     [Header("공격")]
     [SerializeField] private float dashAttackDuration = 0.5f;
@@ -116,8 +116,9 @@ public class PlayerController : MonoBehaviour
         ValueInitialize();
 
         // 초기에 움직이기 가능하도록 초기화
-        PlayerBehaviourManager.Instance.CanMove = true;
-        PlayerBehaviourManager.Instance.CanJump = true;
+        manager.CanMove = true;
+        manager.CanJump = true;
+        manager.CanDodge = true;
     }
 
     private void Update()
@@ -152,7 +153,7 @@ public class PlayerController : MonoBehaviour
         if (!isDodging)
         {
             CheckCombatState();
-            OnDodge();
+            //Dodge();
         }
 
         //CanGlidingCheck();
@@ -558,34 +559,34 @@ public class PlayerController : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        return (forward * moveInput.y + right * moveInput.x).normalized;
+        Vector3 direction = (forward * moveInput.y + right * moveInput.x).normalized;
+
+        return direction;
 
     }
 
     // 캐릭터 구르기
-    private void OnDodge()
+    public void Dodge()
     {
-        if (InputManager.InputActions.actions["Dodge"].triggered && moveInput != Vector2.zero)
-        {
-            PlayerBehaviourManager.Instance.CanMove = false;
-            StartCoroutine(Dodging());
-        }
+        StartCoroutine(DodgeRoutine());
     }
 
     // 굴리기(무적)
-    private IEnumerator Dodging()
+    private IEnumerator DodgeRoutine()
     {
-        if (isHit) yield break;
-
         isDodging = true;
-
+        manager.CanMove = false;
+        manager.CanJump = false;
+        manager.CanAttack = false;
+        manager.CanUseSkill = false;
+        manager.CanBlock = false;
         isInvincible = true;
 
-        Vector3 dodgeDirection = GetDirection(moveInput);
+        Vector3 dodgeDirection = transform.forward;
         dodgeDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
 
-        playerAnimator.SetBool("Dodge", isDodging);
+        
 
         while (elapsedTime < dodgeDuration)
         {
@@ -594,38 +595,36 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
-        PlayerBehaviourManager.Instance.CanMove = true;
         isDodging = false;
-        playerAnimator.SetBool("Dodge", isDodging);
+        manager.CanMove = true;
+        manager.CanJump = true;
+        manager.CanAttack = true;
+        manager.CanUseSkill = true;
+        manager.CanBlock = true;
+        playerAnimator.SetBool("Dodge", false);
         isInvincible = false;
     }
 
-    // 플레이어 대쉬 어택 (플레이어를 이동 시키고 있기 때문에 Controller에서 구현 중)
-    //public IEnumerator DashAttack()
-    //{
-    //    Vector3 dashDirection = GetDirection(moveInput);
-    //    dashDirection.y = verticalVelocity.y;
-    //    float elapsedTime = 0f;
-    //    while (elapsedTime < dashAttackDuration)
-    //    {
-    //        characterController.Move(dashDirection * (dashAttackMoveDistance / dashAttackDuration) * Time.deltaTime);
-    //        elapsedTime += Time.deltaTime;
-    //        yield return null;
-    //    }
-    //    playerAnimator.SetBool("Sprint", false);
-    //    playerAnimator.SetFloat("Speed", 0);
-    //}
-
     public void DashAttack()
     {
-        Vector3 dashDirection = GetDirection(moveInput);
+        StartCoroutine(DashAttackRoutine());
+    }
+
+    private IEnumerator DashAttackRoutine()
+    {
+
+        Vector3 dashDirection = transform.forward;
+        Debug.Log($"Dash Direction: {dashDirection}, Magnitude: {dashDirection.magnitude}");
         dashDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
+
         while (elapsedTime < dashAttackDuration)
         {
             characterController.Move(dashDirection * (dashAttackMoveDistance / dashAttackDuration) * Time.deltaTime);
             elapsedTime += Time.deltaTime;
+            yield return null; // 다음 프레임까지 대기
         }
+
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
     }
@@ -905,7 +904,7 @@ public class PlayerController : MonoBehaviour
     //
     private void HitCheck(Transform Attacker)
     {
-        if (isParry)
+        if (isParry || isInvincible)
         {
             isHit = false;
             return;
@@ -914,7 +913,11 @@ public class PlayerController : MonoBehaviour
         {
             isHit = true;
             playerAnimator.SetTrigger("Hit");
-            //Debug.LogWarning("Hit신호 감지");
+            manager.CanMove = false;
+            manager.CanAttack = false;
+            manager.CanJump = false;
+            manager.CanUseSkill = false;
+            manager.CanDodge = false;
             StartCoroutine(Hit());
         }
     }
@@ -923,6 +926,11 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         isHit = false;
+        manager.CanMove = true;
+        manager.CanAttack = true;
+        manager.CanJump = true;
+        manager.CanUseSkill = true;
+        manager.CanDodge = true;
     }
 
     private void DeathCheck()

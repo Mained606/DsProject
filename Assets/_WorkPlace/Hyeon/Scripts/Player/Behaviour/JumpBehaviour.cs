@@ -60,8 +60,17 @@ public class JumpBehaviour : IBehaviour
             PlayerBehaviourManager.Instance.CanAttack = true;
             PlayerBehaviourManager.Instance.CanBlock = true;
             PlayerBehaviourManager.Instance.CanUseSkill = true;
+            PlayerBehaviourManager.Instance.CanDodge = true;
             controller.isJumping = false;
             animator.SetBool("Jump", false);
+        }
+        else
+        {
+            PlayerBehaviourManager.Instance.CanAttack = false;
+            PlayerBehaviourManager.Instance.CanBlock = false;
+            PlayerBehaviourManager.Instance.CanUseSkill = false;
+            PlayerBehaviourManager.Instance.CanDodge = false;
+            animator.ResetTrigger("NextCombo");
         }
     }
 
