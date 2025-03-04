@@ -176,10 +176,8 @@ public class ItemEffect
         ItemStat itemStat = item.itemStat;
 
         itemStat.Strength += Mathf.RoundToInt(itemStat.Strength * (bonusPercentage));
-        itemStat.Dexterity += Mathf.RoundToInt(itemStat.Dexterity * (bonusPercentage));
         itemStat.Intelligence += Mathf.RoundToInt(itemStat.Intelligence * (bonusPercentage));
         itemStat.Vitality += Mathf.RoundToInt(itemStat.Vitality * (bonusPercentage));
-        itemStat.Luck += Mathf.RoundToInt(itemStat.Luck * (bonusPercentage));
         
         itemStat.MaxHealth += Mathf.RoundToInt(itemStat.MaxHealth * (bonusPercentage));
         itemStat.MaxMana += Mathf.RoundToInt(itemStat.MaxMana * (bonusPercentage));
@@ -222,10 +220,10 @@ public class ActiveBuff
 {
     public BuffType category;   //버프타입
     public string statName;     //버프이름
-    public float value;         //효과 수치
+    public int value;           //효과 수치
     public float duration;      //지속시간
 
-    public ActiveBuff(BuffType category, string statName, float value, float duration)
+    public ActiveBuff(BuffType category, string statName, int value, float duration)
     {
         this.category = category;
         this.statName = statName;

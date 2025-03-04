@@ -67,7 +67,7 @@ public class Item
         if (type == ItemType.무기 || type == ItemType.방어구)
         {
             // 장착 아이템 초기화
-            this.itemStat = new ItemStat(1, 1, 1, 1, 1); // 기본 스탯
+            this.itemStat = new ItemStat(1, 1, 1); // 기본 스탯
             this.durability = new Durability(100);       // 기본 내구도
             this.isEquired = false;
             this.itemStat.Initialize();
@@ -155,10 +155,10 @@ public class Item
         string statInfo = itemStat != null
             ? $"\n<b><color=#FFD700>[스탯 정보]</color></b>\n" +
               (itemStat.Strength > 0 ? $"힘 : {itemStat.Strength}    " : "") +
-              (itemStat.Dexterity > 0 ? $"민첩 : {itemStat.Dexterity}    " : "") +
+              //(itemStat.Dexterity > 0 ? $"민첩 : {itemStat.Dexterity}    " : "") +
               (itemStat.Intelligence > 0 ? $"지능 : {itemStat.Intelligence}    " : "") +
               (itemStat.Vitality > 0 ? $"활력 : {itemStat.Vitality}    " : "") +
-              (itemStat.Luck > 0 ? $"운 : {itemStat.Luck}    " : "") +
+              //(itemStat.Luck > 0 ? $"운 : {itemStat.Luck}    " : "") +
               (itemStat.PhysicalAttack > 0 ? $"\n물리 공격력 : {itemStat.PhysicalAttack}    " : "") +
               (itemStat.MagicAttack > 0 ? $"마법 공격력 : {itemStat.MagicAttack}    " : "") +
               (itemStat.PhysicalDefense > 0 ? $"물리 방어력 : {itemStat.PhysicalDefense}    " : "") +
@@ -193,10 +193,10 @@ public class ItemStat
 {
     [Header("기본 스탯")]
     public int Strength;          // 힘
-    public int Dexterity;         // 민첩
+    //public int Dexterity;         // 민첩
     public int Intelligence;      // 지능
     public int Vitality;          // 활력
-    public int Luck;              // 운
+    //public int Luck;              // 운
 
     [Header("전투 스탯")]
     public int MaxHealth;         // 최대 체력
@@ -219,13 +219,11 @@ public class ItemStat
     public float durationBonus;
 
     // 생성자
-    public ItemStat(int strength, int dexterity, int intelligence, int vitality, int luck)
+    public ItemStat(int strength, int intelligence, int vitality)
     {
         Strength = strength;
-        Dexterity = dexterity;
         Intelligence = intelligence;
         Vitality = vitality;
-        Luck = luck;
     }
 
     // 스탯 초기화는 사용할때 사용하는걸로.
@@ -237,15 +235,15 @@ public class ItemStat
         MagicAttack = Intelligence * 2;
         PhysicalDefense = Vitality * 1;
         MagicDefense = Intelligence * 1;
-        CriticalChance = Luck / 2;
-        AttackSpeed = Dexterity / 2;
-        Evasion = Dexterity / 3;
+        //CriticalChance = Luck / 2;
+        //AttackSpeed = Dexterity / 2;
+        //Evasion = Dexterity / 3;
     }
 
     // 복제 메서드
     public ItemStat Clone()
     {
-        ItemStat newStat = new ItemStat(Strength, Dexterity, Intelligence, Vitality, Luck);
+        ItemStat newStat = new ItemStat(Strength, Intelligence, Vitality);
 
         newStat.MaxHealth = this.MaxHealth;
         newStat.MaxMana = this.MaxMana;
@@ -269,10 +267,8 @@ public class ItemStat
         // 새로운 ItemStat 객체를 생성하고, 스탯을 합산하여 반환
         ItemStat result = new ItemStat(
             baseStat.Strength + additionalStat.Strength,
-            baseStat.Dexterity + additionalStat.Dexterity,
             baseStat.Intelligence + additionalStat.Intelligence,
-            baseStat.Vitality + additionalStat.Vitality,
-            baseStat.Luck + additionalStat.Luck
+            baseStat.Vitality + additionalStat.Vitality
         )
         {
             MaxHealth = baseStat.MaxHealth + additionalStat.MaxHealth,
@@ -300,10 +296,8 @@ public class ItemStat
         if (HealMp > 0) effects.Add($"MP +{HealMp}");
 
         if (Strength > 0) effects.Add($"힘 +{Strength}");
-        if (Dexterity > 0) effects.Add($"민첩 +{Dexterity}");
         if (Intelligence > 0) effects.Add($"지능 +{Intelligence}");
         if (Vitality > 0) effects.Add($"활력 +{Vitality}");
-        if (Luck > 0) effects.Add($"운 +{Luck}");
 
         if (MaxHealth > 0) effects.Add($"최대 체력 +{MaxHealth}");
         if (MaxMana > 0) effects.Add($"최대 마나 +{MaxMana}");
@@ -321,7 +315,7 @@ public class ItemStat
 
     public bool HasBuffStat()
     {
-        if (Strength > 0 || Dexterity > 0 || Intelligence > 0 || Vitality > 0 || Luck > 0 ||
+        if (Strength > 0 || Intelligence > 0 || Vitality > 0 || 
             MaxHealth > 0 || MaxMana > 0 || PhysicalAttack > 0 || MagicAttack > 0 || PhysicalDefense > 0 || MagicDefense > 0 ||
             CriticalChance > 0 || AttackSpeed > 0 || Evasion > 0)
             return true;

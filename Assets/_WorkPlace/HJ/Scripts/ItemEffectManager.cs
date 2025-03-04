@@ -268,6 +268,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
+using System;
+using static UnityEngine.Rendering.DebugUI;
 
 public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
@@ -275,6 +277,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
     private Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
     private Dictionary<BuffType, ActiveBuff> activeBuffs = new Dictionary<BuffType, ActiveBuff>();
+    private Dictionary<BuffType, Coroutine> activeCoroutines = new Dictionary<BuffType, Coroutine>();
 
     [SerializeField] private float effectParticleDuration = 2f; // 아이템 이펙트 파티클 재생 시간
     [SerializeField] private Vector3 particlePositionOffset = new Vector3(); // 파티클 위치 오프셋
@@ -418,6 +421,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
     }
 
+    //중복 사용 가능
     private void ApplyBuff(Item item, float duration, int quantity = 1)
     {
         UpdatePlayerStats(item.itemStat, item.effectAmount);
@@ -425,9 +429,46 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
         StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
     }
+
+    //중복 사용 불가능
     private void ApplyBuff(Item item)
     {
-        
+        ItemStat itemStat = item.itemStat;
+        float duration = item.effect.duration;
+
+        ApplyStatBuff(BuffType.Basic, "Strength", itemStat.Strength, duration);
+        ApplyStatBuff(BuffType.Basic, "Intelligence", itemStat.Intelligence, duration);
+        ApplyStatBuff(BuffType.Basic, "Vitality", itemStat.Vitality, duration);
+
+        ApplyStatBuff(BuffType.Combat, "MaxHealth", itemStat.MaxHealth, duration);
+        ApplyStatBuff(BuffType.Combat, "MaxMana", itemStat.MaxMana, duration);
+        ApplyStatBuff(BuffType.Combat, "PhysicalAttack", itemStat.PhysicalAttack, duration);
+        ApplyStatBuff(BuffType.Combat, "MagicAttack", itemStat.MagicAttack, duration);
+        ApplyStatBuff(BuffType.Combat, "PhysicalDefense", itemStat.PhysicalDefense, duration);
+        ApplyStatBuff(BuffType.Combat, "MagicDefense", itemStat.MagicDefense, duration);
+
+        ApplyStatBuff(BuffType.Support, "CriticalChance", itemStat.CriticalChance, duration);
+        ApplyStatBuff(BuffType.Support, "AttackSpeed", itemStat.AttackSpeed, duration);
+        ApplyStatBuff(BuffType.Support, "Evasion", itemStat.Evasion, duration);
+    }
+
+    private void ApplyStatBuff(BuffType buffType, string statName, int value, float duration)
+    {
+        if (value == 0) return;
+
+        if(activeBuffs.TryGetValue(buffType, out ActiveBuff existingBuff))
+        {
+            UpdatePlayerStats(existingBuff.statName, existingBuff.value, -1);
+            if(activeCoroutines.ContainsKey(buffType))
+            {
+                StopCoroutine(activeCoroutines[buffType]);
+                Debug.Log($"코루틴 종료: {buffType}");
+            }
+        }
+
+        activeBuffs[buffType] = new ActiveBuff(buffType, statName, value, duration);
+        UpdatePlayerStats(statName, value, 1);
+        activeCoroutines[buffType] = StartCoroutine(RemoveBuffAfterDuration(buffType, statName, value, duration));
     }
 
     private void ApplyDishEffect(Item item)
@@ -436,8 +477,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
         if (item.itemStat.HasBuffStat())
         {
-            UpdatePlayerStats(item.itemStat, 1);
-            Debug.Log($"버프 지속시간: {item.effect.duration}");
+            ApplyBuff(item);
         }
 
         if (item.itemStat.HealHp > 0)
@@ -453,11 +493,9 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         }
 
         PlayParticle(item);
-
-        StartCoroutine(RemoveBuffAfterDuration(item, item.effect.duration, 1));
     }
 
-    
+    //아이템 스탯 전체 적용
     private void UpdatePlayerStats(ItemStat stat, int multiplier)
     {
         Player.strength += stat.Strength * multiplier;
@@ -477,12 +515,43 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
     }
 
+    //한 아이템 스탯만 적용
+    private void UpdatePlayerStats(string statName, int value, int multiplier)
+    {
+        if (statName == "Strength") Player.strength += value * multiplier;
+        if (statName == "Intelligence") Player.intelligence += value * multiplier;
+        if (statName == "Vitality") Player.vitality += value * multiplier;
+        if (statName == "MaxHealth") Player.maxHp += value * multiplier;
+        if (statName == "MaxMana") Player.maxMp += value * multiplier;
+        if (statName == "PhysicalAttack") Player.physicalDamage += value * multiplier;
+        if (statName == "MagicAttack") Player.magicDamage += value * multiplier;
+        if (statName == "PhysicalDefense") Player.physicalDefense += value * multiplier;
+        if (statName == "MagicDefense") Player.magicDefense += value * multiplier;
+        if (statName == "CriticalChance") Player.criticalChance += value * multiplier;
+        if (statName == "AttackSpeed") Player.attackSpeed += value * multiplier;
+
+        Debug.Log($"{statName} 버프 효과: {value * multiplier}");
+    }
+
     private IEnumerator RemoveBuffAfterDuration(Item item, float duration, int amount)
     {
         yield return new WaitForSeconds(duration);
 
         UpdatePlayerStats(item.itemStat, -amount);
         Debug.Log($"{item.name} 버프 효과 해제, 효과량 {amount}");
+    }
+
+    private IEnumerator RemoveBuffAfterDuration(BuffType buffType, string statName, int value, float duration)
+    {
+        Debug.Log($"{statName} 지속시간: {duration}");
+
+        yield return new WaitForSeconds(duration);
+
+        UpdatePlayerStats(statName, value, -1);
+        activeBuffs.Remove(buffType);
+        activeCoroutines.Remove(buffType);
+
+        Debug.Log($"{statName} 버프 효과 해제, 효과량 {value}");
     }
 
     private void PlayParticle(Item item)
@@ -498,6 +567,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         }
     }
 
+    
     #endregion
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
