@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float staminaRecoveryRate;
 
     public PlayerState currentState = PlayerState.Idle;
+    private int layerMask;
     public CharacterController characterController;
     [SerializeField] private Animator playerAnimator;
     public Animator PlayerAnimator => playerAnimator;
@@ -109,6 +110,7 @@ public class PlayerController : MonoBehaviour
         //CanWeaponSwitch = true;
         playerData = CharacterManager.PlayerCharacterData;
         RecoveryTimer = new BasicTimer(RecoveryTime);
+        layerMask = ~LayerMask.GetMask("Ds Player");
 
         // Hit 이벤트 구독
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
@@ -137,11 +139,8 @@ public class PlayerController : MonoBehaviour
         HpMpRecovery();     // 치트 활성화시 Hp, Mp 무한
 
         DeathCheck();       // 죽음 체크
-        //HitFinishedCheck();
-        StateCheck();
-        //StateBoolChange();
-        isGrounded = characterController.isGrounded;
-        playerAnimator.SetBool("Grounded", isGrounded);
+        //StateCheck();
+        GroundCheck();
 
         RecoverStats();
         ApplyGravity();
@@ -261,6 +260,26 @@ public class PlayerController : MonoBehaviour
             playerData.RegenerateMp();
             TimerManager.Instance.StartTimer(RecoveryTimer);
         }
+    }
+
+    private void GroundCheck()
+    {
+        isGrounded = characterController.isGrounded;
+        if (!isGrounded && !isJumping)
+        {
+            //Debug.Log("캐릭터가 공중에 뜸");
+            RaycastHit hit;
+            if(Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 1f, layerMask))
+            {
+                //Debug.Log($"Ray맞는 중 : {hit.transform.name}");
+                if(hit.point.y < transform.position.y)
+                {
+                    isGrounded = true;
+                    characterController.Move(new Vector3(0, hit.point.y - transform.position.y, 0));
+                }
+            }
+        }
+        playerAnimator.SetBool("Grounded", isGrounded);
     }
 
     // 상시 중력 적용 및 낙뎀 여부
