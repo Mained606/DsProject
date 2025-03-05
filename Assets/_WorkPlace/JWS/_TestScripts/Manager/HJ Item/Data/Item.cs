@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -8,6 +9,11 @@ using UnityEngine;
 /// 01.23 아이템 장착위치 enum에 방패 추가, 아이템 등급은 장착 아이템에만 적용, 아이템 생성자에 제작재료 타입 조건 추가,
 /// 양손검, 한손검 아이템 추가로 인해서 weapontype 변수 추가
 /// 01.24 퀘스트 아이템인지 확인하기 위한 변수 추가
+/// 
+/// 2.19 스탯 합산 함수 추가
+/// 2.20 스탯에 요리용 회복 스탯 추가, 스탯 관련 함수 수정
+/// 2.24 아이템타입에 요리재료, 요리 추가
+/// 2.26 버프 스탯이 있는지 확인하는 함수 추가, 버프 스탯에 요리재료 지속시간 추가
 /// </summary>
 [Serializable]
 public class Item
@@ -28,7 +34,7 @@ public class Item
     public ItemEffect effect;              // 아이템 이펙트
     public bool isQuestItem;               // 퀘스트 아이템 여부
 
-    [Header("스탯(장착아이템: 적용할 전체 값,\n 버프 물약: 해당하는 스탯만 값을 1로 설정)")]
+    [Header("스탯(장착아이템: 적용할 전체 값\n버프 물약: 해당하는 스탯만 값을 1로 설정\n요리재료 효과량 전체)")]
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
     public Durability durability;          // 내구도
     public ItemGrade grade;                // 아이템 등급
@@ -72,7 +78,7 @@ public class Item
             this.isDiscardable = false; // 퀘스트 아이템은 버릴 수 없음
             this.isEquired = false;
         }
-        else if (type == ItemType.소모품 || type == ItemType.제작재료)
+        else if (type == ItemType.소모품 || type == ItemType.제작재료 || type == ItemType.요리재료)
         {
             // 소모품 초기화
             this.effectAmount = 0;
@@ -83,6 +89,10 @@ public class Item
         {
             // 퀘스트 아이템 초기화
             this.isDiscardable = false; // 퀘스트 아이템은 버릴 수 없음
+        }
+        else if(type == ItemType.요리)
+        {
+            this.isStackable = false;
         }
     }
 
@@ -176,7 +186,6 @@ public class Item
             default: return "#FFFFFF";                 // 기본 흰색
         }
     }
-
 }
 
 [Serializable]
@@ -201,6 +210,13 @@ public class ItemStat
     public int CriticalChance;    // 치명타 확률 (%)
     public int AttackSpeed;       // 공격 속도
     public int Evasion;           // 회피율 (%)
+
+    [Header("요리용 회복 스탯")]
+    public int HealHp;
+    public int HealMp;
+
+    [Header("요리 추가 버프 지속시간")]
+    public float durationBonus;
 
     // 생성자
     public ItemStat(int strength, int dexterity, int intelligence, int vitality, int luck)
@@ -237,13 +253,83 @@ public class ItemStat
         newStat.MagicAttack = this.MagicAttack;
         newStat.PhysicalDefense = this.PhysicalDefense;
         newStat.MagicDefense = this.MagicDefense;
-        
+
         newStat.CriticalChance = this.CriticalChance;
         newStat.AttackSpeed = this.AttackSpeed;
         newStat.Evasion = this.Evasion;
 
+        newStat.HealHp = this.HealHp;
+        newStat.HealMp = this.HealMp;
+
         return newStat;
     }
+
+    public ItemStat AddStats(ItemStat baseStat, ItemStat additionalStat)
+    {
+        // 새로운 ItemStat 객체를 생성하고, 스탯을 합산하여 반환
+        ItemStat result = new ItemStat(
+            baseStat.Strength + additionalStat.Strength,
+            baseStat.Dexterity + additionalStat.Dexterity,
+            baseStat.Intelligence + additionalStat.Intelligence,
+            baseStat.Vitality + additionalStat.Vitality,
+            baseStat.Luck + additionalStat.Luck
+        )
+        {
+            MaxHealth = baseStat.MaxHealth + additionalStat.MaxHealth,
+            MaxMana = baseStat.MaxMana + additionalStat.MaxMana,
+            PhysicalAttack = baseStat.PhysicalAttack + additionalStat.PhysicalAttack,
+            MagicAttack = baseStat.MagicAttack + additionalStat.MagicAttack,
+            PhysicalDefense = baseStat.PhysicalDefense + additionalStat.PhysicalDefense,
+            MagicDefense = baseStat.MagicDefense + additionalStat.MagicDefense,
+            CriticalChance = baseStat.CriticalChance + additionalStat.CriticalChance,
+            AttackSpeed = baseStat.AttackSpeed + additionalStat.AttackSpeed,
+            Evasion = baseStat.Evasion + additionalStat.Evasion,
+            HealHp = baseStat.HealHp + additionalStat.HealHp,
+            HealMp = baseStat.HealMp + additionalStat.HealMp
+        };
+
+        return result;
+    }
+
+    //아이템 효과 설명
+    public string GetEffectDescription()
+    {
+        List<string> effects = new List<string>();
+
+        if (HealHp > 0) effects.Add($"HP +{HealHp}");
+        if (HealMp > 0) effects.Add($"MP +{HealMp}");
+
+        if (Strength > 0) effects.Add($"힘 +{Strength}");
+        if (Dexterity > 0) effects.Add($"민첩 +{Dexterity}");
+        if (Intelligence > 0) effects.Add($"지능 +{Intelligence}");
+        if (Vitality > 0) effects.Add($"활력 +{Vitality}");
+        if (Luck > 0) effects.Add($"운 +{Luck}");
+
+        if (MaxHealth > 0) effects.Add($"최대 체력 +{MaxHealth}");
+        if (MaxMana > 0) effects.Add($"최대 마나 +{MaxMana}");
+        if (PhysicalAttack > 0) effects.Add($"물리 공격력 +{PhysicalAttack}");
+        if (MagicAttack > 0) effects.Add($"마법 공격력 +{MagicAttack}");
+        if (PhysicalDefense > 0) effects.Add($"물리 방어력 +{PhysicalDefense}");
+        if (MagicDefense > 0) effects.Add($"마법 방어력 +{MagicDefense}");
+
+        if (CriticalChance > 0) effects.Add($"치명타 확률 +{CriticalChance}%");
+        if (AttackSpeed > 0) effects.Add($"공격 속도 +{AttackSpeed}");
+        if (Evasion > 0) effects.Add($"회피율 +{Evasion}%");
+
+        return effects.Count > 0 ? string.Join(", ", effects) : string.Empty;
+    }
+
+    public bool HasBuffStat()
+    {
+        if (Strength > 0 || Dexterity > 0 || Intelligence > 0 || Vitality > 0 || Luck > 0 ||
+            MaxHealth > 0 || MaxMana > 0 || PhysicalAttack > 0 || MagicAttack > 0 || PhysicalDefense > 0 || MagicDefense > 0 ||
+            CriticalChance > 0 || AttackSpeed > 0 || Evasion > 0)
+            return true;
+
+        return false;
+    }
+
+    
 }
 
 // 아이템 타입 Enum
@@ -255,6 +341,8 @@ public enum ItemType
     퀘스트,       // QuestItem
     제작재료,     // Material
     장신구,        // Accessory
+    요리재료,
+    요리
 }
 
 public enum WeaponType
@@ -280,7 +368,7 @@ public enum ConsumableType
     없음,       // None
     체력포션,   // HealthPotion
     마나포션,   // ManaPotion
-    버프        // Buff
+    버프,        // Buff
 }
 
 

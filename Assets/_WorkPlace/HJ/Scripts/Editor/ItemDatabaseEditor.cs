@@ -134,6 +134,14 @@ public class ItemDatabaseEditor : Editor
             case ItemType.퀘스트:
                 DrawPropertyIfExists(itemProperty, "questId");
                 break;
+            case ItemType.제작재료:
+            case ItemType.요리재료:
+                DrawPropertyIfExists(itemProperty, "itemStat");
+                break;
+            case ItemType.요리:
+                DrawPropertyIfExists(itemProperty, "effect");
+                DrawPropertyIfExists(itemProperty, "itemStat");
+                break;
         }
 
         GUILayout.Space(10);
