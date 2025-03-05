@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine.AddressableAssets;
 using UnityEngine;
 
+
 public class ItemManager : BaseManager<ItemManager>
 {
     [SerializeField] private ItemList itemList;

@@ -274,6 +274,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     #region Variables
 
     private Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
+    private Dictionary<BuffType, ActiveBuff> activeBuffs = new Dictionary<BuffType, ActiveBuff>();
 
     [SerializeField] private float effectParticleDuration = 2f; // 아이템 이펙트 파티클 재생 시간
     [SerializeField] private Vector3 particlePositionOffset = new Vector3(); // 파티클 위치 오프셋
@@ -315,6 +316,10 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             case ItemType.방어구:
             case ItemType.장신구:
                 ApplyEquipmentEffect(item);
+                break;
+
+            case ItemType.요리:
+                ApplyDishEffect(item);
                 break;
 
             default:
@@ -420,7 +425,39 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
         StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
     }
+    private void ApplyBuff(Item item)
+    {
+        
+    }
 
+    private void ApplyDishEffect(Item item)
+    {
+        if (item.itemStat == null) return;
+
+        if (item.itemStat.HasBuffStat())
+        {
+            UpdatePlayerStats(item.itemStat, 1);
+            Debug.Log($"버프 지속시간: {item.effect.duration}");
+        }
+
+        if (item.itemStat.HealHp > 0)
+        {
+            Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + item.itemStat.HealHp);
+            Debug.Log($"{item.name}을 사용하여 체력 {item.itemStat.HealHp}만큼 회복");
+        }
+
+        if (item.itemStat.HealMp > 0)
+        {
+            Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + item.itemStat.HealMp);
+            Debug.Log($"{item.name}을 사용하여 마나 {item.itemStat.HealMp}만큼 회복");
+        }
+
+        PlayParticle(item);
+
+        StartCoroutine(RemoveBuffAfterDuration(item, item.effect.duration, 1));
+    }
+
+    
     private void UpdatePlayerStats(ItemStat stat, int multiplier)
     {
         Player.strength += stat.Strength * multiplier;
@@ -437,7 +474,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Player.criticalChance += stat.CriticalChance * multiplier;
         Player.attackSpeed += stat.AttackSpeed * multiplier;
 
-        Debug.Log($"플레이어 스탯 업데이트: {stat.Strength * multiplier}");
+        Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
     }
 
     private IEnumerator RemoveBuffAfterDuration(Item item, float duration, int amount)
