@@ -487,7 +487,7 @@ public class PlayerData : CharacterData
     
     protected override void AwardLevelUpPoints()
     {
-        availableSkillPoints += 3; // 스킬 포인트 3 지급
+        availableSkillPoints += 1; // 스킬 포인트 1 지급
         availableStatPoints += 5;  // 스탯 포인트 5 지급
     }
     
@@ -515,12 +515,12 @@ public class PlayerData : CharacterData
                 Debug.Log($"{skill.skillName} 스킬 레벨업! 현재 레벨: {skill.skillLevel}. 남은 스킬 포인트: {availableSkillPoints}");
                 return true;
             }
+            
             Debug.LogWarning("해당 스킬이 최대 레벨입니다!");
+            return false;
         }
-        else
-        {
-            Debug.LogWarning("스킬 포인트가 부족합니다!");
-        }
+
+        Debug.LogWarning("스킬 포인트가 부족합니다!");
         return false;
     }
     

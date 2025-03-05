@@ -39,7 +39,7 @@ public class Skills
         if (skillLevel < maxSkillLevel)
         {
             skillLevel++;
-            damage *= 1.1f; // 스킬 피해량 10% 증가 (예시)
+            damage *= 1.1f; // 스킬 피해량 10% 증가
         }
     }
 }
