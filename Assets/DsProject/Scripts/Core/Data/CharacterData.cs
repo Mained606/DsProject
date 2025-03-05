@@ -492,12 +492,10 @@ public class PlayerData : CharacterData
     {
         availableSkillPoints += 1; // 스킬 포인트 1 지급
         availableStatPoints += 5;  // 스탯 포인트 5 지급
-        Debug.Log(availableStatPoints);
     }
     
     public bool UpgradeStat(StatType statType)
     {
-        Debug.Log(availableStatPoints);
         if (availableStatPoints > 0)
         {
             ModifyStat(statType, 1); // 기존 스탯 증가 함수 사용

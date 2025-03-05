@@ -5,30 +5,29 @@ using UnityEngine.UI;
 public class TestStatUP : MonoBehaviour
 {
     #region 
-    [SerializeField] private Transform NamePanel;
-    [SerializeField] private Transform ValuePanel;
+    /*   [SerializeField] private Transform NamePanel;
+       [SerializeField] private Transform ValuePanel;
 
-    private TextMeshProUGUI[] Statname;
-    private TextMeshProUGUI[] Statvalue;
-    private Button[] button;
+       private TextMeshProUGUI[] name;
+       private TextMeshProUGUI[] value;
+       private Button[] button;
 
 
-    void Start()
-    {
-        Statname = NamePanel.GetComponentsInChildren<TextMeshProUGUI>();
-        Statvalue = ValuePanel.GetComponentsInChildren<TextMeshProUGUI>();
-        button = transform.GetComponentsInChildren<Button>();
-    }
+       void Start()
+       {
+           name = NamePanel.GetComponentsInChildren<TextMeshProUGUI>();
+           value = ValuePanel.GetComponentsInChildren<TextMeshProUGUI>();
+           button = transform.GetComponentsInChildren<Button>();
 
-    // Update is called once per frame
-    void Update()
-    {
+       }
 
-    }
+       // Update is called once per frame
+       void Update()
+       {
+
+       }*/
     #endregion
-
-    #region Test1
-    /*public TextMeshProUGUI STR;
+    public TextMeshProUGUI STR;
     public TextMeshProUGUI DEX;
     public TextMeshProUGUI INT;
     public TextMeshProUGUI VATAL;
@@ -38,12 +37,13 @@ public class TestStatUP : MonoBehaviour
     public Button button3;
     public Button button4;
 
-    public PlayerData playerData = CharacterManager.PlayerCharacterData;
+    public PlayerData playerData;
+    
 
     private void Start()
     {
         playerData = CharacterManager.PlayerCharacterData;
-
+            
         STR.text = playerData.strength.ToString();
         DEX.text = playerData.agility.ToString();
         INT.text = playerData.intelligence.ToString();
@@ -61,8 +61,9 @@ public class TestStatUP : MonoBehaviour
     {
         playerData.UpgradeStat(statType);
         Debug.Log("버튼 클릭");
-    }*/
-    #endregion
+    }
+
+
 }
 
 
