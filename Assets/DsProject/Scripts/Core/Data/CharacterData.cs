@@ -262,8 +262,15 @@ public class CharacterData
 
         // 디버깅 로그
         Debug.Log($"레벨업! 현재 레벨: {level}, 남은 경험치: {currentExperience}");
+        
+        AwardLevelUpPoints();
 
         isLevelingUp = false; // 레벨업 종료
+    }
+    
+    protected virtual void AwardLevelUpPoints()
+    {
+        // 기본 캐릭터는 추가 포인트 지급하지 않음.
     }
 
     // 경험치 계산 함수
@@ -444,6 +451,9 @@ public class PlayerData : CharacterData
 {
     public List<string> skills = new List<string>();    // 스킬 목록
     public int gold; // 골드 소지량
+    
+    public int availableSkillPoints = 0;
+    public int availableStatPoints = 0;
 
     // 생성자
     public PlayerData(string name, GameObject prefab, int strength, int vitality, int agility, int intelligence,
@@ -473,6 +483,45 @@ public class PlayerData : CharacterData
         gold -= amount;
         Debug.Log($"골드 사용: {amount}, 남은 골드: {gold}");
         return true;
+    }
+    
+    protected override void AwardLevelUpPoints()
+    {
+        availableSkillPoints += 1; // 스킬 포인트 1 지급
+        availableStatPoints += 5;  // 스탯 포인트 5 지급
+    }
+    
+    public bool UpgradeStat(StatType statType)
+    {
+        if (availableStatPoints > 0)
+        {
+            ModifyStat(statType, 1); // 기존 스탯 증가 함수 사용
+            availableStatPoints--;
+            Debug.Log($"{statType} 스탯 증가! 남은 스탯 포인트: {availableStatPoints}");
+            return true;
+        }
+        Debug.LogWarning("스탯 포인트가 부족합니다!");
+        return false;
+    }
+
+    public bool UpgradeSkill(Skills skill)
+    {
+        if (availableSkillPoints > 0)
+        {
+            if (skill.skillLevel < skill.maxSkillLevel)
+            {
+                availableSkillPoints--;
+                skill.LevelUp();
+                Debug.Log($"{skill.skillName} 스킬 레벨업! 현재 레벨: {skill.skillLevel}. 남은 스킬 포인트: {availableSkillPoints}");
+                return true;
+            }
+            
+            Debug.LogWarning("해당 스킬이 최대 레벨입니다!");
+            return false;
+        }
+
+        Debug.LogWarning("스킬 포인트가 부족합니다!");
+        return false;
     }
     
     public new PlayerData Clone()
