@@ -268,8 +268,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-using System;
-using static UnityEngine.Rendering.DebugUI;
+
 
 public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
@@ -421,7 +420,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
     }
 
-    //중복 사용 가능
+    //중복 사용 가능(일반 버프 아이템)
     private void ApplyBuff(Item item, float duration, int quantity = 1)
     {
         UpdatePlayerStats(item.itemStat, item.effectAmount);
@@ -430,13 +429,14 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
     }
 
-    //중복 사용 불가능
+    //중복 사용 불가능(요리)
     private void ApplyBuff(Item item)
     {
         ItemStat itemStat = item.itemStat;
         float duration = item.effect.duration;
 
         ApplyStatBuff(BuffType.Basic, "Strength", itemStat.Strength, duration);
+        ApplyStatBuff(BuffType.Basic, "Dexterity", itemStat.Dexterity, duration);
         ApplyStatBuff(BuffType.Basic, "Intelligence", itemStat.Intelligence, duration);
         ApplyStatBuff(BuffType.Basic, "Vitality", itemStat.Vitality, duration);
 
@@ -499,6 +499,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     private void UpdatePlayerStats(ItemStat stat, int multiplier)
     {
         Player.strength += stat.Strength * multiplier;
+        Player.agility += stat.Dexterity * multiplier;
         Player.intelligence += stat.Intelligence * multiplier;
         Player.vitality += stat.Vitality * multiplier;
 
@@ -511,6 +512,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
         Player.criticalChance += stat.CriticalChance * multiplier;
         Player.attackSpeed += stat.AttackSpeed * multiplier;
+        Player.dodgeChance += stat.Evasion * multiplier;
 
         Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
     }
@@ -519,6 +521,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     private void UpdatePlayerStats(string statName, int value, int multiplier)
     {
         if (statName == "Strength") Player.strength += value * multiplier;
+        if (statName == "Dexterity") Player.agility += value * multiplier;
         if (statName == "Intelligence") Player.intelligence += value * multiplier;
         if (statName == "Vitality") Player.vitality += value * multiplier;
         if (statName == "MaxHealth") Player.maxHp += value * multiplier;
@@ -529,6 +532,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         if (statName == "MagicDefense") Player.magicDefense += value * multiplier;
         if (statName == "CriticalChance") Player.criticalChance += value * multiplier;
         if (statName == "AttackSpeed") Player.attackSpeed += value * multiplier;
+        if (statName == "Evasion") Player.dodgeChance += value * multiplier;
 
         Debug.Log($"{statName} 버프 효과: {value * multiplier}");
     }

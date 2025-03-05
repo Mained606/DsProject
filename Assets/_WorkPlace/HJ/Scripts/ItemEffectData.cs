@@ -188,7 +188,6 @@ public class ItemEffect
         
         itemStat.CriticalChance += Mathf.RoundToInt(itemStat.CriticalChance * (bonusPercentage));
         itemStat.AttackSpeed += Mathf.RoundToInt(itemStat.AttackSpeed * (bonusPercentage));
-        itemStat.Evasion += Mathf.RoundToInt(itemStat.Evasion * (bonusPercentage));
     }        
 
     //이펙트 타입에 따라 파티클 프리팹 적용
@@ -232,6 +231,7 @@ public class ActiveBuff
     }
 }
 
+
 public enum EffectType
 {
     None,
@@ -252,7 +252,8 @@ public enum ItemSize
 
 public enum BuffType
 {
-    Basic,  //힘, 민첩, 지능, 활력, 운
+    Basic,  //힘, 민접, 지능, 활력
     Combat, //최대체력, 최대마나, 물리공격력, 마법공격력, 물리방어력, 마법방어력
     Support //치명타확률, 공격속도, 회피율
 }
+
