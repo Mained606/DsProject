@@ -14,8 +14,8 @@ public class MoveBehaviour : IBehaviour
     {
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
         animator = controller.PlayerAnimator;
-        walkSpeed = controller.playerData.moveSpeed;
-        sprintSpeed = walkSpeed * 2f;
+        walkSpeed = controller.walkSpeed;
+        sprintSpeed = controller.sprintSpeed;
     }
 
     public void Enter()
@@ -41,6 +41,8 @@ public class MoveBehaviour : IBehaviour
         Vector3 moveDirection = direction;
         //moveDirection.y = controller.verticalVelocity.y;
 
+        walkSpeed = controller.walkSpeed;
+        sprintSpeed = controller.sprintSpeed;
         RunableCheck();
         float currentSpeed = canSprint ? sprintSpeed : walkSpeed;
 

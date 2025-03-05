@@ -34,7 +34,6 @@ public class PlayerCombat : MonoBehaviour
     private void Start()
     {
         controller = GetComponent<PlayerController>();
-        //weaponCollider = currentWeapon.GetComponent<Collider>();
         behaviour = PlayerBehaviourManager.Instance;
         firstAttack = true;
 
@@ -46,12 +45,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void Update()
     {
-        ////////////////////////////////////////////////////////////
-        // if (controller.uiCheck) return;
-        // controller.uiCheck UI 켜져있을때 막기위한 추가 확인조건
-        /// JWS 2025.01.27 13:00 수정
         if (controller.uiCheck) return;
-        ////////////////////////////////////////////////////////////
 
         SkillFinishedCheck();
         ParryFinishedCheck();

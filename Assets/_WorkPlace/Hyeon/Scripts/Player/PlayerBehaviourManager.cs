@@ -25,7 +25,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
     #region Bool Properties
     public bool CanMove { get => canMove; set { if (canMove != value) { canMove = value; UpdateBehaviours(); } } }
     public bool CanJump { get => canJump; set { if (canJump != value) { canJump = value; UpdateBehaviours(); } } }
-    //public bool CanClimb { get => canClimb; set { if (canClimb != value) { canClimb = value; UpdateBehaviours(); } } }
+    public bool CanClimb { get => canClimb; set { if (canClimb != value) { canClimb = value; UpdateBehaviours(); } } }
     //public bool CanGliding { get => canGliding; set { if (canGliding != value) { canGliding = value; UpdateBehaviours(); } } }
     public bool CanAttack { get => canAttack; set { if (canAttack != value) { canAttack = value; UpdateBehaviours(); } } }
     public bool CanUseSkill { get => canUseSkill; set { if (canUseSkill != value) { canUseSkill = value; UpdateBehaviours(); } } }
@@ -45,7 +45,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
         {
             { () => CanMove, typeof(MoveBehaviour) },
             { () => CanJump, typeof(JumpBehaviour) },
-            //{ () => CanClimb, typeof(ClimbBehaviour) },
+            { () => CanClimb, typeof(ClimbBehaviour) },
             //{ () => CanGliding, typeof(GlidingBehaviour) },
             { () => CanAttack, typeof(AttackBehaviour) },
             { () => CanUseSkill, typeof(SkillBehaviour) },
