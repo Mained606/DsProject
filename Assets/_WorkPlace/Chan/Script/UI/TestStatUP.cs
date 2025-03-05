@@ -37,11 +37,13 @@ public class TestStatUP : MonoBehaviour
     public Button button3;
     public Button button4;
 
-    public PlayerData playerData = CharacterManager.PlayerCharacterData;
+    public PlayerData playerData;
     
 
     private void Start()
     {
+        playerData = CharacterManager.PlayerCharacterData;
+            
         STR.text = playerData.strength.ToString();
         DEX.text = playerData.agility.ToString();
         INT.text = playerData.intelligence.ToString();

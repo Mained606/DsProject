@@ -148,7 +148,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         playercharacterData.currentMp = PlayerCharacterData.maxMp;
         PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
 
-        
+        playercharacterData.InitializeStats();
         // Debug.Log(PlayerCharacterData.ToStringForTMPro());
     }
     
