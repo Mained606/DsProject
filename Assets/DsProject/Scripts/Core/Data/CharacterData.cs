@@ -149,6 +149,9 @@ public class CharacterData
         this.currentExperience = 0;
         this.experienceToLevelUp = CalculateExperienceToLevelUp();
 
+        this.availableSkillPoints = 0;
+        this.availableStatPoints = 0;
+
         InitializeStats();
     }
 
