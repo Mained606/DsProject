@@ -39,6 +39,8 @@ public class TestStatUP : MonoBehaviour
     public Button button3;
     public Button button4;
     public Button button5;
+    public Button button6;
+    public Button button7;
 
     public PlayerData playerData;
     
@@ -60,7 +62,7 @@ public class TestStatUP : MonoBehaviour
         button4.onClick.AddListener(() => OnClickButton(StatType.Vitality));
         button5.onClick.AddListener(() => OnClickButtonSkill(SkillManager.SkillDatabase.playerSkills[0]));
     }
-
+    // 버튼 1~4번까지는 스탯 증가
     private void OnClickButton(StatType statType)
     {
        if(playerData.UpgradeStat(statType))
@@ -70,6 +72,7 @@ public class TestStatUP : MonoBehaviour
         Debug.Log("버튼 클릭");
 
     }
+    // 버튼 5번 스킬증가 6번 스킬감소 7번 확정버튼
     void OnClickButtonSkill(Skills skill)
     {
        if( playerData.UpgradeSkill(skill))
@@ -77,7 +80,7 @@ public class TestStatUP : MonoBehaviour
             UpdateUI();
         }
     }
-
+    // 변경 후 초기화
     private void UpdateUI()
     {
         STR.text = playerData.strength.ToString();
