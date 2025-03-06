@@ -13,24 +13,6 @@ public class InventoryManager : BaseManager<InventoryManager>
     public int CurrentCapacity { get; set; } = 30;   // 현재 수용량
     public bool IsCanUseInventory => inventory.Count < CurrentCapacity;
 
-    // sohyeon==================
-    public int selectedItem;
-
-    //public void AddItem(string itemId, int quantity = 1)
-    //{
-    //    if (!IsCanUseInventory) return;
-    //    Item item = ItemManager.Instance.GetItemById(itemId).Clone();
-    //    if (item != null)
-    //    {
-    //        item.quantity = quantity;
-    //        AddItemLogic(item);
-    //    }
-    //    else
-    //    {
-    //        Debug.LogWarning($"[InventoryManager] 아이템 ID '{itemId}'를 데이터베이스에서 찾을 수 없습니다.");
-    //    }
-    //}
-
     public static QuickSlotsUI QuickSlotsUI => Instance.quickSlotsUI;
 
     public void AddItemLogic(Item addItem)
@@ -41,7 +23,7 @@ public class InventoryManager : BaseManager<InventoryManager>
             return;
         }
 
-        var existingItem = FindExistingItem(addItem.id);
+        var existingItem = FindInventoryItem(addItem.id);
         if (existingItem != null && existingItem.isStackable)
         {
             HandleStackableItem(existingItem, addItem);
@@ -51,14 +33,6 @@ public class InventoryManager : BaseManager<InventoryManager>
             HandleNonStackableItem(addItem);
         }
         UIManager.Instance.InventoryUpdate();
-    }
-
-    public Item FindExistingItem(string itemId)
-    {
-        // sohyeon====================
-        selectedItem = inventory.FindIndex(i => i.id == itemId);
-        // sohyeon====================
-        return inventory.Find(i => i.id == itemId);
     }
 
     /// JWS  /////////////////////////////////////////
@@ -199,7 +173,7 @@ public class InventoryManager : BaseManager<InventoryManager>
 
     public bool CanAddInventoryItem(string itemId, int amount)
     {
-        var existingItem = FindExistingItem(itemId);
+        var existingItem = FindInventoryItem(itemId);
 
         if(GetRemainingInventory() > 0)
         {

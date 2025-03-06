@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,63 +7,60 @@ public class InputManager : BaseManager<InputManager>
 {
     public static PlayerInput InputActions;
 
-    // 입력 상태 관리
-    private static Dictionary<string, bool> inputStates = new Dictionary<string, bool>();
-    private static Dictionary<string, InputAction> inputActions = new Dictionary<string, InputAction>();
+    // 모든 입력의 활성 상태를 관리하는 딕셔너리
+    private Dictionary<string, bool> inputStates = new Dictionary<string, bool>();
 
     protected override void Awake()
     {
         base.Awake();
         InputActions = GetComponent<PlayerInput>();
 
-        InputInitialize();  // 입력 초기화
+        InputInitialize();
+
+        #region Delete
+        // ui키 연결
+        InputActions.actions["Inventory"].performed += OnInventoryKey;
+        InputActions.actions["Quest"].performed += OnQuestReview;
+        InputActions.actions["StatusUI"].performed += OnStatKey;
+        InputActions.actions["ESC"].performed += OnMainMenu;
+        #endregion
     }
 
     private void InputInitialize()
     {
-        foreach (var action in InputActions.actions)
+        foreach(var action in InputActions.actions)
         {
-            string actionName = action.name;
-            inputActions[actionName] = action;
-            inputStates[actionName] = false;
-            action.performed += ctx => UpdateInputState(actionName, true);
-            action.canceled += ctx => UpdateInputState(actionName, false);
+            inputStates[action.name] = true;
         }
-    }
-
-    private void UpdateInputState(string actionName, bool state)
-    {
-        if (inputStates.ContainsKey(actionName))
-        {
-            inputStates[actionName] = state;
-        }
-    }
-
-    public static bool GetInputState(string actionName)
-    {
-        return inputStates.ContainsKey(actionName) && inputStates[actionName];
     }
 
     public void SetInputEnabled(bool enabled, string actionName)
     {
-        if (inputActions.ContainsKey(actionName))
+        var action = InputActions.actions.FindAction(actionName, false);
+        if (action != null)
         {
             inputStates[actionName] = enabled;
 
             if (enabled)
-                inputActions[actionName].Enable();
+            {
+                InputActions.actions[actionName].Enable();
+            }
             else
-                inputActions[actionName].Disable();
+            {
+                InputActions.actions[actionName].Disable();
+                Debug.Log("InputAction Disable");
+            }
         }
         else
         {
-            Debug.LogWarning($"[경고] 입력 액션 '{actionName}'을 찾을 수 없습니다.");
+            Debug.LogWarning($"입력 액션 '{actionName}'을 찾을 수 없습니다.");
         }
     }
 
+    // 여러 개의 입력을 한 번에 설정하는 함수
     public void SetMultipleInputsEnabled(bool enabled, params string[] actionNames)
     {
-        foreach (var actionName in actionNames)
+        foreach(var actionName in actionNames)
         {
             SetInputEnabled(enabled, actionName);
         }
@@ -70,24 +68,136 @@ public class InputManager : BaseManager<InputManager>
 
     public void SetAllInputs(bool enabled)
     {
-        foreach (var actionName in inputActions.Keys)
+        foreach(var action in InputActions.actions)
         {
-            SetInputEnabled(enabled, actionName);
+            SetInputEnabled(enabled, action.name);
         }
     }
 
-    protected override void OnDisable()
+    #region Delete
+
+
+    private void OnInventoryKey(InputAction.CallbackContext context)
     {
-        base.OnDisable();
-        foreach (var action in InputActions.actions)
+
+        // 상태를 Inventory로 전환
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Inventory)
         {
-            string actionName = action.name;
-            action.performed -= ctx => UpdateInputState(actionName, true);
-            action.canceled -= ctx => UpdateInputState(actionName, false);
+            GameStateMachine.Instance.ChangeState(GameSystemState.Inventory);
+            Debug.Log("Inventory 상태로 전환됨.");
+        }
+
+        else
+        {
+            Debug.Log("I 1");
+
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+
+    }
+    private void OnQuestReview(InputAction.CallbackContext context)
+    {
+        // 상태를 Inventory로 전환
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.QuestReview)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.QuestReview);
+            Debug.Log("Quest 상태로 전환됨.");
+        }
+        else
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
         }
     }
+    private void OnStatKey(InputAction.CallbackContext context)
+    {
+        // 상태를 Inventory로 전환
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.StatusUI)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.StatusUI);
+            Debug.Log("Quest 상태로 전환됨.");
+        }
+        else
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+
+    private void OnMainMenu(InputAction.CallbackContext context)
+    {
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.MainMenu)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("ESC로 MainMenu상태로 전환.");
+        }
+    }
+
+    #endregion
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
+
     }
 }
+
+/* #region 테스트용 추가 메서드 불필요시 삭제
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            Debug.Log("I키 입력 확인");
+            ToggleInventoryState();
+        }
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            ToggleInventoryState2();
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            ToggleInventoryState3();
+        }
+    }
+
+    private void ToggleInventoryState()
+    {
+        var currentState = GameStateMachine.Instance.CurrentState;
+
+        if (currentState != GameSystemState.Inventory)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Inventory, null);
+        }
+        else if (currentState == GameSystemState.Inventory)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu, null);
+        }
+    }
+    private void ToggleInventoryState2()
+    {
+        var currentState = GameStateMachine.Instance.CurrentState;
+
+        if (currentState != GameSystemState.QuestReview)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.QuestReview, null);
+        }
+        else if (currentState == GameSystemState.QuestReview)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu, null);
+        }
+    }
+    private void ToggleInventoryState3()
+    {
+        var currentState = GameStateMachine.Instance.CurrentState;
+
+        if (currentState != GameSystemState.Stat)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Stat, null);
+        }
+        else if (currentState == GameSystemState.Stat)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu, null);
+        }
+    }
+    #endregion*/
