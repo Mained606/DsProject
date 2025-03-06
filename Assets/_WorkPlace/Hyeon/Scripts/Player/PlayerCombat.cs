@@ -8,12 +8,11 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     private PlayerController controller;
-    private CharacterController characterController;
+    private PlayerBehaviourManager behaviour;
     public WeaponManager weapon;
-    private PlayerData playerData;
     public Collider weaponCollider;
-    [SerializeField] private float attackPerceptionRange = 2.5f;
-    [SerializeField] private float skillPerceptionRange = 5f;
+    public float attackPerceptionRange = 2.5f;
+    //[SerializeField] private float skillPerceptionRange = 5f;
 
     public Animator playerAnimator;
     private Transform closestMonster;
@@ -25,25 +24,7 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] private bool CanParry;
     public bool onParry;
 
-    // public bool inputReceived = false;
-    // private bool inputReceived = false;
-
     public Quaternion targetRotation;
-    private AnimatorStateInfo stateInfo;
-    public bool firstCombo = false;
-
-
-    ////////////////////////////////////////////////////////////
-    /// /// JWS 2025.01.27 13:00 수정
-    // 사용처가 없어서 주석처리
-    // public HashSet<GameObject> DamagedTargets { get; set; } = new HashSet<GameObject>();
-    //   
-    // private static readonly int[] AttackStateHash = {
-    //    Animator.StringToHash("Base Layer.ComboAttack.Attack_1"),
-    //    Animator.StringToHash("Base Layer.ComboAttack.Attack_2"),
-    //    Animator.StringToHash("Base Layer.ComboAttack.Attack_3")
-    //};
-    ////////////////////////////////////////////////////////////
 
     private static readonly int[] SkillStateHash = {
         Animator.StringToHash("Base Layer.Skill_1"),
@@ -53,11 +34,10 @@ public class PlayerCombat : MonoBehaviour
     private void Start()
     {
         controller = GetComponent<PlayerController>();
-        characterController = GetComponent<CharacterController>();
-        //weaponCollider = currentWeapon.GetComponent<Collider>();
-        playerData = controller.playerData;
+        behaviour = PlayerBehaviourManager.Instance;
+        firstAttack = true;
 
-        if(weaponCollider != null)
+        if (weaponCollider != null)
         {
             weaponCollider.enabled = false;
         }
@@ -65,124 +45,10 @@ public class PlayerCombat : MonoBehaviour
 
     private void Update()
     {
-        ////////////////////////////////////////////////////////////
-        // if (controller.uiCheck) return;
-        // controller.uiCheck UI 켜져있을때 막기위한 추가 확인조건
-        /// JWS 2025.01.27 13:00 수정
         if (controller.uiCheck) return;
-        ////////////////////////////////////////////////////////////
 
-        //Debug.Log($"Current CanMove : {controller.CanMove}");
-        if (controller.isParry)
-        {
-            ParryCheck();
-        }
-
-        HandleAttackInput();
-        HandleSkillInput();
-        HandleBlockInput();
-
-        // 2025.01.29 JWS 주석처리 사용안해서
-
-        //if (controller.isAttack)
-        //{
-        //    AttackFinishedCheck();
-        //}
         SkillFinishedCheck();
         ParryFinishedCheck();
-    }
-
-    private void HandleAttackInput()
-    {
-
-        if (InputManager.InputActions.actions["Attack"].triggered)
-        {
-            if (isBlocking && CanParry && hasWeapon)
-            {
-                isBlocking = false;
-                OnParry();
-                return;
-            }
-            if(CanReceiveInput && hasWeapon)
-            {
-                if (!firstAttack)
-                {
-                    PerformComboAttack();
-                }
-            }
-
-            // 2025.01.29 JWS 주석처리 사용안해서
-            //inputReceived = true;
-            
-        }
-    }
-
-    ////////////////////////////////////////////////////////////
-    // 스테이트머신에서 처리하는걸로 옮겨서 불필요
-    /// JWS 2025.01.29 12:00 수정
-    //private void PerformComboAttack()
-    //{
-    //    controller.isAttack = true;
-    //    closestMonster = GetClosestMonster(attackPerceptionRange);
-    //    if (closestMonster != null)
-    //    {
-    //        //Debug.Log("Closest Monster: " + closestMonster.name);
-    //        LookEnemy();
-    //    }
-
-    //    if (inputReceived)
-    //    {
-    //        inputReceived = false;
-    //        CanReceiveInput = false;
-
-    //        playerAnimator.SetTrigger("NextCombo");
-    //    }
-    //}
-
-    private void AttackFinishedCheck()
-    {
-        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        float normalizedTime = stateInfo.normalizedTime;
-
-        if (normalizedTime >= 0.95f)
-        {
-            Debug.LogWarning("콤보 끝");
-            controller.CanMove = true;
-            controller.isAttack = false;
-            firstAttack = false;
-        }
-    }
-    ////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////
-    ///// JWS 2025.01.29 12:00 수정
-    //private void PerformComboAttack()
-    //{
-    //    controller.isAttack = true;
-    //    closestMonster = GetClosestMonster(attackPerceptionRange);
-    //    if (closestMonster != null)
-    //    {
-    //        //Debug.Log("Closest Monster: " + closestMonster.name);
-    //        LookEnemy();
-    //    }
-    //    playerAnimator.SetTrigger("NextCombo");
-    //}
-    private void PerformComboAttack()
-    {
-        if (controller.isSprinting)
-        {
-            //Debug.LogWarning("대쉬공격");
-            StartCoroutine(controller.DashAttack());
-            // 대쉬공격
-        }
-        else
-        {
-            LookEnemy(attackPerceptionRange);
-        }
-        firstAttack = true;
-        controller.isAttack = true;
-        playerAnimator.SetTrigger("NextCombo");
-        
     }
 
     // 현재 콤보진행상태 받아보는 함수 의미 없음.
@@ -195,110 +61,13 @@ public class PlayerCombat : MonoBehaviour
     public void AttackFinished()
     {
         //Debug.LogWarning("콤보종료함");
-        controller.CanMove = true;
         controller.isAttack = false;
-    }
-    ////////////////////////////////////////////////////////////
-
-    private void HandleSkillInput()
-    {
-        GameObject closestMonster = GetClosestMonster(skillPerceptionRange)?.gameObject;
-
-        int skillCounts = SkillManager.SkillDatabase.playerSkills.Count;
-
-        for (int i = 0; i < skillCounts; i++)
+        if (!controller.isDodging)
         {
-            string skillName = SkillManager.SkillDatabase.playerSkills[i].skillName;
-            string skillTriggerName = Enum.GetName(typeof(SkillTriggerName), i);
-            if (string.IsNullOrEmpty(skillTriggerName)) continue;
-            if (InputManager.InputActions.actions[skillTriggerName].triggered && hasWeapon)
-            {
-                controller.CanMove = false;
-                controller.CanAttack = false;
-     
-                if (SkillManager.Instance.CheckMana(EntityType.Player, skillName) &&
-                    SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
-                {
-                    controller.isUseSkill = true;
-                    SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
-                }
-                else
-                {
-                    Debug.Log($"스킬 사용 불가: {skillName} (마나 부족 또는 쿨타임 중)");
-                }
-            }
-        }
-        //if (InputManager.InputActions.actions["PlayerSkill_2"].triggered)
-        //{
-        //    //controller.CanMove = false;
-        //    //controller.CanAttack = false;
-        //    // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
-        //    // SkillManager.Instance.ActivateSkill("Water", closestMonster);
-        //    // ----------------------------------------------------------------
-        //    if (SkillManager.Instance.CheckMana(EntityType.Player, "Water") &&
-        //        SkillManager.Instance.CanActivateSkill(EntityType.Player, "Water"))
-        //    {
-        //        SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, "Water");
-        //    }
-        //    else
-        //    {
-        //        Debug.Log("스킬 사용 불가: 마나 부족 또는 쿨타임 중");
-        //    }
-        //}
-        //if (InputManager.InputActions.actions["PlayerSkill_3"].triggered)
-        //{
-        //    controller.CanMove = false;
-        //    controller.CanAttack = false;
-        //    // 20245-02-01 12:43 HYO 수정 임시 주석 처리--------------------------
-        //    // SkillManager.Instance.ActivateSkill("eee", closestMonster);
-        //    // ----------------------------------------------------------------
-        //}
-    }
-
-    private enum SkillTriggerName
-    {
-        PlayerSkill_1,
-        PlayerSkill_2,
-        PlayerSkill_3,
-        PlayerSkill_4,
-    }
-
-    private void HandleBlockInput()
-    {
-        if (InputManager.InputActions.actions["Block"].IsPressed() && controller.CanBlock && hasWeapon)
-        {
-            isBlocking = true;
-            CanParry = true;
-        }
-        else
-        {
-            isBlocking = false;
-            CanParry = false;
-        }
-        playerAnimator.SetBool("Block", isBlocking);
-    }
-
-    private void OnParry()
-    {
-        controller.isParry = true;
-        playerAnimator.SetBool("Parry", true);
-        //ParryCheck();
-    }
-    private void ParryCheck()
-    {
-        InputManager.InputActions.actions["Block"].Disable();
-        isBlocking = false;
-        stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        float normalized = stateInfo.normalizedTime;
-
-        if (normalized >= 0.1f && normalized <= 0.9f)
-        {
-            //Debug.LogWarning("onParry");
-            onParry = true;
-        }
-        else
-        {
-            onParry = false;
+            behaviour.CanMove = true;
+            behaviour.CanBlock = true;
+            behaviour.CanJump = true;
+            behaviour.CanUseSkill = true;
         }
     }
 
@@ -312,6 +81,8 @@ public class PlayerCombat : MonoBehaviour
 
             if (normalizedTime >= 0.95f)
             {
+                PlayerBehaviourManager.Instance.CanMove = true;
+                PlayerBehaviourManager.Instance.CanAttack = true;
                 controller.isUseSkill = false;
             }
         }
@@ -326,11 +97,13 @@ public class PlayerCombat : MonoBehaviour
                 controller.isParry = false;
                 onParry = false;
                 playerAnimator.SetBool("Parry", false);
+                PlayerBehaviourManager.Instance.CanBlock = true;
+                PlayerBehaviourManager.Instance.CanAttack = true;
             }
         }
     }
 
-    private Transform GetClosestMonster(float perceptionRange)
+    public Transform GetClosestMonster(float perceptionRange)
     {
         Collider[] colliders = Physics.OverlapSphere(transform.position, perceptionRange);
         Transform closestTransform = null;
@@ -351,16 +124,6 @@ public class PlayerCombat : MonoBehaviour
         return closestTransform;
     }
 
-    ////////////////////////////////////////////////////////////
-    ///// JWS 2025.01.29 12:00 수정
-    //private void LookEnemy()
-    //{
-    //    Vector3 dir = (closestMonster.position - transform.position).normalized;
-    //    dir.y = 0f;
-    //    targetRotation = Quaternion.LookRotation(dir);
-    //    controller.transform.rotation = targetRotation;
-    //}
-
     public void LookEnemy(float perceptionRange)
     {
         closestMonster = GetClosestMonster(perceptionRange);
@@ -369,12 +132,5 @@ public class PlayerCombat : MonoBehaviour
         dir.y = 0f;
         targetRotation = Quaternion.LookRotation(dir);
         controller.transform.rotation = targetRotation;
-    }
-    ////////////////////////////////////////////////////////////
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, attackPerceptionRange);
     }
 }

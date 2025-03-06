@@ -62,8 +62,6 @@ public class ComboAttackState : StateMachineBehaviour
         {
             combat.weaponCollider.enabled = false;
         }
-        InputManager.InputActions.actions["Move"].Disable();
-        InputManager.InputActions.actions["Jump"].Disable();
     }
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -96,15 +94,13 @@ public class ComboAttackState : StateMachineBehaviour
             animator.ResetTrigger("NextCombo");
             combat?.AttackFinished();
             //Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
-            combat.firstAttack = false;
+            combat.firstAttack = true;
             if (combat.weaponCollider.enabled)
             {
                 combat.weaponCollider.enabled = false;
                 //Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
             }
         }
-        InputManager.InputActions.actions["Move"].Enable();
-        InputManager.InputActions.actions["Jump"].Enable();
 
         //SetCombatComponent(animator);
         //if (animator.IsInTransition(layerIndex))
