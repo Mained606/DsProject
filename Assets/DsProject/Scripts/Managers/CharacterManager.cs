@@ -140,7 +140,10 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.level = 1;
         PlayerCharacterData.currentExperience = 0;
         PlayerCharacterData.experienceToLevelUp = PlayerCharacterData.CalculateExperienceToLevelUp();
-
+        
+        playercharacterData.availableSkillPoints = 0;
+        playercharacterData.availableStatPoints = 0;
+        
         // 골드 초기화
         PlayerCharacterData.gold = 0;
         
@@ -148,7 +151,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         playercharacterData.currentMp = PlayerCharacterData.maxMp;
         PlayerCharacterData.staminaCurrent = PlayerCharacterData.stamina;
 
-        
+        playercharacterData.InitializeStats();
         // Debug.Log(PlayerCharacterData.ToStringForTMPro());
     }
     

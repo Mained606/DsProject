@@ -1,7 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using Unity.Collections;
 using UnityEngine;
 
 
@@ -13,13 +12,14 @@ public class CookingManager : CraftManager
 
     public List<string> specialIngredients = new List<string>();    //특수 요리 재료
 
-    [SerializeField] protected override List<Recipe> Recipes { get; set; }
+    [field: NonSerialized]
+    public override List<Recipe> Recipes { get; set; }
 
     protected override void Awake()
     {
         if (Instance == null || Instance == this)
         {
-            Instance = this;
+            Instance = this; 
         }
         else
         {
@@ -35,7 +35,6 @@ public class CookingManager : CraftManager
     //요리 효과 계산
     private Item CalculateDishStat(List<Item> ingredients, Recipe recipe)
     {
-
         //기본 요리 스탯
         Item totalItem = ItemManager.Instance.GetItemById(recipe.itemId).Clone();
         ItemStat totalStat = totalItem.itemStat;
