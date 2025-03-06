@@ -274,7 +274,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
     #region Variables
 
-    private Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
+    public Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
     private Dictionary<BuffType, ActiveBuff> activeBuffs = new Dictionary<BuffType, ActiveBuff>();
     private Dictionary<BuffType, Coroutine> activeCoroutines = new Dictionary<BuffType, Coroutine>();
 
@@ -452,7 +452,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         ApplyStatBuff(BuffType.Support, "Evasion", itemStat.Evasion, duration);
     }
 
-    private void ApplyStatBuff(BuffType buffType, string statName, int value, float duration)
+    private void ApplyStatBuff(BuffType buffType, string statName, float value, float duration)
     {
         if (value == 0) return;
 
@@ -518,14 +518,14 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     }
 
     //한 아이템 스탯만 적용
-    private void UpdatePlayerStats(string statName, int value, int multiplier)
+    private void UpdatePlayerStats(string statName, float value, int multiplier)
     {
-        if (statName == "Strength") Player.strength += value * multiplier;
-        if (statName == "Dexterity") Player.agility += value * multiplier;
-        if (statName == "Intelligence") Player.intelligence += value * multiplier;
-        if (statName == "Vitality") Player.vitality += value * multiplier;
-        if (statName == "MaxHealth") Player.maxHp += value * multiplier;
-        if (statName == "MaxMana") Player.maxMp += value * multiplier;
+        if (statName == "Strength") Player.strength += Mathf.RoundToInt(value * multiplier);
+        if (statName == "Dexterity") Player.agility += Mathf.RoundToInt(value * multiplier);
+        if (statName == "Intelligence") Player.intelligence += Mathf.RoundToInt(value * multiplier);
+        if (statName == "Vitality") Player.vitality += Mathf.RoundToInt(value * multiplier);
+        if (statName == "MaxHealth") Player.maxHp += Mathf.RoundToInt(value * multiplier);
+        if (statName == "MaxMana") Player.maxMp += Mathf.RoundToInt(value * multiplier);
         if (statName == "PhysicalAttack") Player.physicalDamage += value * multiplier;
         if (statName == "MagicAttack") Player.magicDamage += value * multiplier;
         if (statName == "PhysicalDefense") Player.physicalDefense += value * multiplier;
@@ -545,7 +545,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"{item.name} 버프 효과 해제, 효과량 {amount}");
     }
 
-    private IEnumerator RemoveBuffAfterDuration(BuffType buffType, string statName, int value, float duration)
+    private IEnumerator RemoveBuffAfterDuration(BuffType buffType, string statName, float value, float duration)
     {
         Debug.Log($"{statName} 지속시간: {duration}");
 

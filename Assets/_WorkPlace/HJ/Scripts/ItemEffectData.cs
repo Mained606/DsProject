@@ -219,10 +219,10 @@ public class ActiveBuff
 {
     public BuffType category;   //버프타입
     public string statName;     //버프이름
-    public int value;           //효과 수치
+    public float value;         //효과 수치
     public float duration;      //지속시간
 
-    public ActiveBuff(BuffType category, string statName, int value, float duration)
+    public ActiveBuff(BuffType category, string statName, float value, float duration)
     {
         this.category = category;
         this.statName = statName;

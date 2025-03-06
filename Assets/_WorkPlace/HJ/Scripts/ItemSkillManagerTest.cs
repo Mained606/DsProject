@@ -3,6 +3,6 @@ using UnityEngine;
 
 public class ItemSkillManagerTest : MonoBehaviour
 {
-    public Dictionary<ElementType, CountCoroutine> elementCount = new Dictionary<ElementType, CountCoroutine>();
+    //public Dictionary<ElementType, CountCoroutine> elementCount = new Dictionary<ElementType, CountCoroutine>();
 
 }

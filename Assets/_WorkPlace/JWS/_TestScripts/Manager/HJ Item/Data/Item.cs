@@ -203,15 +203,15 @@ public class ItemStat
     [Header("전투 스탯")]
     public int MaxHealth;         // 최대 체력
     public int MaxMana;           // 최대 마나
-    public int PhysicalAttack;    // 물리 공격력
-    public int MagicAttack;       // 마법 공격력
-    public int PhysicalDefense;   // 물리 방어력
-    public int MagicDefense;      // 마법 방어력
+    public float PhysicalAttack;    // 물리 공격력
+    public float MagicAttack;       // 마법 공격력
+    public float PhysicalDefense;   // 물리 방어력
+    public float MagicDefense;      // 마법 방어력
 
     [Header("보조 스탯")]
-    public int CriticalChance;    // 치명타 확률 (%)
-    public int AttackSpeed;       // 공격 속도
-    public int Evasion;           // 회피율 (%)
+    public float CriticalChance;    // 치명타 확률 (%)
+    public float AttackSpeed;       // 공격 속도
+    public float Evasion;           // 회피율 (%)
 
     [Header("방패 확률")]
     public float BlockChance;     // 방어확률(방패 전용)

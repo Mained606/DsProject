@@ -1,29 +1,38 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
-/// <summary>
-/// 타겟을 트랜스폼으로 받아올지 몬스터데이터로 받아올지 고민할것..
-/// 몬스터 데이터에 각 속성별 카운트 추가
-/// 일정 시간이 지나면 카운트가 0이 되도록 설정
-/// </summary>
 public class ItemSkillManager : BaseManager<ItemSkillManager>
 {
-    [SerializeField] private float effectDuration = 1f;
+    public Dictionary<Item, Coroutine> elementCoroutine = new Dictionary<Item, Coroutine>();
+    [SerializeField] private float elementRecoverTime = 10f;
+    [SerializeField] private float effectDuration = 2f;
     [SerializeField] private Vector3 particleOffset = new Vector3();
 
-    
+    public int attackCount = 0;
 
-    public void ApplyElementEffect(Item weapon, Transform target)
+    public void ApplyElementEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
-        switch (weapon.itemSkill.element)
+        ItemSkill skill = weapon.itemSkill;
+
+        if (skill == null || !skill.isActive)
+            return;
+
+        if(attackCount >= 5)
+        {
+            elementCoroutine[weapon] = StartCoroutine(DisalbeWeaponEffect(weapon));
+            return;
+        }
+
+        switch (skill.element)
         {
             case ElementType.Fire:
                 ApplyFireEffect(weapon, target);
                 break;
 
-            case ElementType.Ice:
-                ApplyIceEffect(weapon, target);
+            case ElementType.Water:
+                ApplyWaterEffect(weapon, target);
                 break;
 
             case ElementType.Electric:
@@ -31,56 +40,104 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
                 break;
         }
 
-        PlayParticle(weapon, target);
+        PlayParticle(weapon, targetTransform);
     }
 
-    //일정수치가 지나면 지속뎀
-    private void ApplyFireEffect(Item weapon, Transform target)
+    public float ElementDamageMultiplier(Item weapon, CharacterData target)
+    {
+        ElementType element = weapon.itemSkill.element;
+
+        if (element == ElementType.Normal)
+            return 0;
+
+        float damageMultiplier = 0;
+
+        //if (element == ElementType.Fire && target.elementType == ElementType.Ice)
+        //{
+        //    damageMultiplier = 1.2f;
+        //}
+        //else if (element == ElementType.Ice && target.elementType == ElementType.Fire)
+        //{
+        //    damageMultiplier = 0.8f;
+        //}
+        //else if(element == ElementType.Electric && target.elementType == ElementType.Fire)
+        //{
+        //    damageMultiplier = 1.1f;
+        //}
+
+        return damageMultiplier;
+    }
+
+    //지속뎀
+    private void ApplyFireEffect(Item weapon, CharacterData target)
     {
         ItemSkill skill = weapon.itemSkill;
 
         if (skill == null || !skill.isActive)
             return;
 
-        
+        //지속뎀 로직 추가
     }
 
-    private void ApplyIceEffect(Item weapon, Transform target)
+    //동결
+    private void ApplyWaterEffect(Item weapon, CharacterData target)
     {
-        //점점 이속저하되다가 일정 카운트가 지나면 동결
+        ItemSkill skill = weapon.itemSkill;
+
+        if (skill == null || !skill.isActive)
+            return;
+
+        //동결 로직 추가
     }
 
-    private void ApplyElectircEffect(Item weapon, Transform target)
+    //감전
+    private void ApplyElectircEffect(Item weapon, CharacterData target)
     {
-        //감전
+        ItemSkill skill = weapon.itemSkill;
+
+        if (skill == null || !skill.isActive)
+            return;
+
+        //감전 로직 추가
     }
 
-    //화상
-    private IEnumerator ApplyBurnt(Transform target)
+    //무기 속성 비활성화
+    private IEnumerator DisalbeWeaponEffect(Item weapon)
     {
-        bool isBurnt = true;
+        weapon.itemSkill.isActive = false;
+        //이펙트 비활성화 로직 추가
 
-        while(isBurnt)
+        yield return new WaitForSeconds(elementRecoverTime);
+
+        weapon.itemSkill.isActive = true;
+        //이펙트 활성화 로직 추가
+
+        //딕셔너리 키값 제거
+        if (elementCoroutine.ContainsKey(weapon))
+            elementCoroutine.Remove(weapon);
+    }
+
+    private void PlayAttackParticle(Item weapon)
+    {
+        GameObject effect = weapon.itemSkill.attackEffect;
+
+        if(effect != null)
         {
-            //지속 뎀지
 
-            yield return new WaitForSeconds(10f);
-
-            isBurnt = false;
         }
     }
 
-    private void PlayParticle(Item weapon, Transform target)
+    private void PlayParticle(Item weapon, Transform targetTransform)
     {
         GameObject effect = weapon.itemSkill.attackEffect;
 
         if (effect != null)
         {
             var itemEffectGo = Instantiate(effect,
-                target.position + particleOffset,
+                targetTransform.position + particleOffset,
                 Quaternion.identity);
 
-            itemEffectGo.transform.SetParent(target);
+            itemEffectGo.transform.SetParent(targetTransform);
             Destroy(itemEffectGo, effectDuration);
         }
     }
