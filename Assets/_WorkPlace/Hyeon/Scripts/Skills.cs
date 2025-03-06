@@ -26,6 +26,7 @@ public class Skills
     public void Initialize()
     {
         cooldownTimer = new BasicTimer(cooldown);
+        skillLevel = 1;
     }
     
     public float GetSkillDuration()

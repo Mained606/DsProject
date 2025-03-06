@@ -57,15 +57,16 @@ public class CraftManager : MonoBehaviour
 
     //public List<string> specialIngredients = new List<string>();    //특수 제작 재료
 
-    [SerializeField] protected virtual List<Recipe> Recipes { get; set; }
+    private List<Recipe> recipes;
+    public virtual List<Recipe> Recipes { get => recipes; set => recipes = value; }
 
-    protected virtual void Awake()
+    protected virtual void Awake() 
     {
         //base.Awake();
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(this.transform.parent);
         }
         else
         {
