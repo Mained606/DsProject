@@ -72,7 +72,7 @@ public class Item
             this.itemStat = new ItemStat(1, 1, 1, 1); // 기본 스탯
             this.durability = new Durability(100);       // 기본 내구도
             this.isEquired = false;
-            this.itemStat.Initialize();
+            //this.itemStat.Initialize();
         }
         else if (type == ItemType.장신구)
         {

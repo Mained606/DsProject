@@ -56,7 +56,7 @@ public class ItemManager : BaseManager<ItemManager>
             if (item.quantity == 0 ) item.quantity = 1;
             if (item.type == ItemType.무기 || item.type == ItemType.방어구)
             {
-                item.itemStat.Initialize();
+                //item.itemStat.Initialize();
             }
         }
     }

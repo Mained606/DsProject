@@ -1,29 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class ItemSkillManager : BaseManager<ItemSkillManager>
 {
     public Dictionary<Item, Coroutine> elementCoroutine = new Dictionary<Item, Coroutine>();
     [SerializeField] private float elementRecoverTime = 10f;
-    [SerializeField] private float effectDuration = 2f;
+    [SerializeField] private float effectDuration = 0.5f;
     [SerializeField] private Vector3 particleOffset = new Vector3();
 
     public int attackCount = 0;
+    public Coroutine elementDisableCoroutine = null;
+    public bool isActive = true;
 
     public void ApplyElementEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || !skill.isActive)
+        if (skill == null || !isActive || attackCount >= 4)
             return;
-
-        if(attackCount >= 5)
-        {
-            elementCoroutine[weapon] = StartCoroutine(DisalbeWeaponEffect(weapon));
-            return;
-        }
 
         switch (skill.element)
         {
@@ -40,7 +35,17 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
                 break;
         }
 
-        PlayParticle(weapon, targetTransform);
+        PlayAttackParticle(weapon);
+    }
+
+    public void UpdateAttackCount()
+    {
+        attackCount++;
+
+        if(attackCount >= 4)
+        {
+            elementDisableCoroutine = StartCoroutine(DisableWeaponEffect());
+        }
     }
 
     public float ElementDamageMultiplier(Item weapon, CharacterData target)
@@ -52,42 +57,59 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         float damageMultiplier = 0;
 
-        //if (element == ElementType.Fire && target.elementType == ElementType.Ice)
+        //if (element == ElementType.Fire)
         //{
-        //    damageMultiplier = 1.2f;
+        //    if(target.elementType == ElementType.Ground)
+        //        damageMultiplier = 2f;
+        //    else if (target.elementType == ElementType.Water)
+        //        damageMultiplier = 0.5f;
         //}
-        //else if (element == ElementType.Ice && target.elementType == ElementType.Fire)
+        //else if (element == ElementType.Water)
         //{
-        //    damageMultiplier = 0.8f;
+        //    if(target.elementType == ElementType.Fire)
+        //        damageMultiplier = 2f;
+        //    else if (target.elementType == ElementType.Electric)
+        //        damageMultiplier = 0.5f;
         //}
-        //else if(element == ElementType.Electric && target.elementType == ElementType.Fire)
+        //else if (element == ElementType.Electric)
         //{
-        //    damageMultiplier = 1.1f;
+        //    if (target.elementType == ElementType.Water)
+        //        damageMultiplier = 2f;
+        //    else if (target.elementType == ElementType.Fire)
+        //        damageMultiplier = 0.5f;
+        //}
+        //else if (element == ElementType.Ground)
+        //{
+        //    if (target.elementType == ElementType.Electric)
+        //        damageMultiplier = 2f;
+        //    else if (target.elementType == ElementType.Water)
+        //        damageMultiplier = 0.5f;
         //}
 
         return damageMultiplier;
     }
 
+    #region PrivateMethod
     //지속뎀
     private void ApplyFireEffect(Item weapon, CharacterData target)
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || !skill.isActive)
+        if (skill == null || !isActive)
             return;
 
         //지속뎀 로직 추가
     }
 
-    //동결
+    //이속 감소
     private void ApplyWaterEffect(Item weapon, CharacterData target)
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || !skill.isActive)
+        if (skill == null || !isActive)
             return;
 
-        //동결 로직 추가
+        //이속 감소
     }
 
     //감전
@@ -95,26 +117,22 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || !skill.isActive)
+        if (skill == null || !isActive)
             return;
 
-        //감전 로직 추가
+        //감전
     }
 
     //무기 속성 비활성화
-    private IEnumerator DisalbeWeaponEffect(Item weapon)
+    private IEnumerator DisableWeaponEffect()
     {
-        weapon.itemSkill.isActive = false;
+        isActive = false;
         //이펙트 비활성화 로직 추가
 
         yield return new WaitForSeconds(elementRecoverTime);
 
-        weapon.itemSkill.isActive = true;
+        isActive = true;
         //이펙트 활성화 로직 추가
-
-        //딕셔너리 키값 제거
-        if (elementCoroutine.ContainsKey(weapon))
-            elementCoroutine.Remove(weapon);
     }
 
     private void PlayAttackParticle(Item weapon)
@@ -123,26 +141,17 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         if(effect != null)
         {
-
-        }
-    }
-
-    private void PlayParticle(Item weapon, Transform targetTransform)
-    {
-        GameObject effect = weapon.itemSkill.attackEffect;
-
-        if (effect != null)
-        {
-            var itemEffectGo = Instantiate(effect,
-                targetTransform.position + particleOffset,
+            GameObject attackEffect = Instantiate(effect,
+                transform.position + particleOffset,
                 Quaternion.identity);
 
-            itemEffectGo.transform.SetParent(targetTransform);
-            Destroy(itemEffectGo, effectDuration);
+            attackEffect.transform.SetParent(this.transform);
+            Destroy(attackEffect, effectDuration);
         }
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
     }
+    #endregion
 }

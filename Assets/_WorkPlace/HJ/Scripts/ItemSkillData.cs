@@ -4,8 +4,9 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 불은 밸런스 / 얼음은 공격력 / 전기는 공속
-/// 불은 도트뎀, 물 이속감소, 전기 스턴, 땅
+/// 불은 도트뎀, 물 이속감소, 전기 스턴, 땅 깡뎀
 /// 속성 무기는 여러번 때리면 카운트가 올라가고 카운트 다 쓰면 일반 무기처럼... 일정 시간이 지나면 다시 충전
+/// 디버프는 처음 타격했을때만 적용, 더 때린다고 해서 효과가 누적되거나 지속시간이 늘어나지 x
 /// </summary>
 [Serializable]
 public class ItemSkill
@@ -18,10 +19,7 @@ public class ItemSkill
     public GameObject attackEffect; //공격 시 나오는 효과
 
     public float power = 0;        //공격력 + (무기)
-    //public float deffence = 1;      //방어력 + (방어구)
-    public float attackSpeed = 0;   //공격 속도 +
 
-    [HideInInspector] public bool isActive = true;
 
     //아이템 강화시에 초기화
     public void Initialize(Item item)
