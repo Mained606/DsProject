@@ -99,6 +99,9 @@ public class CharacterData
     
     [HideInInspector] public GameObject instance;  // 생성된 몬스터 인스턴스를 저장할 필드
 
+    public int availableSkillPoints;
+    public int availableStatPoints;
+
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(
         string name,
@@ -452,8 +455,8 @@ public class PlayerData : CharacterData
     public List<string> skills = new List<string>();    // 스킬 목록
     public int gold; // 골드 소지량
     
-    public int availableSkillPoints = 0;
-    public int availableStatPoints = 0;
+    //public int availableSkillPoints;
+    //public int availableStatPoints;
 
     // 생성자
     public PlayerData(string name, GameObject prefab, int strength, int vitality, int agility, int intelligence,
