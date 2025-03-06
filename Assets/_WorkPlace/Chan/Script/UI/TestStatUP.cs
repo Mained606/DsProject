@@ -41,6 +41,11 @@ public class TestStatUP : MonoBehaviour
     public Button button5;
     public Button button6;
     public Button button7;
+    public Button button8;
+    public Button button9;
+    
+    public Button button10;
+    public Button button11;
 
     public PlayerData playerData;
     
@@ -56,23 +61,43 @@ public class TestStatUP : MonoBehaviour
         SkillLevel.text = SkillManager.SkillDatabase.playerSkills[0].skillLevel.ToString();
 
 
-        button1.onClick.AddListener(() => OnClickButton(StatType.Strength));
-        button2.onClick.AddListener(() => OnClickButton(StatType.Agility));
-        button3.onClick.AddListener(() => OnClickButton(StatType.Intelligence));
-        button4.onClick.AddListener(() => OnClickButton(StatType.Vitality));
+        button1.onClick.AddListener(() => OnClickButton(StatType.Strength, 1));
+        button2.onClick.AddListener(() => OnClickButton(StatType.Agility, 1));
+        button3.onClick.AddListener(() => OnClickButton(StatType.Intelligence, 1));
+        button4.onClick.AddListener(() => OnClickButton(StatType.Vitality, 1));
+        
+        button6.onClick.AddListener(() => OnClickButton(StatType.Strength, -1));
+        button7.onClick.AddListener(() => OnClickButton(StatType.Agility, -1));
+        button8.onClick.AddListener(() => OnClickButton(StatType.Intelligence, -1));
+        button9.onClick.AddListener(() => OnClickButton(StatType.Vitality, -1));
+
         button5.onClick.AddListener(() => OnClickButtonSkill(SkillManager.SkillDatabase.playerSkills[0]));
+
+        button10.onClick.AddListener(() => OnClickComfirm());
+        button11.onClick.AddListener(() => OnClickCancel());
     }
-    // 버튼 1~4번까지는 스탯 증가
-    private void OnClickButton(StatType statType)
+
+    private void OnClickButton(StatType statType, int delta)
     {
-       if(playerData.UpgradeStat(statType))
+        if(playerData.AdjustTempStat(statType, delta))
         {
+            Debug.Log("버튼 클릭");
             UpdateUI();
         }
-        Debug.Log("버튼 클릭");
-
     }
-    // 버튼 5번 스킬증가 6번 스킬감소 7번 확정버튼
+
+    private void OnClickComfirm()
+    {
+        playerData.ConfirmTempAllocation();
+        UpdateUI();
+    }
+
+    private void OnClickCancel()
+    {
+        playerData.CancelTempAllocation();
+        UpdateUI();
+    }
+    
     void OnClickButtonSkill(Skills skill)
     {
        if( playerData.UpgradeSkill(skill))
@@ -80,7 +105,7 @@ public class TestStatUP : MonoBehaviour
             UpdateUI();
         }
     }
-    // 변경 후 초기화
+
     private void UpdateUI()
     {
         STR.text = playerData.strength.ToString();
