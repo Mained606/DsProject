@@ -94,6 +94,7 @@ public class CharacterData
     private StatModifier baseStatModifier = new StatModifier();
 
     private Dictionary<StatType, int> stats;
+    public Dictionary<StatType, int> tempStatChanges;
 
     private bool isLevelingUp = false; // 레벨업 진행 중 여부
     
@@ -163,6 +164,15 @@ public class CharacterData
             { StatType.Vitality, vitality },
             { StatType.Agility, agility },
             { StatType.Intelligence, intelligence }
+        };
+        
+        // 임시 할당된 스탯 변경치 (초기값은 모두 0)
+        tempStatChanges = new Dictionary<StatType, int>()
+        {
+            { StatType.Strength, 0 },
+            { StatType.Vitality, 0 },
+            { StatType.Agility, 0 },
+            { StatType.Intelligence, 0 }
         };
     }
 
@@ -457,9 +467,6 @@ public class PlayerData : CharacterData
 {
     public List<string> skills = new List<string>();    // 스킬 목록
     public int gold; // 골드 소지량
-    
-    //public int availableSkillPoints;
-    //public int availableStatPoints;
 
     // 생성자
     public PlayerData(string name, GameObject prefab, int strength, int vitality, int agility, int intelligence,
@@ -467,6 +474,96 @@ public class PlayerData : CharacterData
         : base(name, CharacterType.Player, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate)
     {
         gold = 0; // 초기 골드는 0
+    }
+    
+    // 스탯을 조정하는 메서드
+    public bool AdjustTempStat(StatType statType, int delta)
+    {
+        int baseValue = 0;
+        switch (statType)
+        {
+            case StatType.Strength: baseValue = this.strength; break;
+            case StatType.Vitality: baseValue = this.vitality; break;
+            case StatType.Agility: baseValue = this.agility; break;
+            case StatType.Intelligence: baseValue = this.intelligence; break;
+        }
+        
+        int newTemp = tempStatChanges[statType] + delta;
+        // 최종 스탯 값이 0 미만이 되지 않도록 제한 (필요에 따라 최소값 조정 가능)
+        if (baseValue + newTemp < 0)
+        {
+            Debug.LogWarning($"{statType}은(는) 기본 값 이하로 내려갈 수 없습니다.");
+            return false;
+        }
+        
+        // delta가 양수이면 사용 가능한 스탯 포인트 체크
+        if (delta > 0)
+        {
+            if (availableStatPoints < delta)
+            {
+                Debug.LogWarning("사용 가능한 스탯 포인트가 부족합니다!");
+                return false;
+            }
+            availableStatPoints -= delta;
+        }
+        // delta가 음수면 환급
+        else if (delta < 0)
+        {
+            availableStatPoints += (-delta);
+        }
+        
+        tempStatChanges[statType] = newTemp;
+        // UI 갱신 등을 통해 미리보기 표시 가능
+        return true;
+    }
+    
+    // 임시 할당된 스탯 변경치를 실제 스탯에 반영하는 메서드.
+    public void ConfirmTempAllocation()
+    {
+        foreach (var kvp in tempStatChanges)
+        {
+            // 기존 ModifyStat 메서드는 기본 스탯 딕셔너리와 필드 값을 함께 업데이트합니다.
+            ModifyStat(kvp.Key, kvp.Value);
+        }
+        // 임시 할당 값 초기화
+        tempStatChanges[StatType.Strength] = 0;
+        tempStatChanges[StatType.Vitality] = 0;
+        tempStatChanges[StatType.Agility] = 0;
+        tempStatChanges[StatType.Intelligence] = 0;
+        
+        // (필요하면 확정 후 UI 업데이트 등 후속 처리)
+    }
+    
+    // 임시 할당된 스탯 변경치를 실제 스탯에 반영하는 메서드.
+    public void CancelTempAllocation()
+    {
+        // 환급: 양수로 할당된 포인트만 환급 처리
+        foreach (var kvp in tempStatChanges)
+        {
+            if (kvp.Value > 0)
+            {
+                availableStatPoints += kvp.Value;
+            }
+        }
+        // 임시 변경치 초기화
+        tempStatChanges[StatType.Strength] = 0;
+        tempStatChanges[StatType.Vitality] = 0;
+        tempStatChanges[StatType.Agility] = 0;
+        tempStatChanges[StatType.Intelligence] = 0;
+    }
+    
+    // 해당 스탯의 현재 기본값과 임시 할당치를 더한 미리보기 값 반환
+    public int GetPreviewStat(StatType statType)
+    {
+        int baseValue = 0;
+        switch (statType)
+        {
+            case StatType.Strength: baseValue = this.strength; break;
+            case StatType.Vitality: baseValue = this.vitality; break;
+            case StatType.Agility: baseValue = this.agility; break;
+            case StatType.Intelligence: baseValue = this.intelligence; break;
+        }
+        return baseValue + tempStatChanges[statType];
     }
 
     public void AddSkill(string skill) => skills.Add(skill);
@@ -493,23 +590,25 @@ public class PlayerData : CharacterData
     
     protected override void AwardLevelUpPoints()
     {
-        availableSkillPoints += 1; // 스킬 포인트 1 지급
         availableStatPoints += 5;  // 스탯 포인트 5 지급
+        // availableSkillPoints += 1; // 스킬 포인트 1 지급
     }
     
-    public bool UpgradeStat(StatType statType)
-    {
-        if (availableStatPoints > 0)
-        {
-            ModifyStat(statType, 1); // 기존 스탯 증가 함수 사용
-            availableStatPoints--;
-            Debug.Log($"{statType} 스탯 증가! 남은 스탯 포인트: {availableStatPoints}");
-            return true;
-        }
-        Debug.LogWarning("스탯 포인트가 부족합니다!");
-        return false;
-    }
-
+    // public bool UpgradeStat(StatType statType)
+    // {
+    //     
+    //     if (availableStatPoints > 0)
+    //     {
+    //         ModifyStat(statType, 1); // 기존 스탯 증가 함수 사용
+    //         availableStatPoints--;
+    //         Debug.Log($"{statType} 스탯 증가! 남은 스탯 포인트: {availableStatPoints}");
+    //         return true;
+    //     }
+    //     Debug.LogWarning("스탯 포인트가 부족합니다!");
+    //     return false;
+    // }
+    
+    // 스킬 포인트 사용 레벨업 함수
     public bool UpgradeSkill(Skills skill)
     {
         if (availableSkillPoints > 0)
