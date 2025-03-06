@@ -42,6 +42,7 @@ public class ComboAttackState : StateMachineBehaviour
             //Debug.LogWarning("🔪 무기 콜라이더 활성화!");
         }
         combat?.LookEnemy(attackPerceptionRange);
+        // 휘두른 횟수 증가 함수
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

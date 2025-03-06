@@ -91,7 +91,7 @@ public class IKTest : MonoBehaviour
 
         if(Physics.Raycast(ray, out hit, DistanceToWall + 1f, LayerMask))
         {
-            //Debug.Log($"{hand}손 레이 맞는 중: {hit.transform.name}");
+            Debug.Log($"{hand}손 레이 맞는 중: {hit.transform.name}");
             if(hand == AvatarIKGoal.LeftHand)
             {
                 offset = leftHandOffset;

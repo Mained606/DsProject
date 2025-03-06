@@ -1,14 +1,18 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MoveBehaviour : IBehaviour
 {
     private PlayerController controller;
     private Animator animator;
+
     private float walkSpeed;
     private float sprintSpeed;
     private bool canSprint;
 
     private float currentStamina;
+
+    private Vector2 moveInput;
 
     public MoveBehaviour()
     {
@@ -21,6 +25,11 @@ public class MoveBehaviour : IBehaviour
     public void Enter()
     {
         controller.isMove = false;
+        PlayerBehaviourManager.Instance.CanAttack = true;
+        PlayerBehaviourManager.Instance.CanUseSkill = true;
+        PlayerBehaviourManager.Instance.CanBlock = true;
+        PlayerBehaviourManager.Instance.CanDodge = true;
+        PlayerBehaviourManager.Instance.CanClimb = true;
     }
 
     public void Execute()
@@ -35,7 +44,7 @@ public class MoveBehaviour : IBehaviour
 
     private void HandleMovement()
     {
-        Vector2 moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
+        moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
 
         Vector3 direction = controller.GetDirection(moveInput);
         Vector3 moveDirection = direction;

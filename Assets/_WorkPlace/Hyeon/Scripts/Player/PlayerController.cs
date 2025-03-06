@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
     public bool isMove;
     public bool isSprinting;
-    [SerializeField] private bool isFreefall;
+    public bool isFreefall;
     public bool isJumping = false;
     public bool isClimb;
     [SerializeField] private bool isGliding;
@@ -115,6 +115,7 @@ public class PlayerController : MonoBehaviour
         behaviour.CanMove = true;
         behaviour.CanJump = true;
         behaviour.CanDodge = true;
+        behaviour.CanClimb = true;
     }
 
     private void Update()
@@ -133,14 +134,17 @@ public class PlayerController : MonoBehaviour
         HpMpRecovery();     // 치트 활성화시 Hp, Mp 무한
 
         DeathCheck();       // 죽음 체크
-        GroundCheck();
+        if (!isClimb)
+        {
+            GroundCheck();
+            ApplyGravity();
+        }
 
         RecoverStats();
-        ApplyGravity();
         AvoidKeyInput();
 
-        DetectCliff();
-        UpdateClimbState();
+        //DetectCliff();
+        //UpdateClimbState();
         if (!isDodging)
         {
             CheckCombatState();
@@ -744,8 +748,13 @@ public class PlayerController : MonoBehaviour
     {
         if (isJumping)
         {
-            
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.forward + transform.position);
     }
 }
 
