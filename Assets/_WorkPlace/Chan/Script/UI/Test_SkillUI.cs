@@ -4,23 +4,42 @@ using UnityEngine.UI;
 
 public class Test_SkillUI : MonoBehaviour
 {
-    [SerializeField] private Transform skPanelParent;
-    [SerializeField] private GameObject skPrefab;
+    [SerializeField] private Transform ADPanelParent;
+    [SerializeField] private Transform APPanelParent;
+    [SerializeField] private GameObject SKInfoPanel;
+ 
+    [SerializeField] private GameObject skillSlotPrefab;
 
-    private TextMeshProUGUI[] skLevel;
+    private TextMeshProUGUI[] skInfoText;
     private Image[] skIcon;
+    private Image[] skInfoIcon;
+    private Button[] buttons;
 
     private void Awake()
     {
-        skLevel = skPrefab.GetComponentsInChildren<TextMeshProUGUI>();
-        skIcon = skPrefab.GetComponentsInChildren<Image>();
+        ADPanelParent = transform.GetComponent<Transform>();
+        APPanelParent = transform.GetComponent<Transform>();
+        skInfoIcon = SKInfoPanel.GetComponentsInChildren<Image>();
 
+        skInfoText = skillSlotPrefab.GetComponentsInChildren<TextMeshProUGUI>();
+        skIcon = skillSlotPrefab.GetComponentsInChildren<Image>();
 
+        buttons = transform.GetComponentsInChildren<Button>();
     }
 
+    private void OnEnable()
+    {
+        
+    }
 
+    private void OnDisable()
+    {
+        
+    }
 
-
-
+    private void UpdateSkillInfo()
+    {
+       
+    }
 
 }
