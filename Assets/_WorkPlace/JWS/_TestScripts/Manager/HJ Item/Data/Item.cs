@@ -270,6 +270,7 @@ public class ItemStat
         return newStat;
     }
 
+    //HJ 추가
     public ItemStat AddStats(ItemStat baseStat, ItemStat additionalStat)
     {
         // 새로운 ItemStat 객체를 생성하고, 스탯을 합산하여 반환
@@ -299,6 +300,7 @@ public class ItemStat
         return result;
     }
 
+    //HJ 추가
     //아이템 효과 설명
     public string GetEffectDescription()
     {
@@ -326,6 +328,7 @@ public class ItemStat
         return effects.Count > 0 ? string.Join(", ", effects) : string.Empty;
     }
 
+    //HJ 추가
     public bool HasBuffStat()
     {
         if (Strength > 0 || Dexterity > 0 || Intelligence > 0 || Vitality > 0 ||
