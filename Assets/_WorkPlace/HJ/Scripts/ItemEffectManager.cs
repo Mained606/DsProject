@@ -258,12 +258,12 @@
 //}
 
 
-//희정 TODO 요리 버프 반영
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// JWS 수정                                                                                                            ///  
 /// 2025.01.27 17:20 인벤토리에서 더블클릭으로 무기 장착 시스템 완성                                                    ///  
 /// 이후 클릭이 아닌 소켓을 이용할때도 그대로 이용만 하면 됨.                                                           ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -305,6 +305,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
     #region Public Methods
 
+    //HJ 03.06 요리 효과 추가
     // 아이템 효과 적용
     public void ApplyItemEffect(Item item, int quantity = 1)
     {
@@ -429,6 +430,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
     }
 
+    //HJ 03.06 추가
     //중복 사용 불가능(요리)
     private void ApplyBuff(Item item)
     {
@@ -452,6 +454,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         ApplyStatBuff(BuffType.Support, "Evasion", itemStat.Evasion, duration);
     }
 
+    //HJ 03.06 추가
     private void ApplyStatBuff(BuffType buffType, string statName, float value, float duration)
     {
         if (value == 0) return;
@@ -471,6 +474,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         activeCoroutines[buffType] = StartCoroutine(RemoveBuffAfterDuration(buffType, statName, value, duration));
     }
 
+    //HJ 03.06 추가
     private void ApplyDishEffect(Item item)
     {
         if (item.itemStat == null) return;
@@ -517,6 +521,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
     }
 
+    //HJ 03.06 추가
     //한 아이템 스탯만 적용
     private void UpdatePlayerStats(string statName, float value, int multiplier)
     {
@@ -545,6 +550,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"{item.name} 버프 효과 해제, 효과량 {amount}");
     }
 
+    //HJ 03.06 추가
     private IEnumerator RemoveBuffAfterDuration(BuffType buffType, string statName, float value, float duration)
     {
         Debug.Log($"{statName} 지속시간: {duration}");
