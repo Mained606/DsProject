@@ -282,7 +282,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     [SerializeField] private Vector3 particlePositionOffset = new Vector3(); // 파티클 위치 오프셋
     [SerializeField] private Item count;
 
-    private WeaponManager weaponManager;
+    public WeaponManager weaponManager;
 
     private PlayerData Player
     {
@@ -350,6 +350,8 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Item item = GetEquippedItem(equipmentSlot);
         if (item != null)
         {
+            //HJ 03.07 추가
+            ItemSkillManager.Instance.UnequipResetCount(item);
             UpdatePlayerStats(item.itemStat, -1);
             equippedItems[item.equipmentSlot] = null;
             item.isEquired = false;
@@ -404,6 +406,9 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     private void ApplyEquipmentEffect(Item item)
     {
         if (item.itemStat == null) return;
+
+        //HJ 03.07 추가
+        ItemSkillManager.Instance.ResetAttackCount(item);
 
         // 기존 아이템 해제
         if (equippedItems[item.equipmentSlot] != null)
