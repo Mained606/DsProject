@@ -29,7 +29,7 @@ public class ItemList : ScriptableObject
             // 아이템 초기화 로직
             if (item.type == ItemType.무기 || item.type == ItemType.방어구)
             {
-                item.itemStat = new ItemStat(1, 1, 1, 1, 1); //기본 스탯
+                item.itemStat = new ItemStat(1, 1, 1, 1); //기본 스탯
                 item.durability = new Durability(100);       //기본 내구도
             }
             else if (item.type == ItemType.소모품 || item.type == ItemType.제작재료)

@@ -14,6 +14,7 @@ using UnityEngine;
 /// 2.20 스탯에 요리용 회복 스탯 추가, 스탯 관련 함수 수정
 /// 2.24 아이템타입에 요리재료, 요리 추가
 /// 2.26 버프 스탯이 있는지 확인하는 함수 추가, 버프 스탯에 요리재료 지속시간 추가
+/// 03.05 무기 타입에 완드 추가
 /// </summary>
 [Serializable]
 public class Item
@@ -35,6 +36,7 @@ public class Item
     public bool isQuestItem;               // 퀘스트 아이템 여부
 
     [Header("스탯(장착아이템: 적용할 전체 값\n버프 물약: 해당하는 스탯만 값을 1로 설정\n요리재료 효과량 전체)")]
+    public ItemSkill itemSkill;            // 아이템 스킬
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
     public Durability durability;          // 내구도
     public ItemGrade grade;                // 아이템 등급
@@ -67,7 +69,7 @@ public class Item
         if (type == ItemType.무기 || type == ItemType.방어구)
         {
             // 장착 아이템 초기화
-            this.itemStat = new ItemStat(1, 1, 1, 1, 1); // 기본 스탯
+            this.itemStat = new ItemStat(1, 1, 1, 1); // 기본 스탯
             this.durability = new Durability(100);       // 기본 내구도
             this.isEquired = false;
             this.itemStat.Initialize();
@@ -158,7 +160,7 @@ public class Item
               (itemStat.Dexterity > 0 ? $"민첩 : {itemStat.Dexterity}    " : "") +
               (itemStat.Intelligence > 0 ? $"지능 : {itemStat.Intelligence}    " : "") +
               (itemStat.Vitality > 0 ? $"활력 : {itemStat.Vitality}    " : "") +
-              (itemStat.Luck > 0 ? $"운 : {itemStat.Luck}    " : "") +
+              //(itemStat.Luck > 0 ? $"운 : {itemStat.Luck}    " : "") +
               (itemStat.PhysicalAttack > 0 ? $"\n물리 공격력 : {itemStat.PhysicalAttack}    " : "") +
               (itemStat.MagicAttack > 0 ? $"마법 공격력 : {itemStat.MagicAttack}    " : "") +
               (itemStat.PhysicalDefense > 0 ? $"물리 방어력 : {itemStat.PhysicalDefense}    " : "") +
@@ -196,20 +198,23 @@ public class ItemStat
     public int Dexterity;         // 민첩
     public int Intelligence;      // 지능
     public int Vitality;          // 활력
-    public int Luck;              // 운
+    //public int Luck;              // 운
 
     [Header("전투 스탯")]
     public int MaxHealth;         // 최대 체력
     public int MaxMana;           // 최대 마나
-    public int PhysicalAttack;    // 물리 공격력
-    public int MagicAttack;       // 마법 공격력
-    public int PhysicalDefense;   // 물리 방어력
-    public int MagicDefense;      // 마법 방어력
+    public float PhysicalAttack;    // 물리 공격력
+    public float MagicAttack;       // 마법 공격력
+    public float PhysicalDefense;   // 물리 방어력
+    public float MagicDefense;      // 마법 방어력
 
     [Header("보조 스탯")]
-    public int CriticalChance;    // 치명타 확률 (%)
-    public int AttackSpeed;       // 공격 속도
-    public int Evasion;           // 회피율 (%)
+    public float CriticalChance;    // 치명타 확률 (%)
+    public float AttackSpeed;       // 공격 속도
+    public float Evasion;           // 회피율 (%)
+
+    [Header("방패 확률")]
+    public float BlockChance;     // 방어확률(방패 전용)
 
     [Header("요리용 회복 스탯")]
     public int HealHp;
@@ -219,13 +224,12 @@ public class ItemStat
     public float durationBonus;
 
     // 생성자
-    public ItemStat(int strength, int dexterity, int intelligence, int vitality, int luck)
+    public ItemStat(int strength, int dexterity, int intelligence, int vitality)
     {
         Strength = strength;
         Dexterity = dexterity;
         Intelligence = intelligence;
         Vitality = vitality;
-        Luck = luck;
     }
 
     // 스탯 초기화는 사용할때 사용하는걸로.
@@ -237,7 +241,7 @@ public class ItemStat
         MagicAttack = Intelligence * 2;
         PhysicalDefense = Vitality * 1;
         MagicDefense = Intelligence * 1;
-        CriticalChance = Luck / 2;
+        //CriticalChance = Luck / 2;
         AttackSpeed = Dexterity / 2;
         Evasion = Dexterity / 3;
     }
@@ -245,7 +249,7 @@ public class ItemStat
     // 복제 메서드
     public ItemStat Clone()
     {
-        ItemStat newStat = new ItemStat(Strength, Dexterity, Intelligence, Vitality, Luck);
+        ItemStat newStat = new ItemStat(Strength, Dexterity, Intelligence, Vitality);
 
         newStat.MaxHealth = this.MaxHealth;
         newStat.MaxMana = this.MaxMana;
@@ -257,6 +261,8 @@ public class ItemStat
         newStat.CriticalChance = this.CriticalChance;
         newStat.AttackSpeed = this.AttackSpeed;
         newStat.Evasion = this.Evasion;
+
+        newStat.BlockChance = this.BlockChance;
 
         newStat.HealHp = this.HealHp;
         newStat.HealMp = this.HealMp;
@@ -271,8 +277,7 @@ public class ItemStat
             baseStat.Strength + additionalStat.Strength,
             baseStat.Dexterity + additionalStat.Dexterity,
             baseStat.Intelligence + additionalStat.Intelligence,
-            baseStat.Vitality + additionalStat.Vitality,
-            baseStat.Luck + additionalStat.Luck
+            baseStat.Vitality + additionalStat.Vitality
         )
         {
             MaxHealth = baseStat.MaxHealth + additionalStat.MaxHealth,
@@ -284,6 +289,9 @@ public class ItemStat
             CriticalChance = baseStat.CriticalChance + additionalStat.CriticalChance,
             AttackSpeed = baseStat.AttackSpeed + additionalStat.AttackSpeed,
             Evasion = baseStat.Evasion + additionalStat.Evasion,
+
+            BlockChance = baseStat.BlockChance + additionalStat.BlockChance,
+
             HealHp = baseStat.HealHp + additionalStat.HealHp,
             HealMp = baseStat.HealMp + additionalStat.HealMp
         };
@@ -303,7 +311,6 @@ public class ItemStat
         if (Dexterity > 0) effects.Add($"민첩 +{Dexterity}");
         if (Intelligence > 0) effects.Add($"지능 +{Intelligence}");
         if (Vitality > 0) effects.Add($"활력 +{Vitality}");
-        if (Luck > 0) effects.Add($"운 +{Luck}");
 
         if (MaxHealth > 0) effects.Add($"최대 체력 +{MaxHealth}");
         if (MaxMana > 0) effects.Add($"최대 마나 +{MaxMana}");
@@ -321,15 +328,13 @@ public class ItemStat
 
     public bool HasBuffStat()
     {
-        if (Strength > 0 || Dexterity > 0 || Intelligence > 0 || Vitality > 0 || Luck > 0 ||
+        if (Strength > 0 || Dexterity > 0 || Intelligence > 0 || Vitality > 0 ||
             MaxHealth > 0 || MaxMana > 0 || PhysicalAttack > 0 || MagicAttack > 0 || PhysicalDefense > 0 || MagicDefense > 0 ||
             CriticalChance > 0 || AttackSpeed > 0 || Evasion > 0)
             return true;
 
         return false;
     }
-
-    
 }
 
 // 아이템 타입 Enum
@@ -348,7 +353,8 @@ public enum ItemType
 public enum WeaponType
 {
     한손무기,
-    양손무기
+    양손무기,
+    완드
 }
 
 // 장착 위치 Enum
