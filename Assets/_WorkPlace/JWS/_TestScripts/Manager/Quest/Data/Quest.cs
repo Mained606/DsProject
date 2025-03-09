@@ -6,7 +6,7 @@ using UnityEngine;
 
 
 [Serializable]
-public class Quest
+public class Quest :ISheetData
 {
     [Header ("퀘스트 기본정보")]
     public string id;
@@ -23,6 +23,8 @@ public class Quest
     public Dictionary<string, int> progress; // 진행 상태
     [Header("퀘스트 보상정보")]
     public List<Reward> rewards; // 보상
+
+    public Quest() { }
 
     public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards)
     {
@@ -125,6 +127,51 @@ public class Quest
         return listText.ToString();
     }
 
+    public void ParseData(IList<object> row)
+    {
+        if (row.Count < 8) throw new Exception("퀘스트 데이터 부족");
+
+        id = row[0].ToString();
+        questType = row[1].ToString();
+        name = row[2].ToString();
+        description = row[3].ToString();
+        questGiver = row[4].ToString();
+
+        acceptCount = int.TryParse(row[5].ToString(), out int count) ? count : 0;
+        isCompleted = bool.TryParse(row[6].ToString(), out bool completed) ? completed : false;
+
+        requiredConditions = new Dictionary<string, QuestCondition>();
+        progress = new Dictionary<string, int>();
+        rewards = new List<Reward>();
+
+        // 퀘스트 조건 파싱 (쉼표로 구분된 여러 조건)
+        if (!string.IsNullOrEmpty(row[7].ToString()))
+        {
+            string[] conditions = row[7].ToString().Split('|'); // 여러 조건을 '|'로 구분
+            foreach (var condition in conditions)
+            {
+                QuestCondition questCondition = new QuestCondition();
+                questCondition.ParseData(condition);
+                requiredConditions.Add(questCondition.targetId, questCondition);
+                progress.Add(questCondition.targetId, 0);
+            }
+        }
+
+        // 퀘스트 보상 파싱 (쉼표로 구분된 여러 보상)
+        if (row.Count > 8 && !string.IsNullOrEmpty(row[8].ToString()))
+        {
+            string[] rewardData = row[8].ToString().Split('|'); // 여러 보상을 '|'로 구분
+            foreach (var rewardInfo in rewardData)
+            {
+                Reward reward = new Reward();
+                reward.ParseData(rewardInfo);
+                rewards.Add(reward);
+            }
+        }
+
+        Debug.Log($"[Quest] 퀘스트 {name} 데이터 로드 완료!");
+    }
+
 }
 
 [Serializable]
@@ -136,6 +183,8 @@ public class Reward
     public int gold; // 골드 보상
     public bool isReward;
 
+    public Reward() { }
+
     public Reward(string itemId, int quantity, int experience, int gold)
     {
         this.itemId = itemId;
@@ -143,6 +192,19 @@ public class Reward
         this.experience = experience;
         this.gold = gold;
         this.isReward = false;
+    }
+
+    public void ParseData(string rewardData)
+    {
+        string[] data = rewardData.Split(',');
+
+        if (data.Length < 4) throw new Exception("퀘스트 보상 데이터 부족");
+
+        itemId = data[0];
+        quantity = int.TryParse(data[1], out int qty) ? qty : 1;
+        experience = int.TryParse(data[2], out int exp) ? exp : 0;
+        gold = int.TryParse(data[3], out int goldAmount) ? goldAmount : 0;
+        isReward = false;
     }
 }
 
@@ -156,6 +218,8 @@ public class QuestCondition
     public int requiredQuantity;    // 요구 수량 (예: 처치 수, 수집 수)
     public bool isCompleted;        // 해당 조건 완료 여부
 
+    public QuestCondition() { }
+
     public QuestCondition(QuestConditionType type, string targetId, string targetName, int requiredQuantity)
     {
         this.type = type;
@@ -163,6 +227,19 @@ public class QuestCondition
         this.targetName = targetName;
         this.requiredQuantity = requiredQuantity;
         this.isCompleted = false;
+    }
+
+    public void ParseData(string conditionData)
+    {
+        string[] data = conditionData.Split(',');
+
+        if (data.Length < 4) throw new Exception("퀘스트 조건 데이터 부족");
+
+        type = Enum.TryParse(data[0], out QuestConditionType parsedType) ? parsedType : QuestConditionType.Collect;
+        targetId = data[1];
+        targetName = data[2];
+        requiredQuantity = int.TryParse(data[3], out int qty) ? qty : 1;
+        isCompleted = false;
     }
 }
 
