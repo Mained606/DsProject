@@ -160,15 +160,6 @@ public class CombatManager : BaseManager<CombatManager>
             }
             // 250131 2:00PM Hyeon ===============================================
             actualDefender.TakeDamage(finalDamage, attackerTransform);
-
-            if (isPlayerAttacking)
-            {
-                Item weapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
-                if (weapon != null)
-                {
-                    ItemSkillManager.Instance.ApplyElementEffect(weapon, actualDefender, defenderTransform);
-                }
-            }
         }
         
         // UI에 데미지 텍스트 표시
