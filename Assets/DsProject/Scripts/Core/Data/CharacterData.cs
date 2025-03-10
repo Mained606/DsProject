@@ -481,6 +481,24 @@ public class CharacterData : ISheetData
         statModifier = new StatModifier(); // 기본 스탯 보정 적용
         UpdateDerivedStats();
     }
+
+    public List<object> ToList()
+    {
+        return new List<object>
+        {
+            characterName,
+            characterType.ToString(),
+            level,
+            strength,
+            agility,
+            vitality,
+            intelligence,
+            currentHp,
+            currentMp,
+            moveSpeed,
+            attackSpeed
+        };
+    }
 }
 
 // 플레이어 데이터

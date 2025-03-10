@@ -57,7 +57,7 @@ public class SpawnData : ISheetData
         detectionDistance = float.TryParse(row[10].ToString(), out float distance) ? distance : 100f;
 
         // 트리거 타입 변환
-        triggerType = Enum.TryParse(row[11].ToString(), out TriggerType parsedTrigger) ? parsedTrigger : TriggerType.None;
+        triggerType = Enum.TryParse(row[11].ToString(), out TriggerType parsedTrigger) ? parsedTrigger : TriggerType.Distance;
 
         // 기본적으로 트리거 조건을 null로 설정 (게임 내에서 조건 할당 필요)
         triggerCondition = null;

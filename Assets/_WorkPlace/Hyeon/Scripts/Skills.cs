@@ -51,7 +51,7 @@ public class Skills : ISheetData
     {
         if (row.Count < 10) throw new Exception("스킬 데이터 부족");
 
-        entityType = Enum.TryParse(row[0].ToString(), out EntityType parsedEntity) ? parsedEntity : EntityType.None;
+        entityType = Enum.TryParse(row[0].ToString(), out EntityType parsedEntity) ? parsedEntity : EntityType.Player;
         skillType = Enum.TryParse(row[1].ToString(), out SkillType parsedSkill) ? parsedSkill : SkillType.Physical;
         skillName = row[2].ToString();
 

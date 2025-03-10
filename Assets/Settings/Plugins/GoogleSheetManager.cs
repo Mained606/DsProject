@@ -1,10 +1,13 @@
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Sheets.v4;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
+
 using UnityEngine;
 
 public class GoogleSheetsManager : MonoBehaviour
@@ -63,7 +66,93 @@ public class GoogleSheetsManager : MonoBehaviour
 
         Debug.Log("모든 데이터 로드 완료!");
     }
+/*
+    public async Task SaveAllData()
+    {
+        if (!isCompleteLoad)
+        {
+            Debug.LogWarning("데이터가 완전히 로드되지 않았습니다. 저장을 진행할 수 없습니다.");
+            return;
+        }
 
+        List<Task> saveTasks = new List<Task>();
+        foreach (DataTypeList dataType in Enum.GetValues(typeof(DataTypeList)))
+        {
+            saveTasks.Add(SaveData(dataType));
+        }
+
+        await Task.WhenAll(saveTasks);
+        Debug.Log("모든 데이터 저장 완료!");
+    }
+
+    public async Task SaveData(DataTypeList dataType)
+    {
+        switch (dataType)
+        {
+            case DataTypeList.CharacterList:
+                await UpdateSheetData("CharacterList", CharacterManager.Instance.GetCharacterList());
+                break;
+
+            //case DataTypeList.ItemList:
+            //    await UpdateSheetData("ItemList", InventoryManager.Instance.GetItemList());
+            //    break;
+
+            //case DataTypeList.QuestList:
+            //    await UpdateSheetData("QuestList", QuestManager.Instance.GetQuestList());
+            //    break;
+
+            //case DataTypeList.NPCList:
+            //    await UpdateSheetData("NPCList", NPCManager.Instance.GetNPCList());
+            //    break;
+
+            //case DataTypeList.SkillList:
+            //    await UpdateSheetData("SkillList", SkillManager.Instance.GetSkillList());
+            //    break;
+
+            //case DataTypeList.SpawnList:
+            //    await UpdateSheetData("SpawnList", SpawnManager.Instance.GetSpawnList());
+            //    break;
+
+            //default:
+            //    Debug.LogWarning($"[GoogleSheetsManager] 알 수 없는 데이터 타입: {dataType}");
+            //    break;
+        }
+    }
+
+
+    async Task UpdateSheetData<T>(string sheetName, List<T> dataList) where T : ISheetData
+    {
+        if (dataList == null || dataList.Count == 0)
+        {
+            Debug.LogWarning($"[{sheetName}] 저장할 데이터가 없습니다.");
+            return;
+        }
+
+        List<IList<object>> valueRange = new List<IList<object>>();
+        foreach (T data in dataList)
+        {
+            valueRange.Add(data.ToList()); // `ToList()` 함수는 각 데이터 클래스에서 구현 필요
+        }
+
+        ValueRange requestBody = new ValueRange
+        {
+            Values = valueRange
+        };
+
+        var request = service.Spreadsheets.Values.Update(requestBody, SpreadsheetId, $"{sheetName}!A2");
+        request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+
+        try
+        {
+            await request.ExecuteAsync();
+            Debug.Log($"[{sheetName}] 데이터 저장 완료 ({dataList.Count}개)");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[{sheetName}] 데이터 저장 실패: {ex.Message}");
+        }
+    }
+*/
     async Task LoadData(DataTypeList dataType)
     {
         switch (dataType)
@@ -83,10 +172,10 @@ public class GoogleSheetsManager : MonoBehaviour
                 Debug.Log($"퀘스트 데이터 {quests.Count}개 로드 완료");
                 break;
 
-            //case DataTypeList.NPCList:
-            //    List<NPCData> npcs = await LoadSheetData<NPCData>("NPCList");
-            //    Debug.Log($"NPC 데이터 {npcs.Count}개 로드 완료");
-            //    break;
+            case DataTypeList.NPCList:
+                List<NPCData> npcs = await LoadSheetData<NPCData>("NPCList");
+                Debug.Log($"NPC 데이터 {npcs.Count}개 로드 완료");
+                break;
 
             case DataTypeList.SkillList:
                 List<Skills> skills = await LoadSheetData<Skills>("SkillList");
@@ -135,7 +224,7 @@ public class GoogleSheetsManager : MonoBehaviour
         CharacterList,
         ItemList,
         QuestList,
-        //    NPCList,
+        NPCList,
         SkillList,
         SpawnList,
     }
