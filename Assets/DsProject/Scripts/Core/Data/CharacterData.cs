@@ -496,12 +496,19 @@ public class PlayerData : CharacterData
 
     public ElementalAttribute GetEffectiveAttackAttribute(bool isSkillAttack)
     {
-        // if()
+        if (ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손)!= null)
+        {
+            attribute = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손).itemSkill.element;
+        }
         return attribute;
     }
     
     public ElementalAttribute GetEffectiveDefenseAttribute()
     {
+        if (ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.몸) != null)
+        {
+            attribute = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손).itemSkill.element;
+        }
         return attribute;
     }
     
