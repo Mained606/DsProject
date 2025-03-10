@@ -6,6 +6,7 @@ public class Skills
 {
     public EntityType entityType;
     public SkillType skillType;
+    public ElementalAttribute attribute;
     public string skillName;
     public float damage;
     public float cooldown;
@@ -35,12 +36,23 @@ public class Skills
         return animationDuration > 0 ? animationDuration : 1.0f;
     }
     
+    // 스킬 레벨 증가 (damage 10% 증가)
     public void LevelUp()
     {
         if (skillLevel < maxSkillLevel)
         {
             skillLevel++;
             damage *= 1.1f; // 스킬 피해량 10% 증가
+        }
+    }
+    
+    // 스킬 레벨 감소 (damage 10% 감소; 단, 최소 1레벨까지)
+    public void LevelDown()
+    {
+        if (skillLevel > 1)
+        {
+            skillLevel--;
+            damage /= 1.1f; // 스킬 피해량을 원래대로 복귀
         }
     }
 }

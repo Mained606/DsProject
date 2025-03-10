@@ -34,6 +34,12 @@ public class TestStatUP : MonoBehaviour
     public TextMeshProUGUI VATAL;
     public TextMeshProUGUI SkillLevel;
 
+    public TextMeshProUGUI STR2;
+    public TextMeshProUGUI DEX2;
+    public TextMeshProUGUI INT2;
+    public TextMeshProUGUI VATAL2;
+    public TextMeshProUGUI SkillLevel2;
+
     public Button button1;
     public Button button2;
     public Button button3;
@@ -46,6 +52,10 @@ public class TestStatUP : MonoBehaviour
     
     public Button button10;
     public Button button11;
+    
+    public Button button12;
+    public Button button13;
+    public Button button14;
 
     public PlayerData playerData;
     
@@ -60,7 +70,6 @@ public class TestStatUP : MonoBehaviour
         VATAL.text = playerData.vitality.ToString();
         SkillLevel.text = SkillManager.SkillDatabase.playerSkills[0].skillLevel.ToString();
 
-
         button1.onClick.AddListener(() => OnClickButton(StatType.Strength, 1));
         button2.onClick.AddListener(() => OnClickButton(StatType.Agility, 1));
         button3.onClick.AddListener(() => OnClickButton(StatType.Intelligence, 1));
@@ -71,10 +80,14 @@ public class TestStatUP : MonoBehaviour
         button8.onClick.AddListener(() => OnClickButton(StatType.Intelligence, -1));
         button9.onClick.AddListener(() => OnClickButton(StatType.Vitality, -1));
 
-        button5.onClick.AddListener(() => OnClickButtonSkill(SkillManager.SkillDatabase.playerSkills[0]));
+        button5.onClick.AddListener(() => OnClickButtonSkill(SkillManager.SkillDatabase.playerSkills[0], 1));
+        button12.onClick.AddListener(() => OnClickButtonSkill(SkillManager.SkillDatabase.playerSkills[0], -1));
 
         button10.onClick.AddListener(() => OnClickComfirm());
         button11.onClick.AddListener(() => OnClickCancel());
+        
+        button13.onClick.AddListener(() => OnClickSkillComfirm());
+        button14.onClick.AddListener(() => OnClickSkillCancel());
     }
 
     private void OnClickButton(StatType statType, int delta)
@@ -83,6 +96,11 @@ public class TestStatUP : MonoBehaviour
         {
             Debug.Log("버튼 클릭");
             UpdateUI();
+
+            int previewStrength = playerData.GetPreviewStat(StatType.Strength);
+            STR2.text = previewStrength.ToString();
+
+            
         }
     }
 
@@ -92,18 +110,38 @@ public class TestStatUP : MonoBehaviour
         UpdateUI();
     }
 
+    private void OnClickSkillComfirm()
+    {
+        playerData.ConfirmTempSkillAllocation();
+        UpdateUI();
+    }
+
     private void OnClickCancel()
     {
         playerData.CancelTempAllocation();
         UpdateUI();
+        int previewStrength = playerData.GetPreviewStat(StatType.Strength);
+        STR2.text = previewStrength.ToString();
+    }
+
+    private void OnClickSkillCancel()
+    {
+        playerData.CancelTempSkillAllocation();
+        UpdateUI();
+      //  int previewSkillLevel = playerData.GetPreviewSkillLevel(skill);
+      //  SkillLevel2.text = previewSkillLevel.ToString();
     }
     
-    void OnClickButtonSkill(Skills skill)
+    void OnClickButtonSkill(Skills skill, int delta)
     {
-       if( playerData.UpgradeSkill(skill))
-        {
-            UpdateUI();
-        }
+       if( playerData.AdjustTempSkill(skill, delta))
+       {
+           Debug.Log("버튼 클릭");
+           UpdateUI();
+
+            int previewSkillLevel = playerData.GetPreviewSkillLevel(skill);
+            SkillLevel2.text = previewSkillLevel.ToString();
+       }
     }
 
     private void UpdateUI()
@@ -114,7 +152,16 @@ public class TestStatUP : MonoBehaviour
         VATAL.text = playerData.vitality.ToString();
 
         SkillLevel.text = SkillManager.SkillDatabase.playerSkills[0].skillLevel.ToString();
+
     }
+    
+    // 예: 플레이어의 Strength(힘) 미리보기 값을 가져와서 UI 텍스트에 표시
+    // int previewStrength = playerData.GetPreviewStat(StatType.Strength);
+    // strengthUIText.text = previewStrength.ToString();
+    
+    // 예: 선택한 스킬의 미리보기 레벨을 가져와서 UI에 표시
+    // int previewSkillLevel = playerData.GetPreviewSkillLevel(selectedSkill);
+    // skillLevelUIText.text = previewSkillLevel.ToString();
 
 }
 

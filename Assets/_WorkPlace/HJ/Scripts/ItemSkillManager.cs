@@ -1,148 +1,251 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class ItemSkillManager : BaseManager<ItemSkillManager>
 {
     public Dictionary<Item, Coroutine> elementCoroutine = new Dictionary<Item, Coroutine>();
+    public Dictionary<CharacterData, Coroutine> targetCoroutine = new Dictionary<CharacterData, Coroutine>();
+
+    [SerializeField] private float maxAttackCount = 4;
     [SerializeField] private float elementRecoverTime = 10f;
-    [SerializeField] private float effectDuration = 2f;
-    [SerializeField] private Vector3 particleOffset = new Vector3();
+    [SerializeField] private float attackEffectDuration = 0.5f;
+    [SerializeField] private float targetEffectDuration = 5f;
+
+    [SerializeField] private Vector3 attackParticleOffset = new Vector3();    
+
+    private Transform WeaponTransform
+    {
+        get
+        {
+            if (ItemEffectManager.Instance.weaponManager.CurrentWeaponObject == null)
+            {
+                Debug.Log("CurrentWeaponObject = null");
+                return null;
+            }
+            return ItemEffectManager.Instance.weaponManager.CurrentWeaponObject.transform;
+        }
+    }
 
     public int attackCount = 0;
+    public Coroutine elementDisableCoroutine = null;
+    [SerializeField] private bool isActive = false;
+    public bool IsActive
+    {
+        get { return isActive; }
+        set
+        {
+            isActive = value;
+            PlayWeaponParticle(ItemEffectManager.Instance.equippedItems[EquipmentSlot.손], WeaponTransform);
+        }
+    }
 
+    //CombatManager ProcessAttack에서 활용
     public void ApplyElementEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || !skill.isActive)
+        if (skill == null || skill.element == ElementalAttribute.None || skill.element == ElementalAttribute.Earth)
             return;
 
-        if(attackCount >= 5)
-        {
-            elementCoroutine[weapon] = StartCoroutine(DisalbeWeaponEffect(weapon));
+        if (!IsActive)
             return;
-        }
 
-        switch (skill.element)
+        if(!targetCoroutine.ContainsKey(target))
         {
-            case ElementType.Fire:
-                ApplyFireEffect(weapon, target);
-                break;
+            switch (skill.element)
+            {
+                case ElementalAttribute.Fire:
+                    ApplyFireEffect(weapon, target, targetTransform);
+                    break;
 
-            case ElementType.Water:
-                ApplyWaterEffect(weapon, target);
-                break;
+                case ElementalAttribute.Water:
+                    ApplyWaterEffect(weapon, target, targetTransform);
+                    break;
 
-            case ElementType.Electric:
-                ApplyElectircEffect(weapon, target);
-                break;
+                case ElementalAttribute.Electric:
+                    ApplyElectircEffect(weapon, target, targetTransform);
+                    break;
+            }
+
+            PlayTargetParticle(weapon, targetTransform);
         }
 
-        PlayParticle(weapon, targetTransform);
+        PlayAttackParticle(weapon);
     }
 
-    public float ElementDamageMultiplier(Item weapon, CharacterData target)
+    //ComboAttackState에서 호출할 함수
+    public void UpdateAttackCount()
     {
-        ElementType element = weapon.itemSkill.element;
+        if (!isActive) return;
 
-        if (element == ElementType.Normal)
-            return 0;
+        attackCount++;
 
-        float damageMultiplier = 0;
-
-        //if (element == ElementType.Fire && target.elementType == ElementType.Ice)
-        //{
-        //    damageMultiplier = 1.2f;
-        //}
-        //else if (element == ElementType.Ice && target.elementType == ElementType.Fire)
-        //{
-        //    damageMultiplier = 0.8f;
-        //}
-        //else if(element == ElementType.Electric && target.elementType == ElementType.Fire)
-        //{
-        //    damageMultiplier = 1.1f;
-        //}
-
-        return damageMultiplier;
+        if(attackCount >= maxAttackCount)
+        {
+            if(elementDisableCoroutine != null)
+            {
+                StopCoroutine(elementDisableCoroutine);
+            }
+            
+            elementDisableCoroutine = StartCoroutine(DisableWeaponEffect());
+        }
     }
 
+    //무기 장착시 카운트 리셋
+    public void ResetAttackCount(Item weapon)
+    {
+        if (weapon.type != ItemType.무기) return;
+
+        if(weapon.itemSkill == null)
+        {
+            Debug.Log($"{weapon.name}의 itemSkill이 null");
+            return;
+        }
+
+        if (weapon.itemSkill.element == ElementalAttribute.None || weapon.itemSkill.element == ElementalAttribute.Earth) return;
+
+        if (elementDisableCoroutine != null)
+        {
+            StopCoroutine(elementDisableCoroutine);
+        }
+
+        attackCount = 0;
+        IsActive = true;
+    }
+
+    //장비 해제시 카운트 리셋
+    public void UnequipResetCount(Item item)
+    {
+        if (item.type != ItemType.무기) return;
+
+        if (item.itemSkill == null)
+        {
+            Debug.Log($"{item.name}의 itemSkill이 null");
+            return;
+        }
+
+        if (item.itemSkill.element == ElementalAttribute.None || item.itemSkill.element == ElementalAttribute.Earth) return;
+
+        if (elementDisableCoroutine != null)
+        {
+            StopCoroutine(elementDisableCoroutine);
+        }
+
+        attackCount = 0;
+        IsActive = false;
+    }
+
+    #region PrivateMethod
     //지속뎀
-    private void ApplyFireEffect(Item weapon, CharacterData target)
+    private void ApplyFireEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || !skill.isActive)
-            return;
+        if (skill == null || !IsActive) return;
 
         //지속뎀 로직 추가
     }
 
-    //동결
-    private void ApplyWaterEffect(Item weapon, CharacterData target)
+    //이속 감소
+    private void ApplyWaterEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || !skill.isActive)
-            return;
+        if (skill == null || !IsActive) return;
 
-        //동결 로직 추가
+        //이속 감소
     }
 
     //감전
-    private void ApplyElectircEffect(Item weapon, CharacterData target)
+    private void ApplyElectircEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || !skill.isActive)
-            return;
+        if (skill == null || !IsActive) return;
 
-        //감전 로직 추가
+        //감전
     }
 
-    //무기 속성 비활성화
-    private IEnumerator DisalbeWeaponEffect(Item weapon)
+    //무기 속성 이펙트 비활성화
+    private IEnumerator DisableWeaponEffect()
     {
-        weapon.itemSkill.isActive = false;
-        //이펙트 비활성화 로직 추가
+        Debug.Log("무기 속성 비활성화");
+        IsActive = false;
 
         yield return new WaitForSeconds(elementRecoverTime);
 
-        weapon.itemSkill.isActive = true;
-        //이펙트 활성화 로직 추가
+        Debug.Log("무기 속성 활성화");
 
-        //딕셔너리 키값 제거
-        if (elementCoroutine.ContainsKey(weapon))
-            elementCoroutine.Remove(weapon);
+        attackCount = 0;
+        IsActive = true;
+
+        elementDisableCoroutine = null;
     }
 
+    //속성 이펙트 실행
+    private void PlayWeaponParticle(Item weapon, Transform weaponTransform)
+    {
+        if (weapon == null || weapon.itemSkill == null)
+        {
+            Debug.Log("itemSkill 없음");
+            return;
+        }
+
+        if (weapon.itemSkill.element == ElementalAttribute.None)
+        {
+            Debug.Log("노말 타입 무기");
+            return;
+        }
+        ParticleSystem particle = weaponTransform.GetComponentInChildren<ParticleSystem>();
+
+        if(particle != null)
+        {
+            Debug.Log("속성 이펙트 실행");
+
+            if (IsActive)
+            {
+                particle.Play();
+            }
+            else
+            {
+                particle.Stop();
+            }
+        }
+    }
+
+    //공격 이펙트 실행
     private void PlayAttackParticle(Item weapon)
     {
         GameObject effect = weapon.itemSkill.attackEffect;
 
         if(effect != null)
         {
+            GameObject attackEffect = Instantiate(effect,
+                WeaponTransform.position + attackParticleOffset,
+                Quaternion.identity);
 
+            attackEffect.transform.SetParent(WeaponTransform);
+            Destroy(attackEffect, attackEffectDuration);
         }
     }
 
-    private void PlayParticle(Item weapon, Transform targetTransform)
+    //타겟 이펙트 실행
+    private void PlayTargetParticle(Item weapon, Transform targetTransform)
     {
-        GameObject effect = weapon.itemSkill.attackEffect;
+        GameObject effect = weapon.itemSkill.targetEffect;
 
-        if (effect != null)
+        if(effect != null)
         {
-            var itemEffectGo = Instantiate(effect,
-                targetTransform.position + particleOffset,
-                Quaternion.identity);
+            GameObject targetEffect = Instantiate(effect, targetTransform.position, Quaternion.identity);
 
-            itemEffectGo.transform.SetParent(targetTransform);
-            Destroy(itemEffectGo, effectDuration);
+            targetEffect.transform.SetParent(targetTransform);
+            Destroy(targetEffect, targetEffectDuration);
         }
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
     }
+    #endregion
 }
