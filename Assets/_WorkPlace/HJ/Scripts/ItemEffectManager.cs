@@ -282,7 +282,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     [SerializeField] private Vector3 particlePositionOffset = new Vector3(); // 파티클 위치 오프셋
     [SerializeField] private Item count;
 
-    private WeaponManager weaponManager;
+    public WeaponManager weaponManager;
 
     private PlayerData Player
     {
@@ -350,6 +350,8 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Item item = GetEquippedItem(equipmentSlot);
         if (item != null)
         {
+            //HJ 03.07 추가
+            ItemSkillManager.Instance.UnequipResetCount(item);
             UpdatePlayerStats(item.itemStat, -1);
             equippedItems[item.equipmentSlot] = null;
             item.isEquired = false;
@@ -403,7 +405,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
     private void ApplyEquipmentEffect(Item item)
     {
-        if (item.itemStat == null) return;
+        if (item.itemStat == null) return;        
 
         // 기존 아이템 해제
         if (equippedItems[item.equipmentSlot] != null)
@@ -419,6 +421,9 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         PlayParticle(item);
         if (item.equipmentSlot == EquipmentSlot.손) weaponManager.EquipWeapon(item);
         Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
+
+        //HJ 03.07 추가
+        ItemSkillManager.Instance.ResetAttackCount(item);
     }
 
     //중복 사용 가능(일반 버프 아이템)
@@ -519,6 +524,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Player.dodgeChance += stat.Evasion * multiplier;
         
         Player.UpdateDerivedStats();
+
 
         Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
     }

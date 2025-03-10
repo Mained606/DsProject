@@ -36,8 +36,8 @@ public class Item
     public bool isQuestItem;               // 퀘스트 아이템 여부
 
     [Header("스탯(장착아이템: 적용할 전체 값\n버프 물약: 해당하는 스탯만 값을 1로 설정\n요리재료 효과량 전체)")]
-    public ItemSkill itemSkill;            // 아이템 스킬
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
+    public ItemSkill itemSkill;            // 아이템 스킬
     public Durability durability;          // 내구도
     public ItemGrade grade;                // 아이템 등급
     public EquipmentSlot equipmentSlot;    // 장착 위치 (무기, 방어구 등)
