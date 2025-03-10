@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ItemSkillManager : BaseManager<ItemSkillManager>
 {
     public Dictionary<Item, Coroutine> elementCoroutine = new Dictionary<Item, Coroutine>();
+    public Dictionary<CharacterData, Coroutine> targetCoroutine = new Dictionary<CharacterData, Coroutine>();
 
+    [SerializeField] private float maxAttackCount = 4;
     [SerializeField] private float elementRecoverTime = 10f;
-    [SerializeField] private float effectDuration = 0.5f;
-    [SerializeField] private Vector3 weaponParticleOffset = new Vector3();
-    [SerializeField] private Vector3 particleOffset = new Vector3();
+    [SerializeField] private float attackEffectDuration = 0.5f;
+    [SerializeField] private float targetEffectDuration = 5f;
+
+    [SerializeField] private Vector3 attackParticleOffset = new Vector3();
+    
 
     private Transform weaponTransform;
 
@@ -45,19 +48,24 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (!IsActive)
             return;
 
-        switch (skill.element)
+        if(!targetCoroutine.ContainsKey(target))
         {
-            case ElementType.Fire:
-                ApplyFireEffect(weapon, target);
-                break;
+            switch (skill.element)
+            {
+                case ElementType.Fire:
+                    ApplyFireEffect(weapon, target, targetTransform);
+                    break;
 
-            case ElementType.Water:
-                ApplyWaterEffect(weapon, target);
-                break;
+                case ElementType.Water:
+                    ApplyWaterEffect(weapon, target, targetTransform);
+                    break;
 
-            case ElementType.Electric:
-                ApplyElectircEffect(weapon, target);
-                break;
+                case ElementType.Electric:
+                    ApplyElectircEffect(weapon, target, targetTransform);
+                    break;
+            }
+
+            PlayTargetParticle(weapon, targetTransform);
         }
 
         PlayAttackParticle(weapon);
@@ -68,7 +76,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         attackCount++;
 
-        if(attackCount >= 4)
+        if(attackCount >= maxAttackCount)
         {
             if(elementDisableCoroutine != null)
             {
@@ -79,12 +87,12 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
     }
 
-    //무기 바꿨을때 카운트 리셋
+    //무기 장착시 카운트 리셋
     public void ResetAttackCount(Item weapon)
     {
         if (weapon.type != ItemType.무기) return;
 
-        if (!ItemEffectManager.Instance.equippedItems.ContainsKey(EquipmentSlot.손)) return;
+        //if (!ItemEffectManager.Instance.equippedItems.ContainsKey(EquipmentSlot.손)) return;
 
         if (weapon.itemSkill.element == ElementType.Normal || weapon.itemSkill.element == ElementType.Ground) return;
 
@@ -113,7 +121,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
 
         attackCount = 0;
-        IsActive = true;
+        IsActive = false;
     }
 
     //CombatManager ProcessAttack에서 데미지 계산시 사용
@@ -159,7 +167,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
     #region PrivateMethod
     //지속뎀
-    private void ApplyFireEffect(Item weapon, CharacterData target)
+    private void ApplyFireEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
 
@@ -169,7 +177,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     }
 
     //이속 감소
-    private void ApplyWaterEffect(Item weapon, CharacterData target)
+    private void ApplyWaterEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
 
@@ -179,7 +187,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     }
 
     //감전
-    private void ApplyElectircEffect(Item weapon, CharacterData target)
+    private void ApplyElectircEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
 
@@ -192,13 +200,11 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     private IEnumerator DisableWeaponEffect()
     {
         IsActive = false;
-        //이펙트 비활성화 로직 추가
 
         yield return new WaitForSeconds(elementRecoverTime);
 
         attackCount = 0;
         IsActive = true;
-        //이펙트 활성화 로직 추가
 
         elementDisableCoroutine = null;
     }
@@ -241,11 +247,25 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if(effect != null)
         {
             GameObject attackEffect = Instantiate(effect,
-                transform.position + particleOffset,
+                weaponTransform.position + attackParticleOffset,
                 Quaternion.identity);
 
-            attackEffect.transform.SetParent(this.transform);
-            Destroy(attackEffect, effectDuration);
+            attackEffect.transform.SetParent(weaponTransform);
+            Destroy(attackEffect, attackEffectDuration);
+        }
+    }
+
+    //타겟 이펙트 실행
+    private void PlayTargetParticle(Item weapon, Transform targetTransform)
+    {
+        GameObject effect = weapon.itemSkill.targetEffect;
+
+        if(effect != null)
+        {
+            GameObject targetEffect = Instantiate(effect, targetTransform.position, Quaternion.identity);
+
+            targetEffect.transform.SetParent(targetTransform);
+            Destroy(targetEffect, targetEffectDuration);
         }
     }
 

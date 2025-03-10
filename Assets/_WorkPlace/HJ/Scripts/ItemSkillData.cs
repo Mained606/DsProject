@@ -17,11 +17,12 @@ public class ItemSkill
     public int level = 0;           //아이템 레벨 (강화)
     public GameObject weaponEffect; //무기 자체에 적용된 효과
     public GameObject attackEffect; //공격 시 나오는 효과
-
+    public GameObject targetEffect; //속성 공격시 타겟 효과
+    
     public float power = 0;        //공격력 + (무기)
 
 
-    //아이템 강화시에 초기화
+    //아이템 습득, 강화시에 초기화
     public void Initialize(Item item)
     {
         AdjustElementValue(item);
