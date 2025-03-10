@@ -23,6 +23,9 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
                 Debug.Log("CurrentWeaponObject = null");
                 return null;
             }
+
+            Debug.Log("WeaponTransform");
+            
             return ItemEffectManager.Instance.weaponManager.CurrentWeaponObject.transform;
         }
     }
@@ -36,7 +39,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         set
         {
             isActive = value;
-            PlayWeaponParticle(ItemEffectManager.Instance.equippedItems[EquipmentSlot.손], WeaponTransform);
+            PlayWeaponParticle(ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손), WeaponTransform);
         }
     }
 
@@ -51,7 +54,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (!IsActive)
             return;
 
-        if(!targetCoroutine.ContainsKey(target))
+
+        if (!targetCoroutine.ContainsKey(target))
         {
             switch (skill.element)
             {
@@ -70,18 +74,18 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
             PlayTargetParticle(weapon, targetTransform);
         }
-
-        PlayAttackParticle(weapon);
     }
 
     //ComboAttackState에서 호출할 함수
-    public void UpdateAttackCount()
+    public void UpdateAttack()
     {
         if (!isActive) return;
 
         attackCount++;
 
-        if(attackCount >= maxAttackCount)
+        PlayAttackParticle(ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손));
+
+        if (attackCount >= maxAttackCount)
         {
             if(elementDisableCoroutine != null)
             {
@@ -221,12 +225,18 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         if(effect != null)
         {
+            Debug.Log("공격 파티클 실행");
+
             GameObject attackEffect = Instantiate(effect,
                 WeaponTransform.position + attackParticleOffset,
                 Quaternion.identity);
 
             attackEffect.transform.SetParent(WeaponTransform);
             Destroy(attackEffect, attackEffectDuration);
+        }
+        else
+        {
+            Debug.Log("공격파티클 없음");
         }
     }
 
