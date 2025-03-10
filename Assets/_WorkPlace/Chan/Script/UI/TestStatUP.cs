@@ -46,6 +46,10 @@ public class TestStatUP : MonoBehaviour
     
     public Button button10;
     public Button button11;
+    
+    public Button button12;
+    public Button button13;
+    public Button button14;
 
     public PlayerData playerData;
     
@@ -71,10 +75,14 @@ public class TestStatUP : MonoBehaviour
         button8.onClick.AddListener(() => OnClickButton(StatType.Intelligence, -1));
         button9.onClick.AddListener(() => OnClickButton(StatType.Vitality, -1));
 
-        button5.onClick.AddListener(() => OnClickButtonSkill(SkillManager.SkillDatabase.playerSkills[0]));
+        button5.onClick.AddListener(() => OnClickButtonSkill(SkillManager.SkillDatabase.playerSkills[0], 1));
+        button12.onClick.AddListener(() => OnClickButtonSkill(SkillManager.SkillDatabase.playerSkills[0], -1));
 
         button10.onClick.AddListener(() => OnClickComfirm());
         button11.onClick.AddListener(() => OnClickCancel());
+        
+        button13.onClick.AddListener(() => OnClickSkillComfirm());
+        button14.onClick.AddListener(() => OnClickSkillCancel());
     }
 
     private void OnClickButton(StatType statType, int delta)
@@ -92,18 +100,31 @@ public class TestStatUP : MonoBehaviour
         UpdateUI();
     }
 
+    private void OnClickSkillComfirm()
+    {
+        playerData.ConfirmTempSkillAllocation();
+        UpdateUI();
+    }
+
     private void OnClickCancel()
     {
         playerData.CancelTempAllocation();
         UpdateUI();
     }
-    
-    void OnClickButtonSkill(Skills skill)
+
+    private void OnClickSkillCancel()
     {
-       if( playerData.UpgradeSkill(skill))
-        {
-            UpdateUI();
-        }
+        playerData.CancelTempSkillAllocation();
+        UpdateUI();
+    }
+    
+    void OnClickButtonSkill(Skills skill, int delta)
+    {
+       if( playerData.AdjustTempSkill(skill, delta))
+       {
+           Debug.Log("버튼 클릭");
+           UpdateUI();
+       }
     }
 
     private void UpdateUI()
@@ -115,6 +136,14 @@ public class TestStatUP : MonoBehaviour
 
         SkillLevel.text = SkillManager.SkillDatabase.playerSkills[0].skillLevel.ToString();
     }
+    
+    // 예: 플레이어의 Strength(힘) 미리보기 값을 가져와서 UI 텍스트에 표시
+    // int previewStrength = playerData.GetPreviewStat(StatType.Strength);
+    // strengthUIText.text = previewStrength.ToString();
+    
+    // 예: 선택한 스킬의 미리보기 레벨을 가져와서 UI에 표시
+    // int previewSkillLevel = playerData.GetPreviewSkillLevel(selectedSkill);
+    // skillLevelUIText.text = previewSkillLevel.ToString();
 
 }
 
