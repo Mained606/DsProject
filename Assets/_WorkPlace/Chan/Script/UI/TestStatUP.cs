@@ -34,6 +34,12 @@ public class TestStatUP : MonoBehaviour
     public TextMeshProUGUI VATAL;
     public TextMeshProUGUI SkillLevel;
 
+    public TextMeshProUGUI STR2;
+    public TextMeshProUGUI DEX2;
+    public TextMeshProUGUI INT2;
+    public TextMeshProUGUI VATAL2;
+    public TextMeshProUGUI SkillLevel2;
+
     public Button button1;
     public Button button2;
     public Button button3;
@@ -64,7 +70,6 @@ public class TestStatUP : MonoBehaviour
         VATAL.text = playerData.vitality.ToString();
         SkillLevel.text = SkillManager.SkillDatabase.playerSkills[0].skillLevel.ToString();
 
-
         button1.onClick.AddListener(() => OnClickButton(StatType.Strength, 1));
         button2.onClick.AddListener(() => OnClickButton(StatType.Agility, 1));
         button3.onClick.AddListener(() => OnClickButton(StatType.Intelligence, 1));
@@ -91,6 +96,11 @@ public class TestStatUP : MonoBehaviour
         {
             Debug.Log("버튼 클릭");
             UpdateUI();
+
+            int previewStrength = playerData.GetPreviewStat(StatType.Strength);
+            STR2.text = previewStrength.ToString();
+
+            
         }
     }
 
@@ -110,12 +120,16 @@ public class TestStatUP : MonoBehaviour
     {
         playerData.CancelTempAllocation();
         UpdateUI();
+        int previewStrength = playerData.GetPreviewStat(StatType.Strength);
+        STR2.text = previewStrength.ToString();
     }
 
     private void OnClickSkillCancel()
     {
         playerData.CancelTempSkillAllocation();
         UpdateUI();
+      //  int previewSkillLevel = playerData.GetPreviewSkillLevel(skill);
+      //  SkillLevel2.text = previewSkillLevel.ToString();
     }
     
     void OnClickButtonSkill(Skills skill, int delta)
@@ -124,7 +138,10 @@ public class TestStatUP : MonoBehaviour
        {
            Debug.Log("버튼 클릭");
            UpdateUI();
-       }
+
+            int previewSkillLevel = playerData.GetPreviewSkillLevel(skill);
+            SkillLevel2.text = previewSkillLevel.ToString();
+        }
     }
 
     private void UpdateUI()
@@ -135,6 +152,7 @@ public class TestStatUP : MonoBehaviour
         VATAL.text = playerData.vitality.ToString();
 
         SkillLevel.text = SkillManager.SkillDatabase.playerSkills[0].skillLevel.ToString();
+
     }
     
     // 예: 플레이어의 Strength(힘) 미리보기 값을 가져와서 UI 텍스트에 표시

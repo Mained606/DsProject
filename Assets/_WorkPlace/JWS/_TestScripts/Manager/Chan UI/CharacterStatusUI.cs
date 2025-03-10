@@ -5,22 +5,22 @@ using UnityEngine.UI;
 
 public class CharacterStatusUI : MonoBehaviour
 {
-    private enum CharType { Player, Dragon }
+    private enum CharType { Player, Dragon } // 카테고리 이넘 
     private CharType chraterType;
-    [SerializeField] private Transform character_Stat;
-    [SerializeField] private Transform statsNamePosition;
-    [SerializeField] private Transform statsValuePosition;
-    [SerializeField] private Transform ImagePanel;
-    [SerializeField] private Transform NamePanel;
-    [SerializeField] private Transform equirePrefab;
-    [SerializeField] private RectTransform equirePannel;
+    [SerializeField] private Transform character_Stat; // 메인판넬 바인딩
+    [SerializeField] private Transform statsNamePosition;   // 스탯네임 판넬
+    [SerializeField] private Transform statsValuePosition;  // 스탯수치 판넬
+    [SerializeField] private Transform ImagePanel;          // 스탯 아래 이미지 판넬
+    [SerializeField] private Transform NamePanel;           // 스탯창 플레이어 네임 & 경험치 판넬
+    [SerializeField] private Transform equirePrefab;        // 인벤토리에서 사용되는 아이템슬롯 프리팹
+    [SerializeField] private RectTransform equirePannel;    // 우측 장비 퀵슬롯 -> 제거 예정
     [SerializeField] private Vector3 offSet;
     private TextMeshProUGUI[] statsNames;
-    private string[] defaultNames;
+    private string[] defaultNames;                          // 카테고리에 따라 이름이 변하니 처음 플레이어의 스탯 네임을 저장하기 위함
     private TextMeshProUGUI[] statsValues;
     private Image[] Edge;
     private Button[] buttons;
-    private int currentButtonIndex = 0;
+    private int currentButtonIndex = 0;                     // 배열로 받은 버튼의 순서로 기능을 지정
 
     #region 네임판넬에 캐릭터이름 / 경험치&유대감 추가 구현 부분 
     [SerializeField] private TextMeshProUGUI experienceText; // 경험치 텍스트 
