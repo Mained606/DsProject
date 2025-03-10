@@ -405,10 +405,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
     private void ApplyEquipmentEffect(Item item)
     {
-        if (item.itemStat == null) return;
-
-        //HJ 03.07 추가
-        ItemSkillManager.Instance.ResetAttackCount(item);
+        if (item.itemStat == null) return;        
 
         // 기존 아이템 해제
         if (equippedItems[item.equipmentSlot] != null)
@@ -424,6 +421,9 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         PlayParticle(item);
         if (item.equipmentSlot == EquipmentSlot.손) weaponManager.EquipWeapon(item);
         Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
+
+        //HJ 03.07 추가
+        ItemSkillManager.Instance.ResetAttackCount(item);
     }
 
     //중복 사용 가능(일반 버프 아이템)
@@ -522,6 +522,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Player.criticalChance += stat.CriticalChance * multiplier;
         Player.attackSpeed += stat.AttackSpeed * multiplier;
         Player.dodgeChance += stat.Evasion * multiplier;
+
 
         Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
     }

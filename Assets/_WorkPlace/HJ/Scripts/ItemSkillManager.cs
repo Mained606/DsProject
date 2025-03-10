@@ -12,29 +12,32 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     [SerializeField] private float attackEffectDuration = 0.5f;
     [SerializeField] private float targetEffectDuration = 5f;
 
-    [SerializeField] private Vector3 attackParticleOffset = new Vector3();
-    
+    [SerializeField] private Vector3 attackParticleOffset = new Vector3();    
 
-    private Transform weaponTransform;
+    private Transform WeaponTransform
+    {
+        get
+        {
+            if (ItemEffectManager.Instance.weaponManager.CurrentWeaponObject == null)
+            {
+                Debug.Log("CurrentWeaponObject = null");
+                return null;
+            }
+            return ItemEffectManager.Instance.weaponManager.CurrentWeaponObject.transform;
+        }
+    }
 
     public int attackCount = 0;
     public Coroutine elementDisableCoroutine = null;
-    private bool isActive = false;
+    [SerializeField] private bool isActive = false;
     public bool IsActive
     {
         get { return isActive; }
         set
         {
             isActive = value;
-            PlayWeaponParticle(ItemEffectManager.Instance.equippedItems[EquipmentSlot.손], weaponTransform);
+            PlayWeaponParticle(ItemEffectManager.Instance.equippedItems[EquipmentSlot.손], WeaponTransform);
         }
-    }
-
-    protected override void Start()
-    {
-        base.Start();
-
-        weaponTransform = ItemEffectManager.Instance.weaponManager.CurrentWeaponObject.transform;
     }
 
     //CombatManager ProcessAttack에서 활용
@@ -74,6 +77,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //ComboAttackState에서 호출할 함수
     public void UpdateAttackCount()
     {
+        if (!isActive) return;
+
         attackCount++;
 
         if(attackCount >= maxAttackCount)
@@ -92,26 +97,33 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         if (weapon.type != ItemType.무기) return;
 
-        //if (!ItemEffectManager.Instance.equippedItems.ContainsKey(EquipmentSlot.손)) return;
+        if(weapon.itemSkill == null)
+        {
+            Debug.Log($"{weapon.name}의 itemSkill이 null");
+            return;
+        }
 
         if (weapon.itemSkill.element == ElementType.Normal || weapon.itemSkill.element == ElementType.Ground) return;
 
-        if (ItemEffectManager.Instance.equippedItems[EquipmentSlot.손] != weapon)
+        if (elementDisableCoroutine != null)
         {
-            if(elementDisableCoroutine != null)
-            {
-                StopCoroutine(elementDisableCoroutine);
-            }
-
-            attackCount = 0;
-            IsActive = true;
+            StopCoroutine(elementDisableCoroutine);
         }
+
+        attackCount = 0;
+        IsActive = true;
     }
 
     //장비 해제시 카운트 리셋
     public void UnequipResetCount(Item item)
     {
         if (item.type != ItemType.무기) return;
+
+        if (item.itemSkill == null)
+        {
+            Debug.Log($"{item.name}의 itemSkill이 null");
+            return;
+        }
 
         if (item.itemSkill.element == ElementType.Normal || item.itemSkill.element == ElementType.Ground) return;
 
@@ -122,47 +134,6 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         attackCount = 0;
         IsActive = false;
-    }
-
-    //CombatManager ProcessAttack에서 데미지 계산시 사용
-    public float ElementDamageMultiplier(Item weapon, CharacterData target)
-    {
-        ElementType element = weapon.itemSkill.element;
-
-        if (element == ElementType.Normal) return 0;
-
-        float damageMultiplier = 0;
-
-        //if (element == ElementType.Fire)
-        //{
-        //    if(target.elementType == ElementType.Ground)
-        //        damageMultiplier = 2f;
-        //    else if (target.elementType == ElementType.Water)
-        //        damageMultiplier = 0.5f;
-        //}
-        //else if (element == ElementType.Water)
-        //{
-        //    if(target.elementType == ElementType.Fire)
-        //        damageMultiplier = 2f;
-        //    else if (target.elementType == ElementType.Electric)
-        //        damageMultiplier = 0.5f;
-        //}
-        //else if (element == ElementType.Electric)
-        //{
-        //    if (target.elementType == ElementType.Water)
-        //        damageMultiplier = 2f;
-        //    else if (target.elementType == ElementType.Fire)
-        //        damageMultiplier = 0.5f;
-        //}
-        //else if (element == ElementType.Ground)
-        //{
-        //    if (target.elementType == ElementType.Electric)
-        //        damageMultiplier = 2f;
-        //    else if (target.elementType == ElementType.Water)
-        //        damageMultiplier = 0.5f;
-        //}
-
-        return damageMultiplier;
     }
 
     #region PrivateMethod
@@ -199,9 +170,12 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //무기 속성 이펙트 비활성화
     private IEnumerator DisableWeaponEffect()
     {
+        Debug.Log("무기 속성 비활성화");
         IsActive = false;
 
         yield return new WaitForSeconds(elementRecoverTime);
+
+        Debug.Log("무기 속성 활성화");
 
         attackCount = 0;
         IsActive = true;
@@ -212,29 +186,30 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //속성 이펙트 실행
     private void PlayWeaponParticle(Item weapon, Transform weaponTransform)
     {
-        if (weapon == null || weapon.itemSkill == null) return;
-
-        if (weapon.itemSkill.element == ElementType.Normal) return;
-
-        GameObject effect = weapon.itemSkill.attackEffect;
-
-        if(effect != null)
+        if (weapon == null || weapon.itemSkill == null)
         {
-            if (weaponTransform == null)
-                return;
+            Debug.Log("itemSkill 없음");
+            return;
+        }
 
-            ParticleSystem particle = weaponTransform.GetComponentInChildren<ParticleSystem>();
+        if (weapon.itemSkill.element == ElementType.Normal)
+        {
+            Debug.Log("노말 타입 무기");
+            return;
+        }
+        ParticleSystem particle = weaponTransform.GetComponentInChildren<ParticleSystem>();
 
-            if(particle != null)
+        if(particle != null)
+        {
+            Debug.Log("속성 이펙트 실행");
+
+            if (IsActive)
             {
-                if(IsActive)
-                {
-                    particle.Play();
-                }
-                else
-                {
-                    particle.Stop();
-                }
+                particle.Play();
+            }
+            else
+            {
+                particle.Stop();
             }
         }
     }
@@ -247,10 +222,10 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if(effect != null)
         {
             GameObject attackEffect = Instantiate(effect,
-                weaponTransform.position + attackParticleOffset,
+                WeaponTransform.position + attackParticleOffset,
                 Quaternion.identity);
 
-            attackEffect.transform.SetParent(weaponTransform);
+            attackEffect.transform.SetParent(WeaponTransform);
             Destroy(attackEffect, attackEffectDuration);
         }
     }
