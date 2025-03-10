@@ -6,6 +6,7 @@ public class Skills
 {
     public EntityType entityType;
     public SkillType skillType;
+    public ElementalAttribute attribute;
     public string skillName;
     public float damage;
     public float cooldown;

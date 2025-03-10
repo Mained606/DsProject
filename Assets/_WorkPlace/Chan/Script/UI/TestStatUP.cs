@@ -141,7 +141,7 @@ public class TestStatUP : MonoBehaviour
 
             int previewSkillLevel = playerData.GetPreviewSkillLevel(skill);
             SkillLevel2.text = previewSkillLevel.ToString();
-        }
+       }
     }
 
     private void UpdateUI()

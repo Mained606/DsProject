@@ -96,6 +96,27 @@ public class CombatManager : BaseManager<CombatManager>
             Debug.Log($"스킬 배율 적용{skillMultiplier}%");
         }
         
+        ElementalAttribute attackerEffectiveAttribute = actualAttacker.attribute;
+        ElementalAttribute defenderEffectiveAttribute = actualDefender.attribute;
+        
+        // 만약 공격자가 플레이어라면, 무기/스킬에 따라 속성을 가져옴
+        if (isPlayerAttacking && actualAttacker is PlayerData playerAttacker)
+        {
+            // 스킬 공격인 경우는 skillMultiplier를 통해 구분한다고 가정
+            //attackerEffectiveAttribute
+        }
+        
+        // 만약 방어자가 플레이어라면, 방어구 속성을 사용
+        if (actualDefender is PlayerData playerDefender)
+        {
+            // defenderEffectiveAttribute = playerDefender.GetEffectiveDefenseAttribute();
+        }
+        
+        // **속성 배율 적용**
+        float attributeMultiplier = AttributeCalculator.GetMultiplier(attackerEffectiveAttribute, defenderEffectiveAttribute);
+        damage *= attributeMultiplier;
+        Debug.Log($"공격자 속성: {attackerEffectiveAttribute} / 방어자 속성: {defenderEffectiveAttribute} / 속성 배율: {attributeMultiplier}");
+        
         // 크리티컬 데미지 배율 적용
         if (isCritical)
         {
@@ -147,9 +168,6 @@ public class CombatManager : BaseManager<CombatManager>
         {
             UIManager.DisplayPopupText(finalDamage.ToString(), targetPosition, isPlayerAttacking ? MessageTag.적_피해 : MessageTag.플레이어_피해);
         }
-        
-        // Debug.Log($"{actualAttacker.characterName}가 {actualDefender.characterName}에게 {finalDamage}의 데미지를 입혔습니다.");
-        // Debug.Log($"{actualDefender.characterName}의 체력이 {actualDefender.currentHp} 만큼 남았습니다.");
 
         // 대상이 사망했는지 확인
         if (actualDefender.currentHp <= 0)
@@ -220,6 +238,10 @@ public class CombatManager : BaseManager<CombatManager>
         {
             damage *= skillMultiplier;
         }
+        
+        float attributeMultiplier = AttributeCalculator.GetMultiplier(dragonData.dragonAttribute, targetData.attribute);
+        damage *= attributeMultiplier;
+        Debug.Log($"드래곤 공격자 속성: {dragonData.dragonAttribute} / 방어자 속성: {targetData.attribute} / 속성 배율: {attributeMultiplier}");
 
         // 크리티컬 체크: 드래곤의 크리티컬 확률
         bool isCritical = Random.value < dragonData.criticalChance;
