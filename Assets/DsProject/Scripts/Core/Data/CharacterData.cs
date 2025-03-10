@@ -482,6 +482,7 @@ public class PlayerData : CharacterData
     // 스탯을 조정하는 메서드
     public bool AdjustTempStat(StatType statType, int delta)
     {
+        // 기본 스탯 값 가져오기
         int baseValue = 0;
         switch (statType)
         {
@@ -490,16 +491,18 @@ public class PlayerData : CharacterData
             case StatType.Agility: baseValue = this.agility; break;
             case StatType.Intelligence: baseValue = this.intelligence; break;
         }
-        
+    
+        // 임시 변경치 계산 (임시로 할당된 보너스 포인트)
         int newTemp = tempStatChanges[statType] + delta;
-        // 최종 스탯 값이 0 미만이 되지 않도록 제한 (필요에 따라 최소값 조정 가능)
-        if (baseValue + newTemp < 0)
+    
+        // 임시 변경치가 음수가 되면, 즉 이미 추가한 포인트보다 더 내리려고 하는 경우 차단
+        if (newTemp < 0)
         {
-            Debug.LogWarning($"{statType}은(는) 기본 값 이하로 내려갈 수 없습니다.");
+            Debug.LogWarning($"{statType}은(는) 이미 확정된 스탯 이하로 내려갈 수 없습니다.");
             return false;
         }
-        
-        // delta가 양수이면 사용 가능한 스탯 포인트 체크
+    
+        // 스탯 포인트 추가인 경우 사용 가능한 포인트 체크
         if (delta > 0)
         {
             if (availableStatPoints < delta)
@@ -509,14 +512,13 @@ public class PlayerData : CharacterData
             }
             availableStatPoints -= delta;
         }
-        // delta가 음수면 환급
+        // 감산인 경우 환급
         else if (delta < 0)
         {
             availableStatPoints += (-delta);
         }
-        
+    
         tempStatChanges[statType] = newTemp;
-        // UI 갱신 등을 통해 미리보기 표시 가능
         return true;
     }
     
@@ -634,25 +636,28 @@ public class PlayerData : CharacterData
         }
         tempSkillChanges.Clear();
     }
-    // 해당 스탯의 현재 기본값과 임시 할당치를 더한 미리보기 값 반환
+    // 해당 스탯의 임시 할당치 미리보기 값 반환
     public int GetPreviewStat(StatType statType)
     {
-        int baseValue = 0;
-        switch (statType)
-        {
-            case StatType.Strength: baseValue = this.strength; break;
-            case StatType.Vitality: baseValue = this.vitality; break;
-            case StatType.Agility: baseValue = this.agility; break;
-            case StatType.Intelligence: baseValue = this.intelligence; break;
-        }
-        return baseValue + tempStatChanges[statType];
+        // int baseValue = 0;
+        // switch (statType)
+        // {
+        //     case StatType.Strength: baseValue = this.strength; break;
+        //     case StatType.Vitality: baseValue = this.vitality; break;
+        //     case StatType.Agility: baseValue = this.agility; break;
+        //     case StatType.Intelligence: baseValue = this.intelligence; break;
+        // }
+        // return baseValue + tempStatChanges[statType];
+        return tempStatChanges[statType];
     }
     
+    // 해당 스킬 레벨값 임시 할당치 값 반환
     public int GetPreviewSkillLevel(Skills skill)
     {
         if (skill == null) return 0;
-        int temp = tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
-        return skill.skillLevel + temp;
+        // int temp = tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
+        // return skill.skillLevel + temp;
+        return tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
     }
 
     public void AddSkill(string skill) => skills.Add(skill);
