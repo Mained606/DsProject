@@ -45,7 +45,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || skill.element == ElementType.Normal || skill.element == ElementType.Ground)
+        if (skill == null || skill.element == ElementalAttribute.None || skill.element == ElementalAttribute.Earth)
             return;
 
         if (!IsActive)
@@ -55,15 +55,15 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         {
             switch (skill.element)
             {
-                case ElementType.Fire:
+                case ElementalAttribute.Fire:
                     ApplyFireEffect(weapon, target, targetTransform);
                     break;
 
-                case ElementType.Water:
+                case ElementalAttribute.Water:
                     ApplyWaterEffect(weapon, target, targetTransform);
                     break;
 
-                case ElementType.Electric:
+                case ElementalAttribute.Electric:
                     ApplyElectircEffect(weapon, target, targetTransform);
                     break;
             }
@@ -103,7 +103,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             return;
         }
 
-        if (weapon.itemSkill.element == ElementType.Normal || weapon.itemSkill.element == ElementType.Ground) return;
+        if (weapon.itemSkill.element == ElementalAttribute.None || weapon.itemSkill.element == ElementalAttribute.Earth) return;
 
         if (elementDisableCoroutine != null)
         {
@@ -125,7 +125,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             return;
         }
 
-        if (item.itemSkill.element == ElementType.Normal || item.itemSkill.element == ElementType.Ground) return;
+        if (item.itemSkill.element == ElementalAttribute.None || item.itemSkill.element == ElementalAttribute.Earth) return;
 
         if (elementDisableCoroutine != null)
         {
@@ -192,7 +192,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             return;
         }
 
-        if (weapon.itemSkill.element == ElementType.Normal)
+        if (weapon.itemSkill.element == ElementalAttribute.None)
         {
             Debug.Log("노말 타입 무기");
             return;
