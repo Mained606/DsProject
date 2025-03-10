@@ -96,6 +96,7 @@ public class CharacterData : ISheetData
 
     private Dictionary<StatType, int> stats;
     public Dictionary<StatType, int> tempStatChanges;
+    public Dictionary<Skills, int> tempSkillChanges;
 
     private bool isLevelingUp = false; // 레벨업 진행 중 여부
     
@@ -177,6 +178,8 @@ public class CharacterData : ISheetData
             { StatType.Agility, 0 },
             { StatType.Intelligence, 0 }
         };
+
+        tempSkillChanges = new Dictionary<Skills, int>();
     }
 
     // 데이터 초기화 함수
@@ -557,6 +560,48 @@ public class PlayerData : CharacterData
         return true;
     }
     
+    public bool AdjustTempSkill(Skills skill, int delta)
+    {
+        if (skill == null) return false;
+
+        int currentTemp = tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
+        int newTemp = currentTemp + delta;
+        int baseLevel = skill.skillLevel;
+
+        // 기본 스킬 레벨 이하로 내려갈 수 없도록 제한
+        if (newTemp < 0)
+        {
+            Debug.LogWarning($"{skill.skillName}은(는) 기본 스킬 레벨 이하로 내려갈 수 없습니다.");
+            return false;
+        }
+
+        // 기본 레벨 + 임시 변경치가 최대 스킬 레벨을 초과하면 안 됨
+        if (baseLevel + newTemp > skill.maxSkillLevel)
+        {
+            Debug.LogWarning($"{skill.skillName}은(는) 최대 스킬 레벨에 도달했습니다.");
+            return false;
+        }
+
+        // delta가 양수면 사용 가능한 스킬 포인트 체크
+        if (delta > 0)
+        {
+            if (availableSkillPoints < delta)
+            {
+                Debug.LogWarning("사용 가능한 스킬 포인트가 부족합니다!");
+                return false;
+            }
+            availableSkillPoints -= delta;
+        }
+        // delta가 음수면 환급
+        else if (delta < 0)
+        {
+            availableSkillPoints += (-delta);
+        }
+
+        tempSkillChanges[skill] = newTemp;
+        return true;
+    }
+    
     // 임시 할당된 스탯 변경치를 실제 스탯에 반영하는 메서드.
     public void ConfirmTempAllocation()
     {
@@ -573,6 +618,31 @@ public class PlayerData : CharacterData
         
         // (필요하면 확정 후 UI 업데이트 등 후속 처리)
     }
+    
+    public void ConfirmTempSkillAllocation()
+    {
+        foreach (var kvp in tempSkillChanges)
+        {
+            Skills skill = kvp.Key;
+            int delta = kvp.Value;
+            if (delta > 0)
+            {
+                for (int i = 0; i < delta; i++)
+                {
+                    skill.LevelUp();
+                }
+            }
+            else if (delta < 0)
+            {
+                for (int i = 0; i < Math.Abs(delta); i++)
+                {
+                    skill.LevelDown();
+                }
+            }
+        }
+        tempSkillChanges.Clear();
+    }
+
     
     // 임시 할당된 스탯 변경치를 실제 스탯에 반영하는 메서드.
     public void CancelTempAllocation()
@@ -592,6 +662,18 @@ public class PlayerData : CharacterData
         tempStatChanges[StatType.Intelligence] = 0;
     }
     
+    public void CancelTempSkillAllocation()
+    {
+        foreach (var kvp in tempSkillChanges)
+        {
+            int change = kvp.Value;
+            if (change > 0)
+            {
+                availableSkillPoints += change;
+            }
+        }
+        tempSkillChanges.Clear();
+    }
     // 해당 스탯의 현재 기본값과 임시 할당치를 더한 미리보기 값 반환
     public int GetPreviewStat(StatType statType)
     {
@@ -604,6 +686,13 @@ public class PlayerData : CharacterData
             case StatType.Intelligence: baseValue = this.intelligence; break;
         }
         return baseValue + tempStatChanges[statType];
+    }
+    
+    public int GetPreviewSkillLevel(Skills skill)
+    {
+        if (skill == null) return 0;
+        int temp = tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
+        return skill.skillLevel + temp;
     }
 
     public void AddSkill(string skill) => skills.Add(skill);
@@ -649,25 +738,25 @@ public class PlayerData : CharacterData
     // }
     
     // 스킬 포인트 사용 레벨업 함수
-    public bool UpgradeSkill(Skills skill)
-    {
-        if (availableSkillPoints > 0)
-        {
-            if (skill.skillLevel < skill.maxSkillLevel)
-            {
-                availableSkillPoints--;
-                skill.LevelUp();
-                Debug.Log($"{skill.skillName} 스킬 레벨업! 현재 레벨: {skill.skillLevel}. 남은 스킬 포인트: {availableSkillPoints}");
-                return true;
-            }
-            
-            Debug.LogWarning("해당 스킬이 최대 레벨입니다!");
-            return false;
-        }
-
-        Debug.LogWarning("스킬 포인트가 부족합니다!");
-        return false;
-    }
+    // public bool UpgradeSkill(Skills skill)
+    // {
+    //     if (availableSkillPoints > 0)
+    //     {
+    //         if (skill.skillLevel < skill.maxSkillLevel)
+    //         {
+    //             availableSkillPoints--;
+    //             skill.LevelUp();
+    //             Debug.Log($"{skill.skillName} 스킬 레벨업! 현재 레벨: {skill.skillLevel}. 남은 스킬 포인트: {availableSkillPoints}");
+    //             return true;
+    //         }
+    //         
+    //         Debug.LogWarning("해당 스킬이 최대 레벨입니다!");
+    //         return false;
+    //     }
+    //
+    //     Debug.LogWarning("스킬 포인트가 부족합니다!");
+    //     return false;
+    // }
     
     public new PlayerData Clone()
     {
