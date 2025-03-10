@@ -102,8 +102,7 @@ public class CombatManager : BaseManager<CombatManager>
         // 만약 공격자가 플레이어라면, 무기/스킬에 따라 속성을 가져옴
         if (isPlayerAttacking && actualAttacker is PlayerData playerAttacker)
         {
-            // 스킬 공격인 경우는 skillMultiplier를 통해 구분한다고 가정
-            //attackerEffectiveAttribute
+            // ItemEffectManager.Instance.equippedItems[EquipmentSlot.손]
         }
         
         // 만약 방어자가 플레이어라면, 방어구 속성을 사용
