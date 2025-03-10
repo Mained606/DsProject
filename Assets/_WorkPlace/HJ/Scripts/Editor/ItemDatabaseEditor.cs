@@ -105,6 +105,7 @@ public class ItemDatabaseEditor : Editor
                 DrawPropertyIfExists(itemProperty, "effect");
                 DrawPropertyIfExists(itemProperty, "itemStat");
                 DrawPropertyIfExists(itemProperty, "durability");
+                DrawPropertyIfExists(itemProperty, "itemSkill");
                 break;
             case ItemType.장신구:
                 DrawPropertyIfExists(itemProperty, "equipmentSlot");
