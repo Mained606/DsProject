@@ -493,6 +493,17 @@ public class PlayerData : CharacterData
     {
         gold = 0; // 초기 골드는 0
     }
+
+    public ElementalAttribute GetEffectiveAttackAttribute(bool isSkillAttack)
+    {
+        // if()
+        return attribute;
+    }
+    
+    public ElementalAttribute GetEffectiveDefenseAttribute()
+    {
+        return attribute;
+    }
     
     // 스탯을 조정하는 메서드
     public bool AdjustTempStat(StatType statType, int delta)
