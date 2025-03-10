@@ -522,6 +522,8 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Player.criticalChance += stat.CriticalChance * multiplier;
         Player.attackSpeed += stat.AttackSpeed * multiplier;
         Player.dodgeChance += stat.Evasion * multiplier;
+        
+        Player.UpdateDerivedStats();
 
 
         Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
@@ -544,6 +546,8 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         if (statName == "CriticalChance") Player.criticalChance += value * multiplier;
         if (statName == "AttackSpeed") Player.attackSpeed += value * multiplier;
         if (statName == "Evasion") Player.dodgeChance += value * multiplier;
+        
+        Player.UpdateDerivedStats();
 
         Debug.Log($"{statName} 버프 효과: {value * multiplier}");
     }
