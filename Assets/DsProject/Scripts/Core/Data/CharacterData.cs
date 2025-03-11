@@ -494,12 +494,12 @@ public class PlayerData : CharacterData
         gold = 0; // 초기 골드는 0
     }
 
-    public ElementalAttribute GetEffectiveAttackAttribute(bool isSkillAttack)
+    public ElementalAttribute GetEffectiveAttackAttribute(bool isSkillAttack, Skills skill)
     {
         if (isSkillAttack)
         {
-            // return this.currentSkill.attribute;
-            return ElementalAttribute.None;
+            attribute = skill.attribute;
+            return this.attribute;
         }
         
         var handItem = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
