@@ -24,8 +24,6 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
                 return null;
             }
 
-            Debug.Log("WeaponTransform");
-            
             return ItemEffectManager.Instance.weaponManager.CurrentWeaponObject.transform;
         }
     }
@@ -233,10 +231,6 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
             attackEffect.transform.SetParent(WeaponTransform);
             Destroy(attackEffect, attackEffectDuration);
-        }
-        else
-        {
-            Debug.Log("공격파티클 없음");
         }
     }
 
