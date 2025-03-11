@@ -29,7 +29,7 @@ public class MoveBehaviour : IBehaviour
         PlayerBehaviourManager.Instance.CanUseSkill = true;
         PlayerBehaviourManager.Instance.CanBlock = true;
         PlayerBehaviourManager.Instance.CanDodge = true;
-        PlayerBehaviourManager.Instance.CanClimb = true;
+        //PlayerBehaviourManager.Instance.CanClimb = true;
     }
 
     public void Execute()
