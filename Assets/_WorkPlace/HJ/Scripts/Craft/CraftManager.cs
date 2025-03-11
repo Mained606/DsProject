@@ -79,7 +79,7 @@ public class CraftManager : MonoBehaviour
             Recipes = recipeList.recipeList.Where(r => r.recipeType == RecipeType.Craft).ToList();
         }
     }
-
+    // 재료 추가 
     public void AddIngredient(Item ingredient)
     {
         if (selectedIngredients.Count >= maxIngredients)
@@ -94,7 +94,7 @@ public class CraftManager : MonoBehaviour
 
         Debug.Log("재료 추가됨: " + ingredient.id);
     }
-
+    // 제작 버튼 
     public void Craft()
     {
         if (selectedIngredients.Count == 0) return;
@@ -121,7 +121,7 @@ public class CraftManager : MonoBehaviour
 
         Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
     }
-
+    // 제작 실패 메세지
     protected virtual void FailedCrafting()
     {
         foreach(Item item in selectedIngredients)
@@ -131,7 +131,7 @@ public class CraftManager : MonoBehaviour
 
         Debug.Log("제작 실패");
     }
-
+    // 없는 아이템 생성 시도시?
     protected Recipe FindMatchingRecipe(List<Item> ingredients)
     {
         if (Recipes == null || Recipes.Count == 0)
