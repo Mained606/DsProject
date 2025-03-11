@@ -61,6 +61,7 @@ GameObject:
   - component: {fileID: 9102186382978840438}
   - component: {fileID: 7741697163318537721}
   - component: {fileID: 769395438982336461}
+  - component: {fileID: 1656856696746833825}
   m_Layer: 0
   m_Name: "\uC544\uC774\uD15C\uAD00\uB828\uB9E4\uB2C8\uC800"
   m_TagString: Untagged
@@ -119,7 +120,6 @@ MonoBehaviour:
   inventory: []
   quickSlotsUI: {fileID: 0}
   maxCapacity: 99
-  selectedItem: 0
 --- !u!114 &769395438982336461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,7 +158,6 @@ MonoBehaviour:
       Dexterity: 0
       Intelligence: 0
       Vitality: 0
-      Luck: 0
       MaxHealth: 0
       MaxMana: 0
       PhysicalAttack: 0
@@ -168,6 +167,16 @@ MonoBehaviour:
       CriticalChance: 0
       AttackSpeed: 0
       Evasion: 0
+      BlockChance: 0
+      HealHp: 0
+      HealMp: 0
+      durationBonus: 0
+    itemSkill:
+      element: 0
+      level: 0
+      attackEffect: {fileID: 0}
+      targetEffect: {fileID: 0}
+      power: 0
     grade: 0
     equipmentSlot: 0
     weaponType: 0
@@ -175,6 +184,26 @@ MonoBehaviour:
     consumableType: 0
     effectAmount: 0
     questId: 
+  weaponManager: {fileID: 0}
+--- !u!114 &1656856696746833825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 665065587615173674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86fb5b52ac7264941b6ee28b1a7635f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxAttackCount: 4
+  elementRecoverTime: 10
+  attackEffectDuration: 0.5
+  targetEffectDuration: 5
+  attackParticleOffset: {x: 0, y: 0, z: 0}
+  attackCount: 0
+  isActive: 0
 --- !u!1 &671535472939884910
 GameObject:
   m_ObjectHideFlags: 0
@@ -491,6 +520,9 @@ MonoBehaviour:
       magicResistanceMultiplier: 2
       intelligenceMultiplier: 1.5
     instance: {fileID: 0}
+    availableSkillPoints: 0
+    availableStatPoints: 0
+    attribute: 0
     skills: []
     gold: 0
   dragonData:
@@ -515,6 +547,7 @@ MonoBehaviour:
     magicDamage: 0
     criticalChance: 0
     criticalDamage: 0
+    dragonAttribute: 0
   characterTemplates: {fileID: 11400000, guid: 091e7d62338046b4a8e7ccb7f2fb75c2, type: 2}
   isInitialized: 1
 --- !u!114 &7732846547738737019
