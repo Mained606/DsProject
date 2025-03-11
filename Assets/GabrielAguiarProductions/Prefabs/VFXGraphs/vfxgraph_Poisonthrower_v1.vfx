@@ -6206,7 +6206,8 @@ MonoBehaviour:
   raytracedScaleMode: 0
   needsOwnSort: 0
   needsOwnAabbBuffer: 0
-  shaderGraph: {fileID: -5475051401550479605, guid: b7a22784201384544a5799709ab0ff29, type: 3}
+  shaderGraph: {fileID: -5475051401550479605, guid: b7a22784201384544a5799709ab0ff29,
+    type: 3}
   materialSettings:
     m_PropertyNames: []
     m_PropertyValues: []
