@@ -53,12 +53,25 @@ public class ItemSkill
             {
                 item.itemStat.PhysicalAttack += power;
 
-                if (ItemEffectManager.Instance.equippedItems[EquipmentSlot.손] == item)
+                if (ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손) == item)
                 {
                     CharacterManager.PlayerCharacterData.physicalDamage += power;
                 }
             }
         }
+    }
+
+    public ItemSkill Clone()
+    {
+        ItemSkill newSkill = new ItemSkill();
+
+        newSkill.element = this.element;
+        newSkill.level = this.level;
+        newSkill.attackEffect = this.attackEffect;
+        newSkill.targetEffect = this.targetEffect;
+        newSkill.power = this.power;
+
+        return newSkill;
     }
 }
 

@@ -72,6 +72,7 @@ public class Item
             this.itemStat = new ItemStat(1, 1, 1, 1); // 기본 스탯
             this.durability = new Durability(100);       // 기본 내구도
             this.isEquired = false;
+            this.itemSkill = new ItemSkill();
             //this.itemStat.Initialize();
         }
         else if (type == ItemType.장신구)
@@ -112,6 +113,11 @@ public class Item
         if (this.durability != null)
         {
             newItem.durability = this.durability.Clone(); // 내구도도 복제
+        }
+
+        if(this.itemSkill != null)
+        {
+            newItem.itemSkill = this.itemSkill.Clone();
         }
 
         newItem.effect = this.effect;
