@@ -274,7 +274,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
     #region Variables
 
-    public Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
+    private Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
     private Dictionary<BuffType, ActiveBuff> activeBuffs = new Dictionary<BuffType, ActiveBuff>();
     private Dictionary<BuffType, Coroutine> activeCoroutines = new Dictionary<BuffType, Coroutine>();
 
