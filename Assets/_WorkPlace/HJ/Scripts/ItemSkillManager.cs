@@ -138,6 +138,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (skill == null || !IsActive) return;
 
         //지속뎀 로직 추가
+        Debug.Log("지속뎀");
     }
 
     //이속 감소
@@ -148,6 +149,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (skill == null || !IsActive) return;
 
         //이속 감소
+        Debug.Log("이속감소");
     }
 
     //감전
@@ -158,6 +160,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (skill == null || !IsActive) return;
 
         //감전
+        Debug.Log("감전");
     }
 
     //무기 속성 이펙트 비활성화
