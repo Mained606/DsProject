@@ -36,8 +36,8 @@ public class Item
     public bool isQuestItem;               // 퀘스트 아이템 여부
 
     [Header("스탯(장착아이템: 적용할 전체 값\n버프 물약: 해당하는 스탯만 값을 1로 설정\n요리재료 효과량 전체)")]
-    public ItemSkill itemSkill;            // 아이템 스킬
     public ItemStat itemStat;              // 스탯 정보 (힘, 민첩 등)
+    public ItemSkill itemSkill;            // 아이템 스킬
     public Durability durability;          // 내구도
     public ItemGrade grade;                // 아이템 등급
     public EquipmentSlot equipmentSlot;    // 장착 위치 (무기, 방어구 등)
@@ -72,6 +72,7 @@ public class Item
             this.itemStat = new ItemStat(1, 1, 1, 1); // 기본 스탯
             this.durability = new Durability(100);       // 기본 내구도
             this.isEquired = false;
+            this.itemSkill = new ItemSkill();
             //this.itemStat.Initialize();
         }
         else if (type == ItemType.장신구)
@@ -112,6 +113,11 @@ public class Item
         if (this.durability != null)
         {
             newItem.durability = this.durability.Clone(); // 내구도도 복제
+        }
+
+        if(this.itemSkill != null)
+        {
+            newItem.itemSkill = this.itemSkill.Clone();
         }
 
         newItem.effect = this.effect;

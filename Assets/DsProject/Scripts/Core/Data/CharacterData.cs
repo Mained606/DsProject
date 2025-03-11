@@ -26,6 +26,15 @@ public enum StatType
     Intelligence
 }
 
+public enum ElementalAttribute
+{
+    None,     // 무속성
+    Fire,     // 불
+    Water,    // 물
+    Electric, // 전기
+    Earth     // 대지
+}
+
 // 250123 11:20AM sohyeon 모든 캐릭터데이터에 mpRecoveryRate 초기화 부분 추가함!!
 // CharacterData 클래스 정의: 캐릭터의 스탯, 레벨, 경험치 등을 관리
 [Serializable]
@@ -103,6 +112,8 @@ public class CharacterData
 
     public int availableSkillPoints;
     public int availableStatPoints;
+    
+    public ElementalAttribute attribute; // 속성
 
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(
@@ -119,7 +130,8 @@ public class CharacterData
         float attackRange,
         float stamina,
         float staminaRecoveryRate,
-        float mpRecoveryRate)
+        float mpRecoveryRate,
+        ElementalAttribute attribute)
     {
         this.characterName = name;
         this.characterType = type;
@@ -153,6 +165,8 @@ public class CharacterData
 
         this.availableSkillPoints = 0;
         this.availableStatPoints = 0;
+
+        this.attribute = attribute;
 
         InitializeStats();
     }
@@ -396,7 +410,8 @@ public class CharacterData
             this.attackRange,
             this.stamina,
             this.staminaRecoveryRate,
-            this.mpRecoveryRate
+            this.mpRecoveryRate,
+            this.attribute
         );
     }
 
@@ -470,11 +485,11 @@ public class PlayerData : CharacterData
 {
     public List<string> skills = new List<string>();    // 스킬 목록
     public int gold; // 골드 소지량
-
+    
     // 생성자
     public PlayerData(string name, GameObject prefab, int strength, int vitality, int agility, int intelligence,
-        float speed, float attackSpeed, float attackRange, float stamina, float staminaRecoveryRate, float mpRecoveryRate)
-        : base(name, CharacterType.Player, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate)
+        float speed, float attackSpeed, float attackRange, float stamina, float staminaRecoveryRate, float mpRecoveryRate, ElementalAttribute attribute)
+        : base(name, CharacterType.Player, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, attribute)
     {
         gold = 0; // 초기 골드는 0
     }
@@ -482,6 +497,7 @@ public class PlayerData : CharacterData
     // 스탯을 조정하는 메서드
     public bool AdjustTempStat(StatType statType, int delta)
     {
+        // 기본 스탯 값 가져오기
         int baseValue = 0;
         switch (statType)
         {
@@ -490,16 +506,18 @@ public class PlayerData : CharacterData
             case StatType.Agility: baseValue = this.agility; break;
             case StatType.Intelligence: baseValue = this.intelligence; break;
         }
-        
+    
+        // 임시 변경치 계산 (임시로 할당된 보너스 포인트)
         int newTemp = tempStatChanges[statType] + delta;
-        // 최종 스탯 값이 0 미만이 되지 않도록 제한 (필요에 따라 최소값 조정 가능)
-        if (baseValue + newTemp < 0)
+    
+        // 임시 변경치가 음수가 되면, 즉 이미 추가한 포인트보다 더 내리려고 하는 경우 차단
+        if (newTemp < 0)
         {
-            Debug.LogWarning($"{statType}은(는) 기본 값 이하로 내려갈 수 없습니다.");
+            Debug.LogWarning($"{statType}은(는) 이미 확정된 스탯 이하로 내려갈 수 없습니다.");
             return false;
         }
-        
-        // delta가 양수이면 사용 가능한 스탯 포인트 체크
+    
+        // 스탯 포인트 추가인 경우 사용 가능한 포인트 체크
         if (delta > 0)
         {
             if (availableStatPoints < delta)
@@ -509,14 +527,13 @@ public class PlayerData : CharacterData
             }
             availableStatPoints -= delta;
         }
-        // delta가 음수면 환급
+        // 감산인 경우 환급
         else if (delta < 0)
         {
             availableStatPoints += (-delta);
         }
-        
+    
         tempStatChanges[statType] = newTemp;
-        // UI 갱신 등을 통해 미리보기 표시 가능
         return true;
     }
     
@@ -634,25 +651,28 @@ public class PlayerData : CharacterData
         }
         tempSkillChanges.Clear();
     }
-    // 해당 스탯의 현재 기본값과 임시 할당치를 더한 미리보기 값 반환
+    // 해당 스탯의 임시 할당치 미리보기 값 반환
     public int GetPreviewStat(StatType statType)
     {
-        int baseValue = 0;
-        switch (statType)
-        {
-            case StatType.Strength: baseValue = this.strength; break;
-            case StatType.Vitality: baseValue = this.vitality; break;
-            case StatType.Agility: baseValue = this.agility; break;
-            case StatType.Intelligence: baseValue = this.intelligence; break;
-        }
-        return baseValue + tempStatChanges[statType];
+        // int baseValue = 0;
+        // switch (statType)
+        // {
+        //     case StatType.Strength: baseValue = this.strength; break;
+        //     case StatType.Vitality: baseValue = this.vitality; break;
+        //     case StatType.Agility: baseValue = this.agility; break;
+        //     case StatType.Intelligence: baseValue = this.intelligence; break;
+        // }
+        // return baseValue + tempStatChanges[statType];
+        return tempStatChanges[statType];
     }
     
+    // 해당 스킬 레벨값 임시 할당치 값 반환
     public int GetPreviewSkillLevel(Skills skill)
     {
         if (skill == null) return 0;
-        int temp = tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
-        return skill.skillLevel + temp;
+        // int temp = tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
+        // return skill.skillLevel + temp;
+        return tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
     }
 
     public void AddSkill(string skill) => skills.Add(skill);
@@ -758,11 +778,12 @@ public class MonsterData : CharacterData
         float attackRange, 
         float stamina, 
         float staminaRecoveryRate, 
-        float mpRecoveryRate, 
+        float mpRecoveryRate,
+        ElementalAttribute attribute,
         List<string> dropItems,
         int experienceReward, 
         int goldReward)
-        : base(name, characterType, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate)
+        : base(name, characterType, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, attribute)
     {
         this.dropItems = new List<string>(dropItems);
         this.experienceReward = experienceReward;
@@ -785,6 +806,7 @@ public class MonsterData : CharacterData
             this.stamina,
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
+            this.attribute,
             new List<string>(this.dropItems), // 드롭 아이템 복사
             this.experienceReward,
             this.goldReward
@@ -829,12 +851,13 @@ public class BossData : MonsterData
         float stamina,
         float staminaRecoveryRate,
         float mpRecoveryRate,
+        ElementalAttribute attribute,
         List<string> dropItems,
         int experienceReward,
         int goldReward,
         List<string> specialSkills)
         : base(name, characterType, prefab, strength, vitality, agility, intelligence, speed, attackSpeed,
-            attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, dropItems, experienceReward, goldReward)
+            attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, attribute, dropItems, experienceReward, goldReward)
     {
         SpecialSkills = new List<string>(specialSkills);
     }
@@ -858,6 +881,7 @@ public class BossData : MonsterData
             this.stamina,
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
+            this.attribute,
             new List<string>(this.dropItems), // 드롭 아이템 복사
             this.experienceReward,
             this.goldReward,
@@ -914,6 +938,9 @@ public class DragonData
     public int magicDamage;     // 마법 공격력
     public float criticalChance; // 크리티컬 확률
     public float criticalDamage; // 크리티컬 데미지 배율
+    
+    public ElementalAttribute dragonAttribute;
+    private ElementalAttribute dragonBaseAttribute = new ElementalAttribute();
 
 
     public DragonData(
@@ -929,6 +956,7 @@ public class DragonData
         float attackRange,
         int[] bondThresholds, 
         float criticalChance, 
+        ElementalAttribute dragonAttribute,
         DragonStatModifier modifier = null)
     {
         this.characterName = name;
@@ -945,6 +973,7 @@ public class DragonData
         this.bondExperience = 0;
         this.bondThresholds = bondThresholds;
         this.criticalChance = criticalChance;
+        this.dragonAttribute = ElementalAttribute.Fire;
         this.statModifier = modifier ?? new DragonStatModifier();
 
         // 물리 데미지와 마법 데미지 계산
