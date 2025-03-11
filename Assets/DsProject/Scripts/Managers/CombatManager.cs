@@ -102,13 +102,13 @@ public class CombatManager : BaseManager<CombatManager>
         // 만약 공격자가 플레이어라면, 무기/스킬에 따라 속성을 가져옴
         if (isPlayerAttacking && actualAttacker is PlayerData playerAttacker)
         {
-            attackerEffectiveAttribute = playerAttacker.GetEffectiveAttackAttribute(skillMultiplier > 1f);
+            // ItemEffectManager.Instance.equippedItems[EquipmentSlot.손]
         }
         
         // 만약 방어자가 플레이어라면, 방어구 속성을 사용
         if (actualDefender is PlayerData playerDefender)
         {
-            defenderEffectiveAttribute = playerDefender.GetEffectiveDefenseAttribute();
+            // defenderEffectiveAttribute = playerDefender.GetEffectiveDefenseAttribute();
         }
         
         // **속성 배율 적용**

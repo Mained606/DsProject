@@ -5,12 +5,10 @@ using UnityEngine;
 public class ItemSkillManager : BaseManager<ItemSkillManager>
 {
     public Dictionary<Item, Coroutine> elementCoroutine = new Dictionary<Item, Coroutine>();
-    public Dictionary<CharacterData, Coroutine> targetCoroutine = new Dictionary<CharacterData, Coroutine>();
 
     [SerializeField] private float maxAttackCount = 4;
     [SerializeField] private float elementRecoverTime = 10f;
     [SerializeField] private float attackEffectDuration = 0.5f;
-    [SerializeField] private float targetEffectDuration = 5f;
 
     [SerializeField] private Vector3 attackParticleOffset = new Vector3();    
 
@@ -41,9 +39,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
     }
 
-    //CombatManager ProcessAttack에서 활용
-    //플래이어 공격시
-    public void ApplyElementEffect(Item weapon, CharacterData target, Transform targetTransform)
+    //공격시 속성
+    public void ApplyElementEffect(Item weapon, CharacterData target)
     {
         ItemSkill skill = weapon.itemSkill;
 
@@ -53,26 +50,36 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (!IsActive)
             return;
 
-
-        if (!targetCoroutine.ContainsKey(target))
+        switch (skill.element)
         {
-            switch (skill.element)
-            {
-                case ElementalAttribute.Fire:
-                    ApplyFireEffect(weapon, target, targetTransform);
-                    break;
+            case ElementalAttribute.Fire:
+                ApplyFireEffect(weapon, target);
+                break;
 
-                case ElementalAttribute.Water:
-                    ApplyWaterEffect(weapon, target, targetTransform);
-                    break;
+            case ElementalAttribute.Water:
+                ApplyWaterEffect(weapon, target);
+                break;
 
-                case ElementalAttribute.Electric:
-                    ApplyElectircEffect(weapon, target, targetTransform);
-                    break;
-            }
-
-            PlayTargetParticle(weapon, targetTransform);
+            case ElementalAttribute.Electric:
+                ApplyElectircEffect(weapon, target);
+                break;
         }
+    }
+
+    //속성 저항
+    public float ResistentElement(Item item, CharacterData enemy)
+    {
+        float reductionDamage = 0;
+
+        if (item.type == ItemType.방어구 && item.itemSkill.resistance != ElementalAttribute.None)
+        {
+            if(enemy.attribute == item.itemSkill.resistance)
+            {
+                reductionDamage = item.itemSkill.resistantAmount;
+            }
+        }
+
+        return reductionDamage;
     }
 
     //ComboAttackState에서 호출할 함수
@@ -131,7 +138,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     }
 
     //지속뎀
-    private void ApplyFireEffect(Item weapon, CharacterData target, Transform targetTransform)
+    private void ApplyFireEffect(Item weapon, CharacterData target)
     {
         ItemSkill skill = weapon.itemSkill;
 
@@ -142,7 +149,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     }
 
     //이속 감소
-    private void ApplyWaterEffect(Item weapon, CharacterData target, Transform targetTransform)
+    private void ApplyWaterEffect(Item weapon, CharacterData target)
     {
         ItemSkill skill = weapon.itemSkill;
 
@@ -153,7 +160,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     }
 
     //감전
-    private void ApplyElectircEffect(Item weapon, CharacterData target, Transform targetTransform)
+    private void ApplyElectircEffect(Item weapon, CharacterData target)
     {
         ItemSkill skill = weapon.itemSkill;
 
@@ -225,20 +232,6 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
             attackEffect.transform.SetParent(WeaponTransform);
             Destroy(attackEffect, attackEffectDuration);
-        }
-    }
-
-    //타겟 이펙트 실행
-    private void PlayTargetParticle(Item weapon, Transform targetTransform)
-    {
-        GameObject effect = weapon.itemSkill.targetEffect;
-
-        if(effect != null)
-        {
-            GameObject targetEffect = Instantiate(effect, targetTransform.position, Quaternion.identity);
-
-            targetEffect.transform.SetParent(targetTransform);
-            Destroy(targetEffect, targetEffectDuration);
         }
     }
 

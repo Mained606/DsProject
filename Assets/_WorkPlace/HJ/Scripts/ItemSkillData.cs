@@ -11,15 +11,16 @@ using System.Collections.Generic;
 [Serializable]
 public class ItemSkill
 {
-    //public string skillName;        //이름
-    //public string description;      //설명
     public ElementalAttribute element;     //속성
     public int level = 0;           //아이템 레벨 (강화)
     public GameObject attackEffect; //공격 시 나오는 효과
-    public GameObject targetEffect; //속성 공격시 타겟 효과
-    
+
+    [Header("무기")]
     public float power = 0;        //공격력 + (무기)
 
+    [Header("방어구.. 쓸지 안쓸지 모르겠음")]
+    public ElementalAttribute resistance;    //저항 속성
+    public float resistantAmount;            //속성 수치
 
     //아이템 습득, 강화시에 초기화
     public void Initialize(Item item)
@@ -68,7 +69,6 @@ public class ItemSkill
         newSkill.element = this.element;
         newSkill.level = this.level;
         newSkill.attackEffect = this.attackEffect;
-        newSkill.targetEffect = this.targetEffect;
         newSkill.power = this.power;
 
         return newSkill;
