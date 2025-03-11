@@ -533,6 +533,37 @@ public class PlayerData : CharacterData
     {
         gold = 0; // 초기 골드는 0
     }
+
+    public ElementalAttribute GetEffectiveAttackAttribute(bool isSkillAttack)
+    {
+        if (isSkillAttack)
+        {
+            // return this.currentSkill.attribute;
+            return ElementalAttribute.None;
+        }
+        
+        var handItem = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+        if (handItem != null && handItem.itemSkill != null)
+        {
+            return handItem.itemSkill.element;
+        }
+    
+        // 장비가 없으면 플레이어 기본 속성 사용
+        return this.attribute;
+    }
+    
+    public ElementalAttribute GetEffectiveDefenseAttribute()
+    {
+        // 몸 슬롯에 장착된 아이템이 있다면 해당 아이템의 속성을 사용
+        var bodyItem = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.몸);
+        if (bodyItem != null && bodyItem.itemSkill != null)
+        {
+            return bodyItem.itemSkill.element;
+        }
+    
+        // 없으면 플레이어 기본 속성 사용
+        return this.attribute;
+    }
     
     // 스탯을 조정하는 메서드
     public bool AdjustTempStat(StatType statType, int delta)

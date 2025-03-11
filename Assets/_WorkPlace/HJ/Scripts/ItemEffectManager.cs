@@ -274,7 +274,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
     #region Variables
 
-    public Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
+    private Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
     private Dictionary<BuffType, ActiveBuff> activeBuffs = new Dictionary<BuffType, ActiveBuff>();
     private Dictionary<BuffType, Coroutine> activeCoroutines = new Dictionary<BuffType, Coroutine>();
 
@@ -351,7 +351,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         if (item != null)
         {
             //HJ 03.07 추가
-            ItemSkillManager.Instance.UnequipResetCount(item);
+            ItemSkillManager.Instance.UnequipReset(item);
             UpdatePlayerStats(item.itemStat, -1);
             equippedItems[item.equipmentSlot] = null;
             item.isEquired = false;
@@ -423,7 +423,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
 
         //HJ 03.07 추가
-        ItemSkillManager.Instance.ResetAttackCount(item);
+        ItemSkillManager.Instance.EquipReset(item);
     }
 
     //중복 사용 가능(일반 버프 아이템)

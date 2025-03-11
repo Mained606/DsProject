@@ -23,6 +23,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
                 Debug.Log("CurrentWeaponObject = null");
                 return null;
             }
+
             return ItemEffectManager.Instance.weaponManager.CurrentWeaponObject.transform;
         }
     }
@@ -36,11 +37,12 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         set
         {
             isActive = value;
-            PlayWeaponParticle(ItemEffectManager.Instance.equippedItems[EquipmentSlot.손], WeaponTransform);
+            PlayWeaponParticle(ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손), WeaponTransform);
         }
     }
 
     //CombatManager ProcessAttack에서 활용
+    //플래이어 공격시
     public void ApplyElementEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
         ItemSkill skill = weapon.itemSkill;
@@ -51,7 +53,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (!IsActive)
             return;
 
-        if(!targetCoroutine.ContainsKey(target))
+
+        if (!targetCoroutine.ContainsKey(target))
         {
             switch (skill.element)
             {
@@ -70,18 +73,18 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
             PlayTargetParticle(weapon, targetTransform);
         }
-
-        PlayAttackParticle(weapon);
     }
 
     //ComboAttackState에서 호출할 함수
-    public void UpdateAttackCount()
+    public void UpdateAttack()
     {
         if (!isActive) return;
 
         attackCount++;
 
-        if(attackCount >= maxAttackCount)
+        PlayAttackParticle(ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손));
+
+        if (attackCount >= maxAttackCount)
         {
             if(elementDisableCoroutine != null)
             {
@@ -92,12 +95,26 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
     }
 
-    //무기 장착시 카운트 리셋
-    public void ResetAttackCount(Item weapon)
+    //장착시 카운트 리셋
+    public void EquipReset(Item item)
+    {
+        ResetCount(item);
+        IsActive = true;
+    }
+
+    //장비 해제시 카운트 리셋
+    public void UnequipReset(Item item)
+    {
+        ResetCount(item);
+        IsActive = false;
+    }
+
+    #region PrivateMethod
+    private void ResetCount(Item weapon)
     {
         if (weapon.type != ItemType.무기) return;
 
-        if(weapon.itemSkill == null)
+        if (weapon.itemSkill == null)
         {
             Debug.Log($"{weapon.name}의 itemSkill이 null");
             return;
@@ -111,32 +128,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
 
         attackCount = 0;
-        IsActive = true;
     }
 
-    //장비 해제시 카운트 리셋
-    public void UnequipResetCount(Item item)
-    {
-        if (item.type != ItemType.무기) return;
-
-        if (item.itemSkill == null)
-        {
-            Debug.Log($"{item.name}의 itemSkill이 null");
-            return;
-        }
-
-        if (item.itemSkill.element == ElementalAttribute.None || item.itemSkill.element == ElementalAttribute.Earth) return;
-
-        if (elementDisableCoroutine != null)
-        {
-            StopCoroutine(elementDisableCoroutine);
-        }
-
-        attackCount = 0;
-        IsActive = false;
-    }
-
-    #region PrivateMethod
     //지속뎀
     private void ApplyFireEffect(Item weapon, CharacterData target, Transform targetTransform)
     {
@@ -221,6 +214,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         if(effect != null)
         {
+            Debug.Log("공격 파티클 실행");
+
             GameObject attackEffect = Instantiate(effect,
                 WeaponTransform.position + attackParticleOffset,
                 Quaternion.identity);
