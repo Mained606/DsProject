@@ -496,20 +496,33 @@ public class PlayerData : CharacterData
 
     public ElementalAttribute GetEffectiveAttackAttribute(bool isSkillAttack)
     {
-        if (ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손)!= null)
+        if (isSkillAttack)
         {
-            attribute = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손).itemSkill.element;
+            // return this.currentSkill.attribute;
+            return ElementalAttribute.None;
         }
-        return attribute;
+        
+        var handItem = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+        if (handItem != null && handItem.itemSkill != null)
+        {
+            return handItem.itemSkill.element;
+        }
+    
+        // 장비가 없으면 플레이어 기본 속성 사용
+        return this.attribute;
     }
     
     public ElementalAttribute GetEffectiveDefenseAttribute()
     {
-        if (ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.몸) != null)
+        // 몸 슬롯에 장착된 아이템이 있다면 해당 아이템의 속성을 사용
+        var bodyItem = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.몸);
+        if (bodyItem != null && bodyItem.itemSkill != null)
         {
-            attribute = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손).itemSkill.element;
+            return bodyItem.itemSkill.element;
         }
-        return attribute;
+    
+        // 없으면 플레이어 기본 속성 사용
+        return this.attribute;
     }
     
     // 스탯을 조정하는 메서드
