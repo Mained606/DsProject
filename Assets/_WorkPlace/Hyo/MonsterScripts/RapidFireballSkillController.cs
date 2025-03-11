@@ -7,11 +7,13 @@ public class RapidFireballSkillController : MonoBehaviour
     public float skillMultiplier = 1f;
     private int maxHit = 4;
     private int currentHit = 0;
+    private Skills skills;
     // private ParticleSystem particleSystem;
 
     private void Start()
     {
         // particleSystem = GetComponent<ParticleSystem>();
+        skills = SkillManager.SkillDatabase.bossSkills[1];
     }
     private void OnParticleCollision(GameObject other)
     {
@@ -21,7 +23,7 @@ public class RapidFireballSkillController : MonoBehaviour
         {
             if (currentHit >= maxHit) return;
             
-            CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, bossData, other.transform, false, true);
+            CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, bossData, other.transform, false, true, skills, true );
             currentHit++;
             Debug.Log("보스 래피드 파이어 Hit" + currentHit);
         }
