@@ -62,7 +62,6 @@ public class CraftManager : MonoBehaviour
 
     protected virtual void Awake() 
     {
-        //base.Awake();
         if (Instance == null)
         {
             Instance = this;

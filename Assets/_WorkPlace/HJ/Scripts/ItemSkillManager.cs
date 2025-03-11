@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class ItemSkillManager : BaseManager<ItemSkillManager>
 {
-    public Dictionary<Item, Coroutine> elementCoroutine = new Dictionary<Item, Coroutine>();
+    private HashSet<CharacterData> affectedTargets = new HashSet<CharacterData>();
 
     [SerializeField] private float maxAttackCount = 4;
     [SerializeField] private float elementRecoverTime = 10f;
     [SerializeField] private float attackEffectDuration = 0.5f;
+    [SerializeField] private float debuffDuration = 10f;    //임시
 
     [SerializeField] private Vector3 attackParticleOffset = new Vector3();    
 
@@ -44,11 +46,14 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (skill == null || skill.element == ElementalAttribute.None || skill.element == ElementalAttribute.Earth)
+        if (!IsActive || skill?.element is ElementalAttribute.None or ElementalAttribute.Earth)
             return;
 
-        if (!IsActive)
+        if (affectedTargets.Contains(target))
             return;
+
+        affectedTargets.Add(target);
+        StartCoroutine(RemoveAffectedTarget(target, debuffDuration));
 
         switch (skill.element)
         {
@@ -69,6 +74,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //속성 저항
     public float ResistentElement(Item item, CharacterData enemy)
     {
+        if (item.itemSkill == null) return 0;
+
         float reductionDamage = 0;
 
         if (item.type == ItemType.방어구 && item.itemSkill.resistance != ElementalAttribute.None)
@@ -96,6 +103,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             if(elementDisableCoroutine != null)
             {
                 StopCoroutine(elementDisableCoroutine);
+                elementDisableCoroutine = null;
             }
             
             elementDisableCoroutine = StartCoroutine(DisableWeaponEffect());
@@ -132,6 +140,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (elementDisableCoroutine != null)
         {
             StopCoroutine(elementDisableCoroutine);
+            elementDisableCoroutine = null;
         }
 
         attackCount = 0;
@@ -200,19 +209,19 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             Debug.Log("노말 타입 무기");
             return;
         }
-        ParticleSystem particle = weaponTransform.GetComponentInChildren<ParticleSystem>();
+        VisualEffect effect = weaponTransform.GetComponentInChildren<VisualEffect>();
 
-        if(particle != null)
+        if(effect != null)
         {
             Debug.Log("속성 이펙트 실행");
 
             if (IsActive)
             {
-                particle.Play();
+                effect.Play();
             }
             else
             {
-                particle.Stop();
+                effect.Stop();
             }
         }
     }
@@ -233,6 +242,13 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             attackEffect.transform.SetParent(WeaponTransform);
             Destroy(attackEffect, attackEffectDuration);
         }
+    }
+
+    private IEnumerator RemoveAffectedTarget(CharacterData target, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        affectedTargets.Remove(target);
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)

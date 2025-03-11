@@ -20,7 +20,7 @@ public class ItemSkill
 
     [Header("방어구.. 쓸지 안쓸지 모르겠음")]
     public ElementalAttribute resistance;    //저항 속성
-    public float resistantAmount;            //속성 수치
+    public float resistantAmount;            //저항 수치
 
     //아이템 습득, 강화시에 초기화
     public void Initialize(Item item)
@@ -29,6 +29,9 @@ public class ItemSkill
         ApplyItemStat(item);
     }
 
+    /// <summary>
+    /// 아이템 레벨에 따라 값을 획일적으로 수정하기
+    /// </summary>
     public void AdjustElementValue(Item item)
     {
         if (level >= 9)
@@ -43,6 +46,9 @@ public class ItemSkill
         }
     }
 
+    /// <summary>
+    /// 다운그레이드 됐을 경우를 고려해서 수정하기
+    /// </summary>
     public void ApplyItemStat(Item item)
     {
         if (level >= 9)
