@@ -147,7 +147,14 @@ public class SkillManager : BaseManager<SkillManager>
         Animator entityAnimator = GetEntityAnimator(entityType);
         if (entityAnimator != null)
         {
-            entityAnimator.SetTrigger(skill.activeTriggerName);
+            if(entityType == EntityType.Player)
+            {
+                entityAnimator.CrossFade(skill.skillName, 0f);
+            }
+            else
+            {
+                entityAnimator.SetTrigger(skill.activeTriggerName);
+            }  
         }
 
         if (skill.effectPrefab != null)
