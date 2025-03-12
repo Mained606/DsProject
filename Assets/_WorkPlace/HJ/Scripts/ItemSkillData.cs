@@ -1,6 +1,5 @@
 using UnityEngine;
 using System;
-using System.Collections.Generic;
 
 /// <summary>
 /// 불은 밸런스 / 얼음은 공격력 / 전기는 공속
@@ -11,51 +10,73 @@ using System.Collections.Generic;
 [Serializable]
 public class ItemSkill
 {
-    //public string skillName;        //이름
-    //public string description;      //설명
     public ElementalAttribute element;     //속성
     public int level = 0;           //아이템 레벨 (강화)
     public GameObject attackEffect; //공격 시 나오는 효과
-    public GameObject targetEffect; //속성 공격시 타겟 효과
-    
-    public float power = 0;        //공격력 + (무기)
 
+    [Header("방어구 속성 저항.. 쓸지 안쓸지 모르겠음")]
+    public ElementalAttribute resistance;    //저항 속성
+    public float resistantAmount;            //저항 수치
 
-    //아이템 습득, 강화시에 초기화
-    public void Initialize(Item item)
+    //속성, 레벨, 아이템 등급 적용한 강화 수치
+    public float ApplyPower(Item item)
     {
-        AdjustElementValue(item);
-        ApplyItemStat(item);
+        Debug.Log(item.itemSkill.ApplyElement(item) * ApplyGradeMultiplier(item));
+        return item.itemSkill.ApplyElement(item) * ApplyGradeMultiplier(item);
     }
 
-    public void AdjustElementValue(Item item)
+    //아이템 수치 적용
+    public void ApplyItemStat(Item item, float amount, int multiplier)
     {
         if (level >= 9)
             return;
 
-        if (item.type == ItemType.무기)
+        ItemStat itemStat = item.itemStat;
+        if (itemStat == null)
         {
-            if (element == ElementalAttribute.Earth)
-                power += 10;
-            else
-                power += 5;
-        }
-    }
-
-    public void ApplyItemStat(Item item)
-    {
-        if (level >= 9)
+            Debug.Log("아이템스탯 null");
             return;
+        }
 
         if(item.type == ItemType.무기)
         {
-            if(item.weaponType == WeaponType.한손무기 || item.weaponType == WeaponType.양손무기)
+            if(item.weaponType == WeaponType.완드)
             {
-                item.itemStat.PhysicalAttack += power;
+                itemStat.MagicAttack += amount * multiplier;
 
                 if (ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손) == item)
                 {
-                    CharacterManager.PlayerCharacterData.physicalDamage += power;
+                    CharacterManager.PlayerCharacterData.magicDamage += amount * multiplier;
+                }
+            }
+            else
+            {
+                itemStat.PhysicalAttack += amount * multiplier;
+
+                if (ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손) == item)
+                {
+                    CharacterManager.PlayerCharacterData.physicalDamage += amount * multiplier;
+                }
+            }
+        }
+        else if(item.type == ItemType.방어구)
+        {
+            if(itemStat.PhysicalDefense >= itemStat.MagicDefense)
+            {
+                itemStat.PhysicalDefense += amount * multiplier;
+
+                if(ItemEffectManager.Instance.GetEquippedItem(item.equipmentSlot) == item)
+                {
+                    CharacterManager.PlayerCharacterData.physicalDefense += amount * multiplier;
+                }
+            }
+            else
+            {
+                itemStat.MagicDefense += amount * multiplier;
+
+                if (ItemEffectManager.Instance.GetEquippedItem(item.equipmentSlot) == item)
+                {
+                    CharacterManager.PlayerCharacterData.magicDefense += amount * multiplier;
                 }
             }
         }
@@ -68,18 +89,40 @@ public class ItemSkill
         newSkill.element = this.element;
         newSkill.level = this.level;
         newSkill.attackEffect = this.attackEffect;
-        newSkill.targetEffect = this.targetEffect;
-        newSkill.power = this.power;
 
         return newSkill;
     }
-}
 
-//public enum ElementType
-//{
-//    Normal,
-//    Fire,
-//    Water,
-//    Electric,
-//    Ground
-//}
+    //속성, 레벨에 따른 파워
+    //수치 조정 예정
+    private float ApplyElement(Item item)
+    {
+        float basePower = 5;
+
+        switch (item.itemSkill.element)
+        {
+            case ElementalAttribute.Earth:
+                basePower = 10;
+                break;
+                //다른 속성들은 밸런스에 따라 추가할지 말지 결정
+        }
+
+        return basePower * (1f + level * 0.2f);
+    }
+
+    //등급에 따른 파워 배율
+    //수치 조정 예정
+    private float ApplyGradeMultiplier(Item item)
+    {
+        switch(item.grade)
+        {
+            case ItemGrade.일반: return 1.0f;
+            case ItemGrade.고급: return 1.2f;
+            case ItemGrade.희귀: return 1.4f;
+            case ItemGrade.에픽: return 1.6f;
+            case ItemGrade.전설: return 1.8f;
+            case ItemGrade.신화: return 2.0f;
+            default: return 1.0f;
+        }
+    }
+}
