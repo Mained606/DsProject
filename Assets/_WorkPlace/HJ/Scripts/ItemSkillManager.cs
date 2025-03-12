@@ -41,8 +41,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
     }
 
-    //공격시 속성
-    public void ApplyElementEffect(Item weapon, CharacterData target)
+    //속성 공격
+    public void ElementAttack(Item weapon, CharacterData target)
     {
         ItemSkill skill = weapon.itemSkill;
 
@@ -71,8 +71,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
     }
 
-    //속성 저항
-    public float ResistentElement(Item item, CharacterData enemy)
+    //속성 저항 값
+    public float ElementResistantAmount(Item item, CharacterData enemy)
     {
         if (item.itemSkill == null) return 0;
 
@@ -209,6 +209,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             Debug.Log("노말 타입 무기");
             return;
         }
+
         VisualEffect effect = weaponTransform.GetComponentInChildren<VisualEffect>();
 
         if(effect != null)

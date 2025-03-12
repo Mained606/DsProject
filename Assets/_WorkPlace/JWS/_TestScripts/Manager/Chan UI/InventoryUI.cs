@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -36,6 +37,9 @@ public class InventoryUI : MonoBehaviour
 
     private void OnDisable()
     {
+        //03.12 Hj 추가
+        InventoryManager.Instance.ResetSelectedItem();
+
         RemoveButtonListeners();
     }
 

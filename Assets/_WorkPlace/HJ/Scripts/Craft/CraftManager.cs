@@ -116,8 +116,6 @@ public class CraftManager : MonoBehaviour
     {
         ItemManager.Instance.AddItemLogic(recipe.itemId);
 
-        
-
         Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
     }
 
