@@ -11,9 +11,16 @@ public class Flame : MonoBehaviour
 
     [SerializeField] private float multiplier = 0.1f;
 
+    private float damage;
+    private ElementalAttribute attribute;
+    private Skills skills;
+
     private void Start()
     {
         _particleSystem = GetComponent<ParticleSystem>();
+        skills = SkillManager.SkillDatabase.playerSkills[0];
+        attribute = skills.attribute;
+        damage = skills.damage;
     }
 
     private void OnParticleCollision(GameObject other)
@@ -43,7 +50,7 @@ public class Flame : MonoBehaviour
                 MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
                 if (enemyMonsterData != null)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, true, 1f + multiplier);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, true, skills);
                     return;  // MonsterData 처리 완료 후 반환
                 }
 
@@ -51,7 +58,7 @@ public class Flame : MonoBehaviour
                 BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
                 if (enemyBossData != null)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, true, 1f + multiplier);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, true, skills);
                 }
             }
         }

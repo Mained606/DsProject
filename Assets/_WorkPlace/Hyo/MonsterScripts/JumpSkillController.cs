@@ -7,6 +7,7 @@ public class JumpSkillController : MonoBehaviour
     public float skillMultiplier = 3f;
     private bool hasAttacked = false;
     private Collider triggerCollider;
+    private Skills skills;
     
     private void OnEnable()
     {
@@ -25,6 +26,11 @@ public class JumpSkillController : MonoBehaviour
         }
 
         triggerCollider.enabled = false; // 초기에는 트리거 비활성화
+    }
+
+    private void Start()
+    {
+        skills = SkillManager.SkillDatabase.bossSkills[3];
     }
     
     private IEnumerator ActivateTriggerAfterDelay(float delay)
@@ -68,7 +74,7 @@ public class JumpSkillController : MonoBehaviour
                 other.transform,
                 false,
                 true,
-                1f * skillMultiplier, 
+                skills, 
                 true
             );
 
