@@ -79,6 +79,39 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         }
     }
 
+    #region 아이템 인포 위치 이동 버전
+
+    /*public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!isEquireSlot && !InventorytooltipWindow.activeSelf)
+        {
+            InventorytooltipWindow.SetActive(true);
+            ItemImage.sprite = currentItem.sprite;
+            textPoint[1].text = currentItem.name;
+            textPoint[2].text = currentItem.ToStringTMPro();
+            //  아이템 아이콘 위치 기준으로 툴팁 실행
+            RectTransform itemRect = GetComponent<RectTransform>(); // 현재 아이템 슬롯 위치
+            RectTransform tooltipRect = InventorytooltipWindow.GetComponent<RectTransform>(); //  툴팁 위치
+
+            float offsetX = itemRect.sizeDelta.x + 10f;
+            float offsetY = 0f; // 
+
+            Vector2 tooltipPosition = new Vector2(itemRect.position.x + offsetX, itemRect.position.y + offsetY);
+
+            Vector2 anchoredPos;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                InventorytooltipWindow.transform.parent as RectTransform,
+                tooltipPosition,
+                eventData.pressEventCamera,
+                out anchoredPos
+            );
+
+            tooltipRect.anchoredPosition = anchoredPos;
+        }
+    }*/
+
+    #endregion
+
     public void OnPointerExit(PointerEventData eventData)
     {
         if (!isEquireSlot) InventorytooltipWindow.SetActive(false);
