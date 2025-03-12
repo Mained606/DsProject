@@ -86,6 +86,12 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if(eventData.button == PointerEventData.InputButton.Right)
+        {
+            HandleRightClick(eventData);
+            return;
+        }
+
         float currentTime = Time.time; // 현재 시간
         if (currentTime - lastClickTime <= doubleClickThreshold)
         {
@@ -107,6 +113,9 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         {
             Debug.Log($"'{currentItem.name}' 아이템을 클릭했습니다.");
         }
+
+        //03.12 HJ 추가
+        InventoryManager.Instance.SetSelectedItem(currentItem);
     }
 
     private void HandleDoubleClick(PointerEventData eventData)
@@ -116,6 +125,15 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
             if (!currentItem.isEquired) ItemEffectManager.Instance.ApplyItemEffect(currentItem);
             else ItemEffectManager.Instance.UnequipmentEffect(currentItem);
         }
+    }
+
+    private void HandleRightClick(PointerEventData eventData)
+    {
+        if (currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구)
+        {
+            Debug.Log($"마우스 우클릭, 아이템 타입: {currentItem.type}");
+            EnhanceManager.Instance.Enhance(currentItem, InventoryManager.Instance.selectedItem);
+        }        
     }
 
     public Item GetItem() => currentItem;
