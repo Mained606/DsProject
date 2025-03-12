@@ -83,6 +83,7 @@ public class CombatManager : BaseManager<CombatManager>
             // 마법 공격
             damage = actualAttacker.magicDamage * (1 - actualDefender.magicDamageReduction);
         }
+        
         else
         {
             // 물리 공격
@@ -92,7 +93,7 @@ public class CombatManager : BaseManager<CombatManager>
         // 스킬 배율이 있을 때만 적용 (배율이 없으면 기본값 1을 사용)
         if (skills != null)
         {
-            damage = skills.damage;
+            damage = skills.currentDamage;
         }
         
         ElementalAttribute attackerEffectiveAttribute = actualAttacker.attribute;
@@ -164,6 +165,11 @@ public class CombatManager : BaseManager<CombatManager>
             }
             // 250131 2:00PM Hyeon ===============================================
             actualDefender.TakeDamage(finalDamage, attackerTransform);
+            if (skills != null)
+            {
+                int levelPoint = isCritical ? 2 : 1;
+                skills.AddExperience(levelPoint);
+            }
         }
         
         // UI에 데미지 텍스트 표시
