@@ -48,12 +48,12 @@ public class Skills
     }
     
     // 스킬 레벨 증가 (damage 10% 증가)
-    public void LevelUp()
+    public void LevelUp(bool forceLevelUp = false)
     {
         if (!unLockSkill)
             return; // 스킬이 잠겨있으면 레벨업 불가
 
-        if (skillLevel < maxSkillLevel)
+        if (skillLevel < maxSkillLevel || forceLevelUp)
         {
             isLevelingUp = true; // 레벨업 시작
             skillLevel++;
