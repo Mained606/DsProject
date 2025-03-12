@@ -62,7 +62,6 @@ public class CraftManager : MonoBehaviour
 
     protected virtual void Awake() 
     {
-        //base.Awake();
         if (Instance == null)
         {
             Instance = this;
@@ -116,8 +115,6 @@ public class CraftManager : MonoBehaviour
     protected virtual void CompleteCrafting(Recipe recipe)
     {
         ItemManager.Instance.AddItemLogic(recipe.itemId);
-
-        
 
         Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
     }

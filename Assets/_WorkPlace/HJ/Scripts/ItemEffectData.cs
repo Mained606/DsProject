@@ -188,7 +188,7 @@ public class ItemEffect
         
         itemStat.CriticalChance += Mathf.RoundToInt(itemStat.CriticalChance * (bonusPercentage));
         itemStat.AttackSpeed += Mathf.RoundToInt(itemStat.AttackSpeed * (bonusPercentage));
-    }        
+    }
 
     //이펙트 타입에 따라 파티클 프리팹 적용
     public void AddEffectParticle()
