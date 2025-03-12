@@ -39,8 +39,6 @@ public class SkillsUI : MonoBehaviour
         {
             if (registedSkillList.Count > 2) return;
             registedSkillList.Add(playerSkillList[skillIndex]);
-            targetSkillIndex = playerSkillList.IndexOf(registedSkillList[skillIndex]);
-            playerSkillList[targetSkillIndex].activeTriggerName = $"Skill_{skillIndex + 1}";
             InitskillSlotItems();
             skillIndex++;
         }
