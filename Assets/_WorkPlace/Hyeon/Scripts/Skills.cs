@@ -9,6 +9,7 @@ public class Skills
     public SkillType skillType;
     public ElementalAttribute attribute;
     public string skillName;
+    public float currentDamage; 
     public float damage;
     public float cooldown;
     public float energyCost;
@@ -34,6 +35,7 @@ public class Skills
     public void Initialize()
     {
         cooldownTimer = new BasicTimer(cooldown);
+        currentDamage = damage;
         skillLevel = 1;
         currentExperience = 0;
         experienceToLevelUp = CalculateExperienceToLevelUp();
@@ -55,7 +57,7 @@ public class Skills
         {
             isLevelingUp = true; // 레벨업 시작
             skillLevel++;
-            damage *= 1.1f; // 스킬 피해량 10% 증가
+            currentDamage *= 1.1f; // 스킬 피해량 10% 증가
             experienceToLevelUp = CalculateExperienceToLevelUp();
             isLevelingUp = false; // 레벨업 종료
         }
@@ -70,7 +72,7 @@ public class Skills
         if (skillLevel > 1)
         {
             skillLevel--;
-            damage /= 1.1f; // 스킬 피해량 원래대로 복귀
+            currentDamage /= 1.1f; // 스킬 피해량 원래대로 복귀
         }
     }
     
@@ -91,7 +93,6 @@ public class Skills
                 if(limitedSkillLevel) LevelUp();
             }
         }
-
     }
     
     // 레벨업에 필요한 경험치 계산 함수

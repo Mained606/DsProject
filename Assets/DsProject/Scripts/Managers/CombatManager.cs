@@ -93,7 +93,7 @@ public class CombatManager : BaseManager<CombatManager>
         // 스킬 배율이 있을 때만 적용 (배율이 없으면 기본값 1을 사용)
         if (skills != null)
         {
-            damage = skills.damage;
+            damage = skills.currentDamage;
         }
         
         ElementalAttribute attackerEffectiveAttribute = actualAttacker.attribute;
