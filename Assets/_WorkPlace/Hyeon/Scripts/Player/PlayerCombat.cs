@@ -27,8 +27,9 @@ public class PlayerCombat : MonoBehaviour
     public Quaternion targetRotation;
 
     private static readonly int[] SkillStateHash = {
-        Animator.StringToHash("Base Layer.Skill_1"),
-        Animator.StringToHash("Base Layer.Skill_2")
+        Animator.StringToHash("Base Layer.FireStrike"),
+        Animator.StringToHash("Base Layer.UpperAttack"),
+        Animator.StringToHash("Base Layer.TurnAttack"),
     };
 
     private void Start()

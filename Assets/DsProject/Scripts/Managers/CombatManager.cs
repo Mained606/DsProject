@@ -8,7 +8,7 @@ public class CombatManager : BaseManager<CombatManager>
     }
     
     // 공격 처리 메서드
-    public void ProcessAttack(CharacterData playerData, CharacterData monsterData, Transform defenderTransform, bool isPlayerAttacking, bool isMagicAttack, float skillMultiplier = 1f, bool isBossAttacking = false)
+    public void ProcessAttack(CharacterData playerData, CharacterData monsterData, Transform defenderTransform, bool isPlayerAttacking, bool isMagicAttack, Skills skills = null, bool isBossAttacking = false)
     {
         // 공격자와 방어자 설정
         CharacterData actualAttacker = isPlayerAttacking ? playerData : monsterData;
@@ -83,6 +83,7 @@ public class CombatManager : BaseManager<CombatManager>
             // 마법 공격
             damage = actualAttacker.magicDamage * (1 - actualDefender.magicDamageReduction);
         }
+        
         else
         {
             // 물리 공격
@@ -90,10 +91,9 @@ public class CombatManager : BaseManager<CombatManager>
         }
         
         // 스킬 배율이 있을 때만 적용 (배율이 없으면 기본값 1을 사용)
-        if (skillMultiplier > 1f)
+        if (skills != null)
         {
-            damage *= skillMultiplier;
-            Debug.Log($"스킬 배율 적용{skillMultiplier}%");
+            damage = skills.currentDamage;
         }
         
         ElementalAttribute attackerEffectiveAttribute = actualAttacker.attribute;
@@ -102,7 +102,12 @@ public class CombatManager : BaseManager<CombatManager>
         // 만약 공격자가 플레이어라면, 무기/스킬에 따라 속성을 가져옴
         if (isPlayerAttacking && actualAttacker is PlayerData playerAttacker)
         {
-            attackerEffectiveAttribute = playerAttacker.GetEffectiveAttackAttribute(skillMultiplier > 1f);
+            attackerEffectiveAttribute = playerAttacker.GetEffectiveAttackAttribute(skills != null, skills);
+        }
+
+        if (isBossAttacking && actualAttacker is BossData bossAttacker && skills != null)
+        {
+            attackerEffectiveAttribute = skills.attribute;
         }
         
         // 만약 방어자가 플레이어라면, 방어구 속성을 사용
@@ -160,6 +165,11 @@ public class CombatManager : BaseManager<CombatManager>
             }
             // 250131 2:00PM Hyeon ===============================================
             actualDefender.TakeDamage(finalDamage, attackerTransform);
+            if (skills != null)
+            {
+                int levelPoint = isCritical ? 2 : 1;
+                skills.AddExperience(levelPoint);
+            }
         }
         
         // UI에 데미지 텍스트 표시
