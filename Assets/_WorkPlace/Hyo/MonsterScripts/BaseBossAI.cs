@@ -486,6 +486,7 @@ public class BaseBossAI : MonoBehaviour
         animator.SetBool(IsDashing, true);
         isRotating = false; // 회전 방지
         hasAppliedDashDamage = false;
+        Skills skills = SkillManager.SkillDatabase.bossSkills[2];
 
 
         while (distanceTravelled < dashDistance)
@@ -510,7 +511,7 @@ public class BaseBossAI : MonoBehaviour
                 // 한 번만 데미지 들어가도록 플래그 사용
                 if (!hasAppliedDashDamage)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.bossData, playerTarget, false, false, 3f, true);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.bossData, playerTarget, false, false, skills, true);
                     hasAppliedDashDamage = true;
                 }
             }
