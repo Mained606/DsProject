@@ -233,9 +233,9 @@ public class CharacterData : ISheetData
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f); // 민첩성에 따른 크리티컬 확률
         criticalDamage = 1.5f; // 크리티컬 데미지 배율 예시 (게임에 맞게 수정 가능)
 
-        // 회피, 방어 확률 등 계산
-        dodgeChance = Mathf.Min(agility * 0.01f, MaxDodgeChance);
-        blockChance = Mathf.Min(strength * 0.01f, MaxBlockChance);
+        // // 회피, 방어 확률 등 계산
+        // dodgeChance = Mathf.Min(agility * 0.01f, MaxDodgeChance);
+        // blockChance = Mathf.Min(strength * 0.01f, MaxBlockChance);
 
         // 피해 감소율 계산 (최대 50% 제한)
         physicalDamageReduction = Mathf.Min(physicalDefense / (physicalDefense + 100), 0.5f);

@@ -20,7 +20,7 @@ public class Flame : MonoBehaviour
         _particleSystem = GetComponent<ParticleSystem>();
         skills = SkillManager.SkillDatabase.playerSkills[0];
         attribute = skills.attribute;
-        damage = skills.damage;
+        damage = skills.currentDamage;
     }
 
     private void OnParticleCollision(GameObject other)
