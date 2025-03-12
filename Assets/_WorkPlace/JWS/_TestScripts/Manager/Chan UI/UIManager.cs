@@ -24,6 +24,9 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject InventorytooltipWindow;
     [SerializeField] private GameObject characterStaus;
     [SerializeField] private GameObject quickSlot;
+    // ========== 250312 SH 추가 ==========
+    [SerializeField] private GameObject skillQuickSlot;
+    // ========== 250312 SH 추가 ==========
     [SerializeField] private Transform questListParent;
     [SerializeField] private GameObject bossHud;
     [SerializeField] private GameObject levelUpEffect;
@@ -43,6 +46,10 @@ public class UIManager : BaseManager<UIManager>
     public static ShopUI ShopUI;
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
+
+    // ========== 250312 SH 추가 ==========
+    public static SkillsUI SkillsQuickSlot;
+    // ========== 250312 SH 추가 ==========
     
 
     protected override void OnEnable()
@@ -69,6 +76,7 @@ public class UIManager : BaseManager<UIManager>
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
         ShopUI = shopUI.GetComponent<ShopUI>();
         dialogUI = dialogWindow.GetComponent<DialogUI>();
+        SkillsQuickSlot = skillQuickSlot.GetComponent<SkillsUI>();
     }
 
     private void Update()
