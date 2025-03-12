@@ -83,6 +83,7 @@ public class CombatManager : BaseManager<CombatManager>
             // 마법 공격
             damage = actualAttacker.magicDamage * (1 - actualDefender.magicDamageReduction);
         }
+        
         else
         {
             // 물리 공격
@@ -164,6 +165,11 @@ public class CombatManager : BaseManager<CombatManager>
             }
             // 250131 2:00PM Hyeon ===============================================
             actualDefender.TakeDamage(finalDamage, attackerTransform);
+            if (skills != null)
+            {
+                int levelPoint = isCritical ? 2 : 1;
+                skills.AddExperience(levelPoint);
+            }
         }
         
         // UI에 데미지 텍스트 표시
