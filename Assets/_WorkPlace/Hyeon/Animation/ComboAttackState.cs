@@ -86,7 +86,7 @@ public class ComboAttackState : StateMachineBehaviour
         //    
         //    //combat.firstAttack = false;
         //}
-        if (nextComboInput)
+        if (nextComboInput) // TODO : 입력은 들어왔지만 마지막 콤보 공격인 경우 Trigger Reset 시켜주는 기능 필요함
         {
             isPressedAttackKey = false;
             nextComboInput = false;
@@ -94,15 +94,15 @@ public class ComboAttackState : StateMachineBehaviour
         }
         else
         {
-            animator.ResetTrigger("NextCombo");
             combat?.AttackFinished();
-            //Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
+            Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
             combat.firstAttack = true;
             if (combat.weaponCollider.enabled)
             {
                 combat.weaponCollider.enabled = false;
                 //Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
             }
+            animator.ResetTrigger("NextCombo");
         }
 
         //SetCombatComponent(animator);

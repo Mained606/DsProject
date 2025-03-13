@@ -219,6 +219,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gladius02
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 162e93b4f048cb94cab083432c9f70ad, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

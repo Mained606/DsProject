@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.VFX;
 
 // ===== 2025-02-01 11:08 HYO 코드 추가 ====
 public enum EntityType
@@ -187,8 +188,7 @@ public class SkillManager : BaseManager<SkillManager>
             }
             if (skill.particleDelay > 0)
             {
-                var particleEffect = effect.GetComponent<ParticleSystem>().main;
-                particleEffect.startDelay = skill.particleDelay;
+                ApplyEffect(effect, skill.particleDelay);
             }
             Destroy(effect, 5f);
         }
@@ -384,6 +384,50 @@ public class SkillManager : BaseManager<SkillManager>
         }
 
         return true;
+    }
+
+    // ========== 250313 SH 추가 ==========
+    public bool CheckWeaponType(string skillName)
+    {
+        Skills skill = GetSkill(EntityType.Player, skillName);
+        Item weaponItem = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+        if (skill.skillType == SkillType.Physical && (weaponItem.weaponType == WeaponType.한손무기 || weaponItem.weaponType == WeaponType.양손무기))
+        {
+            return true;
+        }
+        else if(skill.skillType == SkillType.Magic && weaponItem.weaponType == WeaponType.완드)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private void ApplyEffect(GameObject effect, float delay)
+    {
+        if (effect == null) return;
+
+        ParticleSystem particle = effect.GetComponent<ParticleSystem>();
+        if(particle != null)
+        {
+            var particleEffect = particle.main;
+            particleEffect.startDelay = delay;
+        }
+
+        VisualEffect visualEffect = effect.GetComponentInChildren<VisualEffect>();
+        if(visualEffect != null)
+        {
+            visualEffect.Stop();
+            StartCoroutine(PlayVisualEffectWithDelay(visualEffect, delay));
+        }
+    }
+
+    private IEnumerator PlayVisualEffectWithDelay(VisualEffect vfx, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        vfx.Play();
     }
 
     // ========================== 🛠️ 버프 기능 추가 ==========================
