@@ -12,7 +12,7 @@ public class GenerateData
     {
     }
 
-       //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 퀘스트 관련 제너레이터.
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public List<Quest> GenerateMainQuestLists()
@@ -32,7 +32,7 @@ public class GenerateData
             //    }),
 
             // 1장 - 1: 마울로 향해
-            new Quest("메인퀘스트", "quest101-1", "마을을 찾아가기",
+            /*new Quest("메인퀘스트", "quest101-1", "마을을 찾아가기",
                 "마을을 찾아 이동하기.",
                 new Dictionary<string, QuestCondition>
                 {
@@ -132,9 +132,34 @@ public class GenerateData
                 {
                     new Reward("소형 체력포션", 1, 90, 90),
                     new Reward("소형 체력포션", 1, 90, 90)
-                })
-        };
+                })*/
 
+            //지혜 퀘스트
+            new Quest("메인퀘스트", "1_1001", "엄마의 쪽지","옆집 아저씨에게 대화 걸기",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_0011", new QuestCondition(QuestConditionType.Explore, "location_0011", "옆집 아저씨에게 대화 걸기", 1) }
+                },
+                new List<Reward> {new Reward("마을 지도", 1, 10, 10)}),
+
+            new Quest("메인퀘스트", "1_1002", "엄마의 쪽지", "밭에서 야채를 수확하자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "밭 찾아가기", 1) },
+                    { "비트", new QuestCondition(QuestConditionType.Collect, "비트", "비트", 3) },
+                    { "무", new QuestCondition(QuestConditionType.Collect, "무", "무", 3) },
+                },
+                new List <Reward> {new Reward("",0,10,10) }),
+
+            new Quest("메인퀘스트", "1_1001", "엄마의 쪽지","의문의 소리 찾기",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "두근거리는 소리의 위치를 찾자",1) }
+                },
+                new List<Reward>{new Reward("의문의 알", 1, 10,10)}
+            ),
+                
+        };
         return questList;
     }
 
