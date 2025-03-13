@@ -6,14 +6,14 @@ using UnityEngine.VFX;
 
 public class ItemSkillManager : BaseManager<ItemSkillManager>
 {
+    public GameObject[] elementEffects;
+
     private HashSet<CharacterData> affectedTargets = new HashSet<CharacterData>();
 
     [SerializeField] private float maxAttackCount = 4;
     [SerializeField] private float elementRecoverTime = 10f;
     [SerializeField] private float attackEffectDuration = 0.5f;
-    [SerializeField] private float debuffDuration = 10f;    //임시
-
-    [SerializeField] private Vector3 attackParticleOffset = new Vector3();    
+    [SerializeField] private float debuffDuration = 10f;    //임시  
 
     private Transform WeaponTransform
     {
@@ -116,6 +116,16 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         ResetCount(item);
         IsActive = true;
+
+        if (WeaponTransform != null)
+        {
+            WeaponAttack weapon = WeaponTransform.GetComponent<WeaponAttack>();
+            int index = (int)item.itemSkill.element - 1;
+            if (weapon != null && weapon.elementMaterials.Length >= index)
+            {
+                WeaponTransform.GetComponent<MeshRenderer>().material = weapon.elementMaterials[index];
+            }
+        }
     }
 
     //장비 해제시 카운트 리셋
@@ -203,12 +213,14 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (effectTransform == null) return;
 
         VisualEffect effect = effectTransform.GetComponent<VisualEffect>();
+        
 
         if (effect != null)
         {
             if (IsActive)
             {
                 effect.Play();
+                //effect.SetFloat("GooRate", 100f);
             }
             else
             {
@@ -220,15 +232,12 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //공격 이펙트 실행
     private void PlayAttackParticle(Item weapon)
     {
-        GameObject effect = weapon.itemSkill.attackEffect;
+        int index = (int)weapon.itemSkill.element - 1;
+        GameObject effect = elementEffects[index];
 
         if(effect != null)
         {
-            //Debug.Log("공격 파티클 실행");
-
-            GameObject attackEffect = Instantiate(effect,
-                WeaponTransform.position + attackParticleOffset,
-                WeaponTransform.rotation);
+            GameObject attackEffect = Instantiate(effect, WeaponTransform.position, WeaponTransform.rotation);
 
             if(WeaponTransform != null)
             {
