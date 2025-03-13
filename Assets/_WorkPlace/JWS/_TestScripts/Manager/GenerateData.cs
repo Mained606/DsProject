@@ -140,25 +140,94 @@ public class GenerateData
                 {
                     {"location_0011", new QuestCondition(QuestConditionType.Explore, "location_0011", "옆집 아저씨에게 대화 걸기", 1) }
                 },
-                new List<Reward> {new Reward("마을 지도", 1, 10, 10)}),
+                new List<Reward> {new Reward("마을 지도", 1, 10, 0)}),
 
             new Quest("메인퀘스트", "1_1002", "엄마의 쪽지", "밭에서 야채를 수확하자",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "밭 찾아가기", 1) },
                     { "비트", new QuestCondition(QuestConditionType.Collect, "비트", "비트", 3) },
                     { "무", new QuestCondition(QuestConditionType.Collect, "무", "무", 3) },
                 },
-                new List <Reward> {new Reward("",0,10,10) }),
+                new List <Reward> {new Reward("",0,0,0) }),
 
-            new Quest("메인퀘스트", "1_1001", "엄마의 쪽지","의문의 소리 찾기",
+            new Quest("메인퀘스트", "1_1003", "엄마의 쪽지","의문의 소리 찾기",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "두근거리는 소리의 위치를 찾자",1) }
                 },
-                new List<Reward>{new Reward("의문의 알", 1, 10,10)}
-            ),
-                
+                new List<Reward>{new Reward("의문의 알", 1, 50,0)}),
+
+            new Quest("메인퀘스트", "1_1004", "엄마의 쪽지","집으로 돌아가자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "집으로 들어가자",1) }
+                },
+                new List<Reward>{new Reward("야채스프", 1, 10,0)}),
+
+            new Quest("메인퀘스트", "1_1005", "알에서 나온 친구","옷장을 열자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "옷장을 열자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 0,0)}),
+
+            new Quest("메인퀘스트", "1_1006", "알에서 나온 친구","도끼를 챙겨 밖으로 나가자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Collect, "도끼", "도끼",1) }
+                },
+                new List<Reward>{new Reward("", 0, 10,0)}),
+
+            new Quest("메인퀘스트", "1_1007", "알에서 나온 친구","벌목장에서 나무를 캐자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Collect, "나무조각", "나무조각",6) }
+                },
+                new List<Reward>{new Reward("나무 완드", 1, 10,0)}),
+
+            new Quest("메인퀘스트", "1_1008", "알에서 나온 친구","집으로 돌아가자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "마을 입구로 가자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 0,0)}),
+
+            new Quest("메인퀘스트", "1_1009", "마족의 위협","집으로 들어가자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "하급 마족을 피해 뒤로 들어가자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 0,0)}),
+
+            new Quest("메인퀘스트", "1_1010", "마족의 위협","정원으로 나가자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "하급 마족과의 갈등",1) }
+                },
+                new List<Reward>
+                {
+                    new Reward("수련용 검", 1, 10, 0),
+                    new Reward("체력 물약(소)", 1, 0, 0),
+                    new Reward("마나 물약(소)", 1, 0, 0),
+                    new Reward("스킬명", 1, 0, 0)
+                }),
+
+            new Quest("메인퀘스트", "1_1011", "새로운 힘","스킬을 활용하여 몬스터를 처치하자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Kill, "몬스터id", "몬스터를 처치하자",10) }
+                },
+                new List<Reward>{new Reward("스킬명", 1, 20,20)}),
+
+            new Quest("메인퀘스트", "1_1012", "새로운 힘","몬스터를 처치하여 힘을 키우자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Level, "레벨", "레벨 달성하기",5) }
+                },
+                new List<Reward>{new Reward("스킬명", 1, 20,20)})
+
+
+
         };
         return questList;
     }
