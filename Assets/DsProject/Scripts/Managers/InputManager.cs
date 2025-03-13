@@ -23,6 +23,7 @@ public class InputManager : BaseManager<InputManager>
         InputActions.actions["Quest"].performed += OnQuestReview;
         InputActions.actions["StatusUI"].performed += OnStatKey;
         InputActions.actions["ESC"].performed += OnMainMenu;
+        InputActions.actions["Crafting"].performed += OnCraft;
         #endregion
     }
 
@@ -96,6 +97,24 @@ public class InputManager : BaseManager<InputManager>
         }
 
     }
+    private void OnCraft(InputAction.CallbackContext context)
+    {
+        // 상태를 Crafting으로 전환
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Crafting)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Crafting);
+            Debug.Log("Crafting 상태로 전환됨.");
+        }
+
+        else
+        {
+            Debug.Log("I 1");
+
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+
     private void OnQuestReview(InputAction.CallbackContext context)
     {
         // 상태를 Inventory로 전환
