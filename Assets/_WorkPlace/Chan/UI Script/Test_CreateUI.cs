@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class Test_CreateUI : MonoBehaviour
 {
     [SerializeField] private GameObject itemPrefab; // 아이템 슬롯 프리팹 (제작재료 전용)
-    [SerializeField] private Transform ItemPanel;   // 인벤토리에서 제작재료가 표시될 패널
-    [SerializeField] private Transform CreatePanel; // 우측 제작 패널
+    [SerializeField] private Transform ItemParent;   // 인벤토리에서 제작재료가 표시될 패널
+    [SerializeField] private Transform inPutPanel; // 우측 제작 패널
     [SerializeField] private GameObject InfoPanel;  // 결과 아이템 인포 패널
 
     private Image iconImage;
@@ -16,7 +17,7 @@ public class Test_CreateUI : MonoBehaviour
 
     private void Awake()
     {
-        iconImage = CreatePanel.GetComponentInChildren<Image>();
+        iconImage = inPutPanel.GetComponentInChildren<Image>();
         itemInfoText = InfoPanel.GetComponentInChildren<TextMeshProUGUI>();
     }
 
@@ -33,7 +34,7 @@ public class Test_CreateUI : MonoBehaviour
         // InventoryManager의 InventoryList에서 제작재료만 가져오기
         foreach (var item in InventoryManager.InventoryList)
         {
-            if (item.type == ItemType.제작재료)
+            if (item.type == ItemType.요리재료)
             {
                 craftingMaterials.Add(item);
             }
@@ -56,7 +57,7 @@ public class Test_CreateUI : MonoBehaviour
     // 제작재료 슬롯 생성
     private void CreateItemUI(Item item)
     {
-        var inventoryItem = Instantiate(itemPrefab, ItemPanel);
+        var inventoryItem = Instantiate(itemPrefab, ItemParent);
        /* var itemUI = inventoryItem.GetComponent<CraftingSlot>(); // 제작 슬롯 UI 스크립트 필요
 
         if (itemUI != null)
@@ -68,9 +69,10 @@ public class Test_CreateUI : MonoBehaviour
     // 기존 UI 초기화 (제작재료 슬롯 제거)
     private void ClearUI()
     {
-        foreach (Transform child in ItemPanel.transform)
+        foreach (Transform child in ItemParent.transform)
         {
             Destroy(child.gameObject);
         }
     }
+
 }

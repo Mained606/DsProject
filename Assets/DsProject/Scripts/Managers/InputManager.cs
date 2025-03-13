@@ -97,6 +97,7 @@ public class InputManager : BaseManager<InputManager>
         }
 
     }
+    // 03.13 C
     private void OnCraft(InputAction.CallbackContext context)
     {
         // 상태를 Crafting으로 전환

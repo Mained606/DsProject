@@ -179,6 +179,7 @@ public class UIManager : BaseManager<UIManager>
         if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
     }
 
+    // 03.13 C
     public void ToggleCraftingUIWindow()
     {
         craftingUI.gameObject.SetActive(!craftingUI.gameObject.activeSelf);
@@ -516,7 +517,7 @@ public class UIManager : BaseManager<UIManager>
                 break;
             case GameSystemState.Exploration:
                 break;
-                
+
             case GameSystemState.Crafting:
                 ToggleCraftingUIWindow();
                 break;
