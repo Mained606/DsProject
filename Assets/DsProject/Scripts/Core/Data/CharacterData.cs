@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [Serializable]
@@ -38,7 +39,7 @@ public enum ElementalAttribute
 // 250123 11:20AM sohyeon 모든 캐릭터데이터에 mpRecoveryRate 초기화 부분 추가함!!
 // CharacterData 클래스 정의: 캐릭터의 스탯, 레벨, 경험치 등을 관리
 [Serializable]
-public class CharacterData
+public class CharacterData : ISheetData
 {
     public event Action<Transform> OnTakeDamage; // 피격 했는지 이벤트 전달
 
@@ -114,6 +115,8 @@ public class CharacterData
     public int availableStatPoints;
     
     public ElementalAttribute attribute; // 속성
+
+    public CharacterData() {}
 
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(
@@ -477,6 +480,43 @@ public class CharacterData
         );
         return baseInfo;
     }
+
+    public virtual void ParseData(IList<object> row)
+    {
+        if (row.Count < 10) throw new Exception("캐릭터 데이터 부족");
+
+        characterName = row[0].ToString();
+        characterType = Enum.TryParse(row[1].ToString(), out CharacterType type) ? type : CharacterType.Monster;
+        strength = int.TryParse(row[2].ToString(), out int str) ? str : 0;
+        agility = int.TryParse(row[3].ToString(), out int agi) ? agi : 0;
+        vitality = int.TryParse(row[4].ToString(), out int vit) ? vit : 0;
+        intelligence = int.TryParse(row[5].ToString(), out int intl) ? intl : 0;
+
+        moveSpeed = float.TryParse(row[6].ToString(), out float ms) ? ms : 1.0f;
+        attackSpeed = float.TryParse(row[7].ToString(), out float aspeed) ? aspeed : 1.0f;
+        attackRange = float.TryParse(row[8].ToString(), out float arange) ? arange : 1.0f;
+
+        statModifier = new StatModifier(); // 기본 스탯 보정 적용
+        UpdateDerivedStats();
+    }
+
+    public List<object> ToList()
+    {
+        return new List<object>
+        {
+            characterName,
+            characterType.ToString(),
+            level,
+            strength,
+            agility,
+            vitality,
+            intelligence,
+            currentHp,
+            currentMp,
+            moveSpeed,
+            attackSpeed
+        };
+    }
 }
 
 // 플레이어 데이터
@@ -786,6 +826,18 @@ public class PlayerData : CharacterData
                             $"<color=cyan>Skills:</color> {skillsInfo}\n";
         return baseInfo + playerInfo;
     }
+
+    public override void ParseData(IList<object> row)
+    {
+        base.ParseData(row);
+
+        if (row.Count < 11) throw new Exception("플레이어 데이터 부족");
+
+        gold = int.TryParse(row[9].ToString(), out int g) ? g : 0;
+
+        // 스킬 목록 (쉼표로 구분된 문자열을 리스트로 변환)
+        skills = row[10].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
 }
 
 // 몬스터 데이터
@@ -861,6 +913,18 @@ public class MonsterData : CharacterData
         return baseInfo + monsterInfo;
     }
 
+    public override void ParseData(IList<object> row)
+    {
+        base.ParseData(row);
+
+        if (row.Count < 13) throw new Exception("몬스터 데이터 부족");
+
+        experienceReward = int.TryParse(row[9].ToString(), out int exp) ? exp : 0;
+        goldReward = int.TryParse(row[10].ToString(), out int gold) ? gold : 0;
+
+        // 드롭 아이템 목록 처리 (쉼표로 구분된 아이템 리스트)
+        dropItems = row[11].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
 }
 
 [Serializable]
@@ -935,6 +999,15 @@ public class BossData : MonsterData
         return baseInfo + bossInfo;
     }
 
+    public override void ParseData(IList<object> row)
+    {
+        base.ParseData(row);
+
+        if (row.Count < 14) throw new Exception("보스 데이터 부족");
+
+        // 보스의 특수 스킬 (쉼표로 구분된 스킬 리스트)
+        SpecialSkills = row[12].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
 }
 
 // 드래곤 관련
@@ -1091,6 +1164,32 @@ public class DragonData
         );
     
         return baseInfo;
+    }
+
+    public void ParseData(IList<object> row)
+    {
+        if (row.Count < 12) throw new Exception("드래곤 데이터 부족");
+
+        characterName = row[0].ToString();
+        characterType = Enum.TryParse(row[1].ToString(), out CharacterType type) ? type : CharacterType.Drogon;
+        strength = int.TryParse(row[2].ToString(), out int str) ? str : 0;
+        agility = int.TryParse(row[3].ToString(), out int agi) ? agi : 0;
+        vitality = int.TryParse(row[4].ToString(), out int vit) ? vit : 0;
+        intelligence = int.TryParse(row[5].ToString(), out int intl) ? intl : 0;
+
+        speed = float.TryParse(row[6].ToString(), out float spd) ? spd : 1.0f;
+        attackSpeed = float.TryParse(row[7].ToString(), out float atkSpd) ? atkSpd : 1.0f;
+        attackRange = float.TryParse(row[8].ToString(), out float atkRange) ? atkRange : 1.0f;
+
+        bondLevel = int.TryParse(row[9].ToString(), out int bondLvl) ? bondLvl : 1;
+        bondExperience = int.TryParse(row[10].ToString(), out int bondExp) ? bondExp : 0;
+
+        // 유대 경험치 임계값 (쉼표로 구분된 숫자 리스트)
+        bondThresholds = row[11].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => int.TryParse(s, out int v) ? v : 0).ToArray();
+
+        statModifier = new DragonStatModifier();
+        UpdateDerivedStats();
     }
 
 }
