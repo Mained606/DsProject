@@ -41,6 +41,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
 
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
 
+
         behaviourMappings = new Dictionary<Func<bool>, Type>()  // 행동매핑
         {
             { () => CanMove, typeof(MoveBehaviour) },
@@ -61,7 +62,9 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
     {
         if (controller.uiCheck) return;
 
-        if(activeBehaviours.Count > 0)    // 리스트가 비어있지 않을 때
+        activeBehaviours.RemoveAll(b => b == null);
+
+        if (activeBehaviours.Count > 0)    // 리스트가 비어있지 않을 때
         {
             for (int i = activeBehaviours.Count - 1; i >= 0; i--)
             {
@@ -74,6 +77,8 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
             IBehaviour behaviourToRemove = removeQueue.Dequeue();
             activeBehaviours.Remove(behaviourToRemove);
         }
+
+
     }
 
     public void RequestBehaviour(IBehaviour behaviour, bool isExclusive)

@@ -365,7 +365,6 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     {
         return equippedItems[slot]; // null이면 슬롯이 비어있음을 의미
     }
-
     #endregion
 
     #region Private Methods
@@ -507,24 +506,42 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     //아이템 스탯 전체 적용
     private void UpdatePlayerStats(ItemStat stat, int multiplier)
     {
+        bool isEquipping = multiplier > 0;
+
+        if (!isEquipping)
+        {
+            Player.maxHp -= stat.MaxHealth;
+            Player.maxMp -= stat.MaxMana;
+            Player.physicalDamage -= stat.PhysicalAttack;
+            Player.magicDamage -= stat.MagicAttack;
+            Player.physicalDefense -= stat.PhysicalDefense;
+            Player.magicDefense -= stat.MagicDefense;
+
+            Player.criticalChance -= stat.CriticalChance;
+            Player.attackSpeed -= stat.AttackSpeed;
+            Player.dodgeChance -= stat.Evasion;
+        }
+
         Player.strength += stat.Strength * multiplier;
         Player.agility += stat.Dexterity * multiplier;
         Player.intelligence += stat.Intelligence * multiplier;
         Player.vitality += stat.Vitality * multiplier;
 
-        Player.maxHp += stat.MaxHealth * multiplier;
-        Player.maxMp += stat.MaxMana * multiplier;
-        Player.physicalDamage += stat.PhysicalAttack * multiplier;
-        Player.magicDamage += stat.MagicAttack * multiplier;
-        Player.physicalDefense += stat.PhysicalDefense * multiplier;
-        Player.magicDefense += stat.MagicDefense * multiplier;
-
-        Player.criticalChance += stat.CriticalChance * multiplier;
-        Player.attackSpeed += stat.AttackSpeed * multiplier;
-        Player.dodgeChance += stat.Evasion * multiplier;
-        
         Player.UpdateDerivedStats();
 
+        if (isEquipping)
+        {
+            Player.maxHp += stat.MaxHealth;
+            Player.maxMp += stat.MaxMana;
+            Player.physicalDamage += stat.PhysicalAttack;
+            Player.magicDamage += stat.MagicAttack;
+            Player.physicalDefense += stat.PhysicalDefense;
+            Player.magicDefense += stat.MagicDefense;
+
+            Player.criticalChance += stat.CriticalChance;
+            Player.attackSpeed += stat.AttackSpeed;
+            Player.dodgeChance += stat.Evasion;
+        }
 
         Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
     }
@@ -537,6 +554,9 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         if (statName == "Dexterity") Player.agility += Mathf.RoundToInt(value * multiplier);
         if (statName == "Intelligence") Player.intelligence += Mathf.RoundToInt(value * multiplier);
         if (statName == "Vitality") Player.vitality += Mathf.RoundToInt(value * multiplier);
+
+        Player.UpdateDerivedStats();
+
         if (statName == "MaxHealth") Player.maxHp += Mathf.RoundToInt(value * multiplier);
         if (statName == "MaxMana") Player.maxMp += Mathf.RoundToInt(value * multiplier);
         if (statName == "PhysicalAttack") Player.physicalDamage += value * multiplier;
@@ -547,8 +567,6 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         if (statName == "AttackSpeed") Player.attackSpeed += value * multiplier;
         if (statName == "Evasion") Player.dodgeChance += value * multiplier;
         
-        Player.UpdateDerivedStats();
-
         Debug.Log($"{statName} 버프 효과: {value * multiplier}");
     }
 
