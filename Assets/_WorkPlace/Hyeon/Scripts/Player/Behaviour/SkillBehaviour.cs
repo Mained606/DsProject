@@ -98,10 +98,14 @@ public class SkillBehaviour : IBehaviour
         if (skillName != null)
         {
             if (SkillManager.Instance.CheckMana(EntityType.Player, skillName) &&
-                   SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
+                   SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName) &&
+                   SkillManager.Instance.CheckWeaponType(skillName))
             {
                 PlayerBehaviourManager.Instance.CanMove = false;
                 PlayerBehaviourManager.Instance.CanAttack = false;
+                PlayerBehaviourManager.Instance.CanDodge = false;
+                PlayerBehaviourManager.Instance.CanJump = false;
+                PlayerBehaviourManager.Instance.CanBlock = false;
                 controller.isUseSkill = true;
                 SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
             }
