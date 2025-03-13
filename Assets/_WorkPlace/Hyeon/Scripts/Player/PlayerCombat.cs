@@ -68,9 +68,9 @@ public class PlayerCombat : MonoBehaviour
         if (!controller.isDodging)
         {
             behaviour.CanMove = true;
-            behaviour.CanBlock = true;
             behaviour.CanJump = true;
             behaviour.CanUseSkill = true;
+            behaviour.CanBlock = true;
         }
     }
 
@@ -85,8 +85,10 @@ public class PlayerCombat : MonoBehaviour
             if (normalizedTime >= 0.95f)
             {
                 PlayerBehaviourManager.Instance.CanMove = true;
+                PlayerBehaviourManager.Instance.CanJump = true;
                 PlayerBehaviourManager.Instance.CanAttack = true;
                 PlayerBehaviourManager.Instance.CanDodge = true;
+                PlayerBehaviourManager.Instance.CanBlock = true;
                 controller.isUseSkill = false;
             }
         }
