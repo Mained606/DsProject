@@ -10,6 +10,9 @@ public class WeaponAttack : MonoBehaviour
 
     public HashSet<GameObject> DamagedTargets { get; set; } = new HashSet<GameObject>();
 
+    //03.13 HJ 추가
+    public Vector3 effectScale = new Vector3();
+
     private void Start()
     {
         weaponCollider = GetComponentInParent<Collider>();

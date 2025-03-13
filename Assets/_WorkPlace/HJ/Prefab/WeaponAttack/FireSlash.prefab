@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3885894057634951788}
   m_Layer: 0
-  m_Name: Fire
+  m_Name: FireSlash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -58,13 +58,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3885894058673853956}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.58241886, y: 0.027798226, z: 0.043567453, w: 0.81124437}
-  m_LocalPosition: {x: -0.026933502, y: 0.5933316, z: 0.91395795}
+  m_LocalRotation: {x: -0.6124966, y: 0.10371675, z: 0.13083455, w: 0.77264035}
+  m_LocalPosition: {x: 0.07, y: 0.54, z: 0.28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3885894057634951788}
-  m_LocalEulerAnglesHint: {x: -71.332, y: -1.011, z: 6.874}
+  m_LocalEulerAnglesHint: {x: -76.81, y: 0, z: 19.222}
 --- !u!2083052967 &3885894058673853953
 VisualEffect:
   m_ObjectHideFlags: 0
@@ -140,6 +140,12 @@ VisualEffect:
       - m_Value: 7
         m_Name: DarkSlashNoiseScale
         m_Overridden: 1
+      - m_Value: 10
+        m_Name: BrightSlashNoiseScale
+        m_Overridden: 0
+      - m_Value: 0.15
+        m_Name: BrightSlashSize
+        m_Overridden: 1
     m_Vector2f:
       m_Array:
       - m_Value: {x: 2, y: 2}
@@ -182,7 +188,7 @@ VisualEffect:
       - m_Value: {x: 95.87451, y: 25.6, z: 20.580393, w: 1}
         m_Name: ParticlesColor
         m_Overridden: 1
-      - m_Value: {x: 105.6048, y: 98.02002, z: 985.359, w: 1}
+      - m_Value: {x: 95.87451, y: 25.6, z: 20.580393, w: 1}
         m_Name: FloatingParticlesColor
         m_Overridden: 1
       - m_Value: {x: 12.844469, y: 1.7282869, z: 1.3449702, w: 1}
@@ -222,6 +228,32 @@ VisualEffect:
           m_RotationOrder: 4
         m_Name: ImpactFlipbookCurve
         m_Overridden: 1
+      - m_Value:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: -2.3276837
+            outSlope: -2.3276837
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: -0.15282771
+            outSlope: -0.15282771
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        m_Name: BrightSlashRotationCurve
+        m_Overridden: 0
     m_Gradient:
       m_Array: []
     m_NamedObject:

@@ -230,6 +230,12 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
                 WeaponTransform.position + attackParticleOffset,
                 WeaponTransform.rotation);
 
+            if(WeaponTransform != null)
+            {
+                WeaponAttack weaponAttack = WeaponTransform.GetComponent<WeaponAttack>();
+                attackEffect.transform.localScale = weaponAttack.effectScale;
+            }
+
             attackEffect.transform.SetParent(WeaponTransform);
             Destroy(attackEffect, attackEffectDuration);
         }
