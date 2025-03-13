@@ -413,7 +413,6 @@ public class PlayerController : MonoBehaviour
     {
 
         Vector3 dashDirection = transform.forward;
-        Debug.Log($"Dash Direction: {dashDirection}, Magnitude: {dashDirection.magnitude}");
         dashDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
 
@@ -424,6 +423,7 @@ public class PlayerController : MonoBehaviour
             yield return null; // 다음 프레임까지 대기
         }
 
+        PlayerBehaviourManager.Instance.CanDodge = true;
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
     }

@@ -11,10 +11,13 @@ public class WeaponManager : MonoBehaviour
     private Transform weaponObjectPosition;
     private GameObject currentWeaponObject = null;
     public GameObject CurrentWeaponObject { get; set; }
+    private PlayerCombat combat;
 
     private void Start()
     {
         InitializeWeapons();
+
+        combat = GameManager.playerTransform.GetComponent<PlayerCombat>();
     }
 
     private void Update()
@@ -61,15 +64,33 @@ public class WeaponManager : MonoBehaviour
         {
             currentWeaponObject.SetActive(false);
             currentWeaponObject = null;
-            GameManager.playerTransform.GetComponent<PlayerCombat>().hasWeapon = false;
+            combat.hasWeapon = false;
+            combat.playerAnimator.SetBool("PhysicsWeapon", false);
+            combat.playerAnimator.SetBool("MagicalWeapon", false);
+            combat.physicsWeapon = false;
+            combat.magicalWeapon = false;
         }
         else
         {
             if (System.Enum.TryParse(weaponItem.id, out WeaponName weaponName))
             {
                 SwitchWeapon((int)weaponName);
+                if(weaponItem.weaponType == WeaponType.한손무기 || weaponItem.weaponType == WeaponType.양손무기)
+                {
+                    combat.physicsWeapon = true;
+                    combat.magicalWeapon = false;
+                    combat.playerAnimator.SetBool("PhysicsWeapon", true);
+                    combat.playerAnimator.SetBool("MagicalWeapon", false);
+                }
+                else if(weaponItem.weaponType == WeaponType.완드)
+                {
+                    combat.physicsWeapon = false;
+                    combat.magicalWeapon = true;
+                    combat.playerAnimator.SetBool("PhysicsWeapon", false);
+                    combat.playerAnimator.SetBool("MagicalWeapon", true);
+                }
             }
-            GameManager.playerTransform.GetComponent<PlayerCombat>().hasWeapon = true;
+            combat.hasWeapon = true;
         }
     }
 

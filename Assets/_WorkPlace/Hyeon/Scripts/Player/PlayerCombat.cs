@@ -19,6 +19,8 @@ public class PlayerCombat : MonoBehaviour
 
     public bool CanReceiveInput { get; set; } = true;
     public bool hasWeapon;
+    public bool physicsWeapon;
+    public bool magicalWeapon;
     public bool isBlocking;
     public bool firstAttack;
     [SerializeField] private bool CanParry;
@@ -84,6 +86,7 @@ public class PlayerCombat : MonoBehaviour
             {
                 PlayerBehaviourManager.Instance.CanMove = true;
                 PlayerBehaviourManager.Instance.CanAttack = true;
+                PlayerBehaviourManager.Instance.CanDodge = true;
                 controller.isUseSkill = false;
             }
         }

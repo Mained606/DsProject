@@ -102,6 +102,7 @@ public class SkillBehaviour : IBehaviour
             {
                 PlayerBehaviourManager.Instance.CanMove = false;
                 PlayerBehaviourManager.Instance.CanAttack = false;
+                PlayerBehaviourManager.Instance.CanDodge = false;
                 controller.isUseSkill = true;
                 SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
             }
