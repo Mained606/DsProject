@@ -31,9 +31,12 @@ public class BlockBehaviour : IBehaviour
     {
         if (InputManager.InputActions.actions["Block"].IsPressed() && controller.playerCombat.hasWeapon)
         {
-            PlayerBehaviourManager.Instance.CanBlock = true;    // 테스트때문에 넣어줌 bool수로 잘 제어되면 삭제할 것
+            //PlayerBehaviourManager.Instance.CanBlock = true;    // 테스트때문에 넣어줌 bool수로 잘 제어되면 삭제할 것
             PlayerBehaviourManager.Instance.CanMove = false;
             PlayerBehaviourManager.Instance.CanAttack = false;
+            PlayerBehaviourManager.Instance.CanDodge = false;
+            PlayerBehaviourManager.Instance.CanJump = false;
+            PlayerBehaviourManager.Instance.CanUseSkill = false;
             PlayerBehaviourManager.Instance.CanParry = true;
             controller.playerCombat.isBlocking = true;
             
@@ -52,6 +55,9 @@ public class BlockBehaviour : IBehaviour
     {
         PlayerBehaviourManager.Instance.CanMove = true;
         PlayerBehaviourManager.Instance.CanAttack = true;
+        PlayerBehaviourManager.Instance.CanDodge = true;
+        PlayerBehaviourManager.Instance.CanJump = true;
+        PlayerBehaviourManager.Instance.CanUseSkill = true;
         PlayerBehaviourManager.Instance.CanParry = false;
         controller.playerCombat.isBlocking = false;
     }
