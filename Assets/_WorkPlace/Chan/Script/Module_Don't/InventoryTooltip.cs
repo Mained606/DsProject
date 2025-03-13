@@ -63,7 +63,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    /*public void OnPointerEnter(PointerEventData eventData)
     {
         if (currentItem.type == ItemType.소모품 && (currentItem.id == condition[0] || currentItem.id == condition[1]))
         {
@@ -77,11 +77,11 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
             textPoint[1].text = currentItem.name;
             textPoint[2].text = currentItem.ToStringTMPro();
         }
-    }
+    }*/
 
     #region 아이템 인포 위치 이동 버전
 
-   /* public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerEnter(PointerEventData eventData)
     {
         if (!isEquireSlot && !InventorytooltipWindow.activeSelf)
         {
@@ -108,7 +108,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
             tooltipRect.anchoredPosition = anchoredPos;
         }
-    }*/
+    }
 
     #endregion
 
