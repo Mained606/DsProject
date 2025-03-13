@@ -6,6 +6,7 @@ public class InventoryManager : BaseManager<InventoryManager>
 {
     [SerializeField] private List<Item> inventory = new List<Item>();
     [SerializeField] private QuickSlotsUI quickSlotsUI;
+    [SerializeField] private InventoryUI inventoryUI;   //03.12 HJ 추가
 
     public static IReadOnlyList<Item> InventoryList => Instance.inventory;
 
@@ -14,6 +15,25 @@ public class InventoryManager : BaseManager<InventoryManager>
     public bool IsCanUseInventory => inventory.Count < CurrentCapacity;
 
     public static QuickSlotsUI QuickSlotsUI => Instance.quickSlotsUI;
+    public static InventoryUI InventoryUI => Instance.inventoryUI;  //03.12 HJ 추가
+
+    public Item selectedItem;   //03.12 HJ 추가
+
+    //03.12 HJ 추가
+    public void SetSelectedItem(Item item)
+    {
+        selectedItem = item;
+        Debug.Log($"selectedItem: {selectedItem.name}");
+    }
+
+    //03.12 HJ 추가
+    //인벤토리내에서 허공이나 버튼 클릭, 인벤토리 종료시 호출할 함수
+    public void ResetSelectedItem()
+    {
+        if (selectedItem == null) return;
+        selectedItem = null;
+        Debug.Log("selectedItem 리셋");
+    }
 
     public void AddItemLogic(Item addItem)
     {
