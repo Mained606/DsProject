@@ -17,7 +17,7 @@ using UnityEngine;
 /// 03.05 무기 타입에 완드 추가
 /// </summary>
 [Serializable]
-public class Item
+public class Item : ISheetData
 {
     [Header("공통 속성")]
     public string id;                      // 아이템 고유 ID
@@ -50,6 +50,8 @@ public class Item
 
     [Header("퀘스트 속성")]
     public string questId;                 // 퀘스트 ID (퀘스트 아이템용)
+
+    public Item() { }
 
     // 생성자
     public Item(string id, string name, string description, ItemType type, ItemGrade grade, 
@@ -193,6 +195,80 @@ public class Item
             case ItemGrade.신화: return "#FF0000";    // 빨간색
             default: return "#FFFFFF";                 // 기본 흰색
         }
+    }
+
+    public void ParseData(IList<object> row)
+    {
+        if (row.Count < 10) throw new Exception("아이템 데이터 부족");
+
+        id = row[0].ToString();
+        name = row[1].ToString();
+        description = row[2].ToString();
+
+        // Enum 파싱 (ItemType)
+        type = Enum.TryParse(row[3].ToString(), out ItemType parsedType) ? parsedType : ItemType.소모품;
+
+        // 아이템 등급 (장착 아이템만 적용)
+        grade = Enum.TryParse(row[4].ToString(), out ItemGrade parsedGrade) ? parsedGrade : ItemGrade.일반;
+
+        // 아이템 속성들
+        costValue = int.TryParse(row[5].ToString(), out int cost) ? cost : 0;
+        quantity = int.TryParse(row[6].ToString(), out int qty) ? qty : 1;
+        maxStack = int.TryParse(row[7].ToString(), out int stack) ? stack : 99;
+
+        isStackable = bool.TryParse(row[8].ToString(), out bool stackable) ? stackable : true;
+        isDiscardable = bool.TryParse(row[9].ToString(), out bool discardable) ? discardable : true;
+
+        // 장착 관련 속성 (무기, 방어구일 때만)
+        if (type == ItemType.무기 || type == ItemType.방어구 || type == ItemType.장신구)
+        {
+            equipmentSlot = Enum.TryParse(row[10].ToString(), out EquipmentSlot parsedSlot) ? parsedSlot : EquipmentSlot.손;
+            weaponType = Enum.TryParse(row[11].ToString(), out WeaponType parsedWeapon) ? parsedWeapon : WeaponType.한손무기;
+            isEquired = bool.TryParse(row[12].ToString(), out bool equipped) ? equipped : false;
+        }
+
+        // 소모품 관련 속성
+        if (type == ItemType.소모품 || type == ItemType.요리 || type == ItemType.요리재료)
+        {
+            consumableType = Enum.TryParse(row[13].ToString(), out ConsumableType parsedConsumable) ? parsedConsumable : ConsumableType.없음;
+            effectAmount = int.TryParse(row[14].ToString(), out int effectVal) ? effectVal : 0;
+        }
+
+        // 퀘스트 아이템 여부
+        if (type == ItemType.퀘스트)
+        {
+            isQuestItem = true;
+            questId = row[15].ToString();
+        }
+
+        // 아이템 드랍 확률
+        dropChance = float.TryParse(row[16].ToString(), out float dropRate) ? dropRate : 0f;
+
+        // 아이템 스탯 (무기, 방어구, 장신구 등 장착 아이템에 적용)
+        if (type == ItemType.무기 || type == ItemType.방어구 || type == ItemType.장신구)
+        {
+            itemStat = new ItemStat(
+                int.TryParse(row[17].ToString(), out int str) ? str : 0,
+                int.TryParse(row[18].ToString(), out int dex) ? dex : 0,
+                int.TryParse(row[19].ToString(), out int intel) ? intel : 0,
+                int.TryParse(row[20].ToString(), out int vit) ? vit : 0
+            );
+
+            itemStat.MaxHealth = int.TryParse(row[21].ToString(), out int mhp) ? mhp : 0;
+            itemStat.MaxMana = int.TryParse(row[22].ToString(), out int mmp) ? mmp : 0;
+            itemStat.PhysicalAttack = float.TryParse(row[23].ToString(), out float patk) ? patk : 0f;
+            itemStat.MagicAttack = float.TryParse(row[24].ToString(), out float matk) ? matk : 0f;
+            itemStat.PhysicalDefense = float.TryParse(row[25].ToString(), out float pdef) ? pdef : 0f;
+            itemStat.MagicDefense = float.TryParse(row[26].ToString(), out float mdef) ? mdef : 0f;
+            itemStat.CriticalChance = float.TryParse(row[27].ToString(), out float crit) ? crit : 0f;
+            itemStat.AttackSpeed = float.TryParse(row[28].ToString(), out float atkSpd) ? atkSpd : 0f;
+            itemStat.Evasion = float.TryParse(row[29].ToString(), out float evasion) ? evasion : 0f;
+            itemStat.BlockChance = float.TryParse(row[30].ToString(), out float block) ? block : 0f;
+
+            durability = new Durability(int.TryParse(row[31].ToString(), out int dura) ? dura : 100);
+        }
+
+        Debug.Log($"[Item] {name} 데이터 로드 완료!");
     }
 }
 
@@ -343,6 +419,25 @@ public class ItemStat
             return true;
 
         return false;
+    }
+
+    public void ParseData(IList<object> row)
+    {
+        if (row.Count < 11) throw new Exception("아이템 스탯 데이터 부족");
+
+        Strength = int.TryParse(row[0].ToString(), out int str) ? str : 0;
+        Dexterity = int.TryParse(row[1].ToString(), out int dex) ? dex : 0;
+        Intelligence = int.TryParse(row[2].ToString(), out int intel) ? intel : 0;
+        Vitality = int.TryParse(row[3].ToString(), out int vit) ? vit : 0;
+
+        MaxHealth = int.TryParse(row[4].ToString(), out int mhp) ? mhp : 0;
+        MaxMana = int.TryParse(row[5].ToString(), out int mmp) ? mmp : 0;
+        PhysicalAttack = float.TryParse(row[6].ToString(), out float patk) ? patk : 0f;
+        MagicAttack = float.TryParse(row[7].ToString(), out float matk) ? matk : 0f;
+        PhysicalDefense = float.TryParse(row[8].ToString(), out float pdef) ? pdef : 0f;
+        MagicDefense = float.TryParse(row[9].ToString(), out float mdef) ? mdef : 0f;
+
+        Debug.Log("[ItemStat] 아이템 스탯 데이터 로드 완료!");
     }
 }
 
