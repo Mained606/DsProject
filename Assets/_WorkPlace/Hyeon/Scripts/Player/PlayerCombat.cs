@@ -32,6 +32,7 @@ public class PlayerCombat : MonoBehaviour
         Animator.StringToHash("Base Layer.FireStrike"),
         Animator.StringToHash("Base Layer.UpperAttack"),
         Animator.StringToHash("Base Layer.TurnAttack"),
+        Animator.StringToHash("Base Layer.DownCut"),
     };
 
     private void Start()
