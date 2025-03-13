@@ -10,7 +10,11 @@ public class WeaponManager : MonoBehaviour
 {
     private Transform weaponObjectPosition;
     private GameObject currentWeaponObject = null;
-    public GameObject CurrentWeaponObject { get; set; }
+    public GameObject CurrentWeaponObject   //HJ 03.13 추가
+    {
+        get { return currentWeaponObject; }
+        set { currentWeaponObject = value; }
+    }
 
     private void Start()
     {

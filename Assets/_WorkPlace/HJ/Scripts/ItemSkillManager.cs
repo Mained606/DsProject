@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,13 +19,13 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         get
         {
-            if (ItemEffectManager.Instance.weaponManager.CurrentWeaponObject == null)
+            if (ItemEffectManager.Instance.WeaponManager.CurrentWeaponObject == null)
             {
                 Debug.Log("CurrentWeaponObject = null");
                 return null;
             }
 
-            return ItemEffectManager.Instance.weaponManager.CurrentWeaponObject.transform;
+            return ItemEffectManager.Instance.WeaponManager.CurrentWeaponObject.transform;
         }
     }
 
@@ -122,6 +123,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         ResetCount(item);
         IsActive = false;
+
+        ActiveEffectGo(item, false);
     }
 
     #region PrivateMethod
@@ -129,11 +132,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         if (weapon.type != ItemType.무기) return;
 
-        if (weapon.itemSkill == null)
-        {
-            Debug.Log($"{weapon.name}의 itemSkill이 null");
-            return;
-        }
+        if (weapon.itemSkill == null) return;
 
         if (weapon.itemSkill.element == ElementalAttribute.None || weapon.itemSkill.element == ElementalAttribute.Earth) return;
 
@@ -182,12 +181,9 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //무기 속성 이펙트 비활성화
     private IEnumerator DisableWeaponEffect()
     {
-        Debug.Log("무기 속성 비활성화");
         IsActive = false;
 
         yield return new WaitForSeconds(elementRecoverTime);
-
-        Debug.Log("무기 속성 활성화");
 
         attackCount = 0;
         IsActive = true;
@@ -198,24 +194,18 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //속성 이펙트 실행
     private void PlayWeaponParticle(Item weapon, Transform weaponTransform)
     {
-        if (weapon == null || weapon.itemSkill == null)
+        if (weapon == null || weapon.itemSkill == null) return;
+
+        if (weapon.itemSkill.element == ElementalAttribute.None) return;
+
+        Transform effectTransform = ActiveEffectGo(weapon, true);
+
+        if (effectTransform == null) return;
+
+        VisualEffect effect = effectTransform.GetComponent<VisualEffect>();
+
+        if (effect != null)
         {
-            Debug.Log("itemSkill 없음");
-            return;
-        }
-
-        if (weapon.itemSkill.element == ElementalAttribute.None)
-        {
-            Debug.Log("노말 타입 무기");
-            return;
-        }
-
-        VisualEffect effect = weaponTransform.GetComponentInChildren<VisualEffect>();
-
-        if(effect != null)
-        {
-            Debug.Log("속성 이펙트 실행");
-
             if (IsActive)
             {
                 effect.Play();
@@ -234,11 +224,11 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         if(effect != null)
         {
-            Debug.Log("공격 파티클 실행");
+            //Debug.Log("공격 파티클 실행");
 
             GameObject attackEffect = Instantiate(effect,
                 WeaponTransform.position + attackParticleOffset,
-                Quaternion.identity);
+                WeaponTransform.rotation);
 
             attackEffect.transform.SetParent(WeaponTransform);
             Destroy(attackEffect, attackEffectDuration);
@@ -250,6 +240,17 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         yield return new WaitForSeconds(duration);
 
         affectedTargets.Remove(target);
+    }
+
+    private Transform ActiveEffectGo(Item item, bool isActive)
+    {
+        int index = (int)item.itemSkill.element - 1;
+        if (WeaponTransform.childCount <= index || index < 0) return null;
+
+        Transform effectTransform = WeaponTransform.GetChild(index);
+        effectTransform.gameObject.SetActive(isActive);
+
+        return effectTransform;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
