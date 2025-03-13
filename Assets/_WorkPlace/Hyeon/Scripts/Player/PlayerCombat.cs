@@ -19,6 +19,8 @@ public class PlayerCombat : MonoBehaviour
 
     public bool CanReceiveInput { get; set; } = true;
     public bool hasWeapon;
+    public bool physicsWeapon;
+    public bool magicalWeapon;
     public bool isBlocking;
     public bool firstAttack;
     [SerializeField] private bool CanParry;
@@ -30,6 +32,7 @@ public class PlayerCombat : MonoBehaviour
         Animator.StringToHash("Base Layer.FireStrike"),
         Animator.StringToHash("Base Layer.UpperAttack"),
         Animator.StringToHash("Base Layer.TurnAttack"),
+        Animator.StringToHash("Base Layer.DownCut"),
     };
 
     private void Start()
@@ -66,9 +69,9 @@ public class PlayerCombat : MonoBehaviour
         if (!controller.isDodging)
         {
             behaviour.CanMove = true;
-            behaviour.CanBlock = true;
             behaviour.CanJump = true;
             behaviour.CanUseSkill = true;
+            behaviour.CanBlock = true;
         }
     }
 
@@ -83,7 +86,10 @@ public class PlayerCombat : MonoBehaviour
             if (normalizedTime >= 0.95f)
             {
                 PlayerBehaviourManager.Instance.CanMove = true;
+                PlayerBehaviourManager.Instance.CanJump = true;
                 PlayerBehaviourManager.Instance.CanAttack = true;
+                PlayerBehaviourManager.Instance.CanDodge = true;
+                PlayerBehaviourManager.Instance.CanBlock = true;
                 controller.isUseSkill = false;
             }
         }

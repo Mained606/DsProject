@@ -58,6 +58,7 @@ public class AttackBehaviour : IBehaviour
         if (controller.isSprinting)
         {
             Debug.LogWarning("대쉬공격");
+            PlayerBehaviourManager.Instance.CanDodge = false;
             controller.DashAttack();
         }
         else
