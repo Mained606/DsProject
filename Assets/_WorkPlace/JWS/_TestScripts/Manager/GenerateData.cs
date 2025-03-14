@@ -224,10 +224,74 @@ public class GenerateData
                 {
                     {"location_002", new QuestCondition(QuestConditionType.Level, "레벨", "레벨 달성하기",5) }
                 },
-                new List<Reward>{new Reward("스킬명", 1, 20,20)})
+                new List<Reward>{new Reward("스킬명", 1, 20,20)}),
 
+            new Quest("메인퀘스트", "1_1013", "새로운 힘","집으로 돌아가자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "집으로 들어가자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 0,0)}),
 
+            new Quest("메인퀘스트", "1_1014", "홀로서기","가족의 복수를 하자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Kill, "하급마족id", "하급 마족을 처치하자",3) }
+                },
+                new List<Reward>{new Reward("", 0, 0,0)}),
 
+            new Quest("메인퀘스트", "1_1015", "홀로서기","이장님과 대화하자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "이장님에게로 가자",1) }
+                },
+                new List<Reward>
+                {
+                    new Reward("대검", 1, 50,100),
+                    new Reward("완드", 1, 0, 0),
+                    new Reward("가죽장갑", 1, 0, 0),
+                    new Reward("가죽갑옷", 1, 0, 0),
+                    new Reward("스킬명", 1, 0, 0),
+                }),
+
+            new Quest("메인퀘스트", "1_1016", "마을의 수호자","강해지기 위한 연습",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Level, "레벨", "레벨 달성하기",15) }
+                },
+                new List<Reward>{new Reward("스킬명", 1, 20,20)}),
+
+            new Quest("메인퀘스트", "1_1017", "마을의 수호자","강해지기 위한 연습",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Level, "레벨", "레벨 달성하기",25) }
+                },
+                new List<Reward>{new Reward("", 0, 0,0)}),
+
+            new Quest("메인퀘스트", "1_1018", "마을의 수호자","마을로 돌아가자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Explore, "location_002", "마을 광장으로 가자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 0,0)}),
+
+            new Quest("메인퀘스트", "1_1019", "마을의 수호자","모파안의 부하들을 처치하자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Kill, "부하id", "부하들을 처치하자",3) }
+                },
+                new List<Reward>{new Reward("", 0, 0,0)}),
+
+            new Quest("메인퀘스트", "1_1020", "마을의 수호자","모파안과의 전투에서 승리하자",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Kill, "Mophan", "모파안을 처치하자",1) }
+                },
+                new List<Reward>
+                {
+                    new Reward("마족의 증표", 1, 50,100),
+                    new Reward("마족의 지도", 1, 0, 0)                   
+                })
         };
         return questList;
     }
