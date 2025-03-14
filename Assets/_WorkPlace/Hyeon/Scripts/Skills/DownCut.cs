@@ -29,8 +29,10 @@ public class DownCut : MonoBehaviour
         {
             if (!alreadyAttack)
             {
-                // 1️⃣ 범위 내 모든 적 감지
-                Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRange, layer);
+                Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRange, layer)
+                .OrderBy(hit => Vector3.Distance(transform.position, hit.transform.position))
+                .Take(maxTargets)
+                .ToArray();
 
 
                 foreach (var hit in hitColliders)
@@ -46,7 +48,6 @@ public class DownCut : MonoBehaviour
                         {
                             CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, hit.transform, true, true, skills);
                             Debug.Log("일반 스킬 데미지");
-                            return;  // MonsterData 처리 완료 후 반환
                         }
 
                         // monsterOrBossData가 BossData일 경우 처리
