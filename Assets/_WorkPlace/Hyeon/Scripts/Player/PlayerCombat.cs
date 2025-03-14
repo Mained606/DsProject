@@ -33,6 +33,8 @@ public class PlayerCombat : MonoBehaviour
         Animator.StringToHash("Base Layer.UpperAttack"),
         Animator.StringToHash("Base Layer.TurnAttack"),
         Animator.StringToHash("Base Layer.DownCut"),
+        Animator.StringToHash("Base Layer.TerraSurge"),
+        Animator.StringToHash("Base Layer.GlacierSpear"),
     };
 
     private void Start()

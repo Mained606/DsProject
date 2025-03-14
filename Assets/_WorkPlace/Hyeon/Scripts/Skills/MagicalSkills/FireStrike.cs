@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.ParticleSystem;
 
-public class Flame : MonoBehaviour
+public class FireStrike : MonoBehaviour
 {
     private ParticleSystem _particleSystem;
     private List<GameObject> attackedEnemy = new List<GameObject>();

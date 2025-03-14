@@ -32,6 +32,7 @@ public class Skills : ISheetData
 
     // 스킬 잠금 해제 확인
     public bool unLockSkill = false;
+    public bool targeting = false;
 
     // 초기화: cooldownTimer 설정 및 초기 경험치 계산
     public void Initialize()
