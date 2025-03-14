@@ -120,8 +120,12 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (WeaponTransform != null)
         {
             WeaponAttack weapon = WeaponTransform.GetComponent<WeaponAttack>();
+
+            if (weapon == null || weapon.elementMaterials.Length <= 0)
+                return; 
+
             int index = (int)item.itemSkill.element - 1;
-            if (weapon != null && weapon.elementMaterials.Length >= index)
+            if (weapon.elementMaterials.Length >= index && index >= 0)
             {
                 WeaponTransform.GetComponent<MeshRenderer>().material = weapon.elementMaterials[index];
             }
@@ -233,6 +237,10 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     private void PlayAttackParticle(Item weapon)
     {
         int index = (int)weapon.itemSkill.element - 1;
+
+        if (index < 0)
+            return;
+
         GameObject effect = elementEffects[index];
 
         if(effect != null)
