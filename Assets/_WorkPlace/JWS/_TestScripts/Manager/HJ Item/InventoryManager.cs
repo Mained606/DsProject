@@ -6,7 +6,6 @@ public class InventoryManager : BaseManager<InventoryManager>
 {
     [SerializeField] private List<Item> inventory = new List<Item>();
     [SerializeField] private QuickSlotsUI quickSlotsUI;
-    [SerializeField] private InventoryUI inventoryUI;   //03.12 HJ 추가
 
     public static IReadOnlyList<Item> InventoryList => Instance.inventory;
 
@@ -15,7 +14,6 @@ public class InventoryManager : BaseManager<InventoryManager>
     public bool IsCanUseInventory => inventory.Count < CurrentCapacity;
 
     public static QuickSlotsUI QuickSlotsUI => Instance.quickSlotsUI;
-    public static InventoryUI InventoryUI => Instance.inventoryUI;  //03.12 HJ 추가
 
     public Item selectedItem;   //03.12 HJ 추가
 
