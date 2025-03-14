@@ -119,7 +119,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventory: []
   quickSlotsUI: {fileID: 0}
+  inventoryUI: {fileID: 0}
   maxCapacity: 99
+  selectedItem:
+    id: 
+    name: 
+    description: 
+    type: 0
+    costValue: 0
+    quantity: 0
+    maxStack: 0
+    isDiscardable: 0
+    isStackable: 0
+    sprite: {fileID: 0}
+    dropChance: 0
+    effect:
+      effectType: 0
+      itemSize: 0
+      duration: 0
+      effectParticle: {fileID: 0}
+      isAlreadyInitialize: 0
+    isQuestItem: 0
+    itemStat:
+      Strength: 0
+      Dexterity: 0
+      Intelligence: 0
+      Vitality: 0
+      MaxHealth: 0
+      MaxMana: 0
+      PhysicalAttack: 0
+      MagicAttack: 0
+      PhysicalDefense: 0
+      MagicDefense: 0
+      CriticalChance: 0
+      AttackSpeed: 0
+      Evasion: 0
+      BlockChance: 0
+      HealHp: 0
+      HealMp: 0
+      durationBonus: 0
+    itemSkill:
+      element: 0
+      level: 0
+      resistance: 0
+      resistantAmount: 0
+    grade: 0
+    equipmentSlot: 0
+    weaponType: 0
+    isEquired: 0
+    consumableType: 0
+    effectAmount: 0
+    questId: 
 --- !u!114 &769395438982336461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,9 +224,8 @@ MonoBehaviour:
     itemSkill:
       element: 0
       level: 0
-      attackEffect: {fileID: 0}
-      targetEffect: {fileID: 0}
-      power: 0
+      resistance: 0
+      resistantAmount: 0
     grade: 0
     equipmentSlot: 0
     weaponType: 0
@@ -184,7 +233,6 @@ MonoBehaviour:
     consumableType: 0
     effectAmount: 0
     questId: 
-  weaponManager: {fileID: 0}
 --- !u!114 &1656856696746833825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,11 +245,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86fb5b52ac7264941b6ee28b1a7635f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  elementEffects:
+  - {fileID: 3885894057634951789, guid: ddccffe98b3e9f74faea72102ef14b22, type: 3}
+  - {fileID: 3885894057634951789, guid: dc16c0aaa9111d94ab8d271e5fc477b5, type: 3}
+  - {fileID: 3885894057634951789, guid: 3593e63dece09ff4aa4820386a9da7e4, type: 3}
+  - {fileID: 3885894057634951789, guid: 5bdf1b1f7b759f24c99ee7d9ec5a3a9a, type: 3}
   maxAttackCount: 4
   elementRecoverTime: 10
   attackEffectDuration: 0.5
-  targetEffectDuration: 5
-  attackParticleOffset: {x: 0, y: 0, z: 0}
+  debuffDuration: 10
   attackCount: 0
   isActive: 0
 --- !u!1 &671535472939884910
@@ -847,6 +899,7 @@ MonoBehaviour:
   InventorytooltipWindow: {fileID: 0}
   characterStaus: {fileID: 0}
   quickSlot: {fileID: 0}
+  skillQuickSlot: {fileID: 0}
   questListParent: {fileID: 0}
   bossHud: {fileID: 0}
   levelUpEffect: {fileID: 6532625474870085665, guid: fcbc3a598b83c0249b1e455fba1f60b7, type: 3}

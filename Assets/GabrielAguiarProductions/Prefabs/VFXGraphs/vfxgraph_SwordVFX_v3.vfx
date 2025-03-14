@@ -220,9 +220,9 @@ MonoBehaviour:
   uiBounds:
     serializedVersion: 2
     x: 220
-    y: -270
+    y: -271
     width: 4839
-    height: 2231
+    height: 2227
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7159,8 +7159,7 @@ MonoBehaviour:
   raytracedScaleMode: 0
   needsOwnSort: 0
   needsOwnAabbBuffer: 0
-  shaderGraph: {fileID: -5475051401550479605, guid: 865f0e6e36990394ebd83473f5221d43,
-    type: 3}
+  shaderGraph: {fileID: -5475051401550479605, guid: 865f0e6e36990394ebd83473f5221d43, type: 3}
   materialSettings:
     m_PropertyNames: []
     m_PropertyValues: []
