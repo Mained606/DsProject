@@ -91,6 +91,7 @@ public class PlayerCombat : MonoBehaviour
                 PlayerBehaviourManager.Instance.CanDodge = true;
                 PlayerBehaviourManager.Instance.CanBlock = true;
                 controller.isUseSkill = false;
+                playerAnimator.SetBool("IsUseSkill", false);
             }
         }
     }

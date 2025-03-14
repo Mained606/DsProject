@@ -18,7 +18,7 @@ public class Flame : MonoBehaviour
     private void Start()
     {
         _particleSystem = GetComponent<ParticleSystem>();
-        skills = SkillManager.SkillDatabase.playerSkills[0];
+        skills = SkillManager.Instance.GetSkill(EntityType.Player, "FireStrike");
         attribute = skills.attribute;
         damage = skills.currentDamage;
     }

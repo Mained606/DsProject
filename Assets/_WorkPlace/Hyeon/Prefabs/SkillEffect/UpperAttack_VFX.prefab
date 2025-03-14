@@ -45,7 +45,7 @@ VisualEffect:
   m_InitialEventName: OnPlay
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
-  m_ResetSeedOnPlay: 1
+  m_ResetSeedOnPlay: 0
   m_AllowInstancing: 1
   m_ResourceVersion: 1
   m_PropertySheet:
@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 3157312687938478743}
   - component: {fileID: 6183263008788759000}
   - component: {fileID: 1504589628114834650}
+  - component: {fileID: 2671421419061351679}
   m_Layer: 0
   m_Name: UpperAttack_VFX
   m_TagString: Untagged
@@ -194,3 +195,24 @@ MonoBehaviour:
   layer:
     serializedVersion: 2
     m_Bits: 128
+--- !u!65 &2671421419061351679
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6006656310551222419}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.78193283, y: 1.8530912, z: 0.7272873}
+  m_Center: {x: 0.21983473, y: 1.002385, z: -2.9073758}

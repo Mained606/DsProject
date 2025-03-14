@@ -15,7 +15,6 @@ public class JumpBehaviour : IBehaviour
 
     public void Enter()
     {
-        Debug.Log("Jump 가능 상태 진입");
         animator.SetBool("Jump", false);
         controller.isJumping = false;
         jumpHeight = controller.jumpHeight;

@@ -22,6 +22,7 @@ public class SkillBehaviour : IBehaviour
     public void Enter()
     {
         controller.isUseSkill = false;
+        animator.SetBool("IsUseSkill", false);
         skillName = "";
     }
     public void Execute()
@@ -34,6 +35,7 @@ public class SkillBehaviour : IBehaviour
     public void Exit()
     {
         controller.isUseSkill = false;
+        animator.SetBool("IsUseSkill", false);
         skillName = "";
     }
 
@@ -107,6 +109,7 @@ public class SkillBehaviour : IBehaviour
                 PlayerBehaviourManager.Instance.CanJump = false;
                 PlayerBehaviourManager.Instance.CanBlock = false;
                 controller.isUseSkill = true;
+                animator.SetBool("IsUseSkill", true);
                 SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
             }
             else
