@@ -30,8 +30,9 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private Transform questListParent;
     [SerializeField] private GameObject bossHud;
     [SerializeField] private GameObject levelUpEffect;
+    
     // 03.13 C
-    [SerializeField] private GameObject craftingUI;
+   // [SerializeField] private GameObject craftingUI;
 
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -47,8 +48,9 @@ public class UIManager : BaseManager<UIManager>
     public static ShopUI ShopUI;
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
+
     // 03.13 C
-    public static Test_CreateUI CraftingUI;
+ //   public static Test_CreateUI CraftingUI;
 
     // ========== 250312 SH 추가 ==========
     public static SkillsUI SkillsQuickSlot;
@@ -74,8 +76,9 @@ public class UIManager : BaseManager<UIManager>
         InventorytooltipWindow.SetActive(false);
         characterStaus.SetActive(false);
         bossHud.SetActive(false);
+
         // 03.13 C
-        craftingUI.SetActive(false);
+      //  craftingUI.SetActive(false);
 
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
@@ -83,8 +86,9 @@ public class UIManager : BaseManager<UIManager>
         ShopUI = shopUI.GetComponent<ShopUI>();
         dialogUI = dialogWindow.GetComponent<DialogUI>();
         SkillsQuickSlot = skillQuickSlot.GetComponent<SkillsUI>();
+
         // 03.13 C 
-        CraftingUI = craftingUI.GetComponent<Test_CreateUI>();
+     //   CraftingUI = craftingUI.GetComponent<Test_CreateUI>();
     }
 
     private void Update()
@@ -180,13 +184,13 @@ public class UIManager : BaseManager<UIManager>
     }
 
     // 03.13 C
-    public void ToggleCraftingUIWindow()
+  /*  public void ToggleCraftingUIWindow()
     {
         craftingUI.gameObject.SetActive(!craftingUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
         MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(true);
-    }
+    }*/
 
     private Coroutine infoMessageCoroutine; // 코루틴 추가부분 
 
@@ -451,8 +455,9 @@ public class UIManager : BaseManager<UIManager>
         infoMessageWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
+
         // 03.13 C
-        craftingUI.gameObject.SetActive(false);
+      //  craftingUI.gameObject.SetActive(false);
     }
 
     public void InteractTextPopup(string keyname, string comment, bool isOn)
@@ -518,9 +523,9 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.Exploration:
                 break;
 
-            case GameSystemState.Crafting:
+            /*case GameSystemState.Crafting:
                 ToggleCraftingUIWindow();
-                break;
+                break;*/
         }
         #endregion
     }
