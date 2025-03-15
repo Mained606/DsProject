@@ -282,7 +282,12 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     [SerializeField] private Vector3 particlePositionOffset = new Vector3(); // 파티클 위치 오프셋
     [SerializeField] private Item count;
 
-    public WeaponManager weaponManager;
+    private WeaponManager weaponManager;
+    public WeaponManager WeaponManager
+    {
+        get { return weaponManager; }
+    }
+
 
     private PlayerData Player
     {
