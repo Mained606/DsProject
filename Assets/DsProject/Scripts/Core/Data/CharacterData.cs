@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -42,6 +43,7 @@ public enum ElementalAttribute
 public class CharacterData : ISheetData
 {
     public event Action<Transform> OnTakeDamage; // 피격 했는지 이벤트 전달
+    public event Action<float> OnSpeedChanged;
 
     private const int maxStats = 999;
     private const int minStats = 0;
@@ -115,6 +117,8 @@ public class CharacterData : ISheetData
     public int availableStatPoints;
     
     public ElementalAttribute attribute; // 속성
+
+    public bool isStunned;
 
     public CharacterData() {}
 
@@ -396,6 +400,34 @@ public class CharacterData : ISheetData
     {
         AdjustStamina(-amount);
     }
+
+    // 불 속성 디버프 적용
+    public void ApplyBurn(float duration, float damagePerSecond)
+    {
+        var burnDebuff = new BurnDebuff(duration, damagePerSecond, this);
+        DebuffManager.Instance.ApplyDebuff(burnDebuff);
+    }
+
+    // 물 속성 디버프 적용
+    public void ApplyFreeze(float duration, float speedReduction)
+    {
+        var freezeDebuff = new FreezeDebuff(duration, speedReduction, this);
+        DebuffManager.Instance.ApplyDebuff(freezeDebuff);
+    }
+
+    // 번개 속성 디버프 적용
+    public void ApplyElectrify(float duration)
+    {
+        var electrifyDebuff = new ElectrifyDebuff(duration, this);
+        DebuffManager.Instance.ApplyDebuff(electrifyDebuff);
+    }
+
+    public void UpdateSpeed(float newSpeed)
+    {
+        moveSpeed = newSpeed;
+        OnSpeedChanged?.Invoke(moveSpeed);
+    }
+
 
     public CharacterData Clone()
     {

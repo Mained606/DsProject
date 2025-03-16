@@ -124,8 +124,14 @@ public class BaseMonsterAI : MonoBehaviour
         
         // 착지 여부를 체크하는 메서드 호출
         CheckLandingAndSetPatrolTarget();
+        monsterData.OnSpeedChanged += UpdateMovementSpeed;
     }
-    
+
+    private void UpdateMovementSpeed(float newSpeed)
+    {
+        movementSpeed = newSpeed;
+    }
+        
     protected virtual void HandleTakeDamage(Transform attacker)
     {
         // if (attacker.CompareTag("Player")) playerTarget = attacker;

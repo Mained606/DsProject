@@ -103,6 +103,8 @@ public class BaseBossAI : MonoBehaviour
             attackCooldown = bossData.attackSpeed;
             attackRange = bossData.attackRange;
         }
+        
+        bossData.OnSpeedChanged += UpdateMovementSpeed;
     }
 
     private void Update()
@@ -363,106 +365,106 @@ public class BaseBossAI : MonoBehaviour
         SetState(BossState.Attacking);
     }
     private IEnumerator ExecuteBossAttack()
-{
-    if (isAttacking) yield break;
-    isAttacking = true;
-
-    List<string> bossSkillNames = SkillManager.Instance.GetAvailableSkills(EntityType.Boss);
-    if (bossSkillNames.Count == 0)
     {
-        Debug.LogWarning("보스의 사용 가능한 스킬이 없습니다.");
-        SetState(BossState.Idle);
-        isAttacking = false;
-        yield break;
-    }
+        if (isAttacking) yield break;
+        isAttacking = true;
 
-    Skills selectedSkill = null;
-    int attempt = 0;
-    int maxAttempts = 10;
-    while (selectedSkill == null && attempt < maxAttempts)
-    {
-        string randomSkillName = bossSkillNames[Random.Range(0, bossSkillNames.Count)];
-        Skills skill = SkillManager.Instance.GetSkill(EntityType.Boss, randomSkillName);
-
-        if (skill != null && !skill.cooldownTimer.IsRunning)
+        List<string> bossSkillNames = SkillManager.Instance.GetAvailableSkills(EntityType.Boss);
+        if (bossSkillNames.Count == 0)
         {
-            selectedSkill = skill;
+            Debug.LogWarning("보스의 사용 가능한 스킬이 없습니다.");
+            SetState(BossState.Idle);
+            isAttacking = false;
+            yield break;
         }
-        attempt++;
-    }
 
-    if (selectedSkill == null)
-    {
-        Debug.LogWarning("사용 가능한 스킬을 찾지 못했습니다.");
-        SetState(BossState.Idle);
-        isAttacking = false;
-        yield break;
-    }
-
-    switch (selectedSkill.skillName)
-    {
-        case "OrbExplosion":
-            animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(roarDuration);
-            isRotating = false; // 회전 방지
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject, this.transform);
-            yield return new WaitForSeconds(4f);
-            isRotating = true;  // 회전 가능
-            break;
-        case "RapidFireball":
-            animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(roarDuration);
-            isRotating = false; // 회전 방지
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1, this.transform);
-            yield return new WaitForSeconds(4f);
-            isRotating = true;  // 회전 가능
-            break;
-        case "Dash":
-            animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(roarDuration);
-            // ROARING 후 플레이어를 향해 회전
-            yield return StartCoroutine(RotateTowardsPlayerSmoothly());
-            // 대쉬 실행
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
-            isPerformingSpecialMove = true;
-            yield return StartCoroutine(PerformDash());
-            isPerformingSpecialMove = false;
-            break;
-        case "Jump":
-            animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(roarDuration);
-            // ROARING 후 플레이어를 향해 회전
-            yield return StartCoroutine(RotateTowardsPlayerSmoothly());
-            isPerformingSpecialMove = true;
-            yield return StartCoroutine(PerformJump(selectedSkill));
-            isPerformingSpecialMove = false;
-            break;
-        default:
-            Debug.LogWarning("처리되지 않은 스킬: " + selectedSkill.skillName);
-            break;
-    }
-
-    float skillDuration = selectedSkill.GetSkillDuration();
-    yield return new WaitForSeconds(skillDuration + attackCooldown);
-
-        if (playerTarget != null)
+        Skills selectedSkill = null;
+        int attempt = 0;
+        int maxAttempts = 10;
+        while (selectedSkill == null && attempt < maxAttempts)
         {
-            if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+            string randomSkillName = bossSkillNames[Random.Range(0, bossSkillNames.Count)];
+            Skills skill = SkillManager.Instance.GetSkill(EntityType.Boss, randomSkillName);
+
+            if (skill != null && !skill.cooldownTimer.IsRunning)
             {
-                SetState(BossState.Attacking);
+                selectedSkill = skill;
+            }
+            attempt++;
+        }
+
+        if (selectedSkill == null)
+        {
+            Debug.LogWarning("사용 가능한 스킬을 찾지 못했습니다.");
+            SetState(BossState.Idle);
+            isAttacking = false;
+            yield break;
+        }
+
+        switch (selectedSkill.skillName)
+        {
+            case "OrbExplosion":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                isRotating = false; // 회전 방지
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject, this.transform);
+                yield return new WaitForSeconds(4f);
+                isRotating = true;  // 회전 가능
+                break;
+            case "RapidFireball":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                isRotating = false; // 회전 방지
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1, this.transform);
+                yield return new WaitForSeconds(4f);
+                isRotating = true;  // 회전 가능
+                break;
+            case "Dash":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                // ROARING 후 플레이어를 향해 회전
+                yield return StartCoroutine(RotateTowardsPlayerSmoothly());
+                // 대쉬 실행
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
+                isPerformingSpecialMove = true;
+                yield return StartCoroutine(PerformDash());
+                isPerformingSpecialMove = false;
+                break;
+            case "Jump":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                // ROARING 후 플레이어를 향해 회전
+                yield return StartCoroutine(RotateTowardsPlayerSmoothly());
+                isPerformingSpecialMove = true;
+                yield return StartCoroutine(PerformJump(selectedSkill));
+                isPerformingSpecialMove = false;
+                break;
+            default:
+                Debug.LogWarning("처리되지 않은 스킬: " + selectedSkill.skillName);
+                break;
+        }
+
+        float skillDuration = selectedSkill.GetSkillDuration();
+        yield return new WaitForSeconds(skillDuration + attackCooldown);
+
+            if (playerTarget != null)
+            {
+                if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+                {
+                    SetState(BossState.Attacking);
+                }
+                else
+                {
+                    SetState(BossState.Chasing);
+                }
             }
             else
             {
-                SetState(BossState.Chasing);
+                SetState(BossState.Idle);
             }
-        }
-        else
-        {
-            SetState(BossState.Idle);
-        }
 
-    isAttacking = false;
-}
+        isAttacking = false;
+    }
     private IEnumerator RotateTowardsPlayerSmoothly()
     {
         Vector3 targetDirection = (playerTarget.position - transform.position).normalized;
@@ -643,6 +645,11 @@ public class BaseBossAI : MonoBehaviour
         float randomZ = Random.Range(-teleportRange, teleportRange);
         Vector3 randomPosition = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
         return randomPosition;
+    }
+
+    private void UpdateMovementSpeed(float newSpeed)
+    {
+        movementSpeed = newSpeed;
     }
 
     private void OnDrawGizmos()
