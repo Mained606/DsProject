@@ -513,7 +513,7 @@ public class BaseBossAI : MonoBehaviour
                 // 한 번만 데미지 들어가도록 플래그 사용
                 if (!hasAppliedDashDamage)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.bossData, playerTarget, false, false, skills, true);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.bossData, playerTarget, false, false, skills, true, skills.attribute, skills.debuffDuration, skills.debuffValue );
                     hasAppliedDashDamage = true;
                 }
             }

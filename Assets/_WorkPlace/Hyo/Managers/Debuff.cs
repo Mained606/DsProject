@@ -51,8 +51,8 @@ public class BurnDebuff : Debuff
             }
             elapsed += 1f;
             yield return new WaitForSeconds(1f);
-            DebuffManager.Instance.RemoveDebuff(this);
         }
+        DebuffManager.Instance.RemoveDebuff(this);
     }
 }
 
