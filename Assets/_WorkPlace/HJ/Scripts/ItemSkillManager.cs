@@ -48,35 +48,44 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     {
         ItemSkill skill = weapon.itemSkill;
 
-        if (!IsActive || skill?.element is ElementalAttribute.None or ElementalAttribute.Earth)
+        // 2025.03.17 HYO 수정 - 땅 속성 추가로 인해 조건 주석 --------------------------------------
+        // if (!IsActive || skill?.element is ElementalAttribute.None or ElementalAttribute.Earth)
+        // ---------------------------------------------------------------------------------------
+
+        // 2025.03.17 HYO 수정 - 속성 공격 조건 수정 -----------------------------------
+        if (!IsActive || skill?.element == ElementalAttribute.None)
             return;
+        // --------------------------------------------------------------------------
 
         if (affectedTargets.Contains(target))
             return;
 
         affectedTargets.Add(target);
-        
+
         // 2025.03.16 HYO 주석 처리 ------------------------------------------------------------
         // StartCoroutine(RemoveAffectedTarget(target, debuffDuration));
         // ------------------------------------------------------------------------------------
         
-        // 2025.03.16 HYO 추가 ----------------------------------------------------------------
+        // 2025.03.17 HYO 수정 - 기존 고정 지속시간에서 무기 스킬의 지속시간 사용 ---------
         StartCoroutine(RemoveAffectedTarget(target, weapon.itemSkill.debuffDuration));
-        // ------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
         
         switch (skill.element)
         {
             case ElementalAttribute.Fire:
                 ApplyFireEffect(weapon, target);
                 break;
-
             case ElementalAttribute.Water:
                 ApplyWaterEffect(weapon, target);
                 break;
-
             case ElementalAttribute.Electric:
                 ApplyElectircEffect(weapon, target);
                 break;
+            // 2025.03.17 HYO 수정 - 땅 속성 추가 ------------------------------------------------------------
+            case ElementalAttribute.Earth:
+                ApplyEarthEffect(weapon, target);
+                break;
+            // ------------------------------------------------------------------------------------
         }
     }
 
@@ -162,64 +171,103 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     #region Private Method
     private void ResetCount(Item weapon)
     {
-        if (weapon.type != ItemType.무기) return;
+        // 2025.03.17 HYO 수정 - 무기 속성 체크 주석 처리 ----------------------------------------------------------------------------
+        // if (weapon.type != ItemType.무기) return;
+        // if (weapon.itemSkill == null) return;
+        // if (weapon.itemSkill.element == ElementalAttribute.None || weapon.itemSkill.element == ElementalAttribute.Earth) return;
+        // -------------------------------------------------------------------------------------------------------------------------
 
-        if (weapon.itemSkill == null) return;
+        //무기 속성 체크
+        ItemSkill skill = weapon.itemSkill;
+        if (skill.element == ElementalAttribute.None) return;
+        
+        // 2025.03.16 HYO 수정 - Earth 속성 추가 및 관련 처리 ------------------------
+        // Earth 속성도 처리 가능하도록 조건 수정
+        IsActive = true;
+        attackCount = 0;
+        // --------------------------------------------------------------------------
 
-        if (weapon.itemSkill.element == ElementalAttribute.None || weapon.itemSkill.element == ElementalAttribute.Earth) return;
-
+        // 이미 돌아가고 있던 코루틴이 있다면 제거
         if (elementDisableCoroutine != null)
         {
             StopCoroutine(elementDisableCoroutine);
             elementDisableCoroutine = null;
         }
-
-        attackCount = 0;
     }
 
     //지속뎀
     private void ApplyFireEffect(Item weapon, CharacterData target)
     {
-        ItemSkill skill = weapon.itemSkill;
+        // 2025.03.17 HYO 수정 - 속성 공격 조건 수정 -----------------------------------
+        // ItemSkill skill = weapon.itemSkill;
+        // if (skill == null || !IsActive) return;
+        // --------------------------------------------------------------------------
 
-        if (skill == null || !IsActive) return;
-
-        //지속뎀 로직 추가
-        Debug.Log("지속뎀");
-        // 2025.03.16 HYO 추가 ------------------------------------------------------------
-        target.ApplyBurn(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
-        // --------------------------------------------------------------------------------
+        PlayAttackParticle(weapon);
+        
+        // 2025.03.16 HYO 수정 - 새로운 효과 적용 시스템 사용 ------------------------
+        // 화상 효과 적용 - 새 시스템 사용
+        target.ApplyFireBurnEffect(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
+        // --------------------------------------------------------------------------
+        
+        IncrementAttackCountAndCheckLimit();
     }
 
     //이속 감소
     private void ApplyWaterEffect(Item weapon, CharacterData target)
     {
-        ItemSkill skill = weapon.itemSkill;
+        // 2025.03.17 HYO 수정 - 속성 공격 조건 수정 -----------------------------------
+        // ItemSkill skill = weapon.itemSkill;
+        // if (skill == null || !IsActive) return;
+        // --------------------------------------------------------------------------
 
-        if (skill == null || !IsActive) return;
-
-        //이속 감소
-        Debug.Log("이속감소");
-
-        // 2025.03.16 HYO 추가 ------------------------------------------------------------
-        target.ApplyFreeze(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
-        // --------------------------------------------------------------------------------
+        PlayAttackParticle(weapon);
+        
+        // 2025.03.16 HYO 수정 - 새로운 효과 적용 시스템 사용 ------------------------
+        // 이동속도 감소 효과 적용 - 새 시스템 사용
+        target.ApplyWaterSlowEffect(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
+        // --------------------------------------------------------------------------
+        
+        IncrementAttackCountAndCheckLimit();
     }
 
     //감전
     private void ApplyElectircEffect(Item weapon, CharacterData target)
     {
-        ItemSkill skill = weapon.itemSkill;
+        // 2025.03.17 HYO 수정 - 속성 공격 조건 수정 -----------------------------------
+        // ItemSkill skill = weapon.itemSkill;
+        // if (skill == null || !IsActive) return;
+        // --------------------------------------------------------------------------
 
-        if (skill == null || !IsActive) return;
-
-        //감전
-        Debug.Log("감전");
-
-        // 2025.03.16 HYO 추가 ------------------------------------------------------------
-        target.ApplyElectrify(weapon.itemSkill.debuffDuration);
-        // --------------------------------------------------------------------------------
+        PlayAttackParticle(weapon);
+        
+        // 2025.03.16 HYO 수정 - 새로운 효과 적용 시스템 사용 ------------------------
+        // 스턴 효과 적용 - 새 시스템 사용
+        target.ApplyElectricStunEffect(weapon.itemSkill.debuffDuration);
+        // --------------------------------------------------------------------------
+        
+        IncrementAttackCountAndCheckLimit();
     }
+
+    // 2025.03.16 HYO 추가 - 중복 코드 제거를 위한 함수 -----------------------------
+    private void IncrementAttackCountAndCheckLimit()
+    {
+        attackCount++;
+        
+        if (attackCount >= maxAttackCount)
+        {
+            IsActive = false;
+            
+            if (elementDisableCoroutine != null)
+            {
+                StopCoroutine(elementDisableCoroutine);
+                elementDisableCoroutine = null;
+            }
+            
+            elementDisableCoroutine = StartCoroutine(DisableWeaponEffect());
+        }
+    }
+    // --------------------------------------------------------------------------
 
     //무기 속성 이펙트 비활성화
     private IEnumerator DisableWeaponEffect()
@@ -344,6 +392,22 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         return effectTransform;
     }
+
+    // 2025.03.16 HYO 추가 - 땅 속성 효과 구현 -----------------------------------
+    // 땅 속성 효과 구현
+    private void ApplyEarthEffect(Item weapon, CharacterData target)
+    {
+        PlayAttackParticle(weapon);
+        
+        // 땅 속성은 디버프가 아닌 공격자에게 데미지 증가 효과 적용
+        CharacterData attacker = CharacterManager.PlayerCharacterData;
+        
+        // 데미지 증가 효과를 공격자에게 적용
+        attacker.ApplyEarthDamageEffect(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
+        
+        IncrementAttackCountAndCheckLimit();
+    }
+    // --------------------------------------------------------------------------
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
