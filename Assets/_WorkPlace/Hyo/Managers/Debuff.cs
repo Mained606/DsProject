@@ -36,17 +36,20 @@ public class BurnDebuff : Debuff
             {
                 Character.TakeDamage((int)damagePerSecond);
                 
-                // null 체크는 유지
-                if (Character.instance != null)
+                // 기본 null 체크만 유지
+                if (Character.instance != null && Character.instance.gameObject != null)
                 {
                     Vector3 targetPosition = Character.instance.transform.position;
                     UIManager.DisplayPopupText(((int)damagePerSecond).ToString(), targetPosition, MessageTag.적_피해);
                 }
                 
-                // 사망 여부 확인
+                // 사망 여부 확인 - 간결하게 유지
                 if (Character.currentHp <= 0)
                 {
-                    CombatManager.Instance.CheckAndHandleDeath(Character, Character.instance?.transform, Character.characterType != CharacterType.Player);
+                    Transform targetTransform = (Character.instance != null && Character.instance.gameObject != null) 
+                        ? Character.instance.transform 
+                        : null;
+                    CombatManager.Instance.CheckAndHandleDeath(Character, targetTransform, Character.characterType != CharacterType.Player);
                     DebuffManager.Instance.RemoveDebuff(this);
                     yield break; // 사망 시 코루틴 종료
                 }
