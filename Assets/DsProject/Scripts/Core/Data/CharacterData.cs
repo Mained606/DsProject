@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.Reflection;
+using static UnityEngine.GraphicsBuffer;
 
 [Serializable]
 public class StatModifier
@@ -408,25 +410,53 @@ public class CharacterData : ISheetData
         AdjustStamina(-amount);
     }
 
-    // 불 속성 디버프 적용
-    public void ApplyBurn(float duration, float damagePerSecond)
+    // 땅 속성 데미지 증가 버프 적용
+    public void ApplyEarthDamageEffect(float duration, float damageIncreasePercent)
     {
-        var burnDebuff = new BurnDebuff(duration, damagePerSecond, this);
-        DebuffManager.Instance.ApplyDebuff(burnDebuff);
+        // 매니저가 존재하는지 확인
+        ElementalEffectManager.EnsureExists();
+        
+        var earthEffect = new EarthDamageEffect(duration, damageIncreasePercent, this);
+        earthEffect.Apply();
     }
-
-    // 물 속성 디버프 적용
-    public void ApplyFreeze(float duration, float speedReduction)
+    
+    // 불 속성 효과 적용
+    public void ApplyFireBurnEffect(float duration, float damagePercent)
     {
-        var freezeDebuff = new FreezeDebuff(duration, speedReduction, this);
-        DebuffManager.Instance.ApplyDebuff(freezeDebuff);
+        // 매니저가 존재하는지 확인
+        ElementalEffectManager.EnsureExists();
+        
+        var fireEffect = new FireBurnEffect(duration, damagePercent, this);
+        fireEffect.Apply();
     }
-
-    // 번개 속성 디버프 적용
-    public void ApplyElectrify(float duration)
+    
+    // 물 속성 효과 적용
+    public void ApplyWaterSlowEffect(float duration, float speedReduction)
     {
-        var electrifyDebuff = new ElectrifyDebuff(duration, this);
-        DebuffManager.Instance.ApplyDebuff(electrifyDebuff);
+        // 매니저가 존재하는지 확인
+        ElementalEffectManager.EnsureExists();
+        
+        var waterEffect = new WaterSlowEffect(duration, speedReduction, this);
+        waterEffect.Apply();
+    }
+    
+    // 전기 속성 효과 적용
+    public void ApplyElectricStunEffect(float duration)
+    {
+        // 매니저가 존재하는지 확인
+        ElementalEffectManager.EnsureExists();
+        
+        var electricEffect = new ElectricStunEffect(duration, this);
+        electricEffect.Apply();
+    }
+    
+    // 속성 효과 제거 편의 메서드
+    public void ClearAllElementalEffects()
+    {
+        if (ElementalEffectManager.Instance != null)
+        {
+            ElementalEffectManager.Instance.ClearCharacterEffects(this);
+        }
     }
 
     public void UpdateSpeed(float newSpeed)

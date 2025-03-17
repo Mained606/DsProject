@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CombatManager : BaseManager<CombatManager>
@@ -116,10 +119,47 @@ public class CombatManager : BaseManager<CombatManager>
             defenderEffectiveAttribute = playerDefender.GetEffectiveDefenseAttribute();
         }
         
-        // **속성 배율 적용**
-        float attributeMultiplier = AttributeCalculator.GetMultiplier(attackerEffectiveAttribute, defenderEffectiveAttribute);
-        damage *= attributeMultiplier;
-        Debug.Log($"공격자 속성: {attackerEffectiveAttribute} / 방어자 속성: {defenderEffectiveAttribute} / 속성 배율: {attributeMultiplier}");
+        // 속성 효과 적용
+        float elementalMultiplier = AttributeCalculator.GetMultiplier(attackerEffectiveAttribute, defenderEffectiveAttribute);
+        
+        // 땅 속성 버프 확인 및 적용
+        if (attackerEffectiveAttribute == ElementalAttribute.Earth)
+        {
+            // 공격자에게 적용된 땅 속성 효과가 있는지 확인하고 있으면 데미지 증가
+            float earthBuffMultiplier = 1.0f;
+            
+            // 통합된 새 시스템 사용
+            EarthDamageEffect earthEffect = ElementalEffectManager.Instance?.GetEarthDamageEffect(actualAttacker);
+            if (earthEffect != null)
+            {
+                earthBuffMultiplier = earthEffect.GetDamageMultiplier();
+            }
+            // 아직 효과가 적용되지 않았거나 매니저가 없는 경우 기본 증가 적용
+            else if (skills != null && skills.debuffValue > 0)
+            {
+                earthBuffMultiplier = 1f + (skills.debuffValue / 100f);
+                
+                // 일회성 공격에는 땅 속성 데미지 증가 효과를 즉시 적용
+                if (isPlayerAttacking && !isBossAttacking)
+                {
+                    // 플레이어가 땅 속성 무기로 공격할 때, 즉시 효과 적용 (짧은 지속 시간, 효과적인 횟수만큼만)
+                    actualAttacker.ApplyEarthDamageEffect(3f, skills.debuffValue);
+                }
+            }
+            else
+            {
+                // 기본 20% 증가
+                earthBuffMultiplier = 1.2f;
+            }
+            
+            damage = Mathf.RoundToInt(damage * earthBuffMultiplier);
+            Debug.Log($"땅 속성 데미지 증가 효과: {earthBuffMultiplier}배 증가");
+        }
+        
+        // 최종 데미지에 속성 배율 적용
+        damage = Mathf.RoundToInt(damage * elementalMultiplier);
+        
+        Debug.Log($"공격자 속성: {attackerEffectiveAttribute} / 방어자 속성: {defenderEffectiveAttribute} / 속성 배율: {elementalMultiplier}");
         
         // 크리티컬 데미지 배율 적용
         if (isCritical)
@@ -179,22 +219,27 @@ public class CombatManager : BaseManager<CombatManager>
             } 
             else if (debuffType != ElementalAttribute.None) 
             {
-                // 몬스터의 경우 기존 방식 사용
-                Debug.Log($"디버프 진입{debuffDuration} + {debuffValue}");
+                // 몬스터의 경우 새로운 통합 시스템 사용
+                Debug.Log($"속성 효과 적용: {debuffType}, 지속시간 {debuffDuration}초, 수치 {debuffValue}");
+                
                 switch (debuffType) 
                 {
                     case ElementalAttribute.Fire:
-                        // debuffValue는 최대 체력의 %로 적용됨
-                        Debug.Log($"화상 디버프 적용: 지속시간 {debuffDuration}초, 매 초마다 최대 체력의 {debuffValue}% 피해");
-                        actualDefender.ApplyBurn(debuffDuration, debuffValue);
+                        Debug.Log($"화상 효과 적용: 지속시간 {debuffDuration}초, 매 초마다 최대 체력의 {debuffValue}% 피해");
+                        actualDefender.ApplyFireBurnEffect(debuffDuration, debuffValue);
                         break;
                     case ElementalAttribute.Water:
-                        Debug.Log($"슬로우 디버프 적용: 지속시간 {debuffDuration}초, 이동속도 {debuffValue}% 감소");
-                        actualDefender.ApplyFreeze(debuffDuration, debuffValue);
+                        Debug.Log($"이동속도 감소 효과 적용: 지속시간 {debuffDuration}초, 이동속도 {debuffValue}% 감소");
+                        actualDefender.ApplyWaterSlowEffect(debuffDuration, debuffValue);
                         break;
                     case ElementalAttribute.Electric:
-                        Debug.Log($"감전 디버프 적용: 지속시간 {debuffDuration}초");
-                        actualDefender.ApplyElectrify(debuffDuration);
+                        Debug.Log($"스턴 효과 적용: 지속시간 {debuffDuration}초");
+                        actualDefender.ApplyElectricStunEffect(debuffDuration);
+                        break;
+                    case ElementalAttribute.Earth:
+                        // 보스가 땅 속성 스킬을 사용하면 자신에게 데미지 증가 효과
+                        Debug.Log($"땅 속성 데미지 증가 효과 적용: 지속시간 {debuffDuration}초, 데미지 {debuffValue}% 증가");
+                        actualAttacker.ApplyEarthDamageEffect(debuffDuration, debuffValue);
                         break;
                 }
             }
