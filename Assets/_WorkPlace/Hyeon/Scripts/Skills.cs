@@ -21,6 +21,7 @@ public class Skills : ISheetData
 
     public float animationDuration;
     public float buffDuration;
+    public float buffValue;
     public BasicTimer cooldownTimer;
 
     // 스킬 레벨 관련 필드
@@ -33,6 +34,9 @@ public class Skills : ISheetData
     // 스킬 잠금 해제 확인
     public bool unLockSkill = false;
     public bool targeting = false;
+
+    public float debuffDuration;        // 디버프 지속시간
+    public float debuffValue;           // 디버프 효과 수치 (화상 데미지, 이동속도 감소율 등)
 
     // 초기화: cooldownTimer 설정 및 초기 경험치 계산
     public void Initialize()
@@ -51,12 +55,12 @@ public class Skills : ISheetData
     }
 
     // 스킬 레벨 증가 (damage 10% 증가)
-    public void LevelUp()
+    public void LevelUp(bool forceLevelUp = false)
     {
         if (!unLockSkill)
             return; // 스킬이 잠겨있으면 레벨업 불가
 
-        if (skillLevel < maxSkillLevel)
+        if (skillLevel < maxSkillLevel || forceLevelUp)
         {
             isLevelingUp = true; // 레벨업 시작
             skillLevel++;
@@ -126,6 +130,7 @@ public class Skills : ISheetData
         skillLevel = int.TryParse(row[10].ToString(), out int level) ? level : 1;
         maxSkillLevel = int.TryParse(row[11].ToString(), out int maxLevel) ? maxLevel : 10;
 
+
         // 이펙트 프리팹 로드 (Resources 폴더에서 불러오기)
         string effectPrefabName = row[12].ToString();
         if (!string.IsNullOrEmpty(effectPrefabName))
@@ -134,6 +139,16 @@ public class Skills : ISheetData
             if (effectPrefab == null)
                 Debug.LogWarning($"[Skills] '{effectPrefabName}' 이펙트 프리팹을 찾을 수 없습니다.");
         }
+
+        // 2025.03.16 HYO 추가 ---------------------------------------------------------------------------------------
+        // 디버프 관련 데이터 파싱 추가 (row의 크기가 충분한지 확인 필요)
+        // debuffDuration = float.TryParse(row[13].ToString(), out float debuffDur) ? debuffDur : 0f;
+        // debuffValue = float.TryParse(row[14].ToString(), out float debuffVal) ? debuffVal : 0f;
+        
+        // // 속성 파싱 추가 (아직 없다면)
+        // attribute = Enum.TryParse(row[15].ToString(), out ElementalAttribute attr) ? attr : ElementalAttribute.None;
+        // buffValue = float.TryParse(row[16].ToString(), out float buffVal) ? buffVal : 0f;
+        // -----------------------------------------------------------------------------------------------------------
 
         // 쿨다운 타이머 초기화
         cooldownTimer = new BasicTimer(cooldown);
