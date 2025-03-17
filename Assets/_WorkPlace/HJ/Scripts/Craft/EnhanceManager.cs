@@ -28,24 +28,24 @@ public class EnhanceManager : BaseManager<EnhanceManager>
     {
         if (upgradeIngredient == null || !EnhancementItemIds.Contains(upgradeIngredient.id))
         {
-            Debug.Log("업그레이드 아이템이 아님");
+            Debug.Log("업그레이드 재료가 아님");
             return;
         }
 
-        if (upgradeItem.itemSkill.level >= 9)
+        if (upgradeItem.itemSkill.Level >= 9)
         {
             Debug.Log("강화 레벨 초과");
             return;
         }
 
-        var enhanceChances = levelEnhanceChance[upgradeItem.itemSkill.level];
+        var enhanceChances = levelEnhanceChance[upgradeItem.itemSkill.Level];
         float random = Random.value * 100;
 
         if(random <= enhanceChances.success)
         {
             Successed(upgradeItem);
         }
-        else if(random < enhanceChances.success + enhanceChances.downgrade)
+        else if(random <= enhanceChances.success + enhanceChances.downgrade)
         {
             Downgraded(upgradeItem);
         }
@@ -64,22 +64,26 @@ public class EnhanceManager : BaseManager<EnhanceManager>
     private void Successed(Item item)
     {
         item.itemSkill.ApplyItemStat(item, item.itemSkill.ApplyPower(item), 1);
-        item.itemSkill.level++;
+        item.itemSkill.Level++;
 
-        Debug.Log($"강화 성공\n아이템 레벨: {item.itemSkill.level}");
+        Debug.Log($"강화 성공\n아이템 레벨: {item.itemSkill.Level}");
     }
 
     private void Downgraded(Item item)
     {
-        item.itemSkill.level--;
+        item.itemSkill.Level--;
         item.itemSkill.ApplyItemStat(item, item.itemSkill.ApplyPower(item), -1);
 
-        Debug.Log($"강화 실패, 다운그레이드\n아이템 레벨: {item.itemSkill.level}");
+        Debug.Log($"강화 실패, 다운그레이드\n아이템 레벨: {item.itemSkill.Level}");
     }
 
     private void Destroyed(Item item)
     {
-        item.itemSkill.ApplyItemStat(item, item.itemSkill.ApplyPower(item), -1);
+        if (ItemEffectManager.Instance.GetEquippedItem(item.equipmentSlot) == item)
+        {
+            ItemEffectManager.Instance.UnequipmentEffect(item);
+        }
+
         ItemManager.Instance.RemoveItemLogic(item.id);
 
         Debug.Log("강화 실패, 아이템 파괴");
