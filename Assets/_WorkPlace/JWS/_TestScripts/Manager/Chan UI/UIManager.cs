@@ -32,7 +32,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject levelUpEffect;
     
     // 03.13 C
-    [SerializeField] private GameObject craftingUI;
+    [SerializeField] private GameObject cookingUI;
 
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -50,7 +50,7 @@ public class UIManager : BaseManager<UIManager>
     public static HistoryWindowUI HistoryWindowUI;
 
     // 03.13 C
-    public static Test_CreateUI CraftingUI;
+    public static CookingUI CookingUI;
 
     // ========== 250312 SH 추가 ==========
     public static SkillsUI SkillsQuickSlot;
@@ -78,7 +78,7 @@ public class UIManager : BaseManager<UIManager>
         bossHud.SetActive(false);
 
         // 03.13 C
-        craftingUI.SetActive(false);
+        cookingUI.SetActive(false);
 
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
@@ -88,7 +88,7 @@ public class UIManager : BaseManager<UIManager>
         SkillsQuickSlot = skillQuickSlot.GetComponent<SkillsUI>();
 
         // 03.13 C 
-        CraftingUI = craftingUI.GetComponent<Test_CreateUI>();
+        CookingUI = cookingUI.GetComponent<CookingUI>();
     }
 
     private void Update()
@@ -184,9 +184,9 @@ public class UIManager : BaseManager<UIManager>
     }
 
     // 03.13 C
-    public void ToggleCraftingUIWindow()
+    public void ToggleCookingUIWindow()
     {
-        craftingUI.gameObject.SetActive(!craftingUI.gameObject.activeSelf);
+        cookingUI.gameObject.SetActive(!cookingUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
         MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(true);
@@ -457,7 +457,7 @@ public class UIManager : BaseManager<UIManager>
         historyWindow.gameObject.SetActive(false);
 
         // 03.13 C
-        craftingUI.gameObject.SetActive(false);
+        cookingUI.gameObject.SetActive(false);
         if (InventorytooltipWindow.activeSelf)
         {
             InventorytooltipWindow.SetActive(false);
@@ -527,8 +527,8 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.Exploration:
                 break;
 
-            case GameSystemState.Crafting:
-                ToggleCraftingUIWindow();
+            case GameSystemState.Cooking:
+                ToggleCookingUIWindow();
                 break;
         }
         #endregion

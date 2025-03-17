@@ -23,7 +23,7 @@ public class InputManager : BaseManager<InputManager>
         InputActions.actions["Quest"].performed += OnQuestReview;
         InputActions.actions["StatusUI"].performed += OnStatKey;
         InputActions.actions["ESC"].performed += OnMainMenu;
-        InputActions.actions["Crafting"].performed += OnCraft;
+        InputActions.actions["Cooking"].performed += OnCooking;
         #endregion
     }
 
@@ -98,13 +98,31 @@ public class InputManager : BaseManager<InputManager>
 
     }
     // 03.13 C
-    private void OnCraft(InputAction.CallbackContext context)
+    private void OnCraftinging(InputAction.CallbackContext context)
     {
         // 상태를 Crafting으로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.Crafting)
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Cooking)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Crafting);
-            Debug.Log("Crafting 상태로 전환됨.");
+            GameStateMachine.Instance.ChangeState(GameSystemState.Cooking);
+            Debug.Log("Cooking 상태로 전환됨.");
+        }
+
+        else
+        {
+            Debug.Log("I 1");
+
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+
+    private void OnCooking(InputAction.CallbackContext context)
+    {
+        // 상태를 Crafting으로 전환
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Cooking)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Cooking);
+            Debug.Log("Cooking 상태로 전환됨.");
         }
 
         else
