@@ -6,17 +6,22 @@ using static UnityEngine.InputSystem.OnScreen.OnScreenStick;
 public class SkillBehaviour : IBehaviour
 {
     private PlayerController controller;
+    private PlayerCombat combat;
     private Animator animator;
 
     private string skillName = "";
+    private Skills skill;
     private int useSkillIndex = -1;
 
-    //private float skillPerceptionRange = 5f;
+    private float skillPerceptionRange = 15f;   // 추후 SkillList 스키마 추가 가능성 있음
+    private GameObject defaultSkillPosition;
 
     public SkillBehaviour()
     {
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
+        combat = controller.GetComponent<PlayerCombat>();
         animator = controller.PlayerAnimator;
+        defaultSkillPosition = controller.transform.GetChild(1).gameObject;
     }
 
     public void Enter()
@@ -110,7 +115,25 @@ public class SkillBehaviour : IBehaviour
                 PlayerBehaviourManager.Instance.CanBlock = false;
                 controller.isUseSkill = true;
                 animator.SetBool("IsUseSkill", true);
-                SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
+                skill = SkillManager.Instance.GetSkill(EntityType.Player, skillName);
+                if (skill.targeting)
+                {
+                    Transform closestMonster = combat.GetClosestMonster(skillPerceptionRange);
+                    if(closestMonster != null)
+                    {
+                        Debug.Log("closestMonster가 있음");
+                        SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, closestMonster.gameObject);
+                    }
+                    else
+                    {
+                        Debug.Log("closestMonster가 없음");
+                        SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, defaultSkillPosition);
+                    }
+                }
+                else
+                {
+                    SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
+                }
             }
             else
             {

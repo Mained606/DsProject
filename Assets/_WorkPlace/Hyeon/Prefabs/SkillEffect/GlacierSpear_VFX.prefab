@@ -101,12 +101,27 @@ VisualEffect:
       - m_Value: 0.85
         m_Name: GroundIceSize
         m_Overridden: 1
+      - m_Value: 3
+        m_Name: SpikesCount
+        m_Overridden: 0
     m_Vector2f:
       m_Array: []
     m_Vector3f:
       m_Array: []
     m_Vector4f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: 2, y: 2, z: 2, w: 1}
+        m_Name: ParticlesColor
+        m_Overridden: 0
+      - m_Value: {x: 0.33579564, y: 0.56801265, z: 0.9245283, w: 1}
+        m_Name: SpikesColor
+        m_Overridden: 0
+      - m_Value: {x: 0.45, y: 1.05, z: 1.9, w: 1}
+        m_Name: SpikesDissolveColor
+        m_Overridden: 0
+      - m_Value: {x: 2, y: 2, z: 2, w: 1}
+        m_Name: SmokeColor
+        m_Overridden: 1
     m_Uint:
       m_Array: []
     m_Int:

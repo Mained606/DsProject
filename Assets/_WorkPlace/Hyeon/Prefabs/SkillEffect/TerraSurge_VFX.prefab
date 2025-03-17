@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 6132716274702292665}
   - component: {fileID: 3259801653478326279}
   - component: {fileID: 2493228015757178271}
+  - component: {fileID: 3876056080848343888}
+  - component: {fileID: 346244520763453177}
   m_Layer: 0
   m_Name: TerraSurge_VFX
   m_TagString: Untagged
@@ -132,3 +134,38 @@ VFXRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!65 &3876056080848343888
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3121687881400606259}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.4, y: 2.5, z: 1.4}
+  m_Center: {x: -0.05, y: 1.2, z: 0.05}
+--- !u!114 &346244520763453177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3121687881400606259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9612d63f36208f74a8f1e9d03d4de40a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHits: 3
+  colliderEnabledTime: 1
