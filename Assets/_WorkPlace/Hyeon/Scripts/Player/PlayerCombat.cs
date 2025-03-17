@@ -33,6 +33,8 @@ public class PlayerCombat : MonoBehaviour
         Animator.StringToHash("Base Layer.UpperAttack"),
         Animator.StringToHash("Base Layer.TurnAttack"),
         Animator.StringToHash("Base Layer.DownCut"),
+        Animator.StringToHash("Base Layer.TerraSurge"),
+        Animator.StringToHash("Base Layer.GlacierSpear"),
     };
 
     private void Start()
@@ -91,6 +93,7 @@ public class PlayerCombat : MonoBehaviour
                 PlayerBehaviourManager.Instance.CanDodge = true;
                 PlayerBehaviourManager.Instance.CanBlock = true;
                 controller.isUseSkill = false;
+                playerAnimator.SetBool("IsUseSkill", false);
             }
         }
     }

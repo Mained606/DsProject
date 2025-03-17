@@ -8,7 +8,7 @@ public class CombatManager : BaseManager<CombatManager>
     }
     
     // 공격 처리 메서드
-    public void ProcessAttack(CharacterData playerData, CharacterData monsterData, Transform defenderTransform, bool isPlayerAttacking, bool isMagicAttack, Skills skills = null, bool isBossAttacking = false)
+    public void ProcessAttack(CharacterData playerData, CharacterData monsterData, Transform defenderTransform, bool isPlayerAttacking, bool isMagicAttack, Skills skills = null, bool isBossAttacking = false, ElementalAttribute debuffType = ElementalAttribute.None, float debuffDuration = 0f, float debuffValue = 0f)
     {
         // 공격자와 방어자 설정
         CharacterData actualAttacker = isPlayerAttacking ? playerData : monsterData;
@@ -138,8 +138,6 @@ public class CombatManager : BaseManager<CombatManager>
             if (GameManager.playerTransform.GetComponent<PlayerCombat>().onParry)
             {
                 UIManager.DisplayPopupText("패링", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
-                //Debug.Log($"attackerTransform: {attackerTransform.name}");
-                //Debug.Log($"defenderTrasnform: {defenderTransform.name}");
                 attackerTransform.GetComponentInParent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
                 return;
             }
@@ -165,10 +163,40 @@ public class CombatManager : BaseManager<CombatManager>
             }
             // 250131 2:00PM Hyeon ===============================================
             actualDefender.TakeDamage(finalDamage, attackerTransform);
+            
             if (skills != null)
             {
                 int levelPoint = isCritical ? 2 : 1;
                 skills.AddExperience(levelPoint);
+            }
+
+            // 디버프 적용 로직
+            if (isPlayerAttacking) 
+            {
+                // 플레이어의 경우 아이템 스킬 매니저 사용
+                Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+                ItemSkillManager.Instance.ElementAttack(equippedWeapon, actualDefender);
+            } 
+            else if (debuffType != ElementalAttribute.None) 
+            {
+                // 몬스터의 경우 기존 방식 사용
+                Debug.Log($"디버프 진입{debuffDuration} + {debuffValue}");
+                switch (debuffType) 
+                {
+                    case ElementalAttribute.Fire:
+                        // debuffValue는 최대 체력의 %로 적용됨
+                        Debug.Log($"화상 디버프 적용: 지속시간 {debuffDuration}초, 매 초마다 최대 체력의 {debuffValue}% 피해");
+                        actualDefender.ApplyBurn(debuffDuration, debuffValue);
+                        break;
+                    case ElementalAttribute.Water:
+                        Debug.Log($"슬로우 디버프 적용: 지속시간 {debuffDuration}초, 이동속도 {debuffValue}% 감소");
+                        actualDefender.ApplyFreeze(debuffDuration, debuffValue);
+                        break;
+                    case ElementalAttribute.Electric:
+                        Debug.Log($"감전 디버프 적용: 지속시간 {debuffDuration}초");
+                        actualDefender.ApplyElectrify(debuffDuration);
+                        break;
+                }
             }
         }
         
@@ -179,19 +207,7 @@ public class CombatManager : BaseManager<CombatManager>
         }
 
         // 대상이 사망했는지 확인
-        if (actualDefender.currentHp <= 0)
-        {
-            if (!isPlayerAttacking)
-            {
-                // 플레이어 사망 처리
-                GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
-                Debug.LogError("플레이어 사망");
-                return;
-            }
-            HandleDefeated(actualDefender, defenderPosition);
-            Debug.Log(actualAttacker.ToStringForTMPro());
-            QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Kill, actualDefender.characterName, 1);
-        }
+        CheckAndHandleDeath(actualDefender, defenderTransform, isPlayerAttacking);
     }
     
     public void ProcessDragonAttack(DragonData dragonData, CharacterData targetData, Transform targetTransform, bool isMagicAttack, float skillMultiplier = 1f)
@@ -283,7 +299,23 @@ public class CombatManager : BaseManager<CombatManager>
         }
     }
 
-    
+    public void CheckAndHandleDeath(CharacterData actualDefender, Transform defenderTransform, bool isPlayerAttacking)
+    {
+        if (actualDefender.currentHp <= 0)
+        {
+            if (!isPlayerAttacking)
+            {
+                // 플레이어 사망 처리
+                GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
+                Debug.LogError("플레이어 사망");
+                return;
+            }
+            HandleDefeated(actualDefender, defenderTransform);
+            // Debug.Log(actualAttacker.ToStringForTMPro());
+            QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Kill, actualDefender.characterName, 1);
+        }
+    }
+
     // 몬스터 사망 처리
     private void HandleDefeated(CharacterData defeatedCharacter, Transform defenderTransform)
     {

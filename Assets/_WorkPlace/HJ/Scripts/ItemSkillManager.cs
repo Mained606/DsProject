@@ -12,8 +12,9 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     [SerializeField] private float maxAttackCount = 4;
     [SerializeField] private float elementRecoverTime = 10f;
     [SerializeField] private float attackEffectDuration = 0.5f;
-    [SerializeField] private float debuffDuration = 10f;    //임시  
-
+    // 2025.03.16 HYO 주석 처리 ---------------------------------------
+    // [SerializeField] private float debuffDuration = 10f;    //임시  
+    // ---------------------------------------------------------------
     private Transform WeaponTransform
     {
         get
@@ -53,8 +54,15 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             return;
 
         affectedTargets.Add(target);
-        StartCoroutine(RemoveAffectedTarget(target, debuffDuration));
-
+        
+        // 2025.03.16 HYO 주석 처리 ------------------------------------------------------------
+        // StartCoroutine(RemoveAffectedTarget(target, debuffDuration));
+        // ------------------------------------------------------------------------------------
+        
+        // 2025.03.16 HYO 추가 ----------------------------------------------------------------
+        StartCoroutine(RemoveAffectedTarget(target, weapon.itemSkill.debuffDuration));
+        // ------------------------------------------------------------------------------------
+        
         switch (skill.element)
         {
             case ElementalAttribute.Fire:
@@ -177,6 +185,9 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         //지속뎀 로직 추가
         Debug.Log("지속뎀");
+        // 2025.03.16 HYO 추가 ------------------------------------------------------------
+        target.ApplyBurn(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
+        // --------------------------------------------------------------------------------
     }
 
     //이속 감소
@@ -188,6 +199,10 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         //이속 감소
         Debug.Log("이속감소");
+
+        // 2025.03.16 HYO 추가 ------------------------------------------------------------
+        target.ApplyFreeze(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
+        // --------------------------------------------------------------------------------
     }
 
     //감전
@@ -199,6 +214,10 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         //감전
         Debug.Log("감전");
+
+        // 2025.03.16 HYO 추가 ------------------------------------------------------------
+        target.ApplyElectrify(weapon.itemSkill.debuffDuration);
+        // --------------------------------------------------------------------------------
     }
 
     //무기 속성 이펙트 비활성화

@@ -89,6 +89,9 @@ public class PlayerController : MonoBehaviour
     {
         // Hit 이벤트 구독 해제
         if (playerData != null) playerData.OnTakeDamage -= HitCheck;
+        // 2025.03.16 HYO 추가 -------------------------------------------------------
+        if (playerData != null) playerData.OnSpeedChanged -= UpdateMovementSpeed;
+        // ---------------------------------------------------------------------------
     }
 
     private void Start()
@@ -108,6 +111,9 @@ public class PlayerController : MonoBehaviour
 
         // Hit 이벤트 구독
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
+        // 2025.03.16 HYO 추가 -------------------------------------------------------
+        if (playerData != null) playerData.OnSpeedChanged += UpdateMovementSpeed;
+        // ---------------------------------------------------------------------------
 
         ValueInitialize();
 
@@ -673,6 +679,12 @@ public class PlayerController : MonoBehaviour
             isHit = false;
             return;
         }
+        else if (isUseSkill)
+        {
+            isHit = true;
+            playerAnimator.ResetTrigger("Hit");
+            return;
+        }
         else
         {
             isHit = true;
@@ -685,6 +697,16 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(Hit());
         }
     }
+
+    // 2025.03.16 HYO 추가 -----------------------------
+    private void UpdateMovementSpeed(float newSpeed)
+    {
+        // 새로운 이동 속도를 반영하는 로직
+        walkSpeed = newSpeed;
+
+        // 예: 이동 속도에 따라 애니메이션 속도 조정
+    }
+    // -------------------------------------------------
 
     private IEnumerator Hit()
     {

@@ -23,7 +23,7 @@ public class RapidFireballSkillController : MonoBehaviour
         {
             if (currentHit >= maxHit) return;
             
-            CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, bossData, other.transform, false, true, skills, true );
+            CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, bossData, other.transform, false, true, skills, true, skills.attribute, skills.debuffDuration, skills.debuffValue );
             currentHit++;
             Debug.Log("보스 래피드 파이어 Hit" + currentHit);
         }
