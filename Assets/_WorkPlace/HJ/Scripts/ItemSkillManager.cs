@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,7 +37,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         set
         {
             isActive = value;
-            PlayWeaponParticle(ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손), WeaponTransform);
+            PlayWeaponParticle(ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손));
         }
     }
 
@@ -109,13 +108,18 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             
             elementDisableCoroutine = StartCoroutine(DisableWeaponEffect());
         }
-    }
+    }    
 
     //장착시 카운트 리셋
     public void EquipReset(Item item)
     {
         ResetCount(item);
         IsActive = true;
+
+        if(item.itemSkill != null)
+        {
+            item.itemSkill.OnLevelChanged += level => ApplyLevelEffect(item, WeaponTransform, level);
+        }
 
         if (WeaponTransform != null)
         {
@@ -138,10 +142,15 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         ResetCount(item);
         IsActive = false;
 
-        ActiveEffectGo(item, false);
+        ActiveEffect(item, false);
+
+        if(item.itemSkill != null)
+        {
+            item.itemSkill.OnLevelChanged -= level => ApplyLevelEffect(item, WeaponTransform, level);
+        }
     }
 
-    #region PrivateMethod
+    #region Private Method
     private void ResetCount(Item weapon)
     {
         if (weapon.type != ItemType.무기) return;
@@ -206,25 +215,24 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     }
 
     //속성 이펙트 실행
-    private void PlayWeaponParticle(Item weapon, Transform weaponTransform)
+    private void PlayWeaponParticle(Item weapon)
     {
         if (weapon == null || weapon.itemSkill == null) return;
 
         if (weapon.itemSkill.element == ElementalAttribute.None) return;
 
-        Transform effectTransform = ActiveEffectGo(weapon, true);
+        Transform effectTransform = ActiveEffect(weapon, true);
 
         if (effectTransform == null) return;
 
-        VisualEffect effect = effectTransform.GetComponent<VisualEffect>();
-        
+        VisualEffect effect = effectTransform.GetComponent<VisualEffect>();        
 
         if (effect != null)
         {
             if (IsActive)
             {
                 effect.Play();
-                //effect.SetFloat("GooRate", 100f);
+                ApplyLevelEffect(weapon, effectTransform, weapon.itemSkill.Level);
             }
             else
             {
@@ -233,13 +241,47 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
     }
 
+    private void ApplyLevelEffect(Item item, Transform currentItem, int level)
+    {
+        if (item.type != ItemType.무기) return;
+
+        ItemSkill skill = item.itemSkill;
+        if (skill == null || skill.element == ElementalAttribute.None) return;
+
+        VisualEffect effect = currentItem.GetComponentInChildren<VisualEffect>();
+        if (effect == null) return;
+
+        float amount = 0;
+
+        switch (skill.element)
+        {
+            case ElementalAttribute.Fire:
+                float smoke = (1.2f / 10) * (level + 1);
+                float poision = (125 / 10) * (level + 1);
+                effect.SetFloat("SmokeSize", smoke);
+                effect.SetFloat("PoisonRate", poision);
+                break;
+            case ElementalAttribute.Water:
+                amount = ((30 - 10) / 10) * (level + 1) + 10;
+                effect.SetFloat("GooRate", amount);
+                break;
+            case ElementalAttribute.Electric:
+                amount = (25 / 10) * (level + 1);
+                effect.SetFloat("ElectricityRate", amount);
+                break;
+            case ElementalAttribute.Earth:
+                amount = (50 / 10) * (level + 1);
+                effect.SetFloat("PoisonRate", amount);
+                break;
+        }
+    }
+
     //공격 이펙트 실행
     private void PlayAttackParticle(Item weapon)
     {
         int index = (int)weapon.itemSkill.element - 1;
 
-        if (index < 0)
-            return;
+        if (index < 0) return;
 
         GameObject effect = elementEffects[index];
 
@@ -265,7 +307,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         affectedTargets.Remove(target);
     }
 
-    private Transform ActiveEffectGo(Item item, bool isActive)
+    private Transform ActiveEffect(Item item, bool isActive)
     {
         int index = (int)item.itemSkill.element - 1;
         if (WeaponTransform.childCount <= index || index < 0) return null;
@@ -281,3 +323,16 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     }
     #endregion
 }
+
+//[System.Serializable]
+//public class ElementEffectValue
+//{
+//    int minFireValue;
+//    int maxFireValue;
+//    int minWaterValue;
+//    int maxWaterValue;
+//    int minElectricValue;
+//    int maxElectricValue;
+//    int minEarthValue;
+//    int maxEarthValue;
+//}

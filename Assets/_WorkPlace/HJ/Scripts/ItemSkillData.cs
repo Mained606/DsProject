@@ -11,8 +11,20 @@ using System;
 public class ItemSkill
 {
     public ElementalAttribute element;     //속성
-    public int level = 0;           //아이템 레벨 (강화)
-    //public GameObject attackEffect; //공격 시 나오는 효과
+    [SerializeField] private int level = 0;           //아이템 레벨 (강화)
+    public int Level
+    {
+        get { return level; }
+        set
+        {
+            if(level != value)
+            {
+                level = value;
+                OnLevelChanged?.Invoke(level);
+            }
+        }
+    }
+    public event Action<int> OnLevelChanged;
 
     [Header("방어구 속성 저항.. 쓸지 안쓸지 모르겠음")]
     public ElementalAttribute resistance;    //저항 속성
