@@ -38,7 +38,6 @@ public class ItemSkill
     //속성, 레벨, 아이템 등급 적용한 강화 수치
     public float ApplyPower(Item item)
     {
-        Debug.Log(item.itemSkill.ApplyElement(item) * ApplyGradeMultiplier(item));
         return item.itemSkill.ApplyElement(item) * ApplyGradeMultiplier(item);
     }
 

@@ -9,7 +9,7 @@ public class TestCraft : MonoBehaviour
     {
         if (InputManager.InputActions.actions["ESC"].triggered)
         {
-            ItemManager.Instance.AddItemLogic(test);
+            ItemManager.Instance.AddItemLogic(test, 99);
             Debug.Log("ESC");
         }
 

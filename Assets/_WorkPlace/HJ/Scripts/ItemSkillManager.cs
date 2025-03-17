@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -267,32 +268,39 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         ItemSkill skill = item.itemSkill;
         if (skill == null || skill.element == ElementalAttribute.None) return;
 
-        VisualEffect effect = currentItem.GetComponentInChildren<VisualEffect>();
+        VisualEffect effect = currentItem?.GetComponentInChildren<VisualEffect>();
         if (effect == null) return;
 
-        float amount = 0;
-
-        switch (skill.element)
+        if(skill.element == ElementalAttribute.Fire)
         {
-            case ElementalAttribute.Fire:
-                float smoke = (1.2f / 10) * (level + 1);
-                float poision = (125 / 10) * (level + 1);
-                effect.SetFloat("SmokeSize", smoke);
-                effect.SetFloat("PoisonRate", poision);
-                break;
-            case ElementalAttribute.Water:
-                amount = ((30 - 10) / 10) * (level + 1) + 10;
-                effect.SetFloat("GooRate", amount);
-                break;
-            case ElementalAttribute.Electric:
-                amount = (25 / 10) * (level + 1);
-                effect.SetFloat("ElectricityRate", amount);
-                break;
-            case ElementalAttribute.Earth:
-                amount = (50 / 10) * (level + 1);
-                effect.SetFloat("PoisonRate", amount);
-                break;
+            effect.SetFloat("SmokeSize", CalculateValue(1.2f, level));
+            effect.SetFloat("PoisonRate", CalculateValue(125, level));
+            effect.SetFloat("ParticlesRate", CalculateValue(30, level));
         }
+        else if(skill.element == ElementalAttribute.Water)
+        {
+            effect.SetFloat("GooRate", CalculateValue(30 - 10, level) + 10);
+            effect.SetFloat("SmokeRate", CalculateValue(15, level));
+            effect.SetFloat("ParticlesRate", CalculateValue(30, level));
+            effect.SetFloat("ParticlesSpiralRate", CalculateValue(10, level));
+        }
+        else if(skill.element == ElementalAttribute.Electric)
+        {
+            effect.SetFloat("SparksSize", CalculateValue(0.8f, level));
+            effect.SetFloat("SmokeRate", CalculateValue(15, level));
+            effect.SetFloat("ElectricityRate", CalculateValue(25, level));
+        }
+        else if(skill.element == ElementalAttribute.Earth)
+        {
+            effect.SetFloat("PoisonRate", CalculateValue(50, level));
+            effect.SetFloat("SmokeSize", CalculateValue(0.8f, level));
+            effect.SetFloat("ParticlesRate", CalculateValue(30, level));
+        }
+    }
+
+    private float CalculateValue(float maxValue, int level)
+    {
+        return (maxValue / 10) * (level + 1);
     }
 
     //공격 이펙트 실행
