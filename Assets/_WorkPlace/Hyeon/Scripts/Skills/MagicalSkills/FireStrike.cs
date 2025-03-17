@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.ParticleSystem;
 
-public class Flame : MonoBehaviour
+public class FireStrike : MonoBehaviour
 {
-    private ParticleSystem _particleSystem;
-    private List<GameObject> attackedEnemy = new List<GameObject>();
+    //private ParticleSystem _particleSystem;
+    //private List<GameObject> attackedEnemy = new List<GameObject>();
     private Dictionary<GameObject, int> enemyDamageCount = new Dictionary<GameObject, int>();
     public int maxHits = 3;
 
@@ -17,8 +17,8 @@ public class Flame : MonoBehaviour
 
     private void Start()
     {
-        _particleSystem = GetComponent<ParticleSystem>();
-        skills = SkillManager.SkillDatabase.playerSkills[0];
+        //_particleSystem = GetComponent<ParticleSystem>();
+        skills = SkillManager.Instance.GetSkill(EntityType.Player, "FireStrike");
         attribute = skills.attribute;
         damage = skills.currentDamage;
     }
