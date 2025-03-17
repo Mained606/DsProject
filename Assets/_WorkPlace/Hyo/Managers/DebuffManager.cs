@@ -1,20 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DebuffManager : BaseManager<DebuffManager>
 {
     [SerializeField] public List<Debuff> activeDebuffs = new List<Debuff>();
+    private Dictionary<Debuff, Coroutine> debuffCoroutines = new Dictionary<Debuff, Coroutine>();
 
-    public void ApplyDebuff(Debuff debuff)
+    public void ApplyDebuff(Debuff newDebuff)
     {
-        Debug.Log($"적용된 버프: {debuff.GetType().Name} 버프 대상: {debuff.Character.characterName}");
-        StartCoroutine(debuff.ApplyEffect());
-        activeDebuffs.Add(debuff);
+        // 동일한 캐릭터에 같은 유형의 디버프가 있는지 확인
+        Debuff existingDebuff = activeDebuffs.FirstOrDefault(d => 
+            d.Character == newDebuff.Character && 
+            d.GetType() == newDebuff.GetType());
+
+        // 이미 같은 유형의 디버프가 적용되어 있다면 새 디버프를 무시
+        if (existingDebuff != null)
+        {
+            Debug.Log($"{existingDebuff.Character.characterName}에게 이미 {existingDebuff.GetType().Name} 디버프가 적용 중입니다. 새 디버프는 무시됩니다.");
+            return;
+        }
+
+        // 새 디버프 적용
+        Debug.Log($"적용된 버프: {newDebuff.GetType().Name} 버프 대상: {newDebuff.Character.characterName}");
+        Coroutine newCoroutine = StartCoroutine(newDebuff.ApplyEffect());
+        debuffCoroutines[newDebuff] = newCoroutine;
+        activeDebuffs.Add(newDebuff);
     }
 
     public void RemoveDebuff(Debuff debuff)
     {
+        // 코루틴 중지 (필요시)
+        if (debuffCoroutines.TryGetValue(debuff, out Coroutine coroutine))
+        {
+            StopCoroutine(coroutine);
+            debuffCoroutines.Remove(debuff);
+        }
+        
         activeDebuffs.Remove(debuff);
     }
 
@@ -22,8 +45,13 @@ public class DebuffManager : BaseManager<DebuffManager>
     {
         foreach (var debuff in activeDebuffs)
         {
-            StopCoroutine(debuff.ApplyEffect());
+            if (debuffCoroutines.TryGetValue(debuff, out Coroutine coroutine))
+            {
+                StopCoroutine(coroutine);
+            }
         }
+        
+        debuffCoroutines.Clear();
         activeDebuffs.Clear();
     }
 
