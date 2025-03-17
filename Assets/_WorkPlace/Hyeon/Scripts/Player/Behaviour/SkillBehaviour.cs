@@ -121,12 +121,10 @@ public class SkillBehaviour : IBehaviour
                     Transform closestMonster = combat.GetClosestMonster(skillPerceptionRange);
                     if(closestMonster != null)
                     {
-                        Debug.Log("closestMonster가 있음");
                         SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, closestMonster.gameObject);
                     }
                     else
                     {
-                        Debug.Log("closestMonster가 없음");
                         SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, defaultSkillPosition);
                     }
                 }

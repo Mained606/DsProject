@@ -45,15 +45,14 @@ public class DownCut : MonoBehaviour
                         MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
                         if (enemyMonsterData != null)
                         {
-                            CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, hit.transform, true, true, skills);
-                            Debug.Log("일반 스킬 데미지");
+                            CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, hit.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                         }
 
                         // monsterOrBossData가 BossData일 경우 처리
                         BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
                         if (enemyBossData != null)
                         {
-                            CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, hit.transform, true, true, skills);
+                            CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, hit.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                         }
 
 

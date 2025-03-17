@@ -9,6 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4738640149836599582}
+  - component: {fileID: 8292406643885404947}
+  - component: {fileID: 1416199472265641921}
+  - component: {fileID: 5288512077322822514}
   m_Layer: 0
   m_Name: GlacierSpear_VFX
   m_TagString: Untagged
@@ -32,6 +35,65 @@ Transform:
   - {fileID: 5124243815117349765}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8292406643885404947
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6427054387773920157}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 3, y: 2, z: 3}
+  m_Center: {x: 0, y: 0.5, z: 1.5}
+--- !u!65 &1416199472265641921
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6427054387773920157}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 4, y: 3, z: 4}
+  m_Center: {x: 0, y: 1, z: 5}
+--- !u!114 &5288512077322822514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6427054387773920157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66e78f5574ed42948ac992a29b479d3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHits: 3
+  min_col: {fileID: 8292406643885404947}
+  max_col: {fileID: 1416199472265641921}
+  colliderEnabledTime: 0.3
+  colliderDisabledTime: 1
 --- !u!1 &8311051065919705253
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,6 +184,9 @@ VisualEffect:
       - m_Value: {x: 2, y: 2, z: 2, w: 1}
         m_Name: SmokeColor
         m_Overridden: 1
+      - m_Value: {x: 8.607292, y: 16.149765, z: 16.94838, w: 1}
+        m_Name: DebrisColor
+        m_Overridden: 1
     m_Uint:
       m_Array: []
     m_Int:
@@ -142,7 +207,7 @@ VisualEffect:
         m_Overridden: 1
       - m_Value: {fileID: 515981078266422832, guid: f6471d85eb962e448a11b953af7be670, type: 3}
         m_Name: DebrisMesh
-        m_Overridden: 1
+        m_Overridden: 0
     m_Bool:
       m_Array: []
 --- !u!73398921 &8776093817046611363

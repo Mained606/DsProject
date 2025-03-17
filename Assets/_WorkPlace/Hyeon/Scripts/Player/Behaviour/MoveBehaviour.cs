@@ -30,11 +30,13 @@ public class MoveBehaviour : IBehaviour
         PlayerBehaviourManager.Instance.CanBlock = true;
         PlayerBehaviourManager.Instance.CanDodge = true;
         //PlayerBehaviourManager.Instance.CanClimb = true;
+
     }
 
     public void Execute()
     {
         HandleMovement();
+        UpdateMovementSpeed();
     }
 
     public void Exit()
@@ -113,6 +115,16 @@ public class MoveBehaviour : IBehaviour
         {
             canSprint = false;
             controller.isSprinting = false;
+        }
+    }
+
+    private void UpdateMovementSpeed()
+    {
+        if(controller.walkSpeed != walkSpeed)
+        {
+            Debug.Log("플레이어 컨트롤러에서 이벤트 발생");
+            walkSpeed = controller.walkSpeed;
+            sprintSpeed = walkSpeed * 2f;
         }
     }
 }

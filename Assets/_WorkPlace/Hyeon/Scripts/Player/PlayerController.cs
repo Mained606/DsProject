@@ -703,7 +703,7 @@ public class PlayerController : MonoBehaviour
     {
         // 새로운 이동 속도를 반영하는 로직
         walkSpeed = newSpeed;
-
+        sprintSpeed = walkSpeed * 2f;
         // 예: 이동 속도에 따라 애니메이션 속도 조정
     }
     // -------------------------------------------------
