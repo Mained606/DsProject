@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Test_CreateUI : MonoBehaviour
+public class CookingUI : MonoBehaviour
 {
     [SerializeField] private GameObject itemPrefab; // 아이템슬롯 프리팹
     [SerializeField] private Transform itemParent; // 슬롯창
@@ -12,14 +11,28 @@ public class Test_CreateUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] itemInfoTextField; // 텍스트바인딩
     [SerializeField] private Image itemInfoImageField; // 아이템 이미지 바인딩 
 
+    //==========================================================================
+
+  //  [SerializeField] private CookingManager cookingManager; // CookingManager 참조
+    [SerializeField] private Button cancelButton; // 취소 버튼
+    [SerializeField] private Button cookButton; // 요리 시작 버튼
+
+
+
+    //==========================================================================
     private Image iconImage;
     private TextMeshProUGUI itemInfoText;
     private List<Item> craftingMaterials = new(); // 제작재료 리스트
 
-  
+
     private void OnEnable()
     {
-        LoadCraftingMaterials(); 
+        AddButtonListeners();
+        LoadCraftingMaterials();
+    }
+    private void OnDisable()
+    {
+        RemoveButtonListeners();
     }
 
     // 인벤토리에서 제작재료(ItemType.제작재료)만 필터링해서 불러오기
@@ -69,5 +82,26 @@ public class Test_CreateUI : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
+    private void AddButtonListeners()
+    {
+        cancelButton.onClick.RemoveAllListeners();
+        cancelButton.onClick.AddListener(() =>
+        {
+            CookingManager.Instance.ClearIngredients();
+            //  UpdatePotUI();
+        });
 
+        cookButton.onClick.RemoveAllListeners();
+        cookButton.onClick.AddListener(() =>
+        {
+            CookingManager.Instance.Craft();
+            //   UpdatePotUI();
+        });
+    }
+
+    private void RemoveButtonListeners()
+    {
+        cancelButton.onClick.RemoveAllListeners();
+        cookButton.onClick.RemoveAllListeners();
+    }
 }

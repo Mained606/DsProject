@@ -93,6 +93,18 @@ public class CraftManager : MonoBehaviour
 
         Debug.Log("재료 추가됨: " + ingredient.id);
     }
+    // 재료 제거 -> selectedIngredients 초기화 
+    public void ClearIngredients()
+    {
+        foreach (Item ingredient in selectedIngredients)
+        {
+            ItemManager.Instance.AddItemLogic(ingredient.id, ingredient.quantity); // 인벤토리에 다시 추가
+        }
+
+        selectedIngredients.Clear(); // 리스트 비우기
+        Debug.Log("냄비 초기화");
+    }
+
     // 제작 버튼 
     public void Craft()
     {

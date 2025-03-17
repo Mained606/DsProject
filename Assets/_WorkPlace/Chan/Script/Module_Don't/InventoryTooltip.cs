@@ -63,7 +63,9 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+
+    // 기존 인포판넬 로직
+    /*public void OnPointerEnter(PointerEventData eventData)
     {
         if (currentItem.type == ItemType.소모품 && (currentItem.id == condition[0] || currentItem.id == condition[1]))
         {
@@ -77,40 +79,65 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
             textPoint[1].text = currentItem.name;
             textPoint[2].text = currentItem.ToStringTMPro();
         }
-    }
+    }*/
 
-   /* #region 아이템 인포 위치 이동 버전
+    #region 아이템 인포 위치 이동 버전
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (!isEquireSlot && !InventorytooltipWindow.activeSelf)
         {
+            // 특정 아이템(포션 등)에 드래그 가능 컴포넌트 추가
+            if (currentItem.type == ItemType.소모품 && (currentItem.id == condition[0] || currentItem.id == condition[1]))
+            {
+                if (!TryGetComponent(out DraggableItem ditem))
+                {
+                    gameObject.AddComponent<DraggableItem>();
+                }
+            }
+            // 요리재료도 추가
+            if (currentItem.type == ItemType.요리재료)
+            {
+                if (!TryGetComponent(out DraggableItem ditem))
+                {
+                    gameObject.AddComponent<DraggableItem>();
+                }
+            }
+
+            // 툴팁 창 활성화 및 정보 업데이트
             InventorytooltipWindow.SetActive(true);
             ItemImage.sprite = currentItem.sprite;
             textPoint[1].text = currentItem.name;
             textPoint[2].text = currentItem.ToStringTMPro();
-            //  아이템 아이콘 위치 기준으로 툴팁 실행
-            RectTransform itemRect = GetComponent<RectTransform>(); // 현재 아이템 슬롯 위치
-            RectTransform tooltipRect = InventorytooltipWindow.GetComponent<RectTransform>(); //  툴팁 위치
 
-            float offsetX = itemRect.sizeDelta.x + 10f;
-            float offsetY = 0f; // 
+            RectTransform itemRect = GetComponent<RectTransform>();
+            RectTransform tooltipRect = InventorytooltipWindow.GetComponent<RectTransform>();
+            RectTransform canvasRect = tooltipRect.GetComponentInParent<Canvas>().GetComponent<RectTransform>();
 
-            Vector2 tooltipPosition = new Vector2(itemRect.position.x + offsetX, itemRect.position.y + offsetY);
+            // 기본 위치 적용
+            tooltipRect.position = itemRect.position;
 
-            Vector2 anchoredPos;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                InventorytooltipWindow.transform.parent as RectTransform,
-                tooltipPosition,
-                eventData.pressEventCamera,
-                out anchoredPos
-            );
+            // 화면 밖으로 나가는지 체크 후 조정
+            Vector3[] tooltipCorners = new Vector3[4];
+            tooltipRect.GetWorldCorners(tooltipCorners);
 
-            tooltipRect.anchoredPosition = anchoredPos;
+            Vector3[] canvasCorners = new Vector3[4];
+            canvasRect.GetWorldCorners(canvasCorners);
+
+            float tooltipBottomY = tooltipCorners[0].y; // 툴팁 아래쪽 모서리 Y 좌표
+            float canvasBottomY = canvasCorners[0].y; // 캔버스 아래쪽 경계 Y 좌표
+
+            if (tooltipBottomY < canvasBottomY)
+            {
+                Vector3 newPosition = tooltipRect.position;
+                float offset = canvasBottomY - tooltipBottomY; // 부족한 거리 계산
+                newPosition.y += offset; // 캔버스 아래줄과 맞춰서 올리기
+                tooltipRect.position = newPosition;
+            }
         }
     }
 
-    #endregion*/
+    #endregion
 
     public void OnPointerExit(PointerEventData eventData)
     {

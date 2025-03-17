@@ -527,6 +527,7 @@ public class CameraManager : BaseManager<CameraManager>
             case GameSystemState.GameOver:
             case GameSystemState.QuestReview:
             case GameSystemState.PetInteraction:
+            case GameSystemState.Crafting:
                 PlayerVisible(true);
                 HandleUIviewState();
                 break;
