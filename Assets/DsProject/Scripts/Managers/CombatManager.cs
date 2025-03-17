@@ -184,12 +184,16 @@ public class CombatManager : BaseManager<CombatManager>
                 switch (debuffType) 
                 {
                     case ElementalAttribute.Fire:
+                        // debuffValue는 최대 체력의 %로 적용됨
+                        Debug.Log($"화상 디버프 적용: 지속시간 {debuffDuration}초, 매 초마다 최대 체력의 {debuffValue}% 피해");
                         actualDefender.ApplyBurn(debuffDuration, debuffValue);
                         break;
                     case ElementalAttribute.Water:
+                        Debug.Log($"슬로우 디버프 적용: 지속시간 {debuffDuration}초, 이동속도 {debuffValue}% 감소");
                         actualDefender.ApplyFreeze(debuffDuration, debuffValue);
                         break;
                     case ElementalAttribute.Electric:
+                        Debug.Log($"감전 디버프 적용: 지속시간 {debuffDuration}초");
                         actualDefender.ApplyElectrify(debuffDuration);
                         break;
                 }

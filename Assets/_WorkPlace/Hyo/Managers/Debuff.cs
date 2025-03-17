@@ -19,12 +19,12 @@ public abstract class Debuff
 [System.Serializable]
 public class BurnDebuff : Debuff
 {
-    private float damagePerSecond;
+    private float damagePercent; // 최대 체력 대비 데미지 비율 (%)
 
-    public BurnDebuff(float duration, float damagePerSecond, CharacterData character) 
+    public BurnDebuff(float duration, float damagePercent, CharacterData character) 
         : base(duration, character)
     {
-        this.damagePerSecond = damagePerSecond; // 도트 데미지 수치 
+        this.damagePercent = damagePercent; // 도트 데미지 수치 (%)
     }
 
     public override IEnumerator ApplyEffect()
@@ -32,22 +32,40 @@ public class BurnDebuff : Debuff
         float elapsed = 0f;
         while (elapsed < Duration)
         {
-            if (damagePerSecond > 0)
+            if (damagePercent > 0)
             {
-                Character.TakeDamage((int)damagePerSecond);
-                Vector3 targetPosition = Character.instance.transform.position;
-                UIManager.DisplayPopupText(((int)damagePerSecond).ToString(), targetPosition, MessageTag.적_피해);
-                // 사망 여부 확인
+                // 최대 체력 기준으로 데미지 계산
+                int damageAmount = Mathf.RoundToInt(Character.maxHp * (damagePercent / 100f));
+                
+                // 최소 데미지 설정 (너무 작은 데미지는 최소 1로 보장)
+                damageAmount = Mathf.Max(1, damageAmount);
+                
+                Character.TakeDamage(damageAmount);
+                
+                // 기본 null 체크만 유지
+                if (Character.instance != null && Character.instance.gameObject != null)
+                {
+                    Vector3 targetPosition = Character.instance.transform.position;
+                    // 플레이어가 화상 데미지를 받을 때는 플레이어_피해 태그 사용, 몬스터가 화상 데미지를 받을 때는 적_피해 태그 사용
+                    MessageTag messageTag = Character.characterType == CharacterType.Player ? 
+                        MessageTag.플레이어_피해 : MessageTag.적_피해;
+                    UIManager.DisplayPopupText(damageAmount.ToString(), targetPosition, messageTag);
+                }
+                
+                // 사망 여부 확인 - 간결하게 유지
                 if (Character.currentHp <= 0)
                 {
-                    CombatManager.Instance.CheckAndHandleDeath(Character, Character.instance.transform, Character.characterType != CharacterType.Player);
+                    Transform targetTransform = (Character.instance != null && Character.instance.gameObject != null) 
+                        ? Character.instance.transform 
+                        : null;
+                    CombatManager.Instance.CheckAndHandleDeath(Character, targetTransform, Character.characterType != CharacterType.Player);
                     DebuffManager.Instance.RemoveDebuff(this);
                     yield break; // 사망 시 코루틴 종료
                 }
             }
             else
             {
-                Debug.LogWarning("damagePerSecond 값이 0입니다.");
+                Debug.LogWarning("damagePercent 값이 0입니다.");
             }
             elapsed += 1f;
             yield return new WaitForSeconds(1f);
