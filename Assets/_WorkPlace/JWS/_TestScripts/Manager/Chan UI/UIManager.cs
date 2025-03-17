@@ -33,6 +33,7 @@ public class UIManager : BaseManager<UIManager>
     
     // 03.13 C
     [SerializeField] private GameObject cookingUI;
+    [SerializeField] private GameObject skillUI;
 
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -51,6 +52,7 @@ public class UIManager : BaseManager<UIManager>
 
     // 03.13 C
     public static CookingUI CookingUI;
+    public static SkillUI SkillUI;
 
     // ========== 250312 SH 추가 ==========
     public static SkillsUI SkillsQuickSlot;
@@ -79,6 +81,7 @@ public class UIManager : BaseManager<UIManager>
 
         // 03.13 C
         cookingUI.SetActive(false);
+        skillUI.SetActive(false);
 
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
@@ -89,6 +92,7 @@ public class UIManager : BaseManager<UIManager>
 
         // 03.13 C 
         CookingUI = cookingUI.GetComponent<CookingUI>();
+        SkillUI = skillUI.GetComponent<SkillUI>();
     }
 
     private void Update()
@@ -187,6 +191,13 @@ public class UIManager : BaseManager<UIManager>
     public void ToggleCookingUIWindow()
     {
         cookingUI.gameObject.SetActive(!cookingUI.gameObject.activeSelf);
+        mainCanvas.SetActive(!mainCanvas.activeSelf);
+        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
+        quickSlot.SetActive(true);
+    }
+    public void ToggleSkillUIWindow()
+    {
+        skillUI.gameObject.SetActive(!cookingUI.gameObject.activeSelf);
         mainCanvas.SetActive(!mainCanvas.activeSelf);
         MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(true);
@@ -458,6 +469,7 @@ public class UIManager : BaseManager<UIManager>
 
         // 03.13 C
         cookingUI.gameObject.SetActive(false);
+        skillUI.gameObject.SetActive(false);
 
         if (InventorytooltipWindow.activeSelf)
         {
@@ -530,6 +542,9 @@ public class UIManager : BaseManager<UIManager>
 
             case GameSystemState.Cook:
                 ToggleCookingUIWindow();
+                break;
+            case GameSystemState.Skill:
+                ToggleSkillUIWindow();
                 break;
         }
         #endregion

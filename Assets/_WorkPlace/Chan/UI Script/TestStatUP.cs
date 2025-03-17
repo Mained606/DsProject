@@ -160,7 +160,7 @@ public class TestStatUP : MonoBehaviour
     // strengthUIText.text = previewStrength.ToString();
     
     // 예: 선택한 스킬의 미리보기 레벨을 가져와서 UI에 표시
-    // int previewSkillLevel = playerData.GetPreviewSkillLevel(selectedSkill);
+   // int previewSkillLevel = playerData.GetPreviewSkillLevel(selectedSkill);
     // skillLevelUIText.text = previewSkillLevel.ToString();
 
 }

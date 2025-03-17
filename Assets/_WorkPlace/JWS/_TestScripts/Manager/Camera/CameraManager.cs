@@ -528,6 +528,7 @@ public class CameraManager : BaseManager<CameraManager>
             case GameSystemState.QuestReview:
             case GameSystemState.PetInteraction:
             case GameSystemState.Cook:
+            case GameSystemState.Skill:
                 PlayerVisible(true);
                 HandleUIviewState();
                 break;

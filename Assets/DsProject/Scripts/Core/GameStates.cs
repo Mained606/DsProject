@@ -16,6 +16,7 @@ public enum GameSystemState
     StatusUI,
     Craft,         // 제작
     Cook,          // 요리
+    Skill,
     Shopping,         // 쇼핑
     PetInteraction,   // 펫 상호작용
     Training,         // 훈련 모드

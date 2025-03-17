@@ -92,7 +92,14 @@ public class CraftManager : MonoBehaviour
         selectedIngredients.Add(ingredient);
 
         Debug.Log("재료 추가됨: " + ingredient.id);
+        //===============================================
+        foreach (var item in selectedIngredients)
+        {
+            Debug.Log($"아이템: {item.name}, 개수: {item.quantity}");
+        }
+
     }
+
     // 재료 제거 -> selectedIngredients 초기화 
     public void ClearIngredients()
     {

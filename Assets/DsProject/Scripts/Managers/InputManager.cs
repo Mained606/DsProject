@@ -25,6 +25,7 @@ public class InputManager : BaseManager<InputManager>
         InputActions.actions["ESC"].performed += OnMainMenu;
         InputActions.actions["Craft"].performed += OnCrafting;
         InputActions.actions["Cook"].performed += OnCooking;
+        InputActions.actions["Skill"].performed += OnSkill;
         #endregion
     }
 
@@ -123,6 +124,22 @@ public class InputManager : BaseManager<InputManager>
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.Cook);
             Debug.Log("Cooking 상태로 전환됨.");
+        }
+        else
+        {
+            Debug.Log("I 1");
+
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+
+    private void OnSkill(InputAction.CallbackContext context)
+    {
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Skill)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Skill);
+            Debug.Log("Skill 상태로 전환됨.");
         }
         else
         {
