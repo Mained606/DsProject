@@ -12,6 +12,12 @@ public class ItemSkill
 {
     public ElementalAttribute element;     //속성
     public int level = 0;           //아이템 레벨 (강화)
+
+    // 2025.03.16 HYO 추가 ---------
+    public float debuffDuration;
+    public float debuffValue;
+    // ----------------------------
+    
     //public GameObject attackEffect; //공격 시 나오는 효과
 
     [Header("방어구 속성 저항.. 쓸지 안쓸지 모르겠음")]
@@ -88,6 +94,10 @@ public class ItemSkill
 
         newSkill.element = this.element;
         newSkill.level = this.level;
+        // 2025.03.16 HYO 추가 ---------------------------
+        newSkill.debuffDuration = this.debuffDuration;
+        newSkill.debuffValue = this.debuffValue;
+        // -----------------------------------------------
 
         return newSkill;
     }
