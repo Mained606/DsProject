@@ -211,7 +211,7 @@ public class CombatManager : BaseManager<CombatManager>
             }
 
             // 디버프 적용 로직
-            if (isPlayerAttacking) 
+            if (isPlayerAttacking && skills == null) 
             {
                 // 플레이어의 경우 아이템 스킬 매니저 사용
                 Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
