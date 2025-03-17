@@ -578,17 +578,15 @@ public class BaseBossAI : MonoBehaviour
     protected virtual void HandleTakeDamage(Transform attacker)
     {
         // 플레이어가 공격하면 플레이어 타겟 지정
-        if (attacker.CompareTag("Player"))
+        if (attacker != null && attacker.CompareTag("Player"))
         {
             playerTarget = attacker;
         }
-
-        // 이부분은 불필요. 플레이어를 강제로 재설정하면 데미지가 이상해짐.
-        //else
-        //{
-        //    // 만약 attacker가 플레이어가 아니라면, 올바른 플레이어 참조(예: GameManager.playerTransform)로 설정
-        //    playerTarget = GameManager.playerTransform;
-        //}
+        // attacker가 null이면 기본적으로 GameManager의 playerTransform 사용
+        else if (attacker == null && GameManager.playerTransform != null)
+        {
+            playerTarget = GameManager.playerTransform;
+        }
 
         // 보스 배틀 상태가 아니라면 전환
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)

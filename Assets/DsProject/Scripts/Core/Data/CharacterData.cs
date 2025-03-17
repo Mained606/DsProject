@@ -350,7 +350,14 @@ public class CharacterData : ISheetData
     public void TakeDamage(int damage, Transform attacker = null)
     {
         currentHp = Mathf.Max(0, currentHp - damage);
-        CameraManager.Instance.StartCameraShake();
+        
+        // CameraManager null 체크 유지
+        if (CameraManager.Instance != null)
+        {
+            CameraManager.Instance.StartCameraShake();
+        }
+        
+        // OnTakeDamage 이벤트 호출 (null 체크 사용)
         OnTakeDamage?.Invoke(attacker);
     }
 
