@@ -33,6 +33,7 @@ public class Skills : ISheetData
 
     // 스킬 잠금 해제 확인
     public bool unLockSkill = false;
+    public bool targeting = false;
 
     public float debuffDuration;        // 디버프 지속시간
     public float debuffValue;           // 디버프 효과 수치 (화상 데미지, 이동속도 감소율 등)

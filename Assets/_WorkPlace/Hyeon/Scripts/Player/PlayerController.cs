@@ -679,6 +679,12 @@ public class PlayerController : MonoBehaviour
             isHit = false;
             return;
         }
+        else if (isUseSkill)
+        {
+            isHit = true;
+            playerAnimator.ResetTrigger("Hit");
+            return;
+        }
         else
         {
             isHit = true;

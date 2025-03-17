@@ -8875,6 +8875,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1923360659147011416}
+  - {fileID: 4981706120595524214}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3749553289701753187
@@ -8939,6 +8940,7 @@ MonoBehaviour:
     availableSkillPoints: 0
     availableStatPoints: 0
     attribute: 0
+    isStunned: 0
     skills: []
     gold: 0
   playerCombat: {fileID: 0}
@@ -9715,6 +9717,7 @@ GameObject:
   - component: {fileID: 5264475562808799088}
   - component: {fileID: 5429668476682211760}
   - component: {fileID: 7332189938541755886}
+  - component: {fileID: 5913819692873056199}
   m_Layer: 3
   m_Name: pico_chan_chr_pico_00
   m_TagString: Untagged
@@ -9778,6 +9781,28 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
 --- !u!114 &7332189938541755886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6949841579525280964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81f7e4244ac5b4543b98b60cc42f066b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerAnimator: {fileID: 0}
+  LayerMask:
+    serializedVersion: 2
+    m_Bits: 1074791927
+  leftToe: {fileID: 6390966915643974288}
+  rightToe: {fileID: 6547908796282360596}
+  leftHandOffset: {x: 0, y: 0, z: 0}
+  rightHandOffset: {x: 0, y: 0, z: 0}
+  DistanceToGround: 0.22
+  DistanceToWall: 0
+--- !u!114 &5913819692873056199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10781,6 +10806,37 @@ MonoBehaviour:
   toolTag: 
   effectScale: {x: 0, y: 0, z: 0}
   elementMaterials: []
+--- !u!1 &8716749379197681513
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4981706120595524214}
+  m_Layer: 3
+  m_Name: DefaultSkillPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4981706120595524214
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8716749379197681513}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5890909718689673670}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8807987840144512144
 GameObject:
   m_ObjectHideFlags: 0
