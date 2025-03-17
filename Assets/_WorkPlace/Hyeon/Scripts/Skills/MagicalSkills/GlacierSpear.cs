@@ -34,7 +34,6 @@ public class GlacierSpear : MonoBehaviour
     {
         if (enabledTimer >= colliderEnabledTime && !flag)
         {
-            Debug.Log("큰 콜라이더 켜짐");
             max_col.enabled = true;
             flag = true;
         }
@@ -45,7 +44,6 @@ public class GlacierSpear : MonoBehaviour
 
         if(disabledTimer >= colliderDisabledTime)
         {
-            Debug.Log("콜라이더 모두 꺼짐");
             min_col.enabled = false;
             max_col.enabled = false;
         }
@@ -79,13 +77,13 @@ public class GlacierSpear : MonoBehaviour
                 MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
                 if (enemyMonsterData != null)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, true, skills);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                     return;
                 }
                 BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
                 if (enemyBossData != null)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, true, skills);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                 }
             }
         }

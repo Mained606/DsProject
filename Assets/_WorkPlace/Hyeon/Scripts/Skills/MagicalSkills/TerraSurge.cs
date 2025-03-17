@@ -58,13 +58,13 @@ public class TerraSurge : MonoBehaviour
                 MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
                 if (enemyMonsterData != null)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, true, skills);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                     return;
                 }
                 BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
                 if (enemyBossData != null)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, true, skills);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                 }
             }
         }
