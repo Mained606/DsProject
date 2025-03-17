@@ -125,7 +125,12 @@ public class SkillManager : BaseManager<SkillManager>
             if (playerController != null)
             {
                 playerController.isUseSkill = true;
-                target = GameManager.playerTransform.gameObject;
+                // =========== 250317 SH 추가 ==========
+                // target이 null로 들어왔을 때만 player target을 player로 설정하도록
+                if(target == null)
+                {
+                    target = GameManager.playerTransform.gameObject;
+                }
             }
         }
 
