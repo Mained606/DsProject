@@ -1,36 +1,57 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TerraSurge : MonoBehaviour
+public class GlacierSpear : MonoBehaviour
 {
     private Skills skills;
 
     private Dictionary<Collider, int> enemyDamageCount = new Dictionary<Collider, int>();
     [SerializeField] private int maxHits = 3;
 
-    private Collider col;
-    [SerializeField] private float colliderEnabledTime = 1f;
-    private float timer = 0f;
+    [SerializeField] private Collider min_col;
+    [SerializeField] private Collider max_col;
+    [SerializeField] private float colliderEnabledTime = 0.5f;
+    [SerializeField] private float colliderDisabledTime = 1f;
+    private float enabledTimer = 0f;
+    private float disabledTimer = 0f;
+
+    private bool flag = false;
 
     private void Start()
     {
-        skills = SkillManager.Instance.GetSkill(EntityType.Player, "TerraSurge");
-        col = GetComponent<BoxCollider>();
-        if(!col.enabled)
+        skills = SkillManager.Instance.GetSkill(EntityType.Player, "GlacierSpear");
+        if (!min_col.enabled)
         {
-            col.enabled = true;
+            min_col.enabled = true;
+        }
+        if(max_col.enabled)
+        {
+            max_col.enabled = false;
         }
     }
 
     private void Update()
     {
-        if(timer < colliderEnabledTime)
+        if (enabledTimer >= colliderEnabledTime && !flag)
         {
-            timer += Time.deltaTime;
+            Debug.Log("큰 콜라이더 켜짐");
+            max_col.enabled = true;
+            flag = true;
         }
         else
         {
-            col.enabled = false;
+            enabledTimer += Time.deltaTime;
+        }
+
+        if(disabledTimer >= colliderDisabledTime)
+        {
+            Debug.Log("콜라이더 모두 꺼짐");
+            min_col.enabled = false;
+            max_col.enabled = false;
+        }
+        else
+        {
+            disabledTimer += Time.deltaTime;
         }
     }
 
