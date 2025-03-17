@@ -13,10 +13,11 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
     private List<ElementalEffect> activeEffects = new List<ElementalEffect>();
     private Dictionary<ElementalEffect, Coroutine> effectCoroutines = new Dictionary<ElementalEffect, Coroutine>();
     
-    private void Awake()
+    protected override void Awake()
     {
-        // Instance = this; // BaseManager에서 이미 처리됨
+        base.Awake(); // 부모 구현을 호출하여 Instance 설정
         Debug.Log("ElementalEffectManager 초기화됨");
+        Debug.Log($"ElementalEffectManager Awake 호출됨, Instance: {Instance != null}");
     }
     
     // 다른 스크립트에서 ElementalEffectManager 얻기 위한 헬퍼 메서드
@@ -27,7 +28,9 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
             GameObject managerObject = new GameObject("ElementalEffectManager");
             managerObject.AddComponent<ElementalEffectManager>();
             Debug.Log("ElementalEffectManager 자동 생성됨");
+            Debug.Log($"ElementalEffectManager.EnsureExists 호출됨, Instance 이전: {Instance != null}");
             DontDestroyOnLoad(managerObject);
+            Debug.Log($"ElementalEffectManager.EnsureExists 객체 생성 후, Instance: {Instance != null}");
         }
     }
     
