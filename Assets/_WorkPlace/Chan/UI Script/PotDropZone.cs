@@ -14,7 +14,7 @@ public class PotDropZone : MonoBehaviour, IDropHandler
         if (droppedItem == null || droppedItem.type != ItemType.요리재료) return;
 
         CookingManager.Instance.AddIngredient(droppedItem); // CookingManager에 재료 추가
-
-        
+        draggableItem.DestroyDragImage();
+        UIManager.CookingUI.UpdateUI();
     }
 }

@@ -23,7 +23,8 @@ public class InputManager : BaseManager<InputManager>
         InputActions.actions["Quest"].performed += OnQuestReview;
         InputActions.actions["StatusUI"].performed += OnStatKey;
         InputActions.actions["ESC"].performed += OnMainMenu;
-        InputActions.actions["Cooking"].performed += OnCooking;
+        InputActions.actions["Craft"].performed += OnCrafting;
+        InputActions.actions["Cook"].performed += OnCooking;
         #endregion
     }
 
@@ -97,14 +98,15 @@ public class InputManager : BaseManager<InputManager>
         }
 
     }
-    // 03.13 C
-    private void OnCraftinging(InputAction.CallbackContext context)
+
+    #region 03.17 C
+    private void OnCrafting(InputAction.CallbackContext context)
     {
         // 상태를 Crafting으로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.Cooking)
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Craft)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Cooking);
-            Debug.Log("Cooking 상태로 전환됨.");
+            GameStateMachine.Instance.ChangeState(GameSystemState.Craft);
+            Debug.Log("Crafting 상태로 전환됨.");
         }
 
         else
@@ -115,16 +117,13 @@ public class InputManager : BaseManager<InputManager>
             Debug.Log("MainMenu 상태로 복귀됨.");
         }
     }
-
     private void OnCooking(InputAction.CallbackContext context)
     {
-        // 상태를 Crafting으로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.Cooking)
+        if(GameStateMachine.Instance.CurrentState != GameSystemState.Cook)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Cooking);
+            GameStateMachine.Instance.ChangeState(GameSystemState.Cook);
             Debug.Log("Cooking 상태로 전환됨.");
         }
-
         else
         {
             Debug.Log("I 1");
@@ -133,6 +132,7 @@ public class InputManager : BaseManager<InputManager>
             Debug.Log("MainMenu 상태로 복귀됨.");
         }
     }
+    #endregion
 
     private void OnQuestReview(InputAction.CallbackContext context)
     {

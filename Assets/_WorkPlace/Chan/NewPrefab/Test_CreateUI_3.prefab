@@ -387,6 +387,7 @@ GameObject:
   - component: {fileID: 564770358798359914}
   - component: {fileID: 8347411339436224969}
   - component: {fileID: 3888538377630659860}
+  - component: {fileID: 2961414038767678142}
   m_Layer: 5
   m_Name: INPUT
   m_TagString: Untagged
@@ -411,7 +412,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 9.781, y: 199.92102}
-  m_SizeDelta: {x: -883.9, y: -1048.247}
+  m_SizeDelta: {x: -840.214, y: -969.613}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8347411339436224969
 CanvasRenderer:
@@ -451,6 +452,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2961414038767678142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4358645263953702229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8ad875e728ebbb4bae3fd7df0cc0110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4681128496115003693
 GameObject:
   m_ObjectHideFlags: 0
@@ -564,11 +577,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8356a8700105c2c4f8a1417175b5c520, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 0}
-  itemParent: {fileID: 0}
+  itemPrefab: {fileID: 2121023502515780399, guid: ed7db5e07605afc4ab05cdb45921a3b0, type: 3}
+  itemParent: {fileID: 9013062917247686320}
   itemInfoObject: {fileID: 0}
-  itemInfoTextField: []
+  itemInfoTextField:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   itemInfoImageField: {fileID: 0}
+  cancelButton: {fileID: 7438540953087418315}
+  cookButton: {fileID: 5256305641429758054}
 --- !u!1 &4728855169634496209
 GameObject:
   m_ObjectHideFlags: 0
@@ -1258,7 +1276,7 @@ GameObject:
   - component: {fileID: 4165982693060333316}
   - component: {fileID: 5256305641429758054}
   m_Layer: 5
-  m_Name: Check_Button
+  m_Name: Cook_Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

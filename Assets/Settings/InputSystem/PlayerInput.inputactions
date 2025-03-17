@@ -213,9 +213,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Cooking",
+                    "name": "Craft",
                     "type": "Button",
-                    "id": "2d682085-4faf-45bd-abe9-2d91f88d793b",
+                    "id": "51186962-b02b-4bcd-8255-47e793027603",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Cook",
+                    "type": "Button",
+                    "id": "ae86e620-f2cc-478c-997b-8d24820ebe0a",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -819,12 +828,23 @@
                 },
                 {
                     "name": "",
-                    "id": "c03d784b-b154-467c-a11f-b063f48d3e1e",
+                    "id": "c518471d-27c8-4cc4-9312-efb8f4da152a",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Craft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7ca57315-79f3-4fec-b4ca-e90982057083",
                     "path": "<Keyboard>/g",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "Cooking",
+                    "action": "Cook",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

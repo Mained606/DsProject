@@ -458,6 +458,7 @@ public class UIManager : BaseManager<UIManager>
 
         // 03.13 C
         cookingUI.gameObject.SetActive(false);
+
         if (InventorytooltipWindow.activeSelf)
         {
             InventorytooltipWindow.SetActive(false);
@@ -527,7 +528,7 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.Exploration:
                 break;
 
-            case GameSystemState.Cooking:
+            case GameSystemState.Cook:
                 ToggleCookingUIWindow();
                 break;
         }

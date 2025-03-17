@@ -23,7 +23,7 @@ public class CookingUI : MonoBehaviour
     private Image iconImage;
     private TextMeshProUGUI itemInfoText;
     private List<Item> craftingMaterials = new(); // 제작재료 리스트
-
+    private List<Item> previousMaterials = new(); // 이전 UI 상태 비교용 리스트
 
     private void OnEnable()
     {
@@ -34,7 +34,7 @@ public class CookingUI : MonoBehaviour
     {
         RemoveButtonListeners();
     }
-
+   
     // 인벤토리에서 제작재료(ItemType.제작재료)만 필터링해서 불러오기
     private void LoadCraftingMaterials()
     {
@@ -49,14 +49,22 @@ public class CookingUI : MonoBehaviour
                 craftingMaterials.Add(item);
             }
         }
-
-        UpdateUI();
+        // 데이터 변경 확인 후 UI 업데이트
+        if (!AreListsEqual(previousMaterials, craftingMaterials))
+        {
+            UpdateUI();
+            previousMaterials = new List<Item>(craftingMaterials);
+        }
     }
 
     // UI 업데이트 (제작재료만 표시)
-    private void UpdateUI()
+    public void UpdateUI()
     {
+
         ClearUI();
+
+        // 현재 인벤토리에 있는 아이템만 craftingMaterials 리스트에 유지
+        craftingMaterials = craftingMaterials.FindAll(item => InventoryManager.Instance.HasItem(item.id));
 
         foreach (var item in craftingMaterials)
         {
@@ -82,20 +90,21 @@ public class CookingUI : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
+
     private void AddButtonListeners()
     {
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(() =>
         {
             CookingManager.Instance.ClearIngredients();
-            //  UpdatePotUI();
+            LoadCraftingMaterials(); //  요리 재료 목록 다시 불러오기
         });
 
         cookButton.onClick.RemoveAllListeners();
         cookButton.onClick.AddListener(() =>
         {
             CookingManager.Instance.Craft();
-            //   UpdatePotUI();
+            LoadCraftingMaterials(); // 요리 완료 후 재료 갱신
         });
     }
 
@@ -103,5 +112,17 @@ public class CookingUI : MonoBehaviour
     {
         cancelButton.onClick.RemoveAllListeners();
         cookButton.onClick.RemoveAllListeners();
+    }
+
+    // 두 리스트의 아이템을 비교하여 변경된 사항이 있는지 확인
+    private bool AreListsEqual(List<Item> listA, List<Item> listB)
+    {
+        if (listA.Count != listB.Count) return false;
+        for (int i = 0; i < listA.Count; i++)
+        {
+            if (listA[i].id != listB[i].id || listA[i].quantity != listB[i].quantity)
+                return false;
+        }
+        return true;
     }
 }

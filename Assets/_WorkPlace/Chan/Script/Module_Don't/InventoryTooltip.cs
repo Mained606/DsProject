@@ -175,7 +175,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         }
 
         //03.12 HJ 추가
-        InventoryManager.Instance.SetSelectedItem(currentItem);
+      //  InventoryManager.Instance.SetSelectedItem(currentItem);
     }
 
     private void HandleDoubleClick(PointerEventData eventData)
