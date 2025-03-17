@@ -9,7 +9,6 @@ public class DownCut : MonoBehaviour
 
     [SerializeField] private float attackRange = 5f;
     [SerializeField] private int maxTargets = 5;
-    private float heightOffset = 2f;
     [SerializeField] private LayerMask layer;
     private float timer = 0f;
     private bool alreadyAttack = false;

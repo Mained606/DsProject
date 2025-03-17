@@ -6,8 +6,8 @@ public class ClimbBehaviour : MonoBehaviour, IBehaviour
     private PlayerController controller;
     private Animator animator;
 
-    private IKTest playerIK;
-    private float bodyOffset = 0.3f;
+    //private IKTest playerIK;
+    //private float bodyOffset = 0.3f;
 
     private float detectionRange = 2f;
     private float climbSpeed;
@@ -29,7 +29,7 @@ public class ClimbBehaviour : MonoBehaviour, IBehaviour
     {
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
         animator = controller.PlayerAnimator;
-        playerIK = controller.GetComponentInChildren<IKTest>();
+        //playerIK = controller.GetComponentInChildren<IKTest>();
         layer = ~LayerMask.GetMask("Ds Player");
     }
     public void Enter()
