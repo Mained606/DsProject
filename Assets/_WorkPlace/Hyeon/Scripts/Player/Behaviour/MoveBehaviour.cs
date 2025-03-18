@@ -13,6 +13,7 @@ public class MoveBehaviour : IBehaviour
     private float currentStamina;
 
     private Vector2 moveInput;
+    private bool exiting = false;
 
     public MoveBehaviour()
     {
@@ -25,6 +26,8 @@ public class MoveBehaviour : IBehaviour
     public void Enter()
     {
         controller.isMove = false;
+        controller.isSprinting = false;
+        animator.SetFloat("Speed", 0);
         PlayerBehaviourManager.Instance.CanAttack = true;
         PlayerBehaviourManager.Instance.CanUseSkill = true;
         PlayerBehaviourManager.Instance.CanBlock = true;
@@ -35,13 +38,18 @@ public class MoveBehaviour : IBehaviour
 
     public void Execute()
     {
+        if (exiting) return;
+
         HandleMovement();
         UpdateMovementSpeed();
     }
 
     public void Exit()
     {
+        exiting = true;
         controller.isMove = false;
+        controller.isSprinting = false;
+        animator.SetFloat("Speed", 0);
     }
 
     private void HandleMovement()
