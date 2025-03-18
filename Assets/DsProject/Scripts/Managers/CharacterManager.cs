@@ -132,9 +132,15 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.stamina = 100f;
         PlayerCharacterData.staminaRecoveryRate = 0.1f;
         PlayerCharacterData.mpRecoveryRate = 1;
+        
+        // 버프 및 장비 효과 초기화
         PlayerCharacterData.physicalDamageBuffMultiplier = 1.0f;
         playercharacterData.magicDamageBuffMultiplier = 1.0f;
         playercharacterData.hpBuffBonus = 0;
+        
+        // 장비 보너스 명시적으로 0으로 초기화
+        PlayerCharacterData.equipmentPhysicalBonus = 0f;
+        PlayerCharacterData.equipmentMagicBonus = 0f;
         
         // 파생 스탯 계산
         PlayerCharacterData.UpdateDerivedStats();
@@ -180,7 +186,34 @@ public class CharacterManager : BaseManager<CharacterManager>
         dragonData.bondExperience = 0;
         dragonData.bondThresholds = new[] { 100, 200, 300, 400, 500 }; // 유대 경험치 필요값 설정
         
+        // DragonData의 UpdateDerivedStats 호출 후, 플레이어 스탯이 변경되지 않는지 확인하기 위해
+        // 먼저 플레이어의 물리 및 마법 데미지 값을 백업
+        float originalPlayerPhysicalDamage = PlayerCharacterData.physicalDamage;
+        float originalPlayerMagicDamage = PlayerCharacterData.magicDamage;
+        float originalPlayerPhysicalMultiplier = PlayerCharacterData.physicalDamageBuffMultiplier;
+        float originalPlayerMagicMultiplier = PlayerCharacterData.magicDamageBuffMultiplier;
+        
+        // 드래곤 데이터 갱신
         dragonData.UpdateDerivedStats();
+        
+        // 플레이어의 스탯 값이 변경되었는지 확인하고, 변경되었다면 원래 값으로 복원
+        if (PlayerCharacterData.physicalDamage != originalPlayerPhysicalDamage || 
+            PlayerCharacterData.magicDamage != originalPlayerMagicDamage ||
+            PlayerCharacterData.physicalDamageBuffMultiplier != originalPlayerPhysicalMultiplier ||
+            PlayerCharacterData.magicDamageBuffMultiplier != originalPlayerMagicMultiplier)
+        {
+            // 원래 값으로 복원
+            PlayerCharacterData.physicalDamage = originalPlayerPhysicalDamage;
+            PlayerCharacterData.magicDamage = originalPlayerMagicDamage;
+            PlayerCharacterData.physicalDamageBuffMultiplier = originalPlayerPhysicalMultiplier;
+            PlayerCharacterData.magicDamageBuffMultiplier = originalPlayerMagicMultiplier;
+            
+            // 플레이어 스탯 재계산
+            PlayerCharacterData.UpdateDerivedStats();
+            
+            Debug.LogWarning("드래곤 초기화 중 플레이어 스탯이 변경되어 원래 값으로 복원되었습니다.");
+        }
+        
         Debug.Log("드래곤 초기화 완료: " + dragonData.characterName);
     }
 

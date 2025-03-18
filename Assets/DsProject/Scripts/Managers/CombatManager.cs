@@ -348,12 +348,16 @@ public class CombatManager : BaseManager<CombatManager>
         if (isMagicAttack)
         {
             // 마법 공격 처리 + 플레이어 데미지의 10%
-            damage = (dragonData.magicDamage + CharacterManager.PlayerCharacterData.magicDamage * 0.1f) * (1 - targetData.magicDamageReduction);
+            // 복사본을 사용하여 원본 데이터를 변경하지 않음
+            float playerMagicDamageBonus = CharacterManager.PlayerCharacterData.magicDamage * 0.1f;
+            damage = (dragonData.magicDamage + playerMagicDamageBonus) * (1 - targetData.magicDamageReduction);
         }
         else
         {
             // 물리 공격 처리 용 데미지 + 플레이어 데미지의 10%
-            damage = (dragonData.physicalDamage + CharacterManager.PlayerCharacterData.physicalDamage * 0.1f) * (1 - targetData.physicalDamageReduction);
+            // 복사본을 사용하여 원본 데이터를 변경하지 않음
+            float playerPhysicalDamageBonus = CharacterManager.PlayerCharacterData.physicalDamage * 0.1f;
+            damage = (dragonData.physicalDamage + playerPhysicalDamageBonus) * (1 - targetData.physicalDamageReduction);
         }
         
         // 스킬 배율이 있을 때만 적용 (배율이 없으면 기본값 1을 사용)
