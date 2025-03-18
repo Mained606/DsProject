@@ -65,13 +65,86 @@ public class DragonController : MonoBehaviour
 
     private void OnEnable()
     {
+        // CharacterManager와 PlayerCharacterData가 초기화되었는지 확인
+        if (CharacterManager.Instance == null || CharacterManager.PlayerCharacterData == null)
+        {
+            Debug.LogWarning("[DragonController] CharacterManager 또는 PlayerCharacterData가 초기화되지 않았습니다.");
+            // 필요한 경우 여기서 초기화 코드 추가
+            return;
+        }
+
+        // 플레이어의 원래 데미지 값 백업
+        float originalPlayerPhysicalDamage = CharacterManager.PlayerCharacterData.physicalDamage;
+        float originalPlayerMagicDamage = CharacterManager.PlayerCharacterData.magicDamage;
+        float originalPlayerPhysicalMultiplier = CharacterManager.PlayerCharacterData.physicalDamageBuffMultiplier;
+        float originalPlayerMagicMultiplier = CharacterManager.PlayerCharacterData.magicDamageBuffMultiplier;
+        
+        // 드래곤 Transform 설정
         GameManager.DragonTransform = transform;
+        
+        // 활성화 후 플레이어 스탯이 변경되었는지 확인 (1프레임 후 체크를 위해 코루틴 사용)
+        StartCoroutine(CheckAndRestorePlayerStats(
+            originalPlayerPhysicalDamage, 
+            originalPlayerMagicDamage, 
+            originalPlayerPhysicalMultiplier, 
+            originalPlayerMagicMultiplier
+        ));
+    }
+    
+    // 플레이어 스탯 확인 및 복원 코루틴
+    private IEnumerator CheckAndRestorePlayerStats(
+        float originalPhysicalDamage, 
+        float originalMagicDamage, 
+        float originalPhysicalMultiplier, 
+        float originalMagicMultiplier)
+    {
+        // 1프레임 대기 (드래곤 활성화 처리가 완료될 때까지)
+        yield return null;
+        
+        // PlayerCharacterData가 유효한지 재확인
+        if (CharacterManager.Instance == null || CharacterManager.PlayerCharacterData == null)
+        {
+            Debug.LogWarning("[DragonController] CheckAndRestorePlayerStats: CharacterManager 또는 PlayerCharacterData가 null입니다.");
+            yield break;
+        }
+        
+        // 플레이어 스탯이 변경되었는지 확인
+        if (CharacterManager.PlayerCharacterData.physicalDamage != originalPhysicalDamage || 
+            CharacterManager.PlayerCharacterData.magicDamage != originalMagicDamage ||
+            CharacterManager.PlayerCharacterData.physicalDamageBuffMultiplier != originalPhysicalMultiplier ||
+            CharacterManager.PlayerCharacterData.magicDamageBuffMultiplier != originalMagicMultiplier)
+        {
+            // 원래 값으로 복원
+            CharacterManager.PlayerCharacterData.physicalDamage = originalPhysicalDamage;
+            CharacterManager.PlayerCharacterData.magicDamage = originalMagicDamage;
+            CharacterManager.PlayerCharacterData.physicalDamageBuffMultiplier = originalPhysicalMultiplier;
+            CharacterManager.PlayerCharacterData.magicDamageBuffMultiplier = originalMagicMultiplier;
+            
+            // 플레이어 스탯 재계산
+            CharacterManager.PlayerCharacterData.UpdateDerivedStats();
+            
+            Debug.LogWarning("드래곤 활성화 중 플레이어 스탯이 변경되어 원래 값으로 복원되었습니다.");
+        }
     }
 
     private void Start()
     {
+        // CharacterManager 확인
+        if (CharacterManager.Instance == null)
+        {
+            Debug.LogError("[DragonController] CharacterManager.Instance가 null입니다.");
+            return;
+        }
+
         // 기존 설정
         dragonData = CharacterManager.DragonData;
+
+        // PlayerCharacterData 확인
+        if (CharacterManager.PlayerCharacterData == null)
+        {
+            Debug.LogError("[DragonController] CharacterManager.PlayerCharacterData가 null입니다.");
+            return;
+        }
 
         player = GameManager.playerTransform; // 플레이어 Transform 가져오기
         animator = GetComponent<Animator>();  // 애니메이터 가져오기
@@ -303,7 +376,7 @@ public class DragonController : MonoBehaviour
     {
         if (!targetTransform) return;
 
-        // 근접 범위에 들어가지 않았다면 이동 (단, “용은 공격받지 않는다” 가정이므로 충돌 처리X)
+        // 근접 범위에 들어가지 않았다면 이동 (단, "용은 공격받지 않는다" 가정이므로 충돌 처리X)
         float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
         if (distanceToTarget > meleeRange)
         {

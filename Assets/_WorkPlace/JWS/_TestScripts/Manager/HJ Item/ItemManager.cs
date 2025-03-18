@@ -190,7 +190,7 @@ public class ItemManager : BaseManager<ItemManager>
             return sprite;
         }
 
-        Debug.LogWarning($"'{spriteName}'에 해당하는 스프라이트를 찾을 수 없습니다.");
+        //Debug.LogWarning($"'{spriteName}'에 해당하는 스프라이트를 찾을 수 없습니다.");
         return null;
     }
 

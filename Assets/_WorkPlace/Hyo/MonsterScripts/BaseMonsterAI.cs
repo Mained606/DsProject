@@ -42,7 +42,7 @@ public class BaseMonsterAI : MonoBehaviour
     protected bool isAttacking = false; // 공격 중인지 여부 플래그
     
     protected bool isStunned = false;
-    [SerializeField] protected float stunDuration = 5f; // 스턴 지속 시간
+    [SerializeField] protected float stunDuration = 5f; // 스턴 지속 시간 (패링 시 적용되는 기본값)
     
     protected CharacterController characterController;
     private Vector3 velocity;
@@ -127,6 +127,16 @@ public class BaseMonsterAI : MonoBehaviour
         monsterData.OnSpeedChanged += UpdateMovementSpeed;
     }
 
+    // Update 추가: MonsterData의 isStunned 값 확인
+    protected virtual void Update()
+    {
+        // 몬스터 데이터의 isStunned 값이 true이지만 현재 AI 상태는 스턴이 아닌 경우 스턴 상태로 변경
+        if (monsterData != null && monsterData.isStunned && currentState != AIState.Stun && currentState != AIState.Dead)
+        {
+            SetState(AIState.Stun);
+        }
+    }
+
     private void UpdateMovementSpeed(float newSpeed)
     {
         movementSpeed = newSpeed;
@@ -204,8 +214,12 @@ public class BaseMonsterAI : MonoBehaviour
     // 상태 전환
     protected virtual void SetState(AIState newState)
     {
-        // 죽음 상태나 스턴이면 상태전환 막기
-        if (currentState == AIState.Dead || isStunned) return;
+        // 죽음 상태면 상태전환 막기
+        if (currentState == AIState.Dead) return;
+        
+        // 스턴 상태인 경우, 스턴 해제 후에만 다른 상태로 전환 가능
+        // (단, Stun, Hit, Dead 상태로 전환하는 것은 항상 허용)
+        if (isStunned && newState != AIState.Stun && newState != AIState.Hit && newState != AIState.Dead) return;
         
         // 공격중일 때 상태 전환을 막지만 예외적으로 스턴, 히트, 데드 상태로는 전환 가능
         if (isAttacking && newState != AIState.Stun && newState != AIState.Hit && newState != AIState.Dead) return;
@@ -238,6 +252,9 @@ public class BaseMonsterAI : MonoBehaviour
                 break;
             case AIState.Hit:
                 HandleHitState();
+                break;
+            case AIState.Stun:
+                HandleStunState();
                 break;
             case AIState.Dead:
                 StopAllActions();
@@ -465,20 +482,52 @@ public class BaseMonsterAI : MonoBehaviour
     
     protected virtual void HandleStunState()
     {
-        // 패링 당한 후 효과 적용
+        // 이미 스턴 상태면 중복 적용하지 않음
         if (isStunned) return;
 
         // 디버그용 코드 -------------------------------------------------
         //UIManager.Instance.TogglinfoMessageWindow("스턴됨");
-        Debug.LogWarning("몬스터 스턴됨");
+        Debug.LogWarning("몬스터 스턴됨: " + gameObject.name);
         // -------------------------------------------------------------
         
         isStunned = true;
         StopAllActions();
-    
-        StartCoroutine(RecoverFromStun());
+        
+        // 스턴 애니메이션 트리거 추가 (애니메이터에 스턴 트리거가 있는 경우)
+        if (animator != null)
+        {
+            // Stunned 파라미터가 있는지 확인
+            AnimatorControllerParameter[] parameters = animator.parameters;
+            foreach (AnimatorControllerParameter param in parameters)
+            {
+                if (param.name == "Stunned" || param.name == "Stun")
+                {
+                    // 파라미터 타입에 따라 적절히 설정
+                    if (param.type == AnimatorControllerParameterType.Trigger)
+                    {
+                        animator.SetTrigger(param.name);
+                    }
+                    else if (param.type == AnimatorControllerParameterType.Bool)
+                    {
+                        animator.SetBool(param.name, true);
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // 스턴 시각 효과 추가 (선택사항)
+        StartCoroutine(PlayStunEffect());
     }
-
+    
+    // 스턴 시각 효과 추가
+    protected IEnumerator PlayStunEffect()
+    {
+        // 여기에 스턴 시각 효과를 추가할 수 있음 (파티클 등)
+        // 예: 머리 위에 별 이펙트 또는 번개 이펙트 생성
+        
+        yield return null;
+    }
 
     // 플레이어 탐색
     protected virtual void SearchForPlayer()
@@ -587,26 +636,85 @@ public class BaseMonsterAI : MonoBehaviour
         }
     }
     
-    protected IEnumerator RecoverFromStun()
+    // 스턴 효과를 적용하는 메서드 추가
+    public void ApplyStun(float duration = -1)
     {
-        yield return new WaitForSeconds(stunDuration);
+        // -1이면 기본 스턴 지속시간 사용, 그렇지 않으면 파라미터로 전달된 시간 사용
+        float actualDuration = duration > 0 ? duration : stunDuration;
+        
+        // 진행 중인 스턴 코루틴이 있다면 정지
+        StopAllCoroutines();
+        
+        // 새로운 스턴 효과 적용
+        StartCoroutine(ApplyStunEffect(actualDuration));
+    }
+    
+    // 스턴 효과 적용 코루틴
+    protected IEnumerator ApplyStunEffect(float duration)
+    {
+        // 이미 스턴 상태면 중복 적용하지 않지만 시간은 갱신
+        if (!isStunned)
+        {
+            // 스턴 상태로 변경
+            SetState(AIState.Stun);
+        }
+        
+        // 새로운 회복 코루틴 시작
+        yield return StartCoroutine(RecoverFromStun(duration));
+    }
+
+    protected IEnumerator RecoverFromStun(float duration = -1)
+    {
+        // 지정된 지속시간이 없으면 기본값 사용
+        float actualDuration = duration > 0 ? duration : stunDuration;
+        Debug.Log($"{gameObject.name} 스턴 지속시간: {actualDuration}초");
+        
+        // 스턴 상태 적용
+        isStunned = true;
+        
+        // 스턴 지속 시간만큼 대기
+        yield return new WaitForSeconds(actualDuration);
+        
+        // 스턴 해제
         isStunned = false;
+        
+        // 스턴 애니메이션 파라미터 초기화
+        if (animator != null)
+        {
+            // Bool 타입 Stunned/Stun 파라미터가 있는지 확인
+            AnimatorControllerParameter[] parameters = animator.parameters;
+            foreach (AnimatorControllerParameter param in parameters)
+            {
+                if ((param.name == "Stunned" || param.name == "Stun") && 
+                    param.type == AnimatorControllerParameterType.Bool)
+                {
+                    animator.SetBool(param.name, false);
+                    break;
+                }
+            }
+        }
         
         // 몬스터가 이미 죽었으면 Dead 상태로 변경
         if (monsterData.currentHp <= 0)
         {
-            SetState(AIState.Dead);
+            currentState = AIState.Dead;
+            animator.SetTrigger(IsDead);
             yield break; // 상태 변경 후 즉시 코루틴 종료
         }
-    
-        if (playerTarget && Vector3.Distance(transform.position, playerTarget.position) <= searchRange)
+        
+        // 스턴 상태에서 회복 후 플레이어가 근처에 있으면 추격 (명시적으로 상태 변경)
+        currentState = AIState.Idle; // 먼저 상태를 초기화
+        
+        if (playerTarget != null)
         {
             SetState(AIState.Chasing);
         }
         else
         {
-            SetState(AIState.Returning);
+            SetState(AIState.Patrolling);
         }
+        
+        Debug.Log($"{gameObject.name} 스턴에서 회복됨");
     }
 
     protected virtual IEnumerator SwitchStateAfterDelay(AIState newState, float delay)
@@ -699,5 +807,17 @@ public class BaseMonsterAI : MonoBehaviour
         //     Gizmos.color = Color.red; // 공중에 있을 때 빨간색
         // }
         // Gizmos.DrawWireSphere(transform.position, 1f); // 착지 상태 표시
+    }
+
+    // 현재 AI 상태를 반환하는 메서드
+    public AIState GetAIState()
+    {
+        return currentState;
+    }
+    
+    // 현재 타겟 플레이어를 반환하는 메서드
+    public Transform GetPlayerTarget()
+    {
+        return playerTarget;
     }
 }

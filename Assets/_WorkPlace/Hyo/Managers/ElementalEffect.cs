@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.DualShock;
 
 /// <summary>
 /// 속성 효과의 기본 추상 클래스
@@ -221,7 +222,38 @@ public class ElectricStunEffect : ElementalEffect
     public override void Apply()
     {
         Target.isStunned = true;
-        
+
+        // 만약 타겟이 몬스터이고 인스턴스가 있다면 AI 상태를 스턴 상태로 변경
+        if (Target.characterType != CharacterType.Player && Target.instance != null)
+        {
+            // 일반 몬스터인 경우
+            BaseMonsterAI monsterAI = Target.instance.GetComponent<BaseMonsterAI>();
+            if (monsterAI != null)
+            {
+                // 새로운 ApplyStun 메서드 사용
+                monsterAI.ApplyStun(Duration);
+            }
+
+            // 보스인 경우
+            BaseBossAI bossAI = Target.instance.GetComponent<BaseBossAI>();
+            if (bossAI != null)
+            {
+                bossAI.ApplyStun(Duration);
+            }
+        }
+
+        // ========== 250318 SH 추가 ==========
+        // 플레이어인 경우
+        if(Target.characterType == CharacterType.Player)
+        {
+            PlayerController player = GameManager.playerTransform.GetComponent<PlayerController>();
+            if (player != null)
+            {
+                player.ApplyStun(Duration);
+            }
+        }
+        // ========== 250318 SH 추가 ==========
+
         Debug.Log($"{Target.characterName}에 스턴 효과 적용: {Duration}초 지속");
         if (ElementalEffectManager.Instance != null)
         {
@@ -236,6 +268,38 @@ public class ElectricStunEffect : ElementalEffect
     public override void Remove()
     {
         Target.isStunned = false;
+        
+        // 만약 타겟이 몬스터이고 인스턴스가 있다면 스턴 상태 해제
+        if (Target.characterType != CharacterType.Player && Target.instance != null)
+        {
+            // 일반 몬스터인 경우
+            BaseMonsterAI monsterAI = Target.instance.GetComponent<BaseMonsterAI>();
+            if (monsterAI != null)
+            {
+                // 이미 스턴 상태이면 현재 상태 재설정
+                if (monsterAI.GetAIState() == BaseMonsterAI.AIState.Stun)
+                {
+                    // 스턴에서 회복 후 적절한 상태로 전환
+                    if (monsterAI.GetPlayerTarget() != null)
+                    {
+                        monsterAI.ChangeState(BaseMonsterAI.AIState.Chasing);
+                    }
+                    else
+                    {
+                        monsterAI.ChangeState(BaseMonsterAI.AIState.Patrolling);
+                    }
+                }
+            }
+            
+            // 보스인 경우
+            BaseBossAI bossAI = Target.instance.GetComponent<BaseBossAI>();
+            if (bossAI != null)
+            {
+                // 보스의 상태 전환은 내부 로직에 맡김
+                // 하지만 명시적으로 isStunned 플래그를 false로 설정
+                bossAI.ResetStun();
+            }
+        }
         
         Debug.Log($"{Target.characterName}의 스턴 효과 종료");
         if (ElementalEffectManager.Instance != null)

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using static UnityEngine.InputSystem.OnScreen.OnScreenStick;
 
 public class PlayerController : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class PlayerController : MonoBehaviour
     public bool isUseSkill;
     public bool isParry;
     [SerializeField] private bool isHit;
+    public bool isStunned;
 
 
     [Header("이동")]
@@ -72,6 +74,7 @@ public class PlayerController : MonoBehaviour
     [Header("디버그용")]
     public float staminaUseAmount;
     public bool isRecovery;
+    private Coroutine stunCoroutine;
 
     private BasicTimer RecoveryTimer;
     private float RecoveryTime = 1f;
@@ -429,7 +432,7 @@ public class PlayerController : MonoBehaviour
             yield return null; // 다음 프레임까지 대기
         }
 
-        PlayerBehaviourManager.Instance.CanDodge = true;
+        behaviour.CanDodge = true;
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
     }
@@ -698,12 +701,42 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void ApplyStun(float duration = -1)
+    {
+        if(stunCoroutine != null)
+        {
+            StopCoroutine(stunCoroutine);
+            stunCoroutine = null;
+        }
+        stunCoroutine = StartCoroutine(ApplyStunEffect(duration));
+    }
+
+    private IEnumerator ApplyStunEffect(float duration)
+    {
+        behaviour.CanMove = false;
+        behaviour.CanJump = false;
+        behaviour.CanAttack = false;
+        behaviour.CanUseSkill = false;
+        behaviour.CanBlock = false;
+        behaviour.CanDodge = false;
+
+        yield return new WaitForSeconds(duration);
+
+        behaviour.CanMove = true;
+        behaviour.CanJump = true;
+        behaviour.CanAttack = true;
+        behaviour.CanUseSkill = true;
+        behaviour.CanBlock = true;
+        behaviour.CanDodge = true;
+
+    }
+
     // 2025.03.16 HYO 추가 -----------------------------
     private void UpdateMovementSpeed(float newSpeed)
     {
         // 새로운 이동 속도를 반영하는 로직
         walkSpeed = newSpeed;
-
+        sprintSpeed = walkSpeed * 2f;
         // 예: 이동 속도에 따라 애니메이션 속도 조정
     }
     // -------------------------------------------------
@@ -712,11 +745,14 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
         isHit = false;
-        behaviour.CanMove = true;
-        behaviour.CanAttack = true;
-        behaviour.CanJump = true;
-        behaviour.CanUseSkill = true;
-        behaviour.CanDodge = true;
+        if (!playerData.isStunned)
+        {
+            behaviour.CanMove = true;
+            behaviour.CanAttack = true;
+            behaviour.CanJump = true;
+            behaviour.CanUseSkill = true;
+            behaviour.CanDodge = true;
+        }
     }
 
     private void DeathCheck()

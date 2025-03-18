@@ -38,7 +38,6 @@ public class ItemSkill
     //속성, 레벨, 아이템 등급 적용한 강화 수치
     public float ApplyPower(Item item)
     {
-        Debug.Log(item.itemSkill.ApplyElement(item) * ApplyGradeMultiplier(item));
         return item.itemSkill.ApplyElement(item) * ApplyGradeMultiplier(item);
     }
 
@@ -119,13 +118,13 @@ public class ItemSkill
     {
         float basePower = 5;
 
-        switch (item.itemSkill.element)
-        {
-            case ElementalAttribute.Earth:
-                basePower = 10;
-                break;
-                //다른 속성들은 밸런스에 따라 추가할지 말지 결정
-        }
+        //switch (item.itemSkill.element)
+        //{
+        //    case ElementalAttribute.Earth:
+        //        basePower = 10;
+        //        break;
+        //        //다른 속성들은 밸런스에 따라 추가할지 말지 결정
+        //}
 
         return basePower * (1f + level * 0.2f);
     }

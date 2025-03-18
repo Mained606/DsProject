@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -41,6 +42,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             PlayWeaponParticle(ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손));
         }
     }
+
 
     //속성 공격
     public void ElementAttack(Item weapon, CharacterData target)
@@ -125,11 +127,13 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             
             elementDisableCoroutine = StartCoroutine(DisableWeaponEffect());
         }
-    }    
+    }
 
     //장착시 카운트 리셋
     public void EquipReset(Item item)
     {
+        if (item.type != ItemType.무기) return;
+
         ResetCount(item);
         IsActive = true;
 
@@ -156,6 +160,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //장비 해제시 카운트 리셋
     public void UnequipReset(Item item)
     {
+        if (item.type != ItemType.무기) return;
+
         ResetCount(item);
         IsActive = false;
 
@@ -201,15 +207,11 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         // ItemSkill skill = weapon.itemSkill;
         // if (skill == null || !IsActive) return;
         // --------------------------------------------------------------------------
-
-        PlayAttackParticle(weapon);
         
         // 2025.03.16 HYO 수정 - 새로운 효과 적용 시스템 사용 ------------------------
         // 화상 효과 적용 - 새 시스템 사용
         target.ApplyFireBurnEffect(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
         // --------------------------------------------------------------------------
-        
-        IncrementAttackCountAndCheckLimit();
     }
 
     //이속 감소
@@ -219,15 +221,11 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         // ItemSkill skill = weapon.itemSkill;
         // if (skill == null || !IsActive) return;
         // --------------------------------------------------------------------------
-
-        PlayAttackParticle(weapon);
         
         // 2025.03.16 HYO 수정 - 새로운 효과 적용 시스템 사용 ------------------------
         // 이동속도 감소 효과 적용 - 새 시스템 사용
         target.ApplyWaterSlowEffect(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
         // --------------------------------------------------------------------------
-        
-        IncrementAttackCountAndCheckLimit();
     }
 
     //감전
@@ -237,35 +235,31 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         // ItemSkill skill = weapon.itemSkill;
         // if (skill == null || !IsActive) return;
         // --------------------------------------------------------------------------
-
-        PlayAttackParticle(weapon);
         
         // 2025.03.16 HYO 수정 - 새로운 효과 적용 시스템 사용 ------------------------
         // 스턴 효과 적용 - 새 시스템 사용
         target.ApplyElectricStunEffect(weapon.itemSkill.debuffDuration);
         // --------------------------------------------------------------------------
-        
-        IncrementAttackCountAndCheckLimit();
     }
 
     // 2025.03.16 HYO 추가 - 중복 코드 제거를 위한 함수 -----------------------------
-    private void IncrementAttackCountAndCheckLimit()
-    {
-        attackCount++;
+    //private void IncrementAttackCountAndCheckLimit()
+    //{
+    //    attackCount++;
         
-        if (attackCount >= maxAttackCount)
-        {
-            IsActive = false;
+    //    if (attackCount >= maxAttackCount)
+    //    {
+    //        IsActive = false;
             
-            if (elementDisableCoroutine != null)
-            {
-                StopCoroutine(elementDisableCoroutine);
-                elementDisableCoroutine = null;
-            }
+    //        if (elementDisableCoroutine != null)
+    //        {
+    //            StopCoroutine(elementDisableCoroutine);
+    //            elementDisableCoroutine = null;
+    //        }
             
-            elementDisableCoroutine = StartCoroutine(DisableWeaponEffect());
-        }
-    }
+    //        elementDisableCoroutine = StartCoroutine(DisableWeaponEffect());
+    //    }
+    //}
     // --------------------------------------------------------------------------
 
     //무기 속성 이펙트 비활성화
@@ -284,7 +278,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     //속성 이펙트 실행
     private void PlayWeaponParticle(Item weapon)
     {
-        if (weapon == null || weapon.itemSkill == null) return;
+        if (weapon.type != ItemType.무기) return;
 
         if (weapon.itemSkill.element == ElementalAttribute.None) return;
 
@@ -313,34 +307,41 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         if (item.type != ItemType.무기) return;
 
         ItemSkill skill = item.itemSkill;
-        if (skill == null || skill.element == ElementalAttribute.None) return;
+        if (skill.element == ElementalAttribute.None) return;
 
-        VisualEffect effect = currentItem.GetComponentInChildren<VisualEffect>();
+        VisualEffect effect = currentItem?.GetComponentInChildren<VisualEffect>();
         if (effect == null) return;
 
-        float amount = 0;
-
-        switch (skill.element)
+        if(skill.element == ElementalAttribute.Fire)
         {
-            case ElementalAttribute.Fire:
-                float smoke = (1.2f / 10) * (level + 1);
-                float poision = (125 / 10) * (level + 1);
-                effect.SetFloat("SmokeSize", smoke);
-                effect.SetFloat("PoisonRate", poision);
-                break;
-            case ElementalAttribute.Water:
-                amount = ((30 - 10) / 10) * (level + 1) + 10;
-                effect.SetFloat("GooRate", amount);
-                break;
-            case ElementalAttribute.Electric:
-                amount = (25 / 10) * (level + 1);
-                effect.SetFloat("ElectricityRate", amount);
-                break;
-            case ElementalAttribute.Earth:
-                amount = (50 / 10) * (level + 1);
-                effect.SetFloat("PoisonRate", amount);
-                break;
+            effect.SetFloat("SmokeSize", CalculateValue(1.2f, level));
+            effect.SetFloat("PoisonRate", CalculateValue(125, level));
+            effect.SetFloat("ParticlesRate", CalculateValue(30, level));
         }
+        else if(skill.element == ElementalAttribute.Water)
+        {
+            effect.SetFloat("GooRate", CalculateValue(30 - 10, level) + 10);
+            effect.SetFloat("SmokeRate", CalculateValue(15, level));
+            effect.SetFloat("ParticlesRate", CalculateValue(30, level));
+            effect.SetFloat("ParticlesSpiralRate", CalculateValue(10, level));
+        }
+        else if(skill.element == ElementalAttribute.Electric)
+        {
+            effect.SetFloat("SparksSize", CalculateValue(0.8f, level));
+            effect.SetFloat("SmokeRate", CalculateValue(15, level));
+            effect.SetFloat("ElectricityRate", CalculateValue(25, level));
+        }
+        else if(skill.element == ElementalAttribute.Earth)
+        {
+            effect.SetFloat("PoisonRate", CalculateValue(50, level));
+            effect.SetFloat("SmokeSize", CalculateValue(0.8f, level));
+            effect.SetFloat("ParticlesRate", CalculateValue(30, level));
+        }
+    }
+
+    private float CalculateValue(float maxValue, int level)
+    {
+        return (maxValue / 10) * (level + 1);
     }
 
     //공격 이펙트 실행
@@ -352,17 +353,45 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         GameObject effect = elementEffects[index];
 
-        if(effect != null)
+        VisualEffect visualEffect = effect.GetComponentInChildren<VisualEffect>();
+        if (visualEffect != null)
+        {
+            int level = weapon.itemSkill.Level;
+
+            if(level < 3)
+            {
+                visualEffect.SetFloat("DarkAlpha", 0.5f);
+                visualEffect.SetFloat("ParticlesSize", 0.1f);
+                visualEffect.SetFloat("FloatingParticlesRate", 0.5f);
+            }
+            else if(level < 7)
+            {
+                visualEffect.SetFloat("DarkAlpha", 5);
+                visualEffect.SetFloat("ParticlesSize", 0.5f);
+                visualEffect.SetFloat("FloatingParticlesRate", 10);
+            }
+            else
+            {
+                visualEffect.SetFloat("DarkAlpha", 20);
+                visualEffect.SetFloat("ParticlesSize", 1.2f);
+                visualEffect.SetFloat("FloatingParticlesRate", 25);
+            }
+        }
+
+        if (effect != null)
         {
             GameObject attackEffect = Instantiate(effect, WeaponTransform.position, WeaponTransform.rotation);
 
-            if(WeaponTransform != null)
+            if (WeaponTransform != null)
             {
                 WeaponAttack weaponAttack = WeaponTransform.GetComponent<WeaponAttack>();
                 attackEffect.transform.localScale = weaponAttack.effectScale;
+
+                
             }
 
             attackEffect.transform.SetParent(WeaponTransform);
+
             Destroy(attackEffect, attackEffectDuration);
         }
     }
@@ -389,15 +418,12 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     // 땅 속성 효과 구현
     private void ApplyEarthEffect(Item weapon, CharacterData target)
     {
-        PlayAttackParticle(weapon);
-        
         // 땅 속성은 디버프가 아닌 공격자에게 데미지 증가 효과 적용
         CharacterData attacker = CharacterManager.PlayerCharacterData;
         
         // 데미지 증가 효과를 공격자에게 적용
         attacker.ApplyEarthDamageEffect(weapon.itemSkill.debuffDuration, weapon.itemSkill.debuffValue);
         
-        IncrementAttackCountAndCheckLimit();
     }
     // --------------------------------------------------------------------------
 
@@ -406,16 +432,3 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
     }
     #endregion
 }
-
-//[System.Serializable]
-//public class ElementEffectValue
-//{
-//    int minFireValue;
-//    int maxFireValue;
-//    int minWaterValue;
-//    int maxWaterValue;
-//    int minElectricValue;
-//    int maxElectricValue;
-//    int minEarthValue;
-//    int maxEarthValue;
-//}
