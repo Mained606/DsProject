@@ -61,6 +61,8 @@ public class BaseBossAI : MonoBehaviour
     private bool hasAppliedDashDamage = false;
     private float arrivedDistance = 1f;
 
+    [SerializeField] private float stunDuration = 5f; // 스턴 지속 시간 (패링 시 적용되는 기본값)
+
     protected virtual void OnDestroy()
     {
         if (bossData != null) bossData.OnTakeDamage -= HandleTakeDamage;
@@ -103,6 +105,8 @@ public class BaseBossAI : MonoBehaviour
             attackCooldown = bossData.attackSpeed;
             attackRange = bossData.attackRange;
         }
+        
+        bossData.OnSpeedChanged += UpdateMovementSpeed;
     }
 
     private void Update()
@@ -321,8 +325,13 @@ public class BaseBossAI : MonoBehaviour
 
     private void SetState(BossState newState)
     {
-        // 죽거나 스턴 상태이면 상태 전환 불가
-        if (currentState == BossState.Dead || isStunned)
+        // 죽음 상태면 상태 전환 불가
+        if (currentState == BossState.Dead)
+            return;
+
+        // 스턴 상태인 경우, 스턴 해제 후에만 다른 상태로 전환 가능
+        // (단, Stun, Hit, Dead 상태로 전환하는 것은 항상 허용)
+        if (isStunned && newState != BossState.Stun && newState != BossState.Hit && newState != BossState.Dead)
             return;
 
         // 공격 중일 때 일반 상태 전환은 막음 (단, 스턴/피격/죽음은 예외)
@@ -341,6 +350,9 @@ public class BaseBossAI : MonoBehaviour
                 break;
             case BossState.Hit:
                 StartCoroutine(HandleHitState());
+                break;
+            case BossState.Stun:
+                HandleStunState();
                 break;
             case BossState.Dead:
                 HandleDeath();
@@ -363,106 +375,106 @@ public class BaseBossAI : MonoBehaviour
         SetState(BossState.Attacking);
     }
     private IEnumerator ExecuteBossAttack()
-{
-    if (isAttacking) yield break;
-    isAttacking = true;
-
-    List<string> bossSkillNames = SkillManager.Instance.GetAvailableSkills(EntityType.Boss);
-    if (bossSkillNames.Count == 0)
     {
-        Debug.LogWarning("보스의 사용 가능한 스킬이 없습니다.");
-        SetState(BossState.Idle);
-        isAttacking = false;
-        yield break;
-    }
+        if (isAttacking) yield break;
+        isAttacking = true;
 
-    Skills selectedSkill = null;
-    int attempt = 0;
-    int maxAttempts = 10;
-    while (selectedSkill == null && attempt < maxAttempts)
-    {
-        string randomSkillName = bossSkillNames[Random.Range(0, bossSkillNames.Count)];
-        Skills skill = SkillManager.Instance.GetSkill(EntityType.Boss, randomSkillName);
-
-        if (skill != null && !skill.cooldownTimer.IsRunning)
+        List<string> bossSkillNames = SkillManager.Instance.GetAvailableSkills(EntityType.Boss);
+        if (bossSkillNames.Count == 0)
         {
-            selectedSkill = skill;
+            Debug.LogWarning("보스의 사용 가능한 스킬이 없습니다.");
+            SetState(BossState.Idle);
+            isAttacking = false;
+            yield break;
         }
-        attempt++;
-    }
 
-    if (selectedSkill == null)
-    {
-        Debug.LogWarning("사용 가능한 스킬을 찾지 못했습니다.");
-        SetState(BossState.Idle);
-        isAttacking = false;
-        yield break;
-    }
-
-    switch (selectedSkill.skillName)
-    {
-        case "OrbExplosion":
-            animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(roarDuration);
-            isRotating = false; // 회전 방지
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject, this.transform);
-            yield return new WaitForSeconds(4f);
-            isRotating = true;  // 회전 가능
-            break;
-        case "RapidFireball":
-            animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(roarDuration);
-            isRotating = false; // 회전 방지
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1, this.transform);
-            yield return new WaitForSeconds(4f);
-            isRotating = true;  // 회전 가능
-            break;
-        case "Dash":
-            animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(roarDuration);
-            // ROARING 후 플레이어를 향해 회전
-            yield return StartCoroutine(RotateTowardsPlayerSmoothly());
-            // 대쉬 실행
-            SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
-            isPerformingSpecialMove = true;
-            yield return StartCoroutine(PerformDash());
-            isPerformingSpecialMove = false;
-            break;
-        case "Jump":
-            animator.SetTrigger(IsRoaring);
-            yield return new WaitForSeconds(roarDuration);
-            // ROARING 후 플레이어를 향해 회전
-            yield return StartCoroutine(RotateTowardsPlayerSmoothly());
-            isPerformingSpecialMove = true;
-            yield return StartCoroutine(PerformJump(selectedSkill));
-            isPerformingSpecialMove = false;
-            break;
-        default:
-            Debug.LogWarning("처리되지 않은 스킬: " + selectedSkill.skillName);
-            break;
-    }
-
-    float skillDuration = selectedSkill.GetSkillDuration();
-    yield return new WaitForSeconds(skillDuration + attackCooldown);
-
-        if (playerTarget != null)
+        Skills selectedSkill = null;
+        int attempt = 0;
+        int maxAttempts = 10;
+        while (selectedSkill == null && attempt < maxAttempts)
         {
-            if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+            string randomSkillName = bossSkillNames[Random.Range(0, bossSkillNames.Count)];
+            Skills skill = SkillManager.Instance.GetSkill(EntityType.Boss, randomSkillName);
+
+            if (skill != null && !skill.cooldownTimer.IsRunning)
             {
-                SetState(BossState.Attacking);
+                selectedSkill = skill;
+            }
+            attempt++;
+        }
+
+        if (selectedSkill == null)
+        {
+            Debug.LogWarning("사용 가능한 스킬을 찾지 못했습니다.");
+            SetState(BossState.Idle);
+            isAttacking = false;
+            yield break;
+        }
+
+        switch (selectedSkill.skillName)
+        {
+            case "OrbExplosion":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                isRotating = false; // 회전 방지
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, playerTarget.gameObject, this.transform);
+                yield return new WaitForSeconds(4f);
+                isRotating = true;  // 회전 가능
+                break;
+            case "RapidFireball":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                isRotating = false; // 회전 방지
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, firePoint1, this.transform);
+                yield return new WaitForSeconds(4f);
+                isRotating = true;  // 회전 가능
+                break;
+            case "Dash":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                // ROARING 후 플레이어를 향해 회전
+                yield return StartCoroutine(RotateTowardsPlayerSmoothly());
+                // 대쉬 실행
+                SkillManager.Instance.ActivateSkillForEntity(EntityType.Boss, selectedSkill.skillName, gameObject);
+                isPerformingSpecialMove = true;
+                yield return StartCoroutine(PerformDash());
+                isPerformingSpecialMove = false;
+                break;
+            case "Jump":
+                animator.SetTrigger(IsRoaring);
+                yield return new WaitForSeconds(roarDuration);
+                // ROARING 후 플레이어를 향해 회전
+                yield return StartCoroutine(RotateTowardsPlayerSmoothly());
+                isPerformingSpecialMove = true;
+                yield return StartCoroutine(PerformJump(selectedSkill));
+                isPerformingSpecialMove = false;
+                break;
+            default:
+                Debug.LogWarning("처리되지 않은 스킬: " + selectedSkill.skillName);
+                break;
+        }
+
+        float skillDuration = selectedSkill.GetSkillDuration();
+        yield return new WaitForSeconds(skillDuration + attackCooldown);
+
+            if (playerTarget != null)
+            {
+                if (Vector3.Distance(transform.position, playerTarget.position) <= attackRange)
+                {
+                    SetState(BossState.Attacking);
+                }
+                else
+                {
+                    SetState(BossState.Chasing);
+                }
             }
             else
             {
-                SetState(BossState.Chasing);
+                SetState(BossState.Idle);
             }
-        }
-        else
-        {
-            SetState(BossState.Idle);
-        }
 
-    isAttacking = false;
-}
+        isAttacking = false;
+    }
     private IEnumerator RotateTowardsPlayerSmoothly()
     {
         Vector3 targetDirection = (playerTarget.position - transform.position).normalized;
@@ -511,7 +523,7 @@ public class BaseBossAI : MonoBehaviour
                 // 한 번만 데미지 들어가도록 플래그 사용
                 if (!hasAppliedDashDamage)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.bossData, playerTarget, false, false, skills, true);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, this.bossData, playerTarget, false, false, skills, true, skills.attribute, skills.debuffDuration, skills.debuffValue );
                     hasAppliedDashDamage = true;
                 }
             }
@@ -576,17 +588,15 @@ public class BaseBossAI : MonoBehaviour
     protected virtual void HandleTakeDamage(Transform attacker)
     {
         // 플레이어가 공격하면 플레이어 타겟 지정
-        if (attacker.CompareTag("Player"))
+        if (attacker != null && attacker.CompareTag("Player"))
         {
             playerTarget = attacker;
         }
-
-        // 이부분은 불필요. 플레이어를 강제로 재설정하면 데미지가 이상해짐.
-        //else
-        //{
-        //    // 만약 attacker가 플레이어가 아니라면, 올바른 플레이어 참조(예: GameManager.playerTransform)로 설정
-        //    playerTarget = GameManager.playerTransform;
-        //}
+        // attacker가 null이면 기본적으로 GameManager의 playerTransform 사용
+        else if (attacker == null && GameManager.playerTransform != null)
+        {
+            playerTarget = GameManager.playerTransform;
+        }
 
         // 보스 배틀 상태가 아니라면 전환
         if (GameStateMachine.Instance.CurrentState != GameSystemState.BossBattle)
@@ -645,6 +655,11 @@ public class BaseBossAI : MonoBehaviour
         return randomPosition;
     }
 
+    private void UpdateMovementSpeed(float newSpeed)
+    {
+        movementSpeed = newSpeed;
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
@@ -655,5 +670,140 @@ public class BaseBossAI : MonoBehaviour
         
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(this.spawnPosition, maxDistance);
+    }
+
+    // 보스 스턴 상태 처리 메서드 추가
+    private void HandleStunState()
+    {
+        // 이미 스턴 상태면 중복 적용하지 않음
+        if (isStunned) return;
+
+        Debug.LogWarning("보스 스턴됨: " + gameObject.name);
+        
+        isStunned = true;
+        isAttacking = false;
+        isPerformingSpecialMove = false;
+        
+        // 이동 멈춤
+        if (characterController)
+        {
+            characterController.Move(Vector3.zero);
+        }
+        
+        // 애니메이션 설정
+        if (animator)
+        {
+            // 모든 애니메이션 초기화
+            animator.SetBool(IsDashing, false);
+            animator.SetBool(IsChasing, false);
+            
+            // Stun 파라미터가 있는지 확인
+            AnimatorControllerParameter[] parameters = animator.parameters;
+            foreach (AnimatorControllerParameter param in parameters)
+            {
+                if (param.name == "Stunned" || param.name == "Stun")
+                {
+                    if (param.type == AnimatorControllerParameterType.Trigger)
+                    {
+                        animator.SetTrigger(param.name);
+                    }
+                    else if (param.type == AnimatorControllerParameterType.Bool)
+                    {
+                        animator.SetBool(param.name, true);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    
+    // 지정된 시간 후 스턴에서 회복
+    private IEnumerator RecoverFromStun(float duration)
+    {
+        Debug.Log($"{gameObject.name} 보스 스턴 지속시간: {duration}초");
+        
+        // 스턴 상태 적용
+        isStunned = true;
+        
+        // 지정된 시간만큼 대기
+        yield return new WaitForSeconds(duration);
+        
+        // 스턴 상태 해제
+        isStunned = false;
+        
+        // 스턴 애니메이션 파라미터 초기화
+        if (animator)
+        {
+            AnimatorControllerParameter[] parameters = animator.parameters;
+            foreach (AnimatorControllerParameter param in parameters)
+            {
+                if ((param.name == "Stunned" || param.name == "Stun") && 
+                    param.type == AnimatorControllerParameterType.Bool)
+                {
+                    animator.SetBool(param.name, false);
+                    break;
+                }
+            }
+        }
+        
+        // 보스가 이미 죽었는지 확인
+        if (bossData.currentHp <= 0)
+        {
+            currentState = BossState.Dead;
+            animator.SetBool(IsDead, true);
+            yield break;
+        }
+        
+        // 현재 상태를 명시적으로 변경 (스턴에서 회복)
+        currentState = BossState.Idle; // 먼저 상태를 초기화
+        
+        // 회복 후 플레이어가 있으면 공격 상태로 전환
+        if (playerTarget)
+        {
+            SetState(BossState.Attacking);
+        }
+        else
+        {
+            SetState(BossState.Idle);
+        }
+        
+        Debug.Log($"{gameObject.name} 보스 스턴에서 회복됨");
+    }
+    
+    // 외부에서 스턴 적용을 위한 공개 메서드
+    public void ApplyStun(float duration = -1)
+    {
+        // 지정된 지속시간이 없으면 기본값 사용
+        float actualDuration = duration > 0 ? duration : stunDuration;
+        
+        // 진행 중인 코루틴 정지 (스턴 상태의 안정성을 위해)
+        StopAllCoroutines();
+        
+        // 상태 변경 및 새 코루틴 시작
+        SetState(BossState.Stun);
+        StartCoroutine(RecoverFromStun(actualDuration));
+        
+        Debug.Log($"{gameObject.name} 보스에게 {actualDuration}초 스턴 적용");
+    }
+
+    // 스턴 상태를 초기화하는 메서드
+    public void ResetStun()
+    {
+        isStunned = false;
+        
+        // 현재 보스가 스턴 상태인 경우 적절한 다른 상태로 전환
+        if (currentState == BossState.Stun)
+        {
+            if (playerTarget != null)
+            {
+                SetState(BossState.Attacking);
+            }
+            else
+            {
+                SetState(BossState.Idle);
+            }
+            
+            Debug.Log($"{gameObject.name} 보스 스턴 초기화 완료");
+        }
     }
 }

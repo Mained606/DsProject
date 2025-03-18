@@ -13,6 +13,7 @@ public class MoveBehaviour : IBehaviour
     private float currentStamina;
 
     private Vector2 moveInput;
+    private bool exiting = false;
 
     public MoveBehaviour()
     {
@@ -25,21 +26,30 @@ public class MoveBehaviour : IBehaviour
     public void Enter()
     {
         controller.isMove = false;
+        controller.isSprinting = false;
+        animator.SetFloat("Speed", 0);
         PlayerBehaviourManager.Instance.CanAttack = true;
         PlayerBehaviourManager.Instance.CanUseSkill = true;
         PlayerBehaviourManager.Instance.CanBlock = true;
         PlayerBehaviourManager.Instance.CanDodge = true;
         //PlayerBehaviourManager.Instance.CanClimb = true;
+
     }
 
     public void Execute()
     {
+        if (exiting) return;
+
         HandleMovement();
+        UpdateMovementSpeed();
     }
 
     public void Exit()
     {
+        exiting = true;
         controller.isMove = false;
+        controller.isSprinting = false;
+        animator.SetFloat("Speed", 0);
     }
 
     private void HandleMovement()
@@ -113,6 +123,16 @@ public class MoveBehaviour : IBehaviour
         {
             canSprint = false;
             controller.isSprinting = false;
+        }
+    }
+
+    private void UpdateMovementSpeed()
+    {
+        if(controller.walkSpeed != walkSpeed)
+        {
+            Debug.Log("플레이어 컨트롤러에서 이벤트 발생");
+            walkSpeed = controller.walkSpeed;
+            sprintSpeed = walkSpeed * 2f;
         }
     }
 }

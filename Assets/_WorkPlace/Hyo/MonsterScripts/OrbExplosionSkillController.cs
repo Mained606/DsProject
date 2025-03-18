@@ -76,7 +76,10 @@ public class OrbExplosionSkillController : MonoBehaviour
                 false,
                 true,
                 skills, 
-                true
+                true,
+                skills.attribute,
+                skills.debuffDuration,
+                skills.debuffValue
             );
 
             hasAttacked = true;
