@@ -5,7 +5,6 @@ using System.Linq;
 public class DownCut : MonoBehaviour
 {
     private Skills skills;
-    private float damage;
 
     [SerializeField] private float attackRange = 5f;
     [SerializeField] private int maxTargets = 5;

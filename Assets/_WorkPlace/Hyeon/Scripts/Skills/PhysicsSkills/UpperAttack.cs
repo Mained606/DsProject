@@ -11,7 +11,7 @@ public class UpperAttack : MonoBehaviour
     public float destroyDelay = 5;
     [SerializeField] private LayerMask layer;
     private Skills skills;
-    private float damage;
+    private float timer = 0f;
 
     private Rigidbody rb;
     private bool stopped;
@@ -32,7 +32,6 @@ public class UpperAttack : MonoBehaviour
             Debug.Log("No Rigidbody");
 
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "UpperAttack");
-        damage = skills.currentDamage;
 
         Destroy(gameObject, destroyDelay);
     }
@@ -46,12 +45,10 @@ public class UpperAttack : MonoBehaviour
             Vector3 distance = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z);
             if (Physics.Raycast(distance, transform.TransformDirection(-Vector3.up), out hit, 4f))
             {
-                Debug.Log($"레이 맞음 : {hit.transform.name}");
                 transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
             }
             else
             {
-                Debug.Log("레이 안 맞음");
                 transform.position = new Vector3(transform.position.x, 0, transform.position.z);
             }
             Debug.DrawRay(distance, transform.TransformDirection(-Vector3.up * detectingDistance), Color.red);
@@ -73,7 +70,15 @@ public class UpperAttack : MonoBehaviour
 
     private void Shooting()
     {
-        rb.linearVelocity = transform.forward * speed;
+        if (timer >= skills.particleDelay)
+        {
+            rb.linearVelocity = transform.forward * speed;
+        }
+        else
+        {
+            timer += Time.deltaTime;
+        }
+        
     }
 
     private void OnTriggerStay(Collider other)

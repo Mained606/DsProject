@@ -198,7 +198,16 @@ public class SkillManager : BaseManager<SkillManager>
             {
                 ApplyEffect(effect, skill.particleDelay);
             }
-            Destroy(effect, 5f);
+
+            if(skill.effectDuration > 0)    // effectDuration 있는 경우 Destroy 시간 변경
+            {
+                Destroy(effect, skill.effectDuration);
+            }
+            else
+            {
+                Destroy(effect, 5f);
+            }
+                
         }
 
         float animationLength = GetAnimationClipLength(entityAnimator, skill.activeTriggerName);
