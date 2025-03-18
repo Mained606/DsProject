@@ -103,7 +103,7 @@ public class UpperAttack : MonoBehaviour
                 MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
                 if (enemyMonsterData != null)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, true, skills);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, other.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                     return;  // MonsterData 처리 완료 후 반환
                 }
 
@@ -111,7 +111,7 @@ public class UpperAttack : MonoBehaviour
                 BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
                 if (enemyBossData != null)
                 {
-                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, true, skills);
+                    CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, other.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                 }
             }
         }

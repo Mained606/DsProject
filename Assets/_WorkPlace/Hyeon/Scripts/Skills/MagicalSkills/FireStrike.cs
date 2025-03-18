@@ -10,17 +10,12 @@ public class FireStrike : MonoBehaviour
     public int maxHits = 3;
 
     [SerializeField] private float multiplier = 0.1f;
-
-    private float damage;
-    private ElementalAttribute attribute;
     private Skills skills;
 
     private void Start()
     {
         //_particleSystem = GetComponent<ParticleSystem>();
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "FireStrike");
-        attribute = skills.attribute;
-        damage = skills.currentDamage;
     }
 
     private void OnParticleCollision(GameObject other)

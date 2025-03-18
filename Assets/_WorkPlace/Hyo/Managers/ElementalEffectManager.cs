@@ -13,6 +13,10 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
     private List<ElementalEffect> activeEffects = new List<ElementalEffect>();
     private Dictionary<ElementalEffect, Coroutine> effectCoroutines = new Dictionary<ElementalEffect, Coroutine>();
     
+    // 마지막 isActive 확인 시간 (매 프레임 체크 방지)
+    private float lastCheckTime = 0f;
+    private const float CHECK_INTERVAL = 0.5f; // 0.5초마다 체크
+
     protected override void Awake()
     {
         base.Awake(); // 부모 구현을 호출하여 Instance 설정
@@ -31,6 +35,35 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
             Debug.Log($"ElementalEffectManager.EnsureExists 호출됨, Instance 이전: {Instance != null}");
             DontDestroyOnLoad(managerObject);
             Debug.Log($"ElementalEffectManager.EnsureExists 객체 생성 후, Instance: {Instance != null}");
+        }
+    }
+    
+    private void Update()
+    {
+        // 일정 간격으로 땅 속성 효과의 무기 활성화 상태 체크
+        if (Time.time - lastCheckTime > CHECK_INTERVAL)
+        {
+            lastCheckTime = Time.time;
+            CheckEarthEffectWeaponState();
+        }
+    }
+    
+    // 땅 속성 효과가 적용된 상태에서 무기 효과가 비활성화된 경우 처리
+    private void CheckEarthEffectWeaponState()
+    {
+        // 플레이어에게 적용된 땅 속성 효과 찾기
+        EarthDamageEffect earthEffect = GetEarthDamageEffect(CharacterManager.PlayerCharacterData);
+        
+        // 땅 속성 효과가 있고 ItemSkillManager가 존재하는 경우
+        if (earthEffect != null && ItemSkillManager.Instance != null)
+        {
+            // 무기 효과가 비활성화된 상태인지 확인
+            if (!ItemSkillManager.Instance.IsActive)
+            {
+                // 무기 효과가 비활성화되었으므로 땅 속성 효과 제거
+                RemoveEffect(earthEffect);
+                Debug.Log("무기 효과 비활성화로 인해 땅 속성 효과가 자동 제거되었습니다.");
+            }
         }
     }
     
