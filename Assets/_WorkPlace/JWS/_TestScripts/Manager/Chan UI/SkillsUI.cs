@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+/// <summary>
+/// 스킬 퀵슬롯ui
+/// </summary>
 public class SkillsUI : MonoBehaviour
 {
     [SerializeField] private Animator[] skillSlotsAnimator;

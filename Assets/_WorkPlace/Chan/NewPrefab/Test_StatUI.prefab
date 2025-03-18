@@ -391,12 +391,12 @@ GameObject:
   - component: {fileID: 8236814604518439221}
   - component: {fileID: 3945174516832230563}
   m_Layer: 5
-  m_Name: Test_StatUP +-
+  m_Name: Test_StatUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7444542021182600390
 RectTransform:
   m_ObjectHideFlags: 0
@@ -472,6 +472,11 @@ MonoBehaviour:
   INT: {fileID: 5847415749332025272}
   VATAL: {fileID: 6261705705083109646}
   SkillLevel: {fileID: 8682274153119907026}
+  STR2: {fileID: 0}
+  DEX2: {fileID: 0}
+  INT2: {fileID: 0}
+  VATAL2: {fileID: 0}
+  SkillLevel2: {fileID: 0}
   button1: {fileID: 8139265220639067398}
   button2: {fileID: 3025500353695224801}
   button3: {fileID: 8478452112161445880}
@@ -479,6 +484,13 @@ MonoBehaviour:
   button5: {fileID: 4690610083551745917}
   button6: {fileID: 5385185730525340463}
   button7: {fileID: 9118225585204221963}
+  button8: {fileID: 0}
+  button9: {fileID: 0}
+  button10: {fileID: 0}
+  button11: {fileID: 0}
+  button12: {fileID: 0}
+  button13: {fileID: 0}
+  button14: {fileID: 0}
   playerData:
     characterName: Hero
     characterType: 0
@@ -528,6 +540,7 @@ MonoBehaviour:
     instance: {fileID: 0}
     availableSkillPoints: 0
     availableStatPoints: 0
+    attribute: 0
     skills:
     - Dash
     - Slash

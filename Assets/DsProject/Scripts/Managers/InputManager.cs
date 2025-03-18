@@ -23,6 +23,9 @@ public class InputManager : BaseManager<InputManager>
         InputActions.actions["Quest"].performed += OnQuestReview;
         InputActions.actions["StatusUI"].performed += OnStatKey;
         InputActions.actions["ESC"].performed += OnMainMenu;
+        InputActions.actions["Craft"].performed += OnCrafting;
+        InputActions.actions["Cook"].performed += OnCooking;
+        InputActions.actions["Skill"].performed += OnSkill;
         #endregion
     }
 
@@ -96,6 +99,58 @@ public class InputManager : BaseManager<InputManager>
         }
 
     }
+
+    #region 03.17 C
+    private void OnCrafting(InputAction.CallbackContext context)
+    {
+        // 상태를 Crafting으로 전환
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Craft)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Craft);
+            Debug.Log("Crafting 상태로 전환됨.");
+        }
+
+        else
+        {
+            Debug.Log("I 1");
+
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+    private void OnCooking(InputAction.CallbackContext context)
+    {
+        if(GameStateMachine.Instance.CurrentState != GameSystemState.Cook)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Cook);
+            Debug.Log("Cooking 상태로 전환됨.");
+        }
+        else
+        {
+            Debug.Log("I 1");
+
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+
+    private void OnSkill(InputAction.CallbackContext context)
+    {
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Skill)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Skill);
+            Debug.Log("Skill 상태로 전환됨.");
+        }
+        else
+        {
+            Debug.Log("I 1");
+
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+    #endregion
+
     private void OnQuestReview(InputAction.CallbackContext context)
     {
         // 상태를 Inventory로 전환
