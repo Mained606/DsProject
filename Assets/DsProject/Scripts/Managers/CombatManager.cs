@@ -128,28 +128,51 @@ public class CombatManager : BaseManager<CombatManager>
             // 공격자에게 적용된 땅 속성 효과가 있는지 확인하고 있으면 데미지 증가
             float earthBuffMultiplier = 1.0f;
             
-            // 통합된 새 시스템 사용
-            EarthDamageEffect earthEffect = ElementalEffectManager.Instance?.GetEarthDamageEffect(actualAttacker);
-            if (earthEffect != null)
+            // 무기 효과가 활성화 상태인지 확인 (플레이어의 일반 공격인 경우만)
+            bool weaponEffectActive = true;
+            if (isPlayerAttacking && skills == null && ItemSkillManager.Instance != null)
             {
-                earthBuffMultiplier = earthEffect.GetDamageMultiplier();
-            }
-            // 아직 효과가 적용되지 않았거나 매니저가 없는 경우 기본 증가 적용
-            else if (skills != null && skills.debuffValue > 0)
-            {
-                earthBuffMultiplier = 1f + (skills.debuffValue / 100f);
-                
-                // 일회성 공격에는 땅 속성 데미지 증가 효과를 즉시 적용
-                if (isPlayerAttacking && !isBossAttacking)
+                weaponEffectActive = ItemSkillManager.Instance.IsActive;
+                if (!weaponEffectActive)
                 {
-                    // 플레이어가 땅 속성 무기로 공격할 때, 즉시 효과 적용 (짧은 지속 시간, 효과적인 횟수만큼만)
-                    actualAttacker.ApplyEarthDamageEffect(3f, skills.debuffValue);
+                    Debug.Log("무기 효과가 비활성화 상태입니다. 땅 속성 데미지 증가가 적용되지 않습니다.");
                 }
             }
-            else
+            
+            // 무기 효과가 활성화된 경우에만 증가 효과 적용
+            if (weaponEffectActive)
             {
-                // 기본 20% 증가
-                earthBuffMultiplier = 1.2f;
+                // 통합된 새 시스템 사용
+                EarthDamageEffect earthEffect = ElementalEffectManager.Instance?.GetEarthDamageEffect(actualAttacker);
+                if (earthEffect != null)
+                {
+                    earthBuffMultiplier = earthEffect.GetDamageMultiplier();
+                }
+                // 일반 공격(스킬 없음)이고 플레이어가 공격할 때 무기의 속성 효과 적용
+                else if (isPlayerAttacking && !isBossAttacking && skills == null)
+                {
+                    // 장착된 무기 정보 가져오기
+                    Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+                    if (equippedWeapon != null && equippedWeapon.itemSkill != null && 
+                        equippedWeapon.itemSkill.element == ElementalAttribute.Earth && 
+                        equippedWeapon.itemSkill.debuffValue > 0)
+                    {
+                        // 무기의 땅 속성 효과 적용
+                        earthBuffMultiplier = 1f + (equippedWeapon.itemSkill.debuffValue / 100f);
+                        actualAttacker.ApplyEarthDamageEffect(equippedWeapon.itemSkill.debuffDuration, equippedWeapon.itemSkill.debuffValue);
+                    }
+                }
+                // 스킬 사용 시 땅 속성 효과 적용
+                else if (skills != null && skills.debuffValue > 0)
+                {
+                    earthBuffMultiplier = 1f + (skills.debuffValue / 100f);
+                    
+                    // 스킬 사용 시 효과 적용
+                    if (isPlayerAttacking && !isBossAttacking)
+                    {
+                        actualAttacker.ApplyEarthDamageEffect(skills.debuffDuration, skills.debuffValue);
+                    }
+                }
             }
             
             damage = Mathf.RoundToInt(damage * earthBuffMultiplier);
@@ -178,7 +201,17 @@ public class CombatManager : BaseManager<CombatManager>
             if (GameManager.playerTransform.GetComponent<PlayerCombat>().onParry)
             {
                 UIManager.DisplayPopupText("패링", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
-                attackerTransform.GetComponentInParent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
+                BaseMonsterAI monsterAI = attackerTransform.GetComponentInParent<BaseMonsterAI>();
+                if (monsterAI != null)
+                {
+                    // 패링 시 기본 스턴 지속시간 적용 (기본값 사용)
+                    monsterAI.ApplyStun();
+                }
+                else
+                {
+                    // 기존 방식 유지
+                    attackerTransform.GetComponentInParent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
+                }
                 return;
             }
             
@@ -235,6 +268,26 @@ public class CombatManager : BaseManager<CombatManager>
                     case ElementalAttribute.Electric:
                         Debug.Log($"스턴 효과 적용: 지속시간 {debuffDuration}초");
                         actualDefender.ApplyElectricStunEffect(debuffDuration);
+                        
+                        // 추가: 몬스터 AI가 있는 경우 직접 스턴 상태로 변경하고 스턴 지속시간 적용
+                        if (defenderTransform != null && actualDefender.characterType != CharacterType.Player)
+                        {
+                            // 일반 몬스터인 경우
+                            BaseMonsterAI monsterAI = defenderTransform.GetComponent<BaseMonsterAI>();
+                            if (monsterAI != null)
+                            {
+                                // 무기/스킬의 debuffDuration 값을 직접 전달
+                                monsterAI.ApplyStun(debuffDuration);
+                            }
+                            
+                            // 보스인 경우
+                            BaseBossAI bossAI = defenderTransform.GetComponent<BaseBossAI>();
+                            if (bossAI != null)
+                            {
+                                // 보스에게도 스턴 적용
+                                bossAI.ApplyStun(debuffDuration);
+                            }
+                        }
                         break;
                     case ElementalAttribute.Earth:
                         // 보스가 땅 속성 스킬을 사용하면 자신에게 데미지 증가 효과
