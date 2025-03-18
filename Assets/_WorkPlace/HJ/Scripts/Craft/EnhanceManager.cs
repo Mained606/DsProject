@@ -55,10 +55,12 @@ public class EnhanceManager : BaseManager<EnhanceManager>
         }
 
         ItemManager.Instance.RemoveItemLogic(upgradeIngredient.id);
-        if(InventoryManager.Instance.GetItemQuantity(upgradeIngredient.id) <=0)
-        {
-            InventoryManager.Instance.ResetSelectedItem();
-        }
+
+        //강화 테스트용
+        //if(InventoryManager.Instance.GetItemQuantity(upgradeIngredient.id) <=0)
+        //{
+        //    InventoryManager.Instance.ResetSelectedItem();
+        //}
     }
 
     private void Successed(Item item)

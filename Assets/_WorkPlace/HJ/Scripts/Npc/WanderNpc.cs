@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class WanderNpc : MonoBehaviour
 {
+    [Header("Movement Settings")]
     [SerializeField] private float walkingRange = 10f;
     [SerializeField] private float idleTime = 5f;
     [SerializeField] private float minMoveSpeed = 2f;
@@ -12,43 +13,47 @@ public class WanderNpc : MonoBehaviour
     [SerializeField] private float arrivedDistance = 1f;
     [SerializeField] private bool isMoving = false;
 
+    [Header("Position Settings")]
     [SerializeField] private Vector3 spawnPosition;
     [SerializeField] private Vector3 targetPosition;
-
-    private Animator animator;
-    private string walkingState = "IsWalking";
-    private string talkingState = "IsTalking";
-    private string animationSpeed = "Speed";
-    private string exitTrigger = "ExitTrigger";
-    private Coroutine currentCoroutine = null;
-
-    [SerializeField] private bool isTalking = false;
-    private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    private float talkingDuration = 2f;
     private Transform targetNpc;
 
-    //대화 쿨타임
+    [Header("NPC States")]
+    [SerializeField] private bool isTalking = false;
+    [SerializeField] private bool isSitting = false;
+    [SerializeField] private bool isSittingTalking = false;
+    [SerializeField] private bool isJustStoodUp = false;
+
+    [Header("Timers & Cooldowns")]
     private float conversationCoolTime = 5f;
     private float lastConversationTime = 0f;
-
-    //npc간의 거리가 너무 가까울 경우 경로 재설정
+    [SerializeField] private float sittingCoolTime = 5f;
+    private float lastSittingTime = 0f;
     private float minNpcDistance = 1f;
     private float nextDestinationTime = 0f;
     private float destinationCooldown = 1f;
 
-    //
-    private string sittingState = "IsSitting";
-    [SerializeField] private bool isSitting = false;
-    [SerializeField] private bool isSittingTalking = false;
-    [SerializeField] private bool isJustStoodUp = false;
+    [Header("Sitting Settings")]
     public Vector3 sittingOffset = new Vector3(1, 0.2f, 0.5f);
     private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
     private Coroutine sittingTalkingCoroutine = null;
 
-    [SerializeField] private float sittingCoolTime = 5f;
-    private float lastSittingTime = 0f;
+    [Header("Animation Settings")]
+    private Animator animator;
+    private static readonly int WalkingState = Animator.StringToHash("IsWalking");
+    private static readonly int TalkingState = Animator.StringToHash("IsTalking");
+    private static readonly int AnimationSpeed = Animator.StringToHash("Speed");
+    private static readonly int ExitTrigger = Animator.StringToHash("ExitTrigger");
+    private static readonly int SittingState = Animator.StringToHash("IsSitting");
+    private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
+    private float talkingDuration = 2f;
+
 
     private Rigidbody rb;
+    private Coroutine currentCoroutine = null;
+
+    
+
 
     private void Start()
     {
@@ -99,7 +104,7 @@ public class WanderNpc : MonoBehaviour
         }
         else
         {
-            if (animator.GetBool(walkingState))
+            if (animator.GetBool(WalkingState))
             {
                 MoveToWards(targetPosition);
             }
@@ -108,7 +113,21 @@ public class WanderNpc : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.transform.CompareTag("TownNPC"))
+        if (collision.transform.name.Contains("Bench"))
+        {
+            if (Time.time - lastSittingTime < sittingCoolTime)
+            {
+                //Debug.Log($"{transform.name} 앉기 쿨타임 중");
+                return;
+            }
+
+            SittingAtBench(collision);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("TownNPC"))
         {
             if (isSitting)
             {
@@ -124,39 +143,28 @@ public class WanderNpc : MonoBehaviour
             {
                 if (Time.time - lastConversationTime < conversationCoolTime)
                 {
-                    //Debug.Log($"{transform.name} 대화 쿨타임 중");
+                    Debug.Log($"{transform.name} 대화 쿨타임 중");
                     return;
                 }
 
-                //Debug.Log($"{transform.name} npc 만남");
-                targetNpc = collision.transform;
+                Debug.Log($"{transform.name} npc 만남");
+                targetNpc = other.transform;
                 StartConversation();
             }
         }
-
-        if (collision.transform.name.Contains("Bench"))
-        {
-            if (Time.time - lastSittingTime < sittingCoolTime)
-            {
-                //Debug.Log($"{transform.name} 앉기 쿨타임 중");
-                return;
-            }
-
-            SittingAtBench(collision);
-        }
     }
 
-    private void OnCollisionExit(Collision collision)
+    private void OnTriggerExit(Collider other)
     {
-        if (collision.transform.CompareTag("TownNPC"))
+        if (other.CompareTag("TownNPC"))
         {
-            //Debug.Log($"{transform.name} npc 헤어짐");
+            Debug.Log($"{transform.name} npc 헤어짐");
             targetNpc = null;
             StopConversation();
 
             if (isSittingTalking && !IsCloseNpcs(transform.position, minNpcDistance))
             {
-                //Debug.Log($"{transform.name} 대화중인 npc 떠남");
+                Debug.Log($"{transform.name} 대화중인 npc 떠남");
                 Bench bench = GetCurrentBench();
 
                 if (sittingTalkingCoroutine != null)
@@ -170,71 +178,6 @@ public class WanderNpc : MonoBehaviour
             }
         }
     }
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.CompareTag("TownNPC"))
-    //    {
-    //        if (isSitting)
-    //        {
-    //            Bench bench = GetCurrentBench();
-    //            if(bench != null && !isSittingTalking)
-    //            {
-    //                isSittingTalking = true;
-    //                StopCoroutine(SittingDuration(bench));
-    //                sittingTalkingCoroutine = StartCoroutine(SittingTalking(bench));
-    //            }
-    //        }
-    //        else
-    //        {
-    //            if (Time.time - lastConversationTime < conversationCoolTime)
-    //            {
-    //                Debug.Log($"{transform.name} 대화 쿨타임 중");
-    //                return;
-    //            }
-
-    //            Debug.Log($"{transform.name} npc 만남");
-    //            targetNpc = other.transform;
-    //            StartConversation();
-    //        }
-    //    }
-
-    //    if (other.name.Contains("Bench"))
-    //    {
-    //        if(Time.time - lastSittingTime < sittingCoolTime)
-    //        {
-    //            Debug.Log($"{transform.name} 앉기 쿨타임 중");
-    //            return;
-    //        }
-
-    //        SittingAtBench(other);
-    //    }
-    //}
-
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    if (other.CompareTag("TownNPC"))
-    //    {
-    //        Debug.Log($"{transform.name} npc 헤어짐");
-    //        targetNpc = null;
-    //        StopConversation();
-
-    //        if (isSittingTalking && !isCloseNpcs(transform.position, minNpcDistance))
-    //        {
-    //            Debug.Log($"{transform.name} 대화중인 npc 떠남");
-    //            Bench bench = GetCurrentBench();
-
-    //            if(sittingTalkingCoroutine != null)
-    //            {
-    //                StopCoroutine(sittingTalkingCoroutine);
-    //                sittingTalkingCoroutine = null;
-    //            }
-
-    //            isSittingTalking = false;
-    //            StartCoroutine(SittingDuration(bench));
-    //        }
-    //    }
-    //}
 
     //이동 위치 설정
     private void SetNextDestination()
@@ -263,13 +206,13 @@ public class WanderNpc : MonoBehaviour
         }
 
         targetPosition = randomPosition;
-        animator.SetBool(walkingState, true);
+        animator.SetBool(WalkingState, true);
     }
 
     //이동 후 잠시 멈춤
     private IEnumerator IdleAfterWalking()
     {
-        animator.SetBool(walkingState, false);
+        animator.SetBool(WalkingState, false);
         isMoving = false;
 
         yield return new WaitForSeconds(idleTime);
@@ -285,7 +228,7 @@ public class WanderNpc : MonoBehaviour
         {
             moveSpeed = Random.Range(minMoveSpeed, maxMoveSpeed);
 
-            animator.SetFloat(animationSpeed, moveSpeed);
+            animator.SetFloat(AnimationSpeed, moveSpeed);
 
             isMoving = true;
         }
@@ -319,11 +262,11 @@ public class WanderNpc : MonoBehaviour
         isTalking = true;
         isMoving = false;
 
-        if (animator.GetBool(walkingState))
+        if (animator.GetBool(WalkingState))
         {
-            animator.SetBool(walkingState, false);
+            animator.SetBool(WalkingState, false);
         }
-        animator.SetBool(talkingState, true);
+        animator.SetBool(TalkingState, true);
 
         LookAtTarget(targetNpc);
 
@@ -367,8 +310,8 @@ public class WanderNpc : MonoBehaviour
         lastConversationTime = Time.time;
         //Debug.Log($"{transform.name} 대화 종료");
 
-        animator.SetTrigger(exitTrigger);
-        animator.SetBool(talkingState, false);
+        animator.SetTrigger(ExitTrigger);
+        animator.SetBool(TalkingState, false);
 
         SetNextDestination();
     }
@@ -423,14 +366,14 @@ public class WanderNpc : MonoBehaviour
 
         if (Random.value <= 0.5f)
         {
-            if (!animator.GetBool(sittingState))
+            if (!animator.GetBool(SittingState))
             {
                 isSitting = true;
 
-                if (animator.GetBool(walkingState))
+                if (animator.GetBool(WalkingState))
                 {
                     //Debug.Log($"{transform.name} 걷기 멈춤");
-                    animator.SetBool(walkingState, false);
+                    animator.SetBool(WalkingState, false);
                     isMoving = false;
                 }
 
@@ -454,7 +397,7 @@ public class WanderNpc : MonoBehaviour
                 }
                 
                 transform.rotation = collider.transform.rotation;
-                animator.SetBool(sittingState, true);
+                animator.SetBool(SittingState, true);
 
                 StartCoroutine(SittingDuration(bench));
             }
@@ -504,7 +447,7 @@ public class WanderNpc : MonoBehaviour
         //Debug.Log($"{transform.name}이 일어남");
         
         isSitting = false;
-        animator.SetBool(sittingState, false);
+        animator.SetBool(SittingState, false);
         rb.isKinematic = false;
 
         if (transform.position == bench.leftPosition.position) bench.left = false;
