@@ -640,7 +640,7 @@ public class BaseMonsterAI : MonoBehaviour
     public void ApplyStun(float duration = -1)
     {
         // -1이면 기본 스턴 지속시간 사용, 그렇지 않으면 파라미터로 전달된 시간 사용
-        float actualDuration = duration > 0 ? duration : stunDuration;
+        float actualDuration = duration > -1 ? duration : stunDuration;
         
         // 진행 중인 스턴 코루틴이 있다면 정지
         StopAllCoroutines();
@@ -666,7 +666,7 @@ public class BaseMonsterAI : MonoBehaviour
     protected IEnumerator RecoverFromStun(float duration = -1)
     {
         // 지정된 지속시간이 없으면 기본값 사용
-        float actualDuration = duration > 0 ? duration : stunDuration;
+        float actualDuration = duration > -1 ? duration : stunDuration;
         Debug.Log($"{gameObject.name} 스턴 지속시간: {actualDuration}초");
         
         // 스턴 상태 적용

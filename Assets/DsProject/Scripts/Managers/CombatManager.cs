@@ -268,26 +268,6 @@ public class CombatManager : BaseManager<CombatManager>
                     case ElementalAttribute.Electric:
                         Debug.Log($"스턴 효과 적용: 지속시간 {debuffDuration}초");
                         actualDefender.ApplyElectricStunEffect(debuffDuration);
-                        
-                        // 추가: 몬스터 AI가 있는 경우 직접 스턴 상태로 변경하고 스턴 지속시간 적용
-                        if (defenderTransform != null && actualDefender.characterType != CharacterType.Player)
-                        {
-                            // 일반 몬스터인 경우
-                            BaseMonsterAI monsterAI = defenderTransform.GetComponent<BaseMonsterAI>();
-                            if (monsterAI != null)
-                            {
-                                // 무기/스킬의 debuffDuration 값을 직접 전달
-                                monsterAI.ApplyStun(debuffDuration);
-                            }
-                            
-                            // 보스인 경우
-                            BaseBossAI bossAI = defenderTransform.GetComponent<BaseBossAI>();
-                            if (bossAI != null)
-                            {
-                                // 보스에게도 스턴 적용
-                                bossAI.ApplyStun(debuffDuration);
-                            }
-                        }
                         break;
                     case ElementalAttribute.Earth:
                         // 보스가 땅 속성 스킬을 사용하면 자신에게 데미지 증가 효과
