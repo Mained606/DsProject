@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.DualShock;
 
 /// <summary>
 /// 속성 효과의 기본 추상 클래스
@@ -221,7 +222,7 @@ public class ElectricStunEffect : ElementalEffect
     public override void Apply()
     {
         Target.isStunned = true;
-        
+
         // 만약 타겟이 몬스터이고 인스턴스가 있다면 AI 상태를 스턴 상태로 변경
         if (Target.characterType != CharacterType.Player && Target.instance != null)
         {
@@ -232,7 +233,7 @@ public class ElectricStunEffect : ElementalEffect
                 // 새로운 ApplyStun 메서드 사용
                 monsterAI.ApplyStun(Duration);
             }
-            
+
             // 보스인 경우
             BaseBossAI bossAI = Target.instance.GetComponent<BaseBossAI>();
             if (bossAI != null)
@@ -240,7 +241,19 @@ public class ElectricStunEffect : ElementalEffect
                 bossAI.ApplyStun(Duration);
             }
         }
-        
+
+        // ========== 250318 SH 추가 ==========
+        // 플레이어인 경우
+        if(Target.characterType == CharacterType.Player)
+        {
+            PlayerController player = GameManager.playerTransform.GetComponent<PlayerController>();
+            if (player != null)
+            {
+                player.ApplyStun(Duration);
+            }
+        }
+        // ========== 250318 SH 추가 ==========
+
         Debug.Log($"{Target.characterName}에 스턴 효과 적용: {Duration}초 지속");
         if (ElementalEffectManager.Instance != null)
         {
