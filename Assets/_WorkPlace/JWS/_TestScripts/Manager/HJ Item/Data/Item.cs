@@ -141,9 +141,17 @@ public class Item : ISheetData
         // 등급에 따른 색상 가져오기
         string gradeColor = GetGradeColor(grade);
 
+        #region 무기 속성 표시 추가 03.12 
+        // 무기 속성 타입 색상
+        string elementColor = itemSkill != null ? GetElementColor(itemSkill.element) : "#FFFFFF";
+        string elementInfo = itemSkill != null && itemSkill.element != ElementalAttribute.None
+            ? $"                                     <size=120%>속성: <color={elementColor}>{itemSkill.element}</color></size>"
+            : "";
+        #endregion
+
         // 기본 정보
         // string itemName = $"<b>이름: <color={gradeColor}>{name}</color></b>";
-        string itemType = $"종류: <i><color=#87CEEB>{type}</color></i>    등급: <i><color={gradeColor}>{grade}</color></i>\n";
+        string itemType = $"종류: <i><color=#87CEEB>{type}</color></i>    등급: <i><color={gradeColor}>{grade}</color></i>{elementInfo}\n";
         string itemDescription = $"<color=#FFFFFF>{description}</color>\n";
         string itemQuantity = isStackable
             ? $"수량: <color=#00FF00>{quantity}/{maxStack}</color>"
@@ -160,7 +168,7 @@ public class Item : ISheetData
             ? $"효과: <color=#00FF00>{effectAmount}</color>" +
               (consumableType != ConsumableType.없음 ? $"    소모품 타입: <color=#FFD700>{consumableType}</color>" : "")
             : "";
-
+      
         // 스탯 정보
         string statInfo = itemStat != null
             ? $"\n<b><color=#FFD700>[스탯 정보]</color></b>\n" +
@@ -179,8 +187,24 @@ public class Item : ISheetData
             : "";
 
         // 전체 문자열 조합
-        return $"{itemType}\n{itemDescription}\n{itemQuantity}\n{equipmentInfo}\n{consumableInfo}{statInfo}".Trim();
+        return $"{itemType}{itemDescription}\n{itemQuantity}\n{equipmentInfo}\n{consumableInfo}{statInfo}".Trim();
     }
+
+    #region 타입별 속성 03.12
+    // 아이템 속성별 색상
+    public string GetElementColor(ElementalAttribute element)
+    {
+        switch (element)
+        {
+            case ElementalAttribute.Fire: return "#FF4500";  // 주황색
+            case ElementalAttribute.Water: return "#1E90FF"; // 파란색
+            case ElementalAttribute.Electric: return "#FFFF00"; // 노란색
+           case ElementalAttribute.Earth: return "#8B4513"; // 갈색
+            default: return "#FFFFFF"; // 무속성 흰색
+        }
+    }
+    #endregion
+
 
     // 등급에 따른 색상 반환 메서드
     public string GetGradeColor(ItemGrade grade)

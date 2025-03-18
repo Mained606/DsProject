@@ -157,6 +157,22 @@ public class Skills : ISheetData
 
         Debug.Log($"[Skills] {skillName} 데이터 로드 완료!");
     }
+
+    #region 03.17 C
+    public string ToStringTMPro()
+    {
+        string color = (skillType == SkillType.Physical) ? "#1E90FF" : "#FFD700";
+        string info = $"<b><color={color}>{skillName}</color></b>\n" +
+                      $"유형: {skillType}\n" +
+                      $"레벨: {skillLevel}\n" +
+                      $"데미지: {currentDamage}\n" +
+                      $"소모 MP: {energyCost}\n" +
+                      $"쿨타임: {cooldown}초\n";
+        // 원하는 정보 더 추가
+        return info;
+    }
+    #endregion
+
 }
 
 public enum SkillType

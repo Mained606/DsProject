@@ -54,7 +54,7 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         dragCanvasGroup.blocksRaycasts = false;
     }
 
-    private void DestroyDragImage()
+    public void DestroyDragImage()
     {
         if (dragImageObject != null)
         {

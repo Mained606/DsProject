@@ -14,6 +14,9 @@ public enum GameSystemState
     Inventory,        // 인벤토리 화면
     QuestReview,      // 퀘스트 정보 및 진행 상황 확인
     StatusUI,
+    Craft,         // 제작
+    Cook,          // 요리
+    Skill,
     Shopping,         // 쇼핑
     PetInteraction,   // 펫 상호작용
     Training,         // 훈련 모드
