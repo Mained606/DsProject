@@ -128,35 +128,50 @@ public class CombatManager : BaseManager<CombatManager>
             // 공격자에게 적용된 땅 속성 효과가 있는지 확인하고 있으면 데미지 증가
             float earthBuffMultiplier = 1.0f;
             
-            // 통합된 새 시스템 사용
-            EarthDamageEffect earthEffect = ElementalEffectManager.Instance?.GetEarthDamageEffect(actualAttacker);
-            if (earthEffect != null)
+            // 무기 효과가 활성화 상태인지 확인 (플레이어의 일반 공격인 경우만)
+            bool weaponEffectActive = true;
+            if (isPlayerAttacking && skills == null && ItemSkillManager.Instance != null)
             {
-                earthBuffMultiplier = earthEffect.GetDamageMultiplier();
-            }
-            // 일반 공격(스킬 없음)이고 플레이어가 공격할 때 무기의 속성 효과 적용
-            else if (isPlayerAttacking && !isBossAttacking && skills == null)
-            {
-                // 장착된 무기 정보 가져오기
-                Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
-                if (equippedWeapon != null && equippedWeapon.itemSkill != null && 
-                    equippedWeapon.itemSkill.element == ElementalAttribute.Earth && 
-                    equippedWeapon.itemSkill.debuffValue > 0)
+                weaponEffectActive = ItemSkillManager.Instance.IsActive;
+                if (!weaponEffectActive)
                 {
-                    // 무기의 땅 속성 효과 적용
-                    earthBuffMultiplier = 1f + (equippedWeapon.itemSkill.debuffValue / 100f);
-                    actualAttacker.ApplyEarthDamageEffect(equippedWeapon.itemSkill.debuffDuration, equippedWeapon.itemSkill.debuffValue);
+                    Debug.Log("무기 효과가 비활성화 상태입니다. 땅 속성 데미지 증가가 적용되지 않습니다.");
                 }
             }
-            // 스킬 사용 시 땅 속성 효과 적용
-            else if (skills != null && skills.debuffValue > 0)
+            
+            // 무기 효과가 활성화된 경우에만 증가 효과 적용
+            if (weaponEffectActive)
             {
-                earthBuffMultiplier = 1f + (skills.debuffValue / 100f);
-                
-                // 스킬 사용 시 효과 적용
-                if (isPlayerAttacking && !isBossAttacking)
+                // 통합된 새 시스템 사용
+                EarthDamageEffect earthEffect = ElementalEffectManager.Instance?.GetEarthDamageEffect(actualAttacker);
+                if (earthEffect != null)
                 {
-                    actualAttacker.ApplyEarthDamageEffect(skills.debuffDuration, skills.debuffValue);
+                    earthBuffMultiplier = earthEffect.GetDamageMultiplier();
+                }
+                // 일반 공격(스킬 없음)이고 플레이어가 공격할 때 무기의 속성 효과 적용
+                else if (isPlayerAttacking && !isBossAttacking && skills == null)
+                {
+                    // 장착된 무기 정보 가져오기
+                    Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+                    if (equippedWeapon != null && equippedWeapon.itemSkill != null && 
+                        equippedWeapon.itemSkill.element == ElementalAttribute.Earth && 
+                        equippedWeapon.itemSkill.debuffValue > 0)
+                    {
+                        // 무기의 땅 속성 효과 적용
+                        earthBuffMultiplier = 1f + (equippedWeapon.itemSkill.debuffValue / 100f);
+                        actualAttacker.ApplyEarthDamageEffect(equippedWeapon.itemSkill.debuffDuration, equippedWeapon.itemSkill.debuffValue);
+                    }
+                }
+                // 스킬 사용 시 땅 속성 효과 적용
+                else if (skills != null && skills.debuffValue > 0)
+                {
+                    earthBuffMultiplier = 1f + (skills.debuffValue / 100f);
+                    
+                    // 스킬 사용 시 효과 적용
+                    if (isPlayerAttacking && !isBossAttacking)
+                    {
+                        actualAttacker.ApplyEarthDamageEffect(skills.debuffDuration, skills.debuffValue);
+                    }
                 }
             }
             
