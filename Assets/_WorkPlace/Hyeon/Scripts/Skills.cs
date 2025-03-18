@@ -33,10 +33,12 @@ public class Skills : ISheetData
 
     // 스킬 잠금 해제 확인
     public bool unLockSkill = false;
-    public bool targeting = false;
+    public bool targeting = false;  // 스킬 타게팅 여부
 
     public float debuffDuration;        // 디버프 지속시간
     public float debuffValue;           // 디버프 효과 수치 (화상 데미지, 이동속도 감소율 등)
+
+    public float effectDuration;    // 이펙트 지속시간 (ex 장판형)
 
     // 초기화: cooldownTimer 설정 및 초기 경험치 계산
     public void Initialize()
