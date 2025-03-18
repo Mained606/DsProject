@@ -134,22 +134,30 @@ public class CombatManager : BaseManager<CombatManager>
             {
                 earthBuffMultiplier = earthEffect.GetDamageMultiplier();
             }
-            // 아직 효과가 적용되지 않았거나 매니저가 없는 경우 기본 증가 적용
+            // 일반 공격(스킬 없음)이고 플레이어가 공격할 때 무기의 속성 효과 적용
+            else if (isPlayerAttacking && !isBossAttacking && skills == null)
+            {
+                // 장착된 무기 정보 가져오기
+                Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+                if (equippedWeapon != null && equippedWeapon.itemSkill != null && 
+                    equippedWeapon.itemSkill.element == ElementalAttribute.Earth && 
+                    equippedWeapon.itemSkill.debuffValue > 0)
+                {
+                    // 무기의 땅 속성 효과 적용
+                    earthBuffMultiplier = 1f + (equippedWeapon.itemSkill.debuffValue / 100f);
+                    actualAttacker.ApplyEarthDamageEffect(equippedWeapon.itemSkill.debuffDuration, equippedWeapon.itemSkill.debuffValue);
+                }
+            }
+            // 스킬 사용 시 땅 속성 효과 적용
             else if (skills != null && skills.debuffValue > 0)
             {
                 earthBuffMultiplier = 1f + (skills.debuffValue / 100f);
                 
-                // 일회성 공격에는 땅 속성 데미지 증가 효과를 즉시 적용
+                // 스킬 사용 시 효과 적용
                 if (isPlayerAttacking && !isBossAttacking)
                 {
-                    // 플레이어가 땅 속성 무기로 공격할 때, 즉시 효과 적용 (짧은 지속 시간, 효과적인 횟수만큼만)
-                    actualAttacker.ApplyEarthDamageEffect(3f, skills.debuffValue);
+                    actualAttacker.ApplyEarthDamageEffect(skills.debuffDuration, skills.debuffValue);
                 }
-            }
-            else
-            {
-                // 기본 20% 증가
-                earthBuffMultiplier = 1.2f;
             }
             
             damage = Mathf.RoundToInt(damage * earthBuffMultiplier);
