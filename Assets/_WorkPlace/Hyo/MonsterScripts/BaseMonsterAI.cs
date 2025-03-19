@@ -285,6 +285,52 @@ public class BaseMonsterAI : MonoBehaviour
 
         // 새로운 코루틴 실행 및 저장
         hitCoroutine = StartCoroutine(RecoverFromHit());
+        
+        // 피격 상태에서도 플레이어 추적 가능하도록 즉시 처리
+        StartCoroutine(AllowMovementWhileHit());
+    }
+    
+    protected IEnumerator AllowMovementWhileHit()
+    {
+        // 약간의 딜레이를 주어 피격 애니메이션이 시작될 시간을 줌
+        yield return new WaitForSeconds(0.1f);
+        
+        // 플레이어가 있고 스턴 상태가 아니면 추적 로직 활성화
+        if (playerTarget != null && !isStunned && currentState == AIState.Hit)
+        {
+            // 이동 가능하도록 설정 (실제 이동 로직은 MoveTowardsWhileHit에서 처리)
+            StartCoroutine(MoveTowardsWhileHit());
+        }
+    }
+    
+    protected IEnumerator MoveTowardsWhileHit()
+    {
+        float movementSpeed = this.movementSpeed * 0.6f; // 피격 중 이동 속도는 일반 이동의 60%로 감소
+        
+        // 피격 상태가 유지되는 동안 계속 실행
+        while (currentState == AIState.Hit && !isStunned && playerTarget != null)
+        {
+            // 플레이어 방향으로 회전
+            Vector3 direction = (playerTarget.position - transform.position).normalized;
+            direction.y = 0; // y축 회전 제한
+            
+            if (direction != Vector3.zero)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, turnSpeed * Time.deltaTime);
+                
+                // 앞으로 이동 (회전 방향으로)
+                Vector3 moveDirection = transform.forward * movementSpeed * Time.deltaTime;
+                
+                // 중력 적용 유지
+                moveDirection.y = velocity.y;
+                
+                // 캐릭터 컨트롤러를 통한 이동
+                characterController.Move(moveDirection);
+            }
+            
+            yield return null;
+        }
     }
     
     protected IEnumerator RecoverFromHit()
@@ -639,11 +685,20 @@ public class BaseMonsterAI : MonoBehaviour
     // 스턴 효과를 적용하는 메서드 추가
     public void ApplyStun(float duration = -1)
     {
+        // 이미 스턴 상태인 경우 무시
+        if (isStunned)
+        {
+            Debug.Log($"[BaseMonsterAI] {gameObject.name}은(는) 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
+            return;
+        }
+        
         // -1이면 기본 스턴 지속시간 사용, 그렇지 않으면 파라미터로 전달된 시간 사용
         float actualDuration = duration > -1 ? duration : stunDuration;
         
-        // 진행 중인 스턴 코루틴이 있다면 정지
-        StopAllCoroutines();
+        // 모든 코루틴 중지 대신 스턴 관련 코루틴만 중지
+        // 기존 스턴 코루틴이 있으면 중지
+        StopCoroutine("ApplyStunEffect");
+        StopCoroutine("RecoverFromStun");
         
         // 새로운 스턴 효과 적용
         StartCoroutine(ApplyStunEffect(actualDuration));
@@ -652,12 +707,8 @@ public class BaseMonsterAI : MonoBehaviour
     // 스턴 효과 적용 코루틴
     protected IEnumerator ApplyStunEffect(float duration)
     {
-        // 이미 스턴 상태면 중복 적용하지 않지만 시간은 갱신
-        if (!isStunned)
-        {
-            // 스턴 상태로 변경
-            SetState(AIState.Stun);
-        }
+        // 스턴 상태로 변경
+        SetState(AIState.Stun);
         
         // 새로운 회복 코루틴 시작
         yield return StartCoroutine(RecoverFromStun(duration));
@@ -819,5 +870,27 @@ public class BaseMonsterAI : MonoBehaviour
     public Transform GetPlayerTarget()
     {
         return playerTarget;
+    }
+
+    // 스턴 상태를 해제하는 메서드
+    public void ResetStun()
+    {
+        // 스턴 플래그 해제
+        isStunned = false;
+        
+        // 현재 스턴 상태면 적절한 상태로 전환
+        if (currentState == AIState.Stun)
+        {
+            if (playerTarget != null)
+            {
+                SetState(AIState.Chasing);
+            }
+            else
+            {
+                SetState(AIState.Patrolling);
+            }
+            
+            Debug.Log($"{gameObject.name} 스턴 해제 및 상태 전환");
+        }
     }
 }
