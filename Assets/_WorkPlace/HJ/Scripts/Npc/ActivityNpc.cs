@@ -114,6 +114,7 @@ public class ActivityNpc : MonoBehaviour
                 isTalking = true;
                 isMoving = false;
                 LookAtTarget(other.transform);
+                StartConversation();
             }
         }
 
@@ -332,7 +333,7 @@ public class ActivityNpc : MonoBehaviour
     private void StartConversation()
     {
         if(isMoving) isMoving = false;
-        if (targetNpc) targetNpc = null;
+        if(targetNpc) targetNpc = null;
 
         StopCurrentAction();
 
@@ -370,8 +371,6 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(TalkingState, false);
         }
-
-        StartCoroutine(DoAction());
     }
 
     private void StopCurrentAction()
@@ -386,16 +385,5 @@ public class ActivityNpc : MonoBehaviour
         }
 
         StopAllCoroutines();
-    }
-
-    private IEnumerator DoAction()
-    {
-        while(!isTalking && Vector3.Distance(transform.position, startPosition) > 0.1f)
-        {
-            MoveToWards(startPosition);
-            yield return null;
-        }
-
-        StartCoroutine(defaultRoutine);
     }
 }
