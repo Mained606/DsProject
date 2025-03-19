@@ -14,6 +14,7 @@ public class ActivityNpc : MonoBehaviour
     private static readonly int SittingState = Animator.StringToHash("IsSitting");
     private static readonly int WalkingState = Animator.StringToHash("IsWalking");
     private static readonly int TalkingState = Animator.StringToHash("IsTalking");
+    private static readonly int ExitTrigger = Animator.StringToHash("ExitTrigger");
     private static readonly int WipeSweatTrigger = Animator.StringToHash("WipeSweatTrigger");
 
     [Header("Sitting Setting")]
@@ -367,10 +368,10 @@ public class ActivityNpc : MonoBehaviour
 
     private void StopConversation()
     {
-        if (animator.GetBool(TalkingState))
-        {
-            animator.SetBool(TalkingState, false);
-        }
+        animator.SetTrigger(ExitTrigger);
+        animator.SetBool(TalkingState, false);
+
+        DoAction();
     }
 
     private void StopCurrentAction()
@@ -385,5 +386,10 @@ public class ActivityNpc : MonoBehaviour
         }
 
         StopAllCoroutines();
+    }
+
+    private void DoAction()
+    {
+        //처음 위치로 이동하거나 그 자리에서 실행
     }
 }
