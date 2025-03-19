@@ -703,11 +703,26 @@ public class PlayerController : MonoBehaviour
 
     public void ApplyStun(float duration = -1)
     {
+        // 플레이어가 이미 스턴 상태인지 확인
+        // PlayerBehaviourManager의 이동, 점프, 공격 등이 모두 불가능한 상태면 스턴 중으로 간주
+        bool isAlreadyStunned = !behaviour.CanMove && !behaviour.CanJump && 
+                               !behaviour.CanAttack && !behaviour.CanUseSkill && 
+                               !behaviour.CanBlock && !behaviour.CanDodge;
+        
+        if(isAlreadyStunned)
+        {
+            Debug.Log("[PlayerController] 플레이어가 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
+            return;
+        }
+        
+        // 기존 스턴 코루틴이 있다면 중지
         if(stunCoroutine != null)
         {
             StopCoroutine(stunCoroutine);
             stunCoroutine = null;
         }
+        
+        // 새 스턴 코루틴 시작
         stunCoroutine = StartCoroutine(ApplyStunEffect(duration));
     }
 
