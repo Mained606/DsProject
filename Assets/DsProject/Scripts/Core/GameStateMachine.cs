@@ -44,7 +44,28 @@ public class GameStateMachine : MonoBehaviour
             // Debug.Log($"이미 상태가 {newState} 입니다.");
             return;
         }
-        
+
+        #region 03.17 C 
+        // 인벤토리 체인지 상태일 때, UI 확인 후 상태 유지 또는 MainMenu로 변경
+        if (newState == GameSystemState.InventoryChange)
+        {
+            if (UIManager.CookingUI.gameObject.activeSelf)
+            {
+                return; // 상태 변경을 하지 않고 유지
+            }
+            else if (!UIManager.Instance.IsUIWindowOpen()) // UI가 전혀 열려 있지 않다면 MainMenu로 돌아감
+            {
+                newState = GameSystemState.MainMenu;
+            }
+        }
+
+        // 상태가 InventoryChange일 때는 UI 닫기 로직을 수행하지 않음
+        if (newState != GameSystemState.InventoryChange)
+        {
+            UIManager.Instance.UIClose();
+        }
+        #endregion
+
         Debug.Log($"게임 상태 변경: {CurrentState} → {newState}");
         CurrentState = newState;
 

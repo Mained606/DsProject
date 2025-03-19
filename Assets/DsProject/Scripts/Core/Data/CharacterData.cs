@@ -93,8 +93,8 @@ public class CharacterData : ISheetData
     // 전투 관련 스탯
     [HideInInspector] public float physicalDefense; // 물리 방어력
     [HideInInspector] public float magicDefense; // 마법 방어력
-    [HideInInspector] public float physicalDamage; // 물리 공격력
-    [HideInInspector] public float magicDamage; // 마법 공격력
+    public float physicalDamage; // 물리 공격력
+    public float magicDamage; // 마법 공격력
     [HideInInspector] public float criticalChance; // 크리티컬 확률
     [HideInInspector] public float criticalDamage; // 크리티컬 데미지 배율
     [HideInInspector] public float dodgeChance; // 회피 확률
@@ -121,6 +121,11 @@ public class CharacterData : ISheetData
     public ElementalAttribute attribute; // 속성
 
     public bool isStunned;
+
+    // 추가: 장비 효과를 저장하는 필드
+    [Header("장비 효과")]
+    public float equipmentPhysicalBonus = 0f; // 장비로 인한 물리 데미지 보너스
+    public float equipmentMagicBonus = 0f;    // 장비로 인한 마법 데미지 보너스
 
     public CharacterData() {}
 
@@ -200,6 +205,9 @@ public class CharacterData : ISheetData
         };
 
         tempSkillChanges = new Dictionary<Skills, int>();
+        
+        // 변경 후 스탯 업데이트
+        UpdateDerivedStats();
     }
 
     // 데이터 초기화 함수
@@ -209,55 +217,63 @@ public class CharacterData : ISheetData
         currentHp = maxHp;
         currentMp = maxMp;
         staminaCurrent = stamina;
-
-        // 레벨과 관련된 동적 데이터 재계산
+        
+        // 버프 배율 초기화 (1.0이 기본값)
+        physicalDamageBuffMultiplier = 1.0f;
+        magicDamageBuffMultiplier = 1.0f;
+        hpBuffBonus = 0;
+        
+        // 이전 데미지 값 저장
+        float oldPhysicalDamage = physicalDamage;
+        float oldMagicDamage = magicDamage;
+        
+        // 동적 데이터 재계산
         UpdateDerivedStats();
 
-        Debug.Log($"Monster data reset. Level: {level}, HP: {currentHp}/{maxHp}");
+        Debug.Log($"Character data reset. Level: {level}, HP: {currentHp}/{maxHp}, 물리 데미지: {oldPhysicalDamage}->{physicalDamage} (장비보너스: {equipmentPhysicalBonus}), 마법 데미지: {oldMagicDamage}->{magicDamage} (장비보너스: {equipmentMagicBonus})");
     }
 
     // 파생 스탯 계산
-    public void UpdateDerivedStats()
+    public virtual void UpdateDerivedStats()
     {
-        int previousMaxHp = maxHp; // 이전 최대 체력 저장
-        int previousMaxMp = maxMp; // 이전 최대 MP 저장
-
         // 기본 체력 및 MP 계산에 버프 보너스를 반영
         maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier) + hpBuffBonus;
         maxMp = Mathf.RoundToInt((intelligence * statModifier.mpMultiplier) +
-                                 (level * statModifier.levelMpBonus)); // MP는 버프 효과가 없다고 가정
+                               (level * statModifier.levelMpBonus)); // MP는 버프 효과가 없다고 가정
 
-        // 물리 공격력 및 방어력 계산 (물리 공격력에 버프 배율 적용)
-        physicalDamage = Mathf.RoundToInt(Mathf.Max(strength * statModifier.strengthMultiplier * physicalDamageBuffMultiplier, 1f));
+        // 물리 데미지 계산 (버프 효과와 장비 보너스 분리)
+        float basePhysicalDamage = strength * statModifier.strengthMultiplier;
+        float buffedPhysicalDamage = basePhysicalDamage * physicalDamageBuffMultiplier;
+        physicalDamage = Mathf.RoundToInt(Mathf.Max(buffedPhysicalDamage + equipmentPhysicalBonus, 1f));
+
+        // 마법 데미지 계산 (버프 효과와 장비 보너스 분리)
+        float baseMagicDamage = intelligence * statModifier.intelligenceMultiplier;
+        float buffedMagicDamage = baseMagicDamage * magicDamageBuffMultiplier;
+        magicDamage = Mathf.RoundToInt(Mathf.Max(buffedMagicDamage + equipmentMagicBonus, 1f));
+
+        // 방어력 계산
         physicalDefense = Mathf.RoundToInt(Mathf.Max((strength + vitality) * statModifier.physicalResistanceMultiplier, 1f));
-
-        // 마법 공격력 및 방어력 계산 (마법 공격력에 버프 배율 적용)
-        magicDamage = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier * magicDamageBuffMultiplier, 1f));
         magicDefense = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.magicResistanceMultiplier, 1f));
 
         // 크리티컬 확률 계산
         criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f); // 민첩성에 따른 크리티컬 확률
         criticalDamage = 1.5f; // 크리티컬 데미지 배율 예시 (게임에 맞게 수정 가능)
 
-        // // 회피, 방어 확률 등 계산
-        // dodgeChance = Mathf.Min(agility * 0.01f, MaxDodgeChance);
-        // blockChance = Mathf.Min(strength * 0.01f, MaxBlockChance);
-
         // 피해 감소율 계산 (최대 50% 제한)
         physicalDamageReduction = Mathf.Min(physicalDefense / (physicalDefense + 100), 0.5f);
         magicDamageReduction = Mathf.Min(magicDefense / (magicDefense + 100), 0.5f);
 
         // 체력 증가 처리
-        if (maxHp > previousMaxHp)
+        if (maxHp > currentHp)
         {
-            currentHp += maxHp - previousMaxHp;
+            currentHp += maxHp - currentHp;
             currentHp = Mathf.Clamp(currentHp, 0, maxHp); // 현재 체력은 최대 체력보다 크지 않게 설정
         }
 
         // MP 증가 처리
-        if (maxMp > previousMaxMp)
+        if (maxMp > currentMp)
         {
-            currentMp += maxMp - previousMaxMp;
+            currentMp += maxMp - currentMp;
             currentMp = Mathf.Clamp(currentMp, 0, maxMp); // 현재 MP는 최대 MP보다 크지 않게 설정
         }
     }
@@ -586,6 +602,18 @@ public class CharacterData : ISheetData
             attackSpeed
         };
     }
+
+    // 장비 보너스 설정 메서드 추가
+    public void SetEquipmentBonuses(float physicalBonus, float magicBonus)
+    {
+        equipmentPhysicalBonus = physicalBonus;
+        equipmentMagicBonus = magicBonus;
+        
+        // 장비 변경 후 스탯 재계산
+        UpdateDerivedStats();
+        
+        Debug.Log($"[SetEquipmentBonuses] 장비 보너스 설정: 물리={physicalBonus}, 마법={magicBonus}, 적용 후 데미지: 물리={physicalDamage}, 마법={magicDamage}");
+    }
 }
 
 // 플레이어 데이터
@@ -794,15 +822,6 @@ public class PlayerData : CharacterData
     // 해당 스탯의 임시 할당치 미리보기 값 반환
     public int GetPreviewStat(StatType statType)
     {
-        // int baseValue = 0;
-        // switch (statType)
-        // {
-        //     case StatType.Strength: baseValue = this.strength; break;
-        //     case StatType.Vitality: baseValue = this.vitality; break;
-        //     case StatType.Agility: baseValue = this.agility; break;
-        //     case StatType.Intelligence: baseValue = this.intelligence; break;
-        // }
-        // return baseValue + tempStatChanges[statType];
         return tempStatChanges[statType];
     }
     
@@ -810,8 +829,6 @@ public class PlayerData : CharacterData
     public int GetPreviewSkillLevel(Skills skill)
     {
         if (skill == null) return 0;
-        // int temp = tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
-        // return skill.skillLevel + temp;
         return tempSkillChanges.ContainsKey(skill) ? tempSkillChanges[skill] : 0;
     }
 
@@ -840,43 +857,7 @@ public class PlayerData : CharacterData
     protected override void AwardLevelUpPoints()
     {
         availableStatPoints += 5;  // 스탯 포인트 5 지급
-        // availableSkillPoints += 1; // 스킬 포인트 1 지급
     }
-    
-    // public bool UpgradeStat(StatType statType)
-    // {
-    //     
-    //     if (availableStatPoints > 0)
-    //     {
-    //         ModifyStat(statType, 1); // 기존 스탯 증가 함수 사용
-    //         availableStatPoints--;
-    //         Debug.Log($"{statType} 스탯 증가! 남은 스탯 포인트: {availableStatPoints}");
-    //         return true;
-    //     }
-    //     Debug.LogWarning("스탯 포인트가 부족합니다!");
-    //     return false;
-    // }
-    
-    // 스킬 포인트 사용 레벨업 함수
-    // public bool UpgradeSkill(Skills skill)
-    // {
-    //     if (availableSkillPoints > 0)
-    //     {
-    //         if (skill.skillLevel < skill.maxSkillLevel)
-    //         {
-    //             availableSkillPoints--;
-    //             skill.LevelUp();
-    //             Debug.Log($"{skill.skillName} 스킬 레벨업! 현재 레벨: {skill.skillLevel}. 남은 스킬 포인트: {availableSkillPoints}");
-    //             return true;
-    //         }
-    //         
-    //         Debug.LogWarning("해당 스킬이 최대 레벨입니다!");
-    //         return false;
-    //     }
-    //
-    //     Debug.LogWarning("스킬 포인트가 부족합니다!");
-    //     return false;
-    // }
     
     public new PlayerData Clone()
     {

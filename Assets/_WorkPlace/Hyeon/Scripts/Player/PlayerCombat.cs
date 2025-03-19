@@ -29,13 +29,13 @@ public class PlayerCombat : MonoBehaviour
     public Quaternion targetRotation;
 
     private static readonly int[] SkillStateHash = {
-        Animator.StringToHash("Base Layer.FireStrike"),
-        Animator.StringToHash("Base Layer.UpperAttack"),
-        Animator.StringToHash("Base Layer.TurnAttack"),
-        Animator.StringToHash("Base Layer.DownCut"),
-        Animator.StringToHash("Base Layer.TerraSurge"),
-        Animator.StringToHash("Base Layer.GlacierSpear"),
-        Animator.StringToHash("Base Layer.LightningBlast"),
+        Animator.StringToHash("Base Layer.Skills.UpperAttack"),
+        Animator.StringToHash("Base Layer.Skills.DownCut"),
+        Animator.StringToHash("Base Layer.Skills.dwaredfsa"),
+        Animator.StringToHash("Base Layer.Skills.FireStrike"),
+        Animator.StringToHash("Base Layer.Skills.GlacierSpear"),
+        Animator.StringToHash("Base Layer.Skills.ElectroComet"),
+        Animator.StringToHash("Base Layer.Skills.TerraSurge"),
     };
 
     private void Start()
@@ -86,7 +86,7 @@ public class PlayerCombat : MonoBehaviour
         {
             float normalizedTime = stateInfo.normalizedTime;
 
-            if (normalizedTime >= 0.95f)
+            if (normalizedTime >= 0.93f)
             {
                 PlayerBehaviourManager.Instance.CanMove = true;
                 PlayerBehaviourManager.Instance.CanJump = true;

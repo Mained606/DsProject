@@ -33,10 +33,12 @@ public class Skills : ISheetData
 
     // 스킬 잠금 해제 확인
     public bool unLockSkill = false;
-    public bool targeting = false;
+    public bool targeting = false;  // 스킬 타게팅 여부
 
     public float debuffDuration;        // 디버프 지속시간
     public float debuffValue;           // 디버프 효과 수치 (화상 데미지, 이동속도 감소율 등)
+
+    public float effectDuration;    // 이펙트 지속시간 (ex 장판형)
 
     // 초기화: cooldownTimer 설정 및 초기 경험치 계산
     public void Initialize()
@@ -155,6 +157,22 @@ public class Skills : ISheetData
 
         Debug.Log($"[Skills] {skillName} 데이터 로드 완료!");
     }
+
+    #region 03.17 C
+    public string ToStringTMPro()
+    {
+        string color = (skillType == SkillType.Physical) ? "#1E90FF" : "#FFD700";
+        string info = $"<b><color={color}>{skillName}</color></b>\n" +
+                      $"유형: {skillType}\n" +
+                      $"레벨: {skillLevel}\n" +
+                      $"데미지: {currentDamage}\n" +
+                      $"소모 MP: {energyCost}\n" +
+                      $"쿨타임: {cooldown}초\n";
+        // 원하는 정보 더 추가
+        return info;
+    }
+    #endregion
+
 }
 
 public enum SkillType

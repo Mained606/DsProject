@@ -7,7 +7,7 @@ public class DropZone : MonoBehaviour, IDropHandler
 
     private void Awake()
     {
-        quickSlotsUI = transform.parent.GetComponent<QuickSlotsUI>();
+        quickSlotsUI = transform.parent.GetComponent<QuickSlotsUI>(); // 부모 판넬에서 
     }
 
     public void OnDrop(PointerEventData eventData)

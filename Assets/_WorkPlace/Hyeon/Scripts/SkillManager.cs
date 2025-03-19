@@ -18,6 +18,9 @@ public class BuffInfo {
     public Coroutine coroutine;
     public float startTime;  // 버프가 시작된 시간
     public float duration;   // 버프 지속시간
+    public float originalPhysicalMultiplier; // 원래 물리 데미지 배율 저장
+    public float originalMagicMultiplier;    // 원래 마법 데미지 배율 저장
+    public int originalHpBonus;              // 원래 HP 버프 보너스 저장
 }
 
 public class SkillManager : BaseManager<SkillManager>
@@ -195,7 +198,16 @@ public class SkillManager : BaseManager<SkillManager>
             {
                 ApplyEffect(effect, skill.particleDelay);
             }
-            Destroy(effect, 5f);
+
+            if(skill.effectDuration > 0)    // effectDuration 있는 경우 Destroy 시간 변경
+            {
+                Destroy(effect, skill.effectDuration);
+            }
+            else
+            {
+                Destroy(effect, 5f);
+            }
+                
         }
 
         float animationLength = GetAnimationClipLength(entityAnimator, skill.activeTriggerName);
@@ -451,44 +463,78 @@ public class SkillManager : BaseManager<SkillManager>
 
         if (targetCharacter == null) return;
 
+        // 버프 적용 전 플레이어 스탯 로깅
+        Debug.Log($"[ApplyBuff] 버프 적용 전 플레이어 스탯: 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}, 물리데미지={targetCharacter.physicalDamage}, 마법데미지={targetCharacter.magicDamage}");
+        Debug.Log($"[ApplyBuff] 장비 보너스: 물리={targetCharacter.equipmentPhysicalBonus}, 마법={targetCharacter.equipmentMagicBonus}");
+
+        // 이미 적용된 버프가 있다면 제거
         if (activeBuffs.ContainsKey(skillName))
         {
             BuffInfo existingBuff = activeBuffs[skillName];
+            Debug.Log($"[ApplyBuff] 이미 적용된 버프 '{skillName}' 제거");
             RemoveBuffEffect(skillName, targetCharacter);
             StopCoroutine(existingBuff.coroutine);
             activeBuffs.Remove(skillName);
+            targetCharacter.UpdateDerivedStats();
         }
 
+        // 원본 값 저장
         BuffInfo newBuffInfo = new BuffInfo
         {
             startTime = Time.time,
             duration = skill.buffDuration,
-            coroutine = StartCoroutine(RemoveBuff(skillName, skill.buffDuration, targetCharacter))
+            originalPhysicalMultiplier = targetCharacter.physicalDamageBuffMultiplier,
+            originalMagicMultiplier = targetCharacter.magicDamageBuffMultiplier,
+            originalHpBonus = targetCharacter.hpBuffBonus
         };
 
+        Debug.Log($"[ApplyBuff] 버프 '{skillName}'에 원본 값 저장: 물리배율={newBuffInfo.originalPhysicalMultiplier}, 마법배율={newBuffInfo.originalMagicMultiplier}");
+
+        // BuffInfo를 저장
         activeBuffs[skillName] = newBuffInfo;
+        
+        // 버프 효과 적용
         ApplyBuffEffect(skillName, targetCharacter);
+        
+        // 버프 적용 후 스탯 업데이트
         targetCharacter.UpdateDerivedStats();
+        
+        // 버프 종료 코루틴 시작
+        newBuffInfo.coroutine = StartCoroutine(RemoveBuff(skillName, skill.buffDuration, targetCharacter));
+        
+        // 이펙트 있으면 생성
         if (skill.effectPrefab != null)
         {
             InstantiateBuffEffect(skill.effectPrefab, GameManager.playerTransform.position);
         }
 
         TimerManager.Instance.StartTimer(skill.cooldownTimer);
+        
+        // 적용 후 값 로깅
+        Debug.Log($"[ApplyBuff] 버프 적용 후 플레이어 스탯: 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}, 물리데미지={targetCharacter.physicalDamage}, 마법데미지={targetCharacter.magicDamage}");
     }
 
     private void ApplyBuffEffect(string skillName, CharacterData targetCharacter)
     {
+        // 버프 타입에 따라 필요한 속성만 변경
         switch (skillName)
         {
             case "PlayerBuffPhysical":
-                targetCharacter.physicalDamageBuffMultiplier *= 1.2f;
+                float newPhysicalMultiplier = activeBuffs[skillName].originalPhysicalMultiplier * 1.2f;
+                Debug.Log($"[ApplyBuffEffect] 물리 공격력 버프 적용: {activeBuffs[skillName].originalPhysicalMultiplier} -> {newPhysicalMultiplier}");
+                targetCharacter.physicalDamageBuffMultiplier = newPhysicalMultiplier;
                 break;
+                
             case "PlayerBuffMagic":
-                targetCharacter.magicDamageBuffMultiplier *= 1.2f;
+                float newMagicMultiplier = activeBuffs[skillName].originalMagicMultiplier * 1.2f;
+                Debug.Log($"[ApplyBuffEffect] 마법 공격력 버프 적용: {activeBuffs[skillName].originalMagicMultiplier} -> {newMagicMultiplier}");
+                targetCharacter.magicDamageBuffMultiplier = newMagicMultiplier;
                 break;
+                
             case "PlayerBuffHP":
-                targetCharacter.hpBuffBonus += 100;
+                int newHpBonus = activeBuffs[skillName].originalHpBonus + 100;
+                Debug.Log($"[ApplyBuffEffect] 체력 버프 적용: {activeBuffs[skillName].originalHpBonus} -> {newHpBonus}");
+                targetCharacter.hpBuffBonus = newHpBonus;
                 targetCharacter.currentHp = Mathf.Min(targetCharacter.currentHp + 100, targetCharacter.maxHp);
                 break;
         }
@@ -496,18 +542,39 @@ public class SkillManager : BaseManager<SkillManager>
 
     private void RemoveBuffEffect(string skillName, CharacterData targetCharacter)
     {
+        if (!activeBuffs.ContainsKey(skillName))
+        {
+            Debug.LogWarning($"[RemoveBuffEffect] 버프 '{skillName}'를 제거하려고 했으나 active 버프 목록에 없습니다.");
+            return;
+        }
+
+        // 버프 제거 전 로깅
+        Debug.Log($"[RemoveBuffEffect] 버프 제거 전: 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}, 물리데미지={targetCharacter.physicalDamage}, 마법데미지={targetCharacter.magicDamage}");
+
+        // 버프 타입에 따라 원래 값으로 복원
         switch (skillName)
         {
             case "PlayerBuffPhysical":
-                targetCharacter.physicalDamageBuffMultiplier /= 1.2f;
+                float originalPhysical = activeBuffs[skillName].originalPhysicalMultiplier;
+                Debug.Log($"[RemoveBuffEffect] 물리 공격력 버프 제거: {targetCharacter.physicalDamageBuffMultiplier} -> {originalPhysical}");
+                targetCharacter.physicalDamageBuffMultiplier = originalPhysical;
                 break;
+                
             case "PlayerBuffMagic":
-                targetCharacter.magicDamageBuffMultiplier /= 1.2f;
+                float originalMagic = activeBuffs[skillName].originalMagicMultiplier;
+                Debug.Log($"[RemoveBuffEffect] 마법 공격력 버프 제거: {targetCharacter.magicDamageBuffMultiplier} -> {originalMagic}");
+                targetCharacter.magicDamageBuffMultiplier = originalMagic;
                 break;
+                
             case "PlayerBuffHP":
-                targetCharacter.hpBuffBonus -= 100;
+                int originalHp = activeBuffs[skillName].originalHpBonus;
+                Debug.Log($"[RemoveBuffEffect] 체력 버프 제거: {targetCharacter.hpBuffBonus} -> {originalHp}");
+                targetCharacter.hpBuffBonus = originalHp;
                 break;
         }
+
+        // 버프 제거 후 로깅
+        Debug.Log($"[RemoveBuffEffect] 버프 제거 후(UpdateDerivedStats 전): 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}");
     }
 
     private void InstantiateBuffEffect(GameObject effectPrefab, Vector3 targetPosition)
@@ -519,14 +586,26 @@ public class SkillManager : BaseManager<SkillManager>
 
     private IEnumerator RemoveBuff(string skillName, float duration, CharacterData targetCharacter)
     {
+        Debug.Log($"[RemoveBuff] {skillName} 버프 시작됨, 지속시간: {duration}초");
         yield return new WaitForSeconds(duration);
+        
+        Debug.Log($"[RemoveBuff] {skillName} 버프 종료, 효과 제거 중...");
+        
+        // 버프 효과 제거 및 스탯 업데이트
         RemoveBuffEffect(skillName, targetCharacter);
+        targetCharacter.UpdateDerivedStats();
+        
+        Debug.Log($"[RemoveBuff] 스탯 업데이트 후: 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}, 물리데미지={targetCharacter.physicalDamage}, 마법데미지={targetCharacter.magicDamage}");
+        
+        // 체력 제한
         if (targetCharacter.maxHp < targetCharacter.currentHp)
         {
             targetCharacter.currentHp = targetCharacter.maxHp;
         }
+        
+        // 활성 버프 목록에서 제거
         activeBuffs.Remove(skillName);
-        Debug.Log(skillName + " 버프 종료");
+        Debug.Log($"[RemoveBuff] {skillName} 버프 완전히 제거됨.");
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
