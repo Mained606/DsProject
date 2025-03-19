@@ -300,7 +300,7 @@ public class GenerateData
     {
         List<Quest> questList = new List<Quest>
         {
-            new Quest("서브퀘스트", "소형 체력포션", "회복 포션 수집",
+            /*new Quest("서브퀘스트", "소형 체력포션", "회복 포션 수집",
                 "회복 포션 10개를 수집하세요.",
                 new Dictionary<string, QuestCondition>
                 {
@@ -309,8 +309,110 @@ public class GenerateData
                 new List<Reward>
                 {
                     new Reward("소형 체력포션", 10, 100, 50)
-                }),
+                }),*/
 
+            new Quest("서브퀘스트", "1_2001", "모험가의 길","대장장이가 하는 일이 궁금한가?",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "-",1) }
+                },
+                new List<Reward>{new Reward("강화석 조각", 5, 0, 50)}),
+
+            new Quest("서브퀘스트", "1_2002", "모험가의 길","대장장이가 하는 일이 궁금한가?",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Collect, "강화무기id", "무기 강화 성공!",1) },
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "대장장이에게 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("강화석", 1, 50, 50)}),
+
+            new Quest("서브퀘스트", "1_2003", "모험가의 길","요리 방법이 궁금하다고?",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_06", "-",1) }
+                },
+                new List<Reward>{new Reward("", 0, 0, 0)}),
+
+            new Quest("서브퀘스트", "1_2004", "모험가의 길","요리 방법이 궁금하다고?",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Collect, "야채스프", "야채 스프 만들기",1) },
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "요리사에게 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("버섯", 3, 50, 50)}),
+
+            new Quest("메인퀘스트", "1_2005", "친절한 용사","밭을 망치는 머쉬룸을 잡아줘!",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Kill, "Mushroom", "머쉬룸을 처치하자",10) },
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_02", "수배지를 확인하자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 50,50)}),
+
+            new Quest("메인퀘스트", "1_2006", "친절한 용사","내 장난감을 찾아줘",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Collect, "장난감id", "장난감을 찾자",1) },
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_07", "소녀에게 장난감을 가져다주자.",1) }
+                },
+                new List<Reward>{new Reward("요리", 1, 50,0)}),
+
+            new Quest("메인퀘스트", "1_2007", "친절한 용사","골렘을 잡아줘!",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Kill, "Mushroom", "골렘을 처치하자",10) },
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_03", "수배지를 확인하자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 50,50)}),
+
+            new Quest("서브퀘스트", "1_2008", "마을의 수호자","이장의 선물",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "이장님께 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("회복의 반지", 1, 0, 0)}),
+
+            new Quest("서브퀘스트", "1_2009", "마을의 수호자","대장장이의 선물",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_06", "대장장이에게 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("강화석", 3, 0, 0)}),
+
+            new Quest("서브퀘스트", "1_2010", "마을의 수호자","요리사의 선물",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_07", "요리사에게 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("요리", 3, 0, 0)}),
+
+            new Quest("서브퀘스트", "1_2011", "마을의 수호자","흠 아저씨의 선물",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_11", "흠 아저씨에게 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 0, 200)}),
+
+            new Quest("서브퀘스트", "1_2012", "마을의 수호자","마을 소녀의 선물",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_08", "마을 소녀에게 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("체력 물약(소)", 5, 0, 0)}),
+
+            new Quest("서브퀘스트", "1_2013", "마을의 수호자","마을 소년의 선물",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_09", "마을 소년에게 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("마나 물약(소)", 5, 0, 0)}),
+
+            new Quest("서브퀘스트", "1_2014", "마을의 수호자","세이아의 선물",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002", new QuestCondition(QuestConditionType.Meet, "Quest1_10", "세이아에게 말을 걸자",1) }
+                },
+                new List<Reward>{new Reward("발광석", 1, 0, 0)}),
         };
         return questList;
     }
