@@ -124,7 +124,6 @@ public class PlayerController : MonoBehaviour
         behaviour.CanMove = true;
         behaviour.CanJump = true;
         behaviour.CanDodge = true;
-        
         //behaviour.CanClimb = true;
     }
 

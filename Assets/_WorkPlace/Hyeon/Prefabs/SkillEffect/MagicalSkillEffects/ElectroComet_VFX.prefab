@@ -388,4 +388,5 @@ MonoBehaviour:
   layer:
     serializedVersion: 2
     m_Bits: 1024
-  attackInterval: 2
+  attackRange: 10
+  attackInterval: 3

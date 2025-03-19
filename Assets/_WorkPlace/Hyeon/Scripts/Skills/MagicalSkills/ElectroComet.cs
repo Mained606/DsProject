@@ -9,7 +9,7 @@ public class ElectroComet : MonoBehaviour
     private VisualEffect vfx;
     [SerializeField] private LayerMask layer;
 
-    private float attackRange;
+    [SerializeField] private float attackRange = 10f;
     [SerializeField] private float attackInterval = 1f;
     private float timer = 0f;
     private Vector3 spawnPosition;
@@ -22,7 +22,7 @@ public class ElectroComet : MonoBehaviour
     {
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "ElectroComet");
         vfx = GetComponentInChildren<VisualEffect>();
-        attackRange = vfx.GetFloat("Radius");
+        vfx.SetFloat("Radius", attackRange);
         spawnPosition = transform.position;
     }
 
@@ -62,7 +62,7 @@ public class ElectroComet : MonoBehaviour
                     }
                     else
                     {
-                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, hit.transform, true, true, skills, false, skills.attribute, 0f);
+                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, hit.transform, true, true, skills, false, skills.attribute, -2f);
                     }
                 }
 
@@ -76,7 +76,7 @@ public class ElectroComet : MonoBehaviour
                     }
                     else
                     {
-                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, hit.transform, true, true, skills, false, skills.attribute, 0f);
+                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, hit.transform, true, true, skills, false, skills.attribute, -2f);
                     }
                 }
 
