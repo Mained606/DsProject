@@ -62,14 +62,29 @@ public class DragonController : MonoBehaviour
 
     // 드래곤의 상태를 나타내는 변수 추가
     [SerializeField] private DragonState currentState = DragonState.Idle;
+    
+    // ===== 진화 관련 추가 필드 =====
+    [Header("Evolution Settings")]
+    [SerializeField] private GameObject[] dragonModelPrefabs = new GameObject[3]; // 각 진화 단계별 모델 프리팹 
+    [SerializeField] private Transform[] modelParents = new Transform[3]; // 각 진화 단계별 모델 위치 부모 (없다면 null)
+    [SerializeField] private GameObject evolutionEffectPrefab; // 진화 시 재생할 이펙트 (옵션)
+    
+    // 현재 활성화된 모델 레퍼런스
+    private GameObject currentModelInstance;
+    
+    // 진화 효과를 위한 머티리얼
+    [SerializeField] private Material evolutionMaterial;
+    private Material[] originalMaterials;
 
     private void OnEnable()
     {
+        // 진화 이벤트 구독
+        DragonData.OnDragonEvolution += HandleEvolution;
+        
         // CharacterManager와 PlayerCharacterData가 초기화되었는지 확인
         if (CharacterManager.Instance == null || CharacterManager.PlayerCharacterData == null)
         {
             Debug.LogWarning("[DragonController] CharacterManager 또는 PlayerCharacterData가 초기화되지 않았습니다.");
-            // 필요한 경우 여기서 초기화 코드 추가
             return;
         }
 
@@ -82,13 +97,19 @@ public class DragonController : MonoBehaviour
         // 드래곤 Transform 설정
         GameManager.DragonTransform = transform;
         
-        // 활성화 후 플레이어 스탯이 변경되었는지 확인 (1프레임 후 체크를 위해 코루틴 사용)
+        // 활성화 후 플레이어 스탯이 변경되었는지 확인
         StartCoroutine(CheckAndRestorePlayerStats(
             originalPlayerPhysicalDamage, 
             originalPlayerMagicDamage, 
             originalPlayerPhysicalMultiplier, 
             originalPlayerMagicMultiplier
         ));
+    }
+    
+    private void OnDisable()
+    {
+        // 진화 이벤트 구독 해제
+        DragonData.OnDragonEvolution -= HandleEvolution;
     }
     
     // 플레이어 스탯 확인 및 복원 코루틴
@@ -98,15 +119,8 @@ public class DragonController : MonoBehaviour
         float originalPhysicalMultiplier, 
         float originalMagicMultiplier)
     {
-        // 1프레임 대기 (드래곤 활성화 처리가 완료될 때까지)
+        // 1프레임 대기
         yield return null;
-        
-        // PlayerCharacterData가 유효한지 재확인
-        if (CharacterManager.Instance == null || CharacterManager.PlayerCharacterData == null)
-        {
-            Debug.LogWarning("[DragonController] CheckAndRestorePlayerStats: CharacterManager 또는 PlayerCharacterData가 null입니다.");
-            yield break;
-        }
         
         // 플레이어 스탯이 변경되었는지 확인
         if (CharacterManager.PlayerCharacterData.physicalDamage != originalPhysicalDamage || 
@@ -181,6 +195,23 @@ public class DragonController : MonoBehaviour
         lastPlayerPosition = player.position; // 초기 위치 저장
         meleeRange = dragonData.attackRange;
         followSpeed = dragonData.speed;
+        
+        // 진화 단계에 맞는 모델 적용
+        UpdateDragonModel();
+        
+        // 드래곤 데이터의 프리팹 배열에 모델 프리팹들 설정
+        if (dragonData != null && dragonModelPrefabs != null && dragonModelPrefabs.Length > 0)
+        {
+            // 중요: 게임 시작 시 DragonData.evolutionPrefabs가 설정되어 있지 않다면 초기화
+            if (dragonData.evolutionPrefabs == null || dragonData.evolutionPrefabs.Length != dragonModelPrefabs.Length)
+            {
+                dragonData.evolutionPrefabs = new GameObject[dragonModelPrefabs.Length];
+                for (int i = 0; i < dragonModelPrefabs.Length; i++)
+                {
+                    dragonData.evolutionPrefabs[i] = dragonModelPrefabs[i];
+                }
+            }
+        }
     }
 
     private void Update()
@@ -308,8 +339,6 @@ public class DragonController : MonoBehaviour
         //    }
         //}
         /// //////////////////////////////////////////////////////////
-
-        FollowPlayerLogic();
     }
 
     // 주변에서 가장 가까운 몬스터를 찾아서 타겟 설정
@@ -562,7 +591,7 @@ public class DragonController : MonoBehaviour
             currentState = isMoving ? DragonState.Moving : DragonState.Idle;
         }
 
-        // 플레이어의 현재 위치 저장 (이것은 상태 변경 후 마지막으로 해야 함)
+        // 플레이어의 현재 위치 저장
         lastPlayerPosition = player.position;
     }
 
@@ -605,5 +634,205 @@ public class DragonController : MonoBehaviour
         // 전투 탐색 범위 표시
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectRange);
+    }
+
+    // 진화 단계에 따른 모델 업데이트
+    private void UpdateDragonModel()
+    {
+        if (dragonData == null) return;
+        
+        // 현재 활성화된 모델이 있다면 비활성화
+        if (currentModelInstance != null)
+        {
+            Destroy(currentModelInstance);
+            currentModelInstance = null;
+        }
+        
+        // 현재 진화 단계에 맞는 모델 인스턴스화
+        int stageIndex = (int)dragonData.evolutionStage;
+        if (dragonModelPrefabs != null && dragonModelPrefabs.Length > stageIndex && dragonModelPrefabs[stageIndex] != null)
+        {
+            // 프리팹 로그 출력
+            Debug.Log($"현재 진화 단계({dragonData.evolutionStage})의 프리팹: {dragonModelPrefabs[stageIndex].name}");
+            
+            // 부모 트랜스폼 결정
+            Transform parentTransform = transform;
+            if (modelParents != null && modelParents.Length > stageIndex && modelParents[stageIndex] != null)
+            {
+                parentTransform = modelParents[stageIndex];
+            }
+            
+            // 모델 인스턴스화
+            currentModelInstance = Instantiate(dragonModelPrefabs[stageIndex], parentTransform.position, parentTransform.rotation, parentTransform);
+            
+            // 새 모델에서 애니메이터 찾거나 연결
+            Animator modelAnimator = currentModelInstance.GetComponent<Animator>();
+            if (modelAnimator != null)
+            {
+                // 새 애니메이터로 업데이트
+                animator = modelAnimator;
+            }
+            
+            // FirePoint를 찾기 위한 개선된 로직
+            FindAndSetupFirePoint();
+            
+            // 진화 단계에 따른 추가 조정 (크기 등)
+            switch (dragonData.evolutionStage)
+            {
+                case DragonEvolutionStage.Baby:
+                    currentModelInstance.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    break;
+                    
+                case DragonEvolutionStage.Young:
+                    currentModelInstance.transform.localScale = new Vector3(2f, 2f, 2f);
+                    break;
+                    
+                case DragonEvolutionStage.Adult:
+                    currentModelInstance.transform.localScale = new Vector3(4f, 4f, 4f);
+                    break;
+            }
+        }
+        else
+        {
+            Debug.LogError($"드래곤 모델 프리팹이 설정되지 않았습니다. 단계: {dragonData.evolutionStage}");
+        }
+    }
+    
+    // FirePoint를 찾거나 생성하는 기능 추가
+    private void FindAndSetupFirePoint()
+    {
+        if (currentModelInstance == null) return;
+        
+        // 1. 먼저 직접적인 자식에서 찾기
+        Transform foundFirePoint = currentModelInstance.transform.Find("FirePoint");
+        
+        // 2. 찾지 못했다면 재귀적으로 모든 자식에서 찾기
+        if (foundFirePoint == null)
+        {
+            foundFirePoint = FindFirePointRecursively(currentModelInstance.transform);
+        }
+        
+        // 3. 찾지 못했다면 Head나 머리 관련 트랜스폼에서 찾기
+        if (foundFirePoint == null)
+        {
+            foundFirePoint = FindHeadTransform(currentModelInstance.transform);
+        }
+        
+        // 4. 그래도 찾지 못했다면 새로 생성
+        if (foundFirePoint == null)
+        {
+            foundFirePoint = CreateNewFirePoint();
+        }
+        
+        // 찾았거나 새로 만든 FirePoint 적용
+        if (foundFirePoint != null)
+        {
+            firePoint = foundFirePoint;
+            Debug.Log($"FirePoint 설정 완료: {firePoint.name}");
+        }
+        else
+        {
+            Debug.LogWarning("FirePoint를 찾거나 생성하지 못했습니다.");
+        }
+    }
+
+    // 재귀적으로 특정 키워드가 포함된 트랜스폼 찾는 함수
+    private Transform FindTransformByKeywords(Transform parent, string[] keywords)
+    {
+        foreach (Transform child in parent)
+        {
+            // 이름에 키워드가 포함된 경우
+            string childNameLower = child.name.ToLower();
+            foreach (string keyword in keywords)
+            {
+                if (childNameLower.Contains(keyword))
+                {
+                    return child;
+                }
+            }
+            
+            // 자식의 자식에서 재귀적으로 찾기
+            Transform found = FindTransformByKeywords(child, keywords);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+        
+        return null;
+    }
+    
+    // 재귀적으로 FirePoint를 찾는 함수
+    private Transform FindFirePointRecursively(Transform parent)
+    {
+        string[] fireKeywords = { "fire", "mouth", "point" };
+        return FindTransformByKeywords(parent, fireKeywords);
+    }
+
+    // Head나 머리 관련 트랜스폼 찾기
+    private Transform FindHeadTransform(Transform parent)
+    {
+        string[] headKeywords = { "head", "neck", "mouth", "jaw" };
+        return FindTransformByKeywords(parent, headKeywords);
+    }
+
+    // 새로운 FirePoint 생성
+    private Transform CreateNewFirePoint()
+    {
+        // 모델의 앞쪽에 FirePoint 생성
+        GameObject newFirePoint = new GameObject("FirePoint");
+        newFirePoint.transform.SetParent(currentModelInstance.transform);
+        newFirePoint.transform.localPosition = new Vector3(0, 0.5f, 1f); // 대략적인 머리 위치
+        Debug.Log("새로운 FirePoint 생성됨");
+        return newFirePoint.transform;
+    }
+
+    // 진화 이벤트 핸들러
+    private void HandleEvolution(DragonEvolutionStage newStage)
+    {
+        if (dragonData == null) return;
+        
+        // 모델 변경 전에 진화 이펙트 재생
+        StartCoroutine(PlayEvolutionEffect());
+    }
+    
+    // 진화 이펙트 재생 코루틴
+    private IEnumerator PlayEvolutionEffect()
+    {
+        if (currentModelInstance == null) yield break;
+        
+        // 원본 머티리얼 저장
+        Renderer[] renderers = currentModelInstance.GetComponentsInChildren<Renderer>();
+        originalMaterials = new Material[renderers.Length];
+        
+        // 진화 머티리얼로 교체 (있다면)
+        if (evolutionMaterial != null)
+        {
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                originalMaterials[i] = renderers[i].material;
+                renderers[i].material = evolutionMaterial;
+            }
+        }
+        
+        // 진화 이펙트 재생 (있다면)
+        if (evolutionEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(evolutionEffectPrefab, currentModelInstance.transform.position, Quaternion.identity);
+            Destroy(effect, 3f); // 3초 후 이펙트 제거
+        }
+        
+        yield return new WaitForSeconds(1.5f);
+        
+        // 모델 업데이트
+        UpdateDragonModel();
+        
+        // 레벨업 사운드 재생 (예시)
+        // AudioManager.Instance.PlaySFX("DragonEvolve");
+        
+        // 화면 효과 (필요하다면)
+        // UIManager.Instance.ShowEvolutionEffect();
+        
+        Debug.Log($"드래곤이 {dragonData.evolutionStage} 단계로 진화했습니다!");
     }
 }
