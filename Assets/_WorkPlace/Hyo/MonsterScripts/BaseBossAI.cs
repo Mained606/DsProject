@@ -371,9 +371,57 @@ public class BaseBossAI : MonoBehaviour
     private IEnumerator HandleHitState()
     {
         animator.SetTrigger(Hit);
+        
+        // 피격 상태에서도 플레이어 추적 가능하도록 즉시 처리
+        StartCoroutine(AllowMovementWhileHit());
+        
         yield return new WaitForSeconds(hitDuration);
         SetState(BossState.Attacking);
     }
+    
+    private IEnumerator AllowMovementWhileHit()
+    {
+        // 약간의 딜레이를 주어 피격 애니메이션이 시작될 시간을 줌
+        yield return new WaitForSeconds(0.1f);
+        
+        // 플레이어가 있고 스턴 상태가 아니면 추적 로직 활성화
+        if (playerTarget != null && !isStunned && currentState == BossState.Hit)
+        {
+            // 이동 가능하도록 설정 (실제 이동 로직은 MoveTowardsWhileHit에서 처리)
+            StartCoroutine(MoveTowardsWhileHit());
+        }
+    }
+    
+    private IEnumerator MoveTowardsWhileHit()
+    {
+        float hitMovementSpeed = movementSpeed * 0.5f; // 피격 중 이동 속도는 일반 이동의 50%로 감소
+        
+        // 피격 상태가 유지되는 동안 계속 실행
+        while (currentState == BossState.Hit && !isStunned && playerTarget != null)
+        {
+            // 플레이어 방향으로 회전
+            Vector3 direction = (playerTarget.position - transform.position).normalized;
+            direction.y = 0; // y축 회전 제한
+            
+            if (direction != Vector3.zero && isRotating)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, turnSpeed * Time.deltaTime);
+                
+                // 앞으로 이동 (회전 방향으로)
+                Vector3 moveDirection = transform.forward * hitMovementSpeed * Time.deltaTime;
+                
+                // 중력 적용 유지
+                moveDirection.y = velocity.y;
+                
+                // 캐릭터 컨트롤러를 통한 이동
+                characterController.Move(moveDirection);
+            }
+            
+            yield return null;
+        }
+    }
+
     private IEnumerator ExecuteBossAttack()
     {
         if (isAttacking) yield break;
@@ -773,11 +821,18 @@ public class BaseBossAI : MonoBehaviour
     // 외부에서 스턴 적용을 위한 공개 메서드
     public void ApplyStun(float duration = -1)
     {
+        // 이미 스턴 상태인 경우 무시
+        if (isStunned)
+        {
+            Debug.Log($"[BaseBossAI] {gameObject.name} 보스는 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
+            return;
+        }
+        
         // 지정된 지속시간이 없으면 기본값 사용
         float actualDuration = duration > 0 ? duration : stunDuration;
         
-        // 진행 중인 코루틴 정지 (스턴 상태의 안정성을 위해)
-        StopAllCoroutines();
+        // 모든 코루틴 중지 대신 스턴 관련 코루틴만 중지
+        StopCoroutine("RecoverFromStun");
         
         // 상태 변경 및 새 코루틴 시작
         SetState(BossState.Stun);

@@ -67,7 +67,8 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
         }
     }
     
-    public void AddEffect(ElementalEffect newEffect)
+    // 효과를 추가하고 성공 여부를 반환하는 메서드 (중복 효과 확인용)
+    public bool TryAddEffect(ElementalEffect newEffect)
     {
         // 자동 생성 확인
         EnsureExists();
@@ -77,16 +78,32 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
             e.Target == newEffect.Target && 
             e.GetType() == newEffect.GetType());
             
-        // 이미 같은 유형의 효과가 적용되어 있다면 제거 후 새로 적용
+        // 이미 같은 유형의 효과가 적용되어 있다면 false 반환
         if (existingEffect != null)
         {
-            RemoveEffect(existingEffect);
+            // 효과 종류에 따라 메시지 조정
+            if (newEffect is ElectricStunEffect)
+            {
+                Debug.Log($"{newEffect.Target.characterName}에게 이미 스턴 효과가 적용되어 있어 새 스턴 효과를 무시합니다. 남은 지속시간: {existingEffect.CurrentDuration:F1}초");
+            }
+            else
+            {
+                Debug.Log($"{newEffect.Target.characterName}에게 이미 {newEffect.GetType().Name} 효과가 적용되어 있어 새 효과를 무시합니다. 남은 지속시간: {existingEffect.CurrentDuration:F1}초");
+            }
+            return false; // 추가 실패 (중복)
         }
         
         // 새 효과 적용
         Coroutine newCoroutine = StartCoroutine(newEffect.ProcessEffect());
         effectCoroutines[newEffect] = newCoroutine;
         activeEffects.Add(newEffect);
+        return true; // 추가 성공
+    }
+    
+    // 이전 버전과의 호환성을 위해 유지 (단순히 TryAddEffect 호출하고 결과 무시)
+    public void AddEffect(ElementalEffect newEffect)
+    {
+        TryAddEffect(newEffect);
     }
     
     public void RemoveEffect(ElementalEffect effect)
