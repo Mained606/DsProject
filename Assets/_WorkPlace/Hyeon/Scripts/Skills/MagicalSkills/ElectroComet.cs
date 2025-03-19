@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TreeEditor;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -14,6 +15,8 @@ public class ElectroComet : MonoBehaviour
     private Vector3 spawnPosition;
 
     private bool elementalAttack = false;
+
+    private Dictionary<Collider, bool> hasElementalAttack = new Dictionary<Collider, bool>();
 
     private void Start()
     {
@@ -37,19 +40,25 @@ public class ElectroComet : MonoBehaviour
         }
 
         Collider[] hitColliders = Physics.OverlapSphere(spawnPosition, attackRange, layer);
+
         foreach(Collider hit in hitColliders)
         {
             BaseMonsterData baseMonsterData = hit.transform.GetComponent<BaseMonsterData>();
+            //GameObject monster = baseMonsterData.gameObject;
+            //hasStunned.Add(monster, false);
             if (baseMonsterData != null)
             {
-                // monsterOrBossData가 MonsterData일 경우 처리
                 MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
+                BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
+
+                bool hasDebuff = hasElementalAttack.ContainsKey(hit) && hasElementalAttack[hit];
+                // monsterOrBossData가 MonsterData일 경우 처리
                 if (enemyMonsterData != null)
                 {
-                    if (!elementalAttack)
+                    if (!hasDebuff)
                     {
                         CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, hit.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
-                        elementalAttack = true;
+                        hasElementalAttack[hit] = true;
                     }
                     else
                     {
@@ -58,13 +67,12 @@ public class ElectroComet : MonoBehaviour
                 }
 
                 // monsterOrBossData가 BossData일 경우 처리
-                BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
                 if (enemyBossData != null)
                 {
-                    if (!elementalAttack)
+                    if (!hasDebuff)
                     {
                         CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, hit.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
-                        elementalAttack = true;
+                        hasElementalAttack[hit] = true; // 디버프 적용 기록
                     }
                     else
                     {

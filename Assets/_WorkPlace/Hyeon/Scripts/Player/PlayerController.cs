@@ -705,8 +705,7 @@ public class PlayerController : MonoBehaviour
     {
         if(stunCoroutine != null)
         {
-            StopCoroutine(stunCoroutine);
-            stunCoroutine = null;
+            return;
         }
         stunCoroutine = StartCoroutine(ApplyStunEffect(duration));
     }
