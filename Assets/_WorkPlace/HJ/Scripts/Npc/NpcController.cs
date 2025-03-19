@@ -6,7 +6,8 @@ public enum NpcType
     Farmer,
     Craft,
     Fishing,
-    Sitting
+    Sitting,
+    Animal
 }
 
 public class NpcController : MonoBehaviour
@@ -19,7 +20,11 @@ public class NpcController : MonoBehaviour
         {
             gameObject.AddComponent<WanderNpc>();
         }
-        else // if (npcType == NpcType.Farmer || npcType == NpcType.Craft || npcType == NpcType.Fishing || npcType == NpcType.Sitting)
+        else if(npcType == NpcType.Animal)
+        {
+            gameObject.AddComponent<AnimalNpc>();
+        }
+        else
         {
             gameObject.AddComponent<ActivityNpc>();
         }

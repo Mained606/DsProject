@@ -11,6 +11,7 @@ public class WanderNpc : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float turnSpeed = 10f;
     [SerializeField] private float arrivedDistance = 1f;
+    [SerializeField] private float minNpcDistance = 1f;
     [SerializeField] private bool isMoving = false;
 
     [Header("Position Settings")]
@@ -29,7 +30,6 @@ public class WanderNpc : MonoBehaviour
     private float lastConversationTime = 0f;
     [SerializeField] private float sittingCoolTime = 5f;
     private float lastSittingTime = 0f;
-    private float minNpcDistance = 1f;
     private float nextDestinationTime = 0f;
     private float destinationCooldown = 1f;
 

@@ -1,28 +1,68 @@
 using System.Collections;
+using Unity.Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ActivityNpc : MonoBehaviour
 {
-    private string fishingState = "IsFishing";
-    private string farmingState = "IsFarming";
-    private string craftingState = "IsCrafting";
-    private string sittingState = "IsSitting";
+    [Header("Animation Settings")]
+    public Animator animator;
+    private static readonly int FishingState = Animator.StringToHash("IsFishing");
+    private static readonly int FarmingState = Animator.StringToHash("IsFarming");
+    private static readonly int CraftingState = Animator.StringToHash("IsCrafting");
+    private static readonly int SittingState = Animator.StringToHash("IsSitting");
+    private static readonly int WalkingState = Animator.StringToHash("IsWalking");
+    private static readonly int TalkingState = Animator.StringToHash("IsTalking");
+    private static readonly int WipeSweatTrigger = Animator.StringToHash("WipeSweatTrigger");
 
-    private string wipeSweatTrigger = "WipeSweatTrigger";
-    private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
-
-    private int sittingTalkingTrigger = Animator.StringToHash("SittingTalkingTrigger");
-
-    private Animator animator;
-    private NpcController npcController;
-
+    [Header("Sitting Setting")]
     [SerializeField] private bool isNearNpc = false;
     [SerializeField] private bool isSitting = false;
-
     [SerializeField] private Vector3 sittingOffset = new Vector3(0, 0.4f, 0);
+    private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
+
+    [Header("Movement Setting")]
+    [SerializeField] private Vector3 startPosition;
+    [SerializeField] private Transform targetNpc;
+    [SerializeField] private float npcDistance = 100f;
+    [SerializeField] private float moveSpeed = 3f;
+    [SerializeField] private float turnSpeed = 10f;
+    [SerializeField] private bool isMoving = false;
+    //public bool IsMoving
+    //{
+    //    get { return isMoving; }
+    //    set
+    //    {
+    //        isMoving = value;
+    //        if (isMoving) MoveToWards(targetNpc.position);
+    //        else StopCurrentAction();
+    //    }
+    //}
+
+    [Header("Talking State")]
+    private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
+    private float talkingChance = 1f;
+    private float talkingDuration = 2f;
+    [SerializeField] private bool isTalking = false;
+    //public bool IsTalking
+    //{
+    //    get { return isTalking; }
+    //    set
+    //    {
+    //        isTalking = value;
+    //        if (isTalking) StartConversation();
+    //        else StopConversation();
+    //    }
+    //}
+
+    private NpcController npcController;
+    [SerializeField] private int defaultState;
+    private IEnumerator defaultRoutine;
 
     private void Start()
     {
+        startPosition = this.transform.position;
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -31,19 +71,33 @@ public class ActivityNpc : MonoBehaviour
 
         if (npcController.npcType == NpcType.Fishing)
         {
-            StartCoroutine(Fishing());
+            defaultState = FishingState;
+            defaultRoutine = Fishing();
         }
-        else if(npcController.npcType == NpcType.Farmer)
+        else if (npcController.npcType == NpcType.Farmer)
         {
-            StartCoroutine(Farming());
+            defaultState = FarmingState;
+            defaultRoutine = Farming();
         }
-        else if(npcController.npcType == NpcType.Craft)
+        else if (npcController.npcType == NpcType.Craft)
         {
-            StartCoroutine(Crafting());
+            defaultState = CraftingState;
+            defaultRoutine = Crafting();
         }
-        else if(npcController.npcType == NpcType.Sitting)
+        else if (npcController.npcType == NpcType.Sitting)
         {
-            StartCoroutine(Sitting());
+            defaultState = SittingState;
+            defaultRoutine = Sitting();
+        }
+
+        StartCoroutine(defaultRoutine);
+    }
+
+    private void Update()
+    {
+        if(isMoving)
+        {
+            MoveToWards(targetNpc.position);
         }
     }
 
@@ -51,10 +105,19 @@ public class ActivityNpc : MonoBehaviour
     {
         if (other.CompareTag("TownNPC") && other.transform != this.transform)
         {
-            isNearNpc = true;
+            if (npcController.npcType == NpcType.Sitting)
+            {
+                isNearNpc = true;
+            }
+            else
+            {
+                isTalking = true;
+                isMoving = false;
+                LookAtTarget(other.transform);
+            }
         }
 
-        if(npcController.npcType == NpcType.Sitting && other.name.Contains("Bench") && !isSitting)
+        if (npcController.npcType == NpcType.Sitting && other.name.Contains("Bench") && !isSitting)
         {
             SittingAtBench(other.GetComponent<Bench>());
             this.transform.position += sittingOffset;
@@ -65,37 +128,49 @@ public class ActivityNpc : MonoBehaviour
     {
         if (other.CompareTag("TownNPC"))
         {
-            isNearNpc = false;
+            if(npcController.npcType == NpcType.Sitting)
+            {
+                isNearNpc = false;
+            }
+            else
+            {
+                isTalking = false;
+            }
         }
     }
 
     private IEnumerator Fishing()
     {
-        while(true)
+        while (true)
         {
-            animator.SetBool(fishingState, true);
+            animator.SetBool(FishingState, true);
 
-            yield return new WaitForSeconds(Random.Range(20f, 60f));
+            yield return new WaitForSeconds(Random.Range(5f, 5f));            
 
-            animator.SetBool(fishingState, false);
+            animator.SetBool(FishingState, false);
+
+            float clipLnegth = animator.GetCurrentAnimatorClipInfo(0).Length;
+            yield return new WaitForSeconds(clipLnegth);
+
+            FindNpcAndMove();
 
             yield return new WaitForSeconds(Random.Range(5f, 10f));
-        }        
+        }
     }
 
     private IEnumerator Farming()
     {
-        while(true)
+        while (true)
         {
-            animator.SetBool(farmingState, true);
+            animator.SetBool(FarmingState, true);
 
             yield return new WaitForSeconds(Random.Range(20, 40f));
 
-            animator.SetTrigger(wipeSweatTrigger);
+            animator.SetTrigger(WipeSweatTrigger);
 
             yield return new WaitForSeconds(Random.Range(20f, 40f));
 
-            animator.SetBool(farmingState, false);
+            animator.SetBool(FarmingState, false);
 
             yield return new WaitForSeconds(Random.Range(3f, 5f));
         }
@@ -103,16 +178,16 @@ public class ActivityNpc : MonoBehaviour
 
     private IEnumerator Crafting()
     {
-        while(true)
+        while (true)
         {
-            if(!animator.GetBool(craftingState))
+            if (!animator.GetBool(CraftingState))
             {
-                animator.SetBool(craftingState, true);
+                animator.SetBool(CraftingState, true);
             }
 
             yield return new WaitForSeconds(Random.Range(20f, 40f));
 
-            animator.SetTrigger(wipeSweatTrigger);
+            animator.SetTrigger(WipeSweatTrigger);
         }
     }
 
@@ -120,9 +195,9 @@ public class ActivityNpc : MonoBehaviour
     {
         while (true)
         {
-            if(!animator.GetBool(sittingState))
+            if (!animator.GetBool(SittingState))
             {
-                animator.SetBool(sittingState, true);
+                animator.SetBool(SittingState, true);
             }
 
             yield return new WaitForSeconds(Random.Range(5f, 10f));
@@ -139,7 +214,7 @@ public class ActivityNpc : MonoBehaviour
         int randomIndex = Random.Range(0, triggers.Length);
         string randomTrigger = triggers[randomIndex];
 
-        if(randomTrigger != null)
+        if (randomTrigger != null)
         {
             animator.SetTrigger(randomTrigger);
         }
@@ -147,7 +222,7 @@ public class ActivityNpc : MonoBehaviour
 
     private void SittingAtBench(Bench bench)
     {
-        if(!bench.right)
+        if (!bench.right)
         {
             transform.position = bench.rightPosition.position;
             transform.rotation = bench.rightPosition.rotation;
@@ -156,7 +231,7 @@ public class ActivityNpc : MonoBehaviour
             return;
         }
 
-        if(!bench.left)
+        if (!bench.left)
         {
             transform.position = bench.leftPosition.position;
             transform.rotation = bench.leftPosition.rotation;
@@ -166,5 +241,161 @@ public class ActivityNpc : MonoBehaviour
         }
 
         Debug.Log("비어있는 벤치 없음");
+    }
+
+    private void FindNpcAndMove()
+    {
+        if (Random.value <= talkingChance)
+        {            
+            Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
+            if (ohterNpc != null)
+            {
+                Debug.Log($"{ohterNpc.name}으로 이동");
+                if (animator.GetBool(defaultState))
+                {
+                    animator.SetBool(defaultState, false);
+                }
+
+                StopAllCoroutines();
+
+                isMoving = true;
+                targetNpc = ohterNpc;
+            }
+            else
+            {
+                Debug.Log("범위내에 다른 npc 없음");
+            }
+        }
+    }
+
+    private Transform FindNearestNpc(Vector3 position, float maxDistance)
+    {
+        Transform nearestNpc = null;
+        Collider[] colliders = Physics.OverlapSphere(position, maxDistance);
+        float nearestDistance = maxDistance;
+
+        foreach (Collider collider in colliders)
+        {
+            if (collider.CompareTag("TownNPC") && collider.transform != this.transform)
+            {
+                float distance = Vector3.Distance(position, collider.transform.position);
+
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearestNpc = collider.transform;
+                }
+            }
+        }
+
+        return nearestNpc;
+    }
+
+    private void MoveToWards(Vector3 destination)
+    {
+        animator.SetBool(WalkingState, true);
+
+        //현재 위치에서 목표 방향(y값 제외)
+        Vector3 direction = (destination - transform.position).normalized;
+        direction.y = 0f;
+
+        //앞으로 이동할 위치
+        Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
+
+        //Raycast로 지형 높이 감지
+        if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
+        {
+            nextPosition.y = hit.point.y;
+        }
+
+        //이동 적용
+        transform.position = nextPosition;
+
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
+        }
+    }
+
+    private void LookAtTarget(Transform target)
+    {
+        if (target == null) return;
+
+        Vector3 direction = (target.position - transform.position).normalized;
+        direction.y = 0f;
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        transform.rotation = targetRotation;
+    }
+
+    private void StartConversation()
+    {
+        if(isMoving) isMoving = false;
+        if (targetNpc) targetNpc = null;
+
+        StopCurrentAction();
+
+        animator.SetBool(TalkingState, true);
+        PlayRandomTrigger(talkingTriggers);
+
+        StartCoroutine(ContinueConversation());
+    }
+
+    private IEnumerator ContinueConversation()
+    {
+        int minConversations = Random.Range(3, 6);
+        int conversationCount = 0;
+
+        while (isTalking)
+        {
+            yield return new WaitForSeconds(talkingDuration);
+
+            if (conversationCount < minConversations)
+            {
+                PlayRandomTrigger(talkingTriggers);
+                conversationCount++;
+            }
+            else
+            {
+                isTalking = false;
+                StopConversation();
+            }
+        }
+    }
+
+    private void StopConversation()
+    {
+        if (animator.GetBool(TalkingState))
+        {
+            animator.SetBool(TalkingState, false);
+        }
+
+        StartCoroutine(DoAction());
+    }
+
+    private void StopCurrentAction()
+    {
+        if (animator.GetBool(defaultState))
+        {
+            animator.SetBool(defaultState, false);
+        }
+        if(animator.GetBool(WalkingState))
+        {
+            animator.SetBool(WalkingState, false);
+        }
+
+        StopAllCoroutines();
+    }
+
+    private IEnumerator DoAction()
+    {
+        while(!isTalking && Vector3.Distance(transform.position, startPosition) > 0.1f)
+        {
+            MoveToWards(startPosition);
+            yield return null;
+        }
+
+        StartCoroutine(defaultRoutine);
     }
 }
