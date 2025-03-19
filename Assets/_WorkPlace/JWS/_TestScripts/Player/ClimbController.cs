@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ClimbBehaviour : MonoBehaviour, IBehaviour
+public class ClimbController : MonoBehaviour
 {
     [Header("이동 속도 설정")]
     public float climbSpeed = 3f;
@@ -13,32 +13,18 @@ public class ClimbBehaviour : MonoBehaviour, IBehaviour
     private bool isHanging = false;
     private Vector3 climbNormal;
 
-    private ClimbDetection climbDetector;
-    private PlayerController controller;
+    private CharacterController controller;
     private Animator animator;
-    private ClimbIKHandler playerIK;
+    private ClimbDetection climbDetector;
 
-    private LayerMask layer;
-
-    public ClimbBehaviour()
+    void Start()
     {
-        controller = GameManager.playerTransform.GetComponent<PlayerController>();
-        animator = controller.PlayerAnimator;
+        controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
         climbDetector = GetComponent<ClimbDetection>();
-        playerIK = controller.GetComponentInChildren<ClimbIKHandler>(); // IK 핸들러 추가
-        layer = ~LayerMask.GetMask("Ds Player");
     }
 
-    public void Enter()
-    {
-        controller.isClimb = true;
-        animator.SetBool("Climb", true);
-        layer = ~LayerMask.GetMask("Ds Player");
-        climbSpeed = controller.playerData.moveSpeed;
-        playerIK.EnableIK(true); // IK 활성화
-    }
-
-    public void Execute()
+    void Update()
     {
         if (isClimbing)
         {
@@ -52,21 +38,6 @@ public class ClimbBehaviour : MonoBehaviour, IBehaviour
         {
             CheckForClimbableSurface();
         }
-    }
-
-    public void Exit()
-    {
-        controller.isClimb = false;
-        animator.SetBool("Climb", false);
-        animator.SetBool("ClimbUp", false);
-        playerIK.EnableIK(false); // IK 비활성화
-    }
-
-    private void EndClimb()
-    {
-        animator.SetBool("Climb", false);
-        controller.isClimb = false;
-        PlayerBehaviourManager.Instance.CanMove = true;
     }
 
     void CheckForClimbableSurface()
@@ -90,9 +61,7 @@ public class ClimbBehaviour : MonoBehaviour, IBehaviour
         float vertical = Input.GetAxis("Vertical");
 
         Vector3 moveDirection = (transform.right * horizontal + transform.up * vertical).normalized;
-        controller.characterController.Move(moveDirection * climbSpeed * Time.deltaTime);
-
-        playerIK.UpdateIKTargets(); // IK 위치 업데이트
+        controller.Move(moveDirection * climbSpeed * Time.deltaTime);
 
         // 🔹 발 위치에 벽이 없으면 매달리기로 전환
         if (!climbDetector.CheckForFootWall() || climbDetector.CheckForEdge())
@@ -122,10 +91,9 @@ public class ClimbBehaviour : MonoBehaviour, IBehaviour
     void HangingMovement()
     {
         float horizontal = Input.GetAxis("Horizontal");
-        Vector3 moveDirection = transform.right * horizontal;
-        controller.characterController.Move(moveDirection * climbSpeed * Time.deltaTime);
 
-        playerIK.UpdateIKTargets(); // IK 위치 업데이트
+        Vector3 moveDirection = transform.right * horizontal;
+        controller.Move(moveDirection * climbSpeed * Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -143,7 +111,7 @@ public class ClimbBehaviour : MonoBehaviour, IBehaviour
     {
         isClimbing = false;
         animator.SetTrigger("JumpOff");
-        controller.characterController.Move(transform.forward * -1.5f);
+        controller.Move(transform.forward * -1.5f);
     }
 
     void PullUp()
