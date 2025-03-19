@@ -40,6 +40,7 @@ public class Skills : ISheetData
 
     public float effectDuration;    // 이펙트 지속시간 (ex 장판형)
 
+    private SkillWeights skillWeight;
     // 초기화: cooldownTimer 설정 및 초기 경험치 계산
     public void Initialize()
     {
