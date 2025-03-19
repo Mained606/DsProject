@@ -25,6 +25,29 @@ public abstract class ElementalEffect
     
     public virtual void Apply()
     {
+        // 공통 로직: ElementalEffectManager에 효과 등록 시도
+        if (ElementalEffectManager.Instance != null)
+        {
+            // 이미 같은 유형의 효과가 있는지 확인하고 있으면 중단
+            bool wasAdded = ElementalEffectManager.Instance.TryAddEffect(this);
+            if (!wasAdded)
+            {
+                // 효과가 추가되지 않았다면 하위 클래스의 로직을 실행하지 않고 종료
+                return;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("ElementalEffectManager 인스턴스가 없습니다. 효과가 제대로 적용되지 않을 수 있습니다.");
+        }
+        
+        // 효과가 성공적으로 추가된 경우 하위 클래스에서 실제 효과를 적용
+        OnEffectApplied();
+    }
+    
+    // 하위 클래스에서 실제 효과를 적용하는 메서드
+    protected virtual void OnEffectApplied()
+    {
         // 하위 클래스에서 구현
     }
     
@@ -35,8 +58,17 @@ public abstract class ElementalEffect
     
     public virtual IEnumerator ProcessEffect()
     {
-        // 기본 구현: 지속 시간 대기
-        yield return new WaitForSeconds(Duration);
+        // 지속 시간 동안 대기하면서 CurrentDuration 업데이트
+        float elapsedTime = 0f;
+        while (elapsedTime < Duration)
+        {
+            elapsedTime += Time.deltaTime;
+            // 소수점 첫째 자리까지 표시하도록 반올림
+            CurrentDuration = Mathf.Round((Duration - elapsedTime) * 10f) / 10f;
+            yield return null;
+        }
+        
+        CurrentDuration = 0;
         Remove();
     }
 }
@@ -55,17 +87,9 @@ public class EarthDamageEffect : ElementalEffect
         this.damageIncreasePercent = damageIncreasePercent;
     }
     
-    public override void Apply()
+    protected override void OnEffectApplied()
     {
         Debug.Log($"{Target.characterName}에 땅 속성 데미지 증가 효과 적용: {damageIncreasePercent}% 증가, {Duration}초 지속");
-        if (ElementalEffectManager.Instance != null)
-        {
-            ElementalEffectManager.Instance.AddEffect(this);
-        }
-        else
-        {
-            Debug.LogWarning("ElementalEffectManager 인스턴스가 없습니다. 효과가 적용되지 않습니다.");
-        }
     }
     
     public override void Remove()
@@ -97,17 +121,9 @@ public class FireBurnEffect : ElementalEffect
         this.damagePercent = damagePercent;
     }
     
-    public override void Apply()
+    protected override void OnEffectApplied()
     {
         Debug.Log($"{Target.characterName}에 화상 효과 적용: 매초 최대 체력의 {damagePercent}% 피해, {Duration}초 지속");
-        if (ElementalEffectManager.Instance != null)
-        {
-            ElementalEffectManager.Instance.AddEffect(this);
-        }
-        else
-        {
-            Debug.LogWarning("ElementalEffectManager 인스턴스가 없습니다. 효과가 적용되지 않습니다.");
-        }
     }
     
     public override void Remove()
@@ -124,6 +140,9 @@ public class FireBurnEffect : ElementalEffect
         float elapsed = 0f;
         while (elapsed < Duration)
         {
+            // 남은 시간 업데이트 (소수점 첫째 자리까지 표시)
+            CurrentDuration = Mathf.Round((Duration - elapsed) * 10f) / 10f;
+            
             if (damagePercent > 0)
             {
                 // 최대 체력 기준으로 데미지 계산
@@ -149,6 +168,7 @@ public class FireBurnEffect : ElementalEffect
                         ? Target.instance.transform 
                         : null;
                     CombatManager.Instance.CheckAndHandleDeath(Target, targetTransform, Target.characterType != CharacterType.Player);
+                    CurrentDuration = 0;
                     Remove();
                     yield break;
                 }
@@ -158,6 +178,7 @@ public class FireBurnEffect : ElementalEffect
             yield return new WaitForSeconds(1f);
         }
         
+        CurrentDuration = 0;
         Remove();
     }
 }
@@ -177,7 +198,7 @@ public class WaterSlowEffect : ElementalEffect
         this.speedReduction = speedReduction;
     }
     
-    public override void Apply()
+    protected override void OnEffectApplied()
     {
         originalSpeed = Target.moveSpeed;
         float reductionAmount = originalSpeed * (speedReduction / 100f);
@@ -185,14 +206,6 @@ public class WaterSlowEffect : ElementalEffect
         Target.UpdateSpeed(Target.moveSpeed);
         
         Debug.Log($"{Target.characterName}에 이동속도 감소 효과 적용: {speedReduction}% 감소, {Duration}초 지속");
-        if (ElementalEffectManager.Instance != null)
-        {
-            ElementalEffectManager.Instance.AddEffect(this);
-        }
-        else
-        {
-            Debug.LogWarning("ElementalEffectManager 인스턴스가 없습니다. 효과가 적용되지 않습니다.");
-        }
     }
     
     public override void Remove()
@@ -219,7 +232,7 @@ public class ElectricStunEffect : ElementalEffect
     {
     }
     
-    public override void Apply()
+    protected override void OnEffectApplied()
     {
         Target.isStunned = true;
 
@@ -242,7 +255,6 @@ public class ElectricStunEffect : ElementalEffect
             }
         }
 
-        // ========== 250318 SH 추가 ==========
         // 플레이어인 경우
         if(Target.characterType == CharacterType.Player)
         {
@@ -252,17 +264,8 @@ public class ElectricStunEffect : ElementalEffect
                 player.ApplyStun(Duration);
             }
         }
-        // ========== 250318 SH 추가 ==========
 
         Debug.Log($"{Target.characterName}에 스턴 효과 적용: {Duration}초 지속");
-        if (ElementalEffectManager.Instance != null)
-        {
-            ElementalEffectManager.Instance.AddEffect(this);
-        }
-        else
-        {
-            Debug.LogWarning("ElementalEffectManager 인스턴스가 없습니다. 효과가 적용되지 않습니다.");
-        }
     }
     
     public override void Remove()
@@ -276,19 +279,8 @@ public class ElectricStunEffect : ElementalEffect
             BaseMonsterAI monsterAI = Target.instance.GetComponent<BaseMonsterAI>();
             if (monsterAI != null)
             {
-                // 이미 스턴 상태이면 현재 상태 재설정
-                if (monsterAI.GetAIState() == BaseMonsterAI.AIState.Stun)
-                {
-                    // 스턴에서 회복 후 적절한 상태로 전환
-                    if (monsterAI.GetPlayerTarget() != null)
-                    {
-                        monsterAI.ChangeState(BaseMonsterAI.AIState.Chasing);
-                    }
-                    else
-                    {
-                        monsterAI.ChangeState(BaseMonsterAI.AIState.Patrolling);
-                    }
-                }
+                // monsterAI의 isStunned 필드를 직접 false로 설정 (필드가 protected인 경우 메서드 사용)
+                monsterAI.ResetStun(); // 스턴 상태 직접 해제 (새로 추가해야 할 메서드)
             }
             
             // 보스인 경우
@@ -296,10 +288,11 @@ public class ElectricStunEffect : ElementalEffect
             if (bossAI != null)
             {
                 // 보스의 상태 전환은 내부 로직에 맡김
-                // 하지만 명시적으로 isStunned 플래그를 false로 설정
                 bossAI.ResetStun();
             }
         }
+        
+        // 플레이어인 경우 (PlayerController의 스턴 코루틴이 자동으로 해제되므로 추가 작업 필요 없음)
         
         Debug.Log($"{Target.characterName}의 스턴 효과 종료");
         if (ElementalEffectManager.Instance != null)
