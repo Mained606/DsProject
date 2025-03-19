@@ -10,7 +10,11 @@ public class WeaponManager : MonoBehaviour
 {
     private Transform weaponObjectPosition;
     private GameObject currentWeaponObject = null;
-    public GameObject CurrentWeaponObject { get; set; }
+    public GameObject CurrentWeaponObject   //HJ 03.13 추가
+    {
+        get { return currentWeaponObject; }
+        set { currentWeaponObject = value; }
+    }
     private PlayerCombat combat;
 
     private void Start()
@@ -28,7 +32,7 @@ public class WeaponManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.F12))
         {
-            var itemsToAdd = new[] { "완드", "나뭇가지", "나무완드", "도끼", "낡은검", "양손검"};
+            var itemsToAdd = new[] { "완드", "나뭇가지", "나무완드", "도끼", "낡은검", "양손검" };
             foreach (var item in itemsToAdd) ItemManager.Instance.AddItemLogic(item);
         }
     }

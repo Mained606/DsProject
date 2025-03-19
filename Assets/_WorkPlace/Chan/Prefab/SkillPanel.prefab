@@ -719,6 +719,7 @@ GameObject:
   - component: {fileID: 3170191821308728851}
   - component: {fileID: 419985559086701205}
   - component: {fileID: 5894710684031940614}
+  - component: {fileID: 7412172556759987120}
   m_Layer: 5
   m_Name: SkillPanel
   m_TagString: Untagged
@@ -788,6 +789,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7412172556759987120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4152282602528467314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc57757a0f076af419569cee8873905b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skillSlotsAnimator: []
+  skillSlotImages: []
+  skillSlotText: []
+  buffDisplayPosition: {fileID: 0}
+  registedSkillList: []
 --- !u!1 &4207257712237164641
 GameObject:
   m_ObjectHideFlags: 0

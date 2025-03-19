@@ -11,8 +11,25 @@ using System;
 public class ItemSkill
 {
     public ElementalAttribute element;     //속성
-    public int level = 0;           //아이템 레벨 (강화)
-    public GameObject attackEffect; //공격 시 나오는 효과
+    [SerializeField] private int level = 0;           //아이템 레벨 (강화)
+    public int Level
+    {
+        get { return level; }
+        set
+        {
+            if (level != value)
+            {
+                level = value;
+                OnLevelChanged?.Invoke(level);
+            }
+        }
+    }
+    public event Action<int> OnLevelChanged;
+
+    // 2025.03.16 HYO 추가 ---------
+    public float debuffDuration;
+    public float debuffValue;
+    // ----------------------------
 
     [Header("방어구 속성 저항.. 쓸지 안쓸지 모르겠음")]
     public ElementalAttribute resistance;    //저항 속성
@@ -21,7 +38,6 @@ public class ItemSkill
     //속성, 레벨, 아이템 등급 적용한 강화 수치
     public float ApplyPower(Item item)
     {
-        Debug.Log(item.itemSkill.ApplyElement(item) * ApplyGradeMultiplier(item));
         return item.itemSkill.ApplyElement(item) * ApplyGradeMultiplier(item);
     }
 
@@ -88,7 +104,10 @@ public class ItemSkill
 
         newSkill.element = this.element;
         newSkill.level = this.level;
-        newSkill.attackEffect = this.attackEffect;
+        // 2025.03.16 HYO 추가 ---------------------------
+        newSkill.debuffDuration = this.debuffDuration;
+        newSkill.debuffValue = this.debuffValue;
+        // -----------------------------------------------
 
         return newSkill;
     }
@@ -99,13 +118,13 @@ public class ItemSkill
     {
         float basePower = 5;
 
-        switch (item.itemSkill.element)
-        {
-            case ElementalAttribute.Earth:
-                basePower = 10;
-                break;
-                //다른 속성들은 밸런스에 따라 추가할지 말지 결정
-        }
+        //switch (item.itemSkill.element)
+        //{
+        //    case ElementalAttribute.Earth:
+        //        basePower = 10;
+        //        break;
+        //        //다른 속성들은 밸런스에 따라 추가할지 말지 결정
+        //}
 
         return basePower * (1f + level * 0.2f);
     }

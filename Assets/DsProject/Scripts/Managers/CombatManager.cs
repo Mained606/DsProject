@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CombatManager : BaseManager<CombatManager>
@@ -8,7 +11,7 @@ public class CombatManager : BaseManager<CombatManager>
     }
     
     // 공격 처리 메서드
-    public void ProcessAttack(CharacterData playerData, CharacterData monsterData, Transform defenderTransform, bool isPlayerAttacking, bool isMagicAttack, Skills skills = null, bool isBossAttacking = false)
+    public void ProcessAttack(CharacterData playerData, CharacterData monsterData, Transform defenderTransform, bool isPlayerAttacking, bool isMagicAttack, Skills skills = null, bool isBossAttacking = false, ElementalAttribute debuffType = ElementalAttribute.None, float debuffDuration = 0f, float debuffValue = 0f)
     {
         // 공격자와 방어자 설정
         CharacterData actualAttacker = isPlayerAttacking ? playerData : monsterData;
@@ -116,10 +119,70 @@ public class CombatManager : BaseManager<CombatManager>
             defenderEffectiveAttribute = playerDefender.GetEffectiveDefenseAttribute();
         }
         
-        // **속성 배율 적용**
-        float attributeMultiplier = AttributeCalculator.GetMultiplier(attackerEffectiveAttribute, defenderEffectiveAttribute);
-        damage *= attributeMultiplier;
-        Debug.Log($"공격자 속성: {attackerEffectiveAttribute} / 방어자 속성: {defenderEffectiveAttribute} / 속성 배율: {attributeMultiplier}");
+        // 속성 효과 적용
+        float elementalMultiplier = AttributeCalculator.GetMultiplier(attackerEffectiveAttribute, defenderEffectiveAttribute);
+        
+        // 땅 속성 버프 확인 및 적용
+        if (attackerEffectiveAttribute == ElementalAttribute.Earth)
+        {
+            // 공격자에게 적용된 땅 속성 효과가 있는지 확인하고 있으면 데미지 증가
+            float earthBuffMultiplier = 1.0f;
+            
+            // 무기 효과가 활성화 상태인지 확인 (플레이어의 일반 공격인 경우만)
+            bool weaponEffectActive = true;
+            if (isPlayerAttacking && skills == null && ItemSkillManager.Instance != null)
+            {
+                weaponEffectActive = ItemSkillManager.Instance.IsActive;
+                if (!weaponEffectActive)
+                {
+                    Debug.Log("무기 효과가 비활성화 상태입니다. 땅 속성 데미지 증가가 적용되지 않습니다.");
+                }
+            }
+            
+            // 무기 효과가 활성화된 경우에만 증가 효과 적용
+            if (weaponEffectActive)
+            {
+                // 통합된 새 시스템 사용
+                EarthDamageEffect earthEffect = ElementalEffectManager.Instance?.GetEarthDamageEffect(actualAttacker);
+                if (earthEffect != null)
+                {
+                    earthBuffMultiplier = earthEffect.GetDamageMultiplier();
+                }
+                // 일반 공격(스킬 없음)이고 플레이어가 공격할 때 무기의 속성 효과 적용
+                else if (isPlayerAttacking && !isBossAttacking && skills == null)
+                {
+                    // 장착된 무기 정보 가져오기
+                    Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+                    if (equippedWeapon != null && equippedWeapon.itemSkill != null && 
+                        equippedWeapon.itemSkill.element == ElementalAttribute.Earth && 
+                        equippedWeapon.itemSkill.debuffValue > 0)
+                    {
+                        // 무기의 땅 속성 효과 적용
+                        earthBuffMultiplier = 1f + (equippedWeapon.itemSkill.debuffValue / 100f);
+                        actualAttacker.ApplyEarthDamageEffect(equippedWeapon.itemSkill.debuffDuration, equippedWeapon.itemSkill.debuffValue);
+                    }
+                }
+                // 스킬 사용 시 땅 속성 효과 적용
+                else if (skills != null && skills.debuffValue > 0)
+                {
+                    earthBuffMultiplier = 1f + (skills.debuffValue / 100f);
+                    
+                    // 스킬 사용 시 효과 적용
+                    if (isPlayerAttacking && !isBossAttacking)
+                    {
+                        actualAttacker.ApplyEarthDamageEffect(skills.debuffDuration, skills.debuffValue);
+                    }
+                }
+            }
+            
+            damage = Mathf.RoundToInt(damage * earthBuffMultiplier);
+            Debug.Log($"땅 속성 데미지 증가 효과: {earthBuffMultiplier}배 증가");
+        }
+        
+        // 최종 데미지에 속성 배율 적용
+        damage = Mathf.RoundToInt(damage * elementalMultiplier);
+        
+        Debug.Log($"공격자 속성: {attackerEffectiveAttribute} / 방어자 속성: {defenderEffectiveAttribute} / 속성 배율: {elementalMultiplier}");
         
         // 크리티컬 데미지 배율 적용
         if (isCritical)
@@ -138,9 +201,17 @@ public class CombatManager : BaseManager<CombatManager>
             if (GameManager.playerTransform.GetComponent<PlayerCombat>().onParry)
             {
                 UIManager.DisplayPopupText("패링", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
-                //Debug.Log($"attackerTransform: {attackerTransform.name}");
-                //Debug.Log($"defenderTrasnform: {defenderTransform.name}");
-                attackerTransform.GetComponentInParent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
+                BaseMonsterAI monsterAI = attackerTransform.GetComponentInParent<BaseMonsterAI>();
+                if (monsterAI != null)
+                {
+                    // 패링 시 기본 스턴 지속시간 적용 (기본값 사용)
+                    monsterAI.ApplyStun();
+                }
+                else
+                {
+                    // 기존 방식 유지
+                    attackerTransform.GetComponentInParent<BaseMonsterAI>().ChangeState(BaseMonsterAI.AIState.Stun);
+                }
                 return;
             }
             
@@ -165,10 +236,45 @@ public class CombatManager : BaseManager<CombatManager>
             }
             // 250131 2:00PM Hyeon ===============================================
             actualDefender.TakeDamage(finalDamage, attackerTransform);
+            
             if (skills != null)
             {
                 int levelPoint = isCritical ? 2 : 1;
                 skills.AddExperience(levelPoint);
+            }
+
+            // 디버프 적용 로직
+            if (isPlayerAttacking && skills == null) 
+            {
+                // 플레이어의 경우 아이템 스킬 매니저 사용
+                Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+                ItemSkillManager.Instance.ElementAttack(equippedWeapon, actualDefender);
+            } 
+            else if (debuffType != ElementalAttribute.None) 
+            {
+                // 몬스터의 경우 새로운 통합 시스템 사용
+                Debug.Log($"속성 효과 적용: {debuffType}, 지속시간 {debuffDuration}초, 수치 {debuffValue}");
+                
+                switch (debuffType) 
+                {
+                    case ElementalAttribute.Fire:
+                        Debug.Log($"화상 효과 적용: 지속시간 {debuffDuration}초, 매 초마다 최대 체력의 {debuffValue}% 피해");
+                        actualDefender.ApplyFireBurnEffect(debuffDuration, debuffValue);
+                        break;
+                    case ElementalAttribute.Water:
+                        Debug.Log($"이동속도 감소 효과 적용: 지속시간 {debuffDuration}초, 이동속도 {debuffValue}% 감소");
+                        actualDefender.ApplyWaterSlowEffect(debuffDuration, debuffValue);
+                        break;
+                    case ElementalAttribute.Electric:
+                        Debug.Log($"스턴 효과 적용: 지속시간 {debuffDuration}초");
+                        actualDefender.ApplyElectricStunEffect(debuffDuration);
+                        break;
+                    case ElementalAttribute.Earth:
+                        // 보스가 땅 속성 스킬을 사용하면 자신에게 데미지 증가 효과
+                        Debug.Log($"땅 속성 데미지 증가 효과 적용: 지속시간 {debuffDuration}초, 데미지 {debuffValue}% 증가");
+                        actualAttacker.ApplyEarthDamageEffect(debuffDuration, debuffValue);
+                        break;
+                }
             }
         }
         
@@ -179,19 +285,7 @@ public class CombatManager : BaseManager<CombatManager>
         }
 
         // 대상이 사망했는지 확인
-        if (actualDefender.currentHp <= 0)
-        {
-            if (!isPlayerAttacking)
-            {
-                // 플레이어 사망 처리
-                GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
-                Debug.LogError("플레이어 사망");
-                return;
-            }
-            HandleDefeated(actualDefender, defenderPosition);
-            Debug.Log(actualAttacker.ToStringForTMPro());
-            QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Kill, actualDefender.characterName, 1);
-        }
+        CheckAndHandleDeath(actualDefender, defenderTransform, isPlayerAttacking);
     }
     
     public void ProcessDragonAttack(DragonData dragonData, CharacterData targetData, Transform targetTransform, bool isMagicAttack, float skillMultiplier = 1f)
@@ -234,12 +328,16 @@ public class CombatManager : BaseManager<CombatManager>
         if (isMagicAttack)
         {
             // 마법 공격 처리 + 플레이어 데미지의 10%
-            damage = (dragonData.magicDamage + CharacterManager.PlayerCharacterData.magicDamage * 0.1f) * (1 - targetData.magicDamageReduction);
+            // 복사본을 사용하여 원본 데이터를 변경하지 않음
+            float playerMagicDamageBonus = CharacterManager.PlayerCharacterData.magicDamage * 0.1f;
+            damage = (dragonData.magicDamage + playerMagicDamageBonus) * (1 - targetData.magicDamageReduction);
         }
         else
         {
             // 물리 공격 처리 용 데미지 + 플레이어 데미지의 10%
-            damage = (dragonData.physicalDamage + CharacterManager.PlayerCharacterData.physicalDamage * 0.1f) * (1 - targetData.physicalDamageReduction);
+            // 복사본을 사용하여 원본 데이터를 변경하지 않음
+            float playerPhysicalDamageBonus = CharacterManager.PlayerCharacterData.physicalDamage * 0.1f;
+            damage = (dragonData.physicalDamage + playerPhysicalDamageBonus) * (1 - targetData.physicalDamageReduction);
         }
         
         // 스킬 배율이 있을 때만 적용 (배율이 없으면 기본값 1을 사용)
@@ -283,7 +381,23 @@ public class CombatManager : BaseManager<CombatManager>
         }
     }
 
-    
+    public void CheckAndHandleDeath(CharacterData actualDefender, Transform defenderTransform, bool isPlayerAttacking)
+    {
+        if (actualDefender.currentHp <= 0)
+        {
+            if (!isPlayerAttacking)
+            {
+                // 플레이어 사망 처리
+                GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
+                Debug.LogError("플레이어 사망");
+                return;
+            }
+            HandleDefeated(actualDefender, defenderTransform);
+            // Debug.Log(actualAttacker.ToStringForTMPro());
+            QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Kill, actualDefender.characterName, 1);
+        }
+    }
+
     // 몬스터 사망 처리
     private void HandleDefeated(CharacterData defeatedCharacter, Transform defenderTransform)
     {

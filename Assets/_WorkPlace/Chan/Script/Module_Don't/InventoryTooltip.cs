@@ -63,12 +63,14 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+
+    // 기존 인포판넬 로직
+    /*public void OnPointerEnter(PointerEventData eventData)
     {
         if (currentItem.type == ItemType.소모품 && (currentItem.id == condition[0] || currentItem.id == condition[1]))
         {
             var ditem = transform.GetComponent<DraggableItem>();
-            if (ditem == null) { ditem = transform.AddComponent<DraggableItem>(); }
+            if (ditem == null) { ditem = transform.AddComponent<DraggableItem>(); } // 소형 포션 2종류일때 드래그어블 컴포넌트 추가 
         }
         if (!isEquireSlot)
         {
@@ -77,7 +79,65 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
             textPoint[1].text = currentItem.name;
             textPoint[2].text = currentItem.ToStringTMPro();
         }
+    }*/
+
+    #region 아이템 인포 위치 이동 버전
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!isEquireSlot && !InventorytooltipWindow.activeSelf)
+        {
+            // 특정 아이템(포션 등)에 드래그 가능 컴포넌트 추가
+            if (currentItem.type == ItemType.소모품 && (currentItem.id == condition[0] || currentItem.id == condition[1]))
+            {
+                if (!TryGetComponent(out DraggableItem ditem))
+                {
+                    gameObject.AddComponent<DraggableItem>();
+                }
+            }
+            // 요리재료도 추가
+            if (currentItem.type == ItemType.요리재료)
+            {
+                if (!TryGetComponent(out DraggableItem ditem))
+                {
+                    gameObject.AddComponent<DraggableItem>();
+                }
+            }
+
+            // 툴팁 창 활성화 및 정보 업데이트
+            InventorytooltipWindow.SetActive(true);
+            ItemImage.sprite = currentItem.sprite;
+            textPoint[1].text = currentItem.name;
+            textPoint[2].text = currentItem.ToStringTMPro();
+
+            RectTransform itemRect = GetComponent<RectTransform>();
+            RectTransform tooltipRect = InventorytooltipWindow.GetComponent<RectTransform>();
+            RectTransform canvasRect = tooltipRect.GetComponentInParent<Canvas>().GetComponent<RectTransform>();
+
+            // 기본 위치 적용
+            tooltipRect.position = itemRect.position;
+
+            // 화면 밖으로 나가는지 체크 후 조정
+            Vector3[] tooltipCorners = new Vector3[4];
+            tooltipRect.GetWorldCorners(tooltipCorners);
+
+            Vector3[] canvasCorners = new Vector3[4];
+            canvasRect.GetWorldCorners(canvasCorners);
+
+            float tooltipBottomY = tooltipCorners[0].y; // 툴팁 아래쪽 모서리 Y 좌표
+            float canvasBottomY = canvasCorners[0].y; // 캔버스 아래쪽 경계 Y 좌표
+
+            if (tooltipBottomY < canvasBottomY)
+            {
+                Vector3 newPosition = tooltipRect.position;
+                float offset = canvasBottomY - tooltipBottomY; // 부족한 거리 계산
+                newPosition.y += offset; // 캔버스 아래줄과 맞춰서 올리기
+                tooltipRect.position = newPosition;
+            }
+        }
     }
+
+    #endregion
 
     public void OnPointerExit(PointerEventData eventData)
     {
@@ -115,7 +175,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
         }
 
         //03.12 HJ 추가
-        InventoryManager.Instance.SetSelectedItem(currentItem);
+      //  InventoryManager.Instance.SetSelectedItem(currentItem);
     }
 
     private void HandleDoubleClick(PointerEventData eventData)

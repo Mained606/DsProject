@@ -31,6 +31,9 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject bossHud;
     [SerializeField] private GameObject levelUpEffect;
     
+    // 03.13 C
+    [SerializeField] private GameObject cookingUI;
+    [SerializeField] private GameObject skillUI;
 
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
@@ -46,6 +49,10 @@ public class UIManager : BaseManager<UIManager>
     public static ShopUI ShopUI;
     public static DialogUI dialogUI;
     public static HistoryWindowUI HistoryWindowUI;
+
+    // 03.13 C
+    public static CookingUI CookingUI;
+    public static SkillUI SkillUI;
 
     // ========== 250312 SH 추가 ==========
     public static SkillsUI SkillsQuickSlot;
@@ -71,12 +78,21 @@ public class UIManager : BaseManager<UIManager>
         InventorytooltipWindow.SetActive(false);
         characterStaus.SetActive(false);
         bossHud.SetActive(false);
+
+        // 03.13 C
+        cookingUI.SetActive(false);
+        skillUI.SetActive(false);
+
         HistoryManager = new HistoryManager();
         HistoryUI = historyLog.GetComponent<HistoryUI>();
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
         ShopUI = shopUI.GetComponent<ShopUI>();
         dialogUI = dialogWindow.GetComponent<DialogUI>();
         SkillsQuickSlot = skillQuickSlot.GetComponent<SkillsUI>();
+
+        // 03.13 C 
+        CookingUI = cookingUI.GetComponent<CookingUI>();
+        SkillUI = skillUI.GetComponent<SkillUI>();
     }
 
     private void Update()
@@ -169,6 +185,22 @@ public class UIManager : BaseManager<UIManager>
         //MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
         quickSlot.SetActive(false);
         if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
+    }
+
+    // 03.13 C
+    public void ToggleCookingUIWindow()
+    {
+        cookingUI.gameObject.SetActive(!cookingUI.gameObject.activeSelf);
+        mainCanvas.SetActive(!mainCanvas.activeSelf);
+        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
+        quickSlot.SetActive(true);
+    }
+    public void ToggleSkillUIWindow()
+    {
+        skillUI.gameObject.SetActive(!cookingUI.gameObject.activeSelf);
+        mainCanvas.SetActive(!mainCanvas.activeSelf);
+        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
+        quickSlot.SetActive(true);
     }
 
     private Coroutine infoMessageCoroutine; // 코루틴 추가부분 
@@ -434,6 +466,15 @@ public class UIManager : BaseManager<UIManager>
         infoMessageWindow.SetActive(false);
         inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
+
+        // 03.13 C
+        cookingUI.gameObject.SetActive(false);
+        skillUI.gameObject.SetActive(false);
+
+        if (InventorytooltipWindow.activeSelf)
+        {
+            InventorytooltipWindow.SetActive(false);
+        }
     }
 
     public void InteractTextPopup(string keyname, string comment, bool isOn)
@@ -499,6 +540,12 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.Exploration:
                 break;
 
+            case GameSystemState.Cook:
+                ToggleCookingUIWindow();
+                break;
+            case GameSystemState.Skill:
+                ToggleSkillUIWindow();
+                break;
         }
         #endregion
     }

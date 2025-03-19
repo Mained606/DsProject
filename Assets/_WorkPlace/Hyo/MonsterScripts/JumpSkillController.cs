@@ -75,7 +75,10 @@ public class JumpSkillController : MonoBehaviour
                 false,
                 true,
                 skills, 
-                true
+                true,
+                skills.attribute,
+                skills.debuffDuration,
+                skills.debuffValue
             );
 
             hasAttacked = true;

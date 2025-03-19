@@ -214,18 +214,18 @@
 //        Player.intelligence += stat.Intelligence * multiplier;
 //        Player.vitality += stat.Vitality * multiplier;
 //        //Player.luck += stat.Luck * multiplier;
-
+//
 //        Player.maxHp += stat.MaxHealth * multiplier;
 //        Player.maxMp += stat.MaxMana * multiplier;
 //        Player.physicalDamage += stat.PhysicalAttack * multiplier;
 //        Player.magicDamage += stat.MagicAttack * multiplier;
 //        Player.physicalDefense += stat.PhysicalDefense * multiplier;
 //        Player.magicDefense += stat.MagicDefense * multiplier;
-
+//
 //        Player.criticalChance += stat.CriticalChance * multiplier;
 //        Player.attackSpeed += stat.AttackSpeed * multiplier;
 //        //Player.evasion += stat.Evasion * multiplier;
-
+//
 //        Debug.Log($"플레이어 스탯: {stat.Strength * multiplier}");
 //    }
 
@@ -282,7 +282,12 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     [SerializeField] private Vector3 particlePositionOffset = new Vector3(); // 파티클 위치 오프셋
     [SerializeField] private Item count;
 
-    public WeaponManager weaponManager;
+    private WeaponManager weaponManager;
+    public WeaponManager WeaponManager
+    {
+        get { return weaponManager; }
+    }
+
 
     private PlayerData Player
     {
@@ -508,88 +513,98 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     {
         bool isEquipping = multiplier > 0;
 
-        if (!isEquipping)
-        {
-            Player.maxHp -= stat.MaxHealth;
-            Player.maxMp -= stat.MaxMana;
-            Player.physicalDamage -= stat.PhysicalAttack;
-            Player.magicDamage -= stat.MagicAttack;
-            Player.physicalDefense -= stat.PhysicalDefense;
-            Player.magicDefense -= stat.MagicDefense;
-
-            Player.criticalChance -= stat.CriticalChance;
-            Player.attackSpeed -= stat.AttackSpeed;
-            Player.dodgeChance -= stat.Evasion;
-        }
-
+        // 1. 기본 스탯 업데이트
         Player.strength += stat.Strength * multiplier;
         Player.agility += stat.Dexterity * multiplier;
         Player.intelligence += stat.Intelligence * multiplier;
         Player.vitality += stat.Vitality * multiplier;
 
-        Player.UpdateDerivedStats();
-
-        if (isEquipping)
+        // 2. 장비 제거 및 장착 효과 처리
+        if (!isEquipping)
+        {
+            Player.maxHp -= stat.MaxHealth;
+            Player.maxMp -= stat.MaxMana;
+            Player.equipmentPhysicalBonus -= stat.PhysicalAttack;
+            Player.equipmentMagicBonus -= stat.MagicAttack;
+            Player.physicalDefense -= stat.PhysicalDefense;
+            Player.magicDefense -= stat.MagicDefense;
+            Player.criticalChance -= stat.CriticalChance;
+            Player.attackSpeed -= stat.AttackSpeed;
+            Player.dodgeChance -= stat.Evasion;
+        }
+        else
         {
             Player.maxHp += stat.MaxHealth;
             Player.maxMp += stat.MaxMana;
-            Player.physicalDamage += stat.PhysicalAttack;
-            Player.magicDamage += stat.MagicAttack;
+            Player.equipmentPhysicalBonus += stat.PhysicalAttack;
+            Player.equipmentMagicBonus += stat.MagicAttack;
             Player.physicalDefense += stat.PhysicalDefense;
             Player.magicDefense += stat.MagicDefense;
-
             Player.criticalChance += stat.CriticalChance;
             Player.attackSpeed += stat.AttackSpeed;
             Player.dodgeChance += stat.Evasion;
         }
 
-        Debug.Log($"플레이어 스탯 업데이트: {multiplier} * {stat.GetEffectDescription()}");
+        // 3. 모든 스탯 수정이 완료된 후에 UpdateDerivedStats 호출
+        Player.UpdateDerivedStats();
     }
 
     //HJ 03.06 추가
     //한 아이템 스탯만 적용
     private void UpdatePlayerStats(string statName, float value, int multiplier)
     {
+        // 1. 모든 스탯 변경을 먼저 처리
         if (statName == "Strength") Player.strength += Mathf.RoundToInt(value * multiplier);
         if (statName == "Dexterity") Player.agility += Mathf.RoundToInt(value * multiplier);
         if (statName == "Intelligence") Player.intelligence += Mathf.RoundToInt(value * multiplier);
         if (statName == "Vitality") Player.vitality += Mathf.RoundToInt(value * multiplier);
 
-        Player.UpdateDerivedStats();
-
         if (statName == "MaxHealth") Player.maxHp += Mathf.RoundToInt(value * multiplier);
         if (statName == "MaxMana") Player.maxMp += Mathf.RoundToInt(value * multiplier);
-        if (statName == "PhysicalAttack") Player.physicalDamage += value * multiplier;
-        if (statName == "MagicAttack") Player.magicDamage += value * multiplier;
+        if (statName == "PhysicalAttack") Player.equipmentPhysicalBonus += value * multiplier;
+        if (statName == "MagicAttack") Player.equipmentMagicBonus += value * multiplier;
         if (statName == "PhysicalDefense") Player.physicalDefense += value * multiplier;
         if (statName == "MagicDefense") Player.magicDefense += value * multiplier;
+
         if (statName == "CriticalChance") Player.criticalChance += value * multiplier;
         if (statName == "AttackSpeed") Player.attackSpeed += value * multiplier;
         if (statName == "Evasion") Player.dodgeChance += value * multiplier;
         
-        Debug.Log($"{statName} 버프 효과: {value * multiplier}");
+        // 2. 모든 변경이 완료된 후 스탯 업데이트
+        Player.UpdateDerivedStats();
     }
 
     private IEnumerator RemoveBuffAfterDuration(Item item, float duration, int amount)
     {
         yield return new WaitForSeconds(duration);
-
+        
+        // 버프 스탯 해제
         UpdatePlayerStats(item.itemStat, -amount);
+        
         Debug.Log($"{item.name} 버프 효과 해제, 효과량 {amount}");
     }
 
     //HJ 03.06 추가
     private IEnumerator RemoveBuffAfterDuration(BuffType buffType, string statName, float value, float duration)
     {
-        Debug.Log($"{statName} 지속시간: {duration}");
-
         yield return new WaitForSeconds(duration);
-
-        UpdatePlayerStats(statName, value, -1);
-        activeBuffs.Remove(buffType);
-        activeCoroutines.Remove(buffType);
-
-        Debug.Log($"{statName} 버프 효과 해제, 효과량 {value}");
+        
+        // 버프 효과 제거
+        UpdatePlayerStats(statName, -value, 1);
+        
+        Debug.Log($"{buffType} 버프 효과 해제");
+        
+        // 액티브 버프 딕셔너리에서 제거
+        if (activeBuffs.ContainsKey(buffType))
+        {
+            activeBuffs.Remove(buffType);
+        }
+        
+        // 코루틴 딕셔너리에서 제거
+        if (activeCoroutines.ContainsKey(buffType))
+        {
+            activeCoroutines.Remove(buffType);
+        }
     }
 
     private void PlayParticle(Item item)
