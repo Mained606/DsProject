@@ -28,9 +28,19 @@ public class SkillManager : BaseManager<SkillManager>
     [SerializeField] private SkillList skillDatabase;
     public static SkillList SkillDatabase => Instance.skillDatabase;
 
+    //========== 250320 SH 추가 ==========
+    [SerializeField] private SkillWeightList skillWeightDatabase;
+    public static SkillWeightList SkillWeightDatabase => Instance.skillWeightDatabase;
+    //========== 250320 SH 추가 ==========
+
     // <(엔티티 타입, 스킬 이름), 스킬 정보> 형태로 모든 스킬 저장
     private Dictionary<(EntityType, string), Skills> skillList = new Dictionary<(EntityType, string), Skills>();
     public static Dictionary<(EntityType, string), Skills> SkillList => Instance.skillList;
+
+    // <(엔티티 타입, 스킬 이름), 스킬 정보> 형태로 모든 스킬 가중치 저장 ========== 250320 SH 추가 ==========
+    private Dictionary<(EntityType, string), SkillWeights> skillWeightList = new Dictionary<(EntityType, string), SkillWeights>();
+    public static Dictionary<(EntityType, string), SkillWeights> SkillWeightList => Instance.skillWeightList;
+    // ========== 250320 SH 추가 ==========
 
     private Dictionary<Skills, Image> activeSkill = new Dictionary<Skills, Image>();
     private Dictionary<string, BuffInfo> activeBuffs = new Dictionary<string, BuffInfo>();
@@ -69,8 +79,11 @@ public class SkillManager : BaseManager<SkillManager>
     private void InitializeSkillDictionary()
     {
         RegisterSkills(EntityType.Player, skillDatabase.playerSkills);
+        RegisterSkillWeights(EntityType.Player, skillWeightDatabase.playerSkillWeights);
         RegisterSkills(EntityType.Dragon, skillDatabase.dragonSkills);
+        RegisterSkillWeights(EntityType.Dragon, skillWeightDatabase.dragonSkillWeights);
         RegisterSkills(EntityType.Boss, skillDatabase.bossSkills);
+        RegisterSkillWeights(EntityType.Boss, skillWeightDatabase.bossSkillWeights);
     }
 
     private void RegisterSkills(EntityType entityType, List<Skills> skills)
@@ -86,9 +99,26 @@ public class SkillManager : BaseManager<SkillManager>
         }
     }
 
+    private void RegisterSkillWeights(EntityType entityType, List<SkillWeights> skillWeights)
+    {
+        foreach (var skillWeight in skillWeights)
+        {
+            Debug.Log($"스킬가중치 등록 {skillWeight.skillName}");
+            var key = (entityType, skillWeight.skillName);
+            if (!skillWeightList.ContainsKey(key))
+            {
+                skillWeightList[key] = skillWeight;
+            }
+        }
+    }
     public Skills GetSkill(EntityType entityType, string skillName)
     {
         return skillList.TryGetValue((entityType, skillName), out var skill) ? skill : null;
+    }
+
+    public SkillWeights GetSkillWeights(EntityType entityType, string skillName)
+    {
+        return skillWeightList.TryGetValue((entityType, skillName), out var skillWeight) ? skillWeight : null;
     }
 
     public bool CanActivateSkill(EntityType entityType, string skillName)
