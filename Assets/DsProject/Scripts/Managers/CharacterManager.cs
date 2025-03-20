@@ -59,6 +59,8 @@ public class CharacterManager : BaseManager<CharacterManager>
     public static DragonData DragonData;
     [SerializeField] private DragonData dragonData; // 활성 드래곤 데이터
     
+    // DragonData 클래스로 이벤트 이동됨
+    
     // ScriptableObject로부터 로드된 캐릭터 템플릿 리스트
     [SerializeField]
     private CharacterList characterTemplates;
@@ -168,23 +170,11 @@ public class CharacterManager : BaseManager<CharacterManager>
     
     public void InitialDragon()
     {
+        // DragonData의 초기화 메서드 활용
         dragonData.statModifier = new DragonStatModifier();
-
-        dragonData.characterName = "BabyDragon";
-        dragonData.characterType = CharacterType.Drogon;
-        dragonData.prefab = null; // 드래곤 프리팹 (Unity 에디터에서 할당 가능)
-        dragonData.strength = 5;
-        dragonData.vitality = 8;
-        dragonData.agility = 4;
-        dragonData.intelligence = 6;
-        dragonData.speed = 5.0f;
-        dragonData.attackSpeed = 3f;
-        dragonData.attackRange = 2.5f;
-
-        // 유대 레벨 초기화
-        dragonData.bondLevel = 1;
-        dragonData.bondExperience = 0;
-        dragonData.bondThresholds = new[] { 100, 200, 300, 400, 500 }; // 유대 경험치 필요값 설정
+        
+        // DragonData 초기화 호출
+        dragonData.Initialize();
         
         // DragonData의 UpdateDerivedStats 호출 후, 플레이어 스탯이 변경되지 않는지 확인하기 위해
         // 먼저 플레이어의 물리 및 마법 데미지 값을 백업
