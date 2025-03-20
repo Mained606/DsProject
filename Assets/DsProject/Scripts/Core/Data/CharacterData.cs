@@ -1062,11 +1062,30 @@ public class BossData : MonsterData
 
 // 드래곤 관련
 [Serializable]
+public enum DragonEvolutionStage
+{
+    Baby,   // 아기용
+    Young,  // 어린이용 
+    Adult   // 어른용
+}
+
+[Serializable]
 public class DragonData
 {
+    // 진화 이벤트 (UI 업데이트 등을 위해)
+    public delegate void DragonEvolutionHandler(DragonEvolutionStage newStage);
+    public static event DragonEvolutionHandler OnDragonEvolution;
+    
     public string characterName;
     public CharacterType characterType;
     public GameObject prefab;
+    
+    // 진화 단계 관련 필드
+    public DragonEvolutionStage evolutionStage = DragonEvolutionStage.Baby;
+    public GameObject[] evolutionPrefabs = new GameObject[3]; // 각 진화 단계별 프리팹 (0: Baby, 1: Young, 2: Adult)
+    
+    // 진화 단계별 최대 레벨 제한
+    public int[] maxLevelPerStage = new int[] { 15, 30, 50 }; // Baby, Young, Adult 각각의 최대 레벨
     
     public int strength;       // 힘
     public int agility;        // 민첩
@@ -1079,10 +1098,15 @@ public class DragonData
 
     public int bondLevel;      // 유대 레벨
     public int bondExperience; // 유대 경험치
-    public int[] bondThresholds; // 레벨 업에 필요한 유대 경험치
+    [SerializeField] private int _requiredExpToNextLevel; // 인스펙터에서 볼 수 있는 다음 레벨 필요 경험치
     
-    // private bool isLevelingUp = false; // 레벨업 진행 중 여부
-
+    // 다음 레벨업에 필요한 경험치를 속성으로 제공
+    public int RequiredExpToNextLevel 
+    {
+        get { return _requiredExpToNextLevel; }
+        private set { _requiredExpToNextLevel = value; }
+    }
+    
     // 모디파이어
     public DragonStatModifier statModifier;
     private DragonStatModifier baseStatModifier = new DragonStatModifier();
@@ -1108,7 +1132,6 @@ public class DragonData
         float speed, 
         float attackSpeed,
         float attackRange,
-        int[] bondThresholds, 
         float criticalChance, 
         ElementalAttribute dragonAttribute,
         DragonStatModifier modifier = null)
@@ -1125,25 +1148,88 @@ public class DragonData
         this.attackRange = attackRange;
         this.bondLevel = 1;
         this.bondExperience = 0;
-        this.bondThresholds = bondThresholds;
         this.criticalChance = criticalChance;
-        this.dragonAttribute = ElementalAttribute.Fire;
+        this.dragonAttribute = dragonAttribute;
         this.statModifier = modifier ?? new DragonStatModifier();
+        this.evolutionStage = DragonEvolutionStage.Baby;
+
+        // maxLevelPerStage 배열이 비어있거나 null이면 기본값으로 초기화
+        if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
+        {
+            maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
+            Debug.Log("Constructor: maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
+        }
 
         // 물리 데미지와 마법 데미지 계산
         UpdateDerivedStats();
+        
+        // 다음 레벨업에 필요한 경험치 초기화
+        RequiredExpToNextLevel = CalculateExperienceToLevelUp(bondLevel);
     }
     
+    // 초기화 메서드 추가 - CharacterManager의 InitialDragon에서 호출하도록 변경
+    public void Initialize()
+    {
+        characterName = "BabyDragon";
+        characterType = CharacterType.Drogon;
+        strength = 5;
+        vitality = 8;
+        agility = 4;
+        intelligence = 6;
+        speed = 5.0f;
+        attackSpeed = 3f;
+        attackRange = 2.5f;
+
+        // 진화 단계 초기화
+        evolutionStage = DragonEvolutionStage.Baby;
+        
+        // maxLevelPerStage 배열이 비어있거나 null이면 기본값으로 초기화
+        if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
+        {
+            maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
+            Debug.Log("Initialize: maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
+        }
+        
+        // 유대 레벨 초기화
+        bondLevel = 1;
+        bondExperience = 0;
+        
+        // 스탯 업데이트
+        UpdateDerivedStats();
+        
+        // 다음 레벨업에 필요한 경험치 초기화
+        RequiredExpToNextLevel = CalculateExperienceToLevelUp(bondLevel);
+    }
+
     // 물리 데미지와 마법 데미지 계산
     public void UpdateDerivedStats()
     {
-        physicalDamage = Mathf.RoundToInt(Mathf.Max(strength * statModifier.strengthMultiplier, 1f)); // 기본값을 1f로 설정하여 0 방지
-        magicDamage = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier, 1f)); // 기본값을 1f로 설정
-        criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f); // 민첩성에 따른 크리티컬 확률
-        criticalDamage = 1.5f; // 크리티컬 데미지 배율 예시 (게임에 맞게 수정 가능)
+        // 진화 단계에 따른 스탯 보너스 계산
+        float evolutionMultiplier = GetEvolutionMultiplier();
         
-        // 레벨 업 종료
-        // isLevelingUp = false;
+        physicalDamage = Mathf.RoundToInt(Mathf.Max(strength * statModifier.strengthMultiplier * evolutionMultiplier, 1f));
+        magicDamage = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.intelligenceMultiplier * evolutionMultiplier, 1f));
+        criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier * evolutionMultiplier, 1f);
+        criticalDamage = 1.5f + ((int)evolutionStage * 0.25f); // 진화 단계에 따라 크리티컬 데미지 증가
+        
+        // 다음 레벨업에 필요한 경험치 업데이트
+        RequiredExpToNextLevel = CalculateExperienceToLevelUp(bondLevel);
+    }
+    
+    // 진화 단계에 따른 스탯 증가 배율 반환
+    private float GetEvolutionMultiplier()
+    {
+        switch (evolutionStage)
+        {
+            case DragonEvolutionStage.Baby:
+                return 1.0f;
+            case DragonEvolutionStage.Young:
+                return 1.5f;
+            case DragonEvolutionStage.Adult:
+                return 2.2f;
+            default:
+                return 1.0f;
+        }
     }
     
     // 유대 경험치 증가
@@ -1151,18 +1237,60 @@ public class DragonData
     {
         if (amount < 0) return;
         
-        bondExperience += amount;
-
-        while (bondLevel - 1 < bondThresholds.Length && bondExperience >= bondThresholds[bondLevel - 1])
+        Debug.Log($"evolutionStage = {(int)evolutionStage} / maxLevelPerStage.Length = {maxLevelPerStage.Length}");
+        
+        // maxLevelPerStage 배열이 비어있거나 null이면 기본값으로 초기화
+        if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
         {
-            bondExperience -= bondThresholds[bondLevel - 1];
-            LevelUpBond();
+            maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
+            Debug.Log("maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
         }
+        
+        // 현재 진화 단계의 최대 레벨 체크 (안전하게 처리)
+        int maxLevel = (evolutionStage >= 0 && (int)evolutionStage < maxLevelPerStage.Length) 
+            ? maxLevelPerStage[(int)evolutionStage] 
+            : 50; // 기본값으로 50 설정
+        
+        // 이미 최대 레벨이면 경험치 획득 중지
+        if (bondLevel >= maxLevel)
+        {
+            Debug.Log($"{characterName}이(가) 현재 진화 단계({evolutionStage})의 최대 레벨({maxLevel})에 도달했습니다. 더 이상 레벨업할 수 없습니다.");
+            return;
+        }
+        
+        bondExperience += amount;
+        Debug.Log($"{characterName}이(가) {amount}의 유대 경험치를 획득했습니다. 현재 경험치: {bondExperience}/{RequiredExpToNextLevel}");
+        
+        // 레벨업 체크
+        while (bondExperience >= RequiredExpToNextLevel)
+        {
+            if (!isLevelingUp)
+            {
+                bondExperience -= RequiredExpToNextLevel;
+                LevelUpBond();
+                
+                // 레벨업 후 최대 레벨 체크
+                if (bondLevel >= maxLevel)
+                {
+                    bondExperience = 0;
+                    Debug.Log($"{characterName}이(가) 현재 진화 단계의 최대 레벨({maxLevel})에 도달했습니다!");
+                    break;
+                }
+            }
+        }
+        
+        // 경험치 정보 업데이트
+        RequiredExpToNextLevel = CalculateExperienceToLevelUp(bondLevel);
     }
 
+    private bool isLevelingUp = false; // 레벨업 진행 중 여부
+    
     private void LevelUpBond()
     {
-        // isLevelingUp = true; // 레벨업 시작
+        isLevelingUp = true; // 레벨업 시작
+        
+        // 이펙트 추가
+        UIManager.LevelUpEfeect();
         
         // 레벨 증가
         bondLevel++;
@@ -1174,43 +1302,154 @@ public class DragonData
         
         UpdateDerivedStats();
         Debug.Log($"{characterName}의 유대 레벨이 {bondLevel}로 상승했습니다!");
+        
+        // 다음 레벨업에 필요한 경험치 업데이트
+        RequiredExpToNextLevel = CalculateExperienceToLevelUp(bondLevel);
+        
+        isLevelingUp = false; // 레벨업 종료
     }
     
+    // 플레이어/몬스터와 유사한 경험치 계산 방식 (배열 대신 함수 사용)
+    public int CalculateExperienceToLevelUp(int currentLevel)
+    {
+        // 기본 경험치 요구량 (레벨에 따라 증가)
+        return 120 + (currentLevel * 20);
+    }
+    
+    // 진화 단계 업그레이드 메서드 - 메인 퀘스트 보상으로 호출됨
+    public bool Evolve()
+    {
+        // 이미 최종 진화 단계라면 진화 불가
+        if (evolutionStage == DragonEvolutionStage.Adult)
+        {
+            Debug.Log($"{characterName}은(는) 이미 최종 진화 단계에 도달했습니다.");
+            return false;
+        }
+        
+        // 다음 진화 단계로 업그레이드
+        evolutionStage = (DragonEvolutionStage)((int)evolutionStage + 1);
+        
+        // 이름 변경
+        switch (evolutionStage)
+        {
+            case DragonEvolutionStage.Young:
+                characterName = "YoungDragon";
+                break;
+            case DragonEvolutionStage.Adult:
+                characterName = "AdultDragon";
+                break;
+        }
+        
+        // 진화 시 스탯 보너스 부여
+        strength += 5;
+        vitality += 5;
+        agility += 5;
+        intelligence += 5;
+        
+        // 공격 범위와 속도 증가
+        attackRange += 0.5f;
+        attackSpeed -= 0.3f; // 공격 속도 증가 (쿨다운 감소)
+        speed += 1.0f;
+        
+        // 현재 레벨에 맞게 스탯 업데이트
+        UpdateDerivedStats();
+        
+        // 프리팹 업데이트 - prefab 필드 업데이트
+        if (evolutionPrefabs != null && evolutionPrefabs.Length > (int)evolutionStage)
+        {
+            prefab = evolutionPrefabs[(int)evolutionStage];
+        }
+        
+        // 이벤트 발생 - 컨트롤러에게 알림
+        OnDragonEvolution?.Invoke(evolutionStage);
+        
+        Debug.Log($"{characterName}(이)가 {evolutionStage}단계로 진화했습니다!");
+        return true;
+    }
+
+    // 직접 진화 단계 설정 (테스트/디버그용)
+    public bool SetEvolutionStage(DragonEvolutionStage stage)
+    {
+        // 현재 단계와 동일하면 무시
+        if (evolutionStage == stage) return false;
+        
+        // 이전 단계 저장
+        DragonEvolutionStage oldStage = evolutionStage;
+        
+        // 새로운 단계 설정
+        evolutionStage = stage;
+        
+        // 단계에 따른 이름 업데이트
+        switch (stage)
+        {
+            case DragonEvolutionStage.Baby:
+                characterName = "BabyDragon";
+                break;
+            case DragonEvolutionStage.Young:
+                characterName = "YoungDragon";
+                break;
+            case DragonEvolutionStage.Adult:
+                characterName = "AdultDragon";
+                break;
+        }
+        
+        // 프리팹 업데이트
+        if (evolutionPrefabs != null && evolutionPrefabs.Length > (int)stage)
+        {
+            prefab = evolutionPrefabs[(int)stage];
+        }
+        
+        // 스탯 업데이트
+        UpdateDerivedStats();
+        
+        // 이벤트 발생
+        OnDragonEvolution?.Invoke(stage);
+        
+        Debug.Log($"드래곤 진화 단계가 {oldStage}에서 {stage}로 변경되었습니다.");
+        return true;
+    }
+    
+    // ToStringForTMPro 함수에 진화 단계 정보 추가
     public string ToStringForTMPro()
     {
         // 기본 정보를 포맷하여 출력
         string baseInfo = string.Format(
             "<color=red>Name:</color> {0}\n" +
             "<color=red>Type:</color> {1}\n" +
-            "<color=red>Strength:</color> {2}\n" +
-            "<color=blue>Agility:</color> {3}\n" +
-            "<color=green>Vitality:</color> {4}\n" +
-            "<color=yellow>Intelligence:</color> {5}\n" +
-            "<color=lime>Speed:</color> {6}\n" +
-            "<color=cyan>Attack Speed:</color> {7}\n" +
-            "<color=purple>Attack Range:</color> {8}\n" +
-            "<color=orange>Bond Level:</color> {9}\n" +
-            "<color=orange>Bond Experience:</color> {10}/{11}\n" +
-            "<color=magenta>Critical Chance:</color> {12}%\n" +
-            "<color=teal>Critical Damage:</color> {13}\n" +
-            "<color=lime>Physical Damage:</color> {14}\n" +
-            "<color=cyan>Magic Damage:</color> {15}\n",
+            "<color=red>Evolution Stage:</color> {2}\n" +
+            "<color=red>Bond Level:</color> {3}/{4}\n" +
+            "<color=red>Strength:</color> {5}\n" +
+            "<color=blue>Agility:</color> {6}\n" +
+            "<color=green>Vitality:</color> {7}\n" +
+            "<color=yellow>Intelligence:</color> {8}\n" +
+            "<color=lime>Speed:</color> {9}\n" +
+            "<color=cyan>Attack Speed:</color> {10}\n" +
+            "<color=purple>Attack Range:</color> {11}\n" +
+            "<color=orange>Bond Experience:</color> {12}/{13}\n" +
+            "<color=magenta>Critical Chance:</color> {14}%\n" +
+            "<color=teal>Critical Damage:</color> {15}\n" +
+            "<color=lime>Physical Damage:</color> {16}\n" +
+            "<color=cyan>Magic Damage:</color> {17}\n" +
+            "<color=orange>Exp To Next Level:</color> {18}\n",
             characterName, // 0
             characterType.ToString(), // 1
-            strength, // 2
-            agility, // 3
-            vitality, // 4
-            intelligence, // 5
-            speed, // 6
-            attackSpeed, // 7
-            attackRange, // 8
-            bondLevel, // 9
-            bondExperience, // 10
-            bondThresholds.Length > bondLevel - 1 ? bondThresholds[bondLevel - 1] : 0, // 11 (Next bond threshold)
-            criticalChance * 100, // 12
-            criticalDamage, // 13
-            physicalDamage, // 14
-            magicDamage // 15
+            evolutionStage.ToString(), // 2
+            bondLevel, // 3
+            maxLevelPerStage[(int)evolutionStage], // 4 - 현재 진화 단계의 최대 레벨
+            strength, // 5
+            agility, // 6
+            vitality, // 7
+            intelligence, // 8
+            speed, // 9
+            attackSpeed, // 10
+            attackRange, // 11
+            bondExperience, // 12
+            CalculateExperienceToLevelUp(bondLevel), // 13 - 경험치 계산 함수 사용
+            criticalChance * 100, // 14
+            criticalDamage, // 15
+            physicalDamage, // 16
+            magicDamage, // 17
+            _requiredExpToNextLevel // 18 - 다음 레벨업에 필요한 경험치
         );
     
         return baseInfo;
@@ -1234,14 +1473,10 @@ public class DragonData
         bondLevel = int.TryParse(row[9].ToString(), out int bondLvl) ? bondLvl : 1;
         bondExperience = int.TryParse(row[10].ToString(), out int bondExp) ? bondExp : 0;
 
-        // 유대 경험치 임계값 (쉼표로 구분된 숫자 리스트)
-        bondThresholds = row[11].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => int.TryParse(s, out int v) ? v : 0).ToArray();
-
         statModifier = new DragonStatModifier();
+        evolutionStage = DragonEvolutionStage.Baby; // 기본 진화 단계는 아기용
         UpdateDerivedStats();
     }
-
 }
 
 [Serializable]
@@ -1258,7 +1493,7 @@ public class DragonStatModifier
         {
             strengthMultiplier = this.strengthMultiplier,
             agilityMultiplier = this.agilityMultiplier,
-            intelligenceMultiplier = this.intelligenceMultiplier,
+            intelligenceMultiplier = this.intelligenceMultiplier
         };
     }
 }
