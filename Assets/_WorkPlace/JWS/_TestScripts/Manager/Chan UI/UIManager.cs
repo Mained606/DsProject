@@ -505,7 +505,8 @@ public class UIManager : BaseManager<UIManager>
     public bool IsUIWindowOpen()
     {
         return shopUI.activeSelf || characterStaus.activeSelf || dialogWindow.activeSelf || questWindow.activeSelf || 
-            inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf || infoMessageWindow.gameObject.activeSelf;
+            inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf || infoMessageWindow.gameObject.activeSelf ||
+            cookingUI.activeSelf || skillUI.activeSelf;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
