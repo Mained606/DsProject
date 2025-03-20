@@ -55,7 +55,6 @@ public class Skills : ISheetData
     // 초기화: cooldownTimer 설정 및 초기 경험치 계산
     public void Initialize()
     {
-        skillWeight = SkillManager.Instance.GetSkillWeights(EntityType.Player, skillName);
         TestFunc();
         cooldownTimer = new BasicTimer(currentCooldown);
         //currentDamage = damage;
@@ -142,6 +141,13 @@ public class Skills : ISheetData
     private void SkillWeightApply(bool levelUp = true)  // 디폴트 값은 레벨 상승, false는 레벨 하락
     {
         // TODO : 가중치 보정 함수
+        Debug.Log("스킬보정 함수");
+        skillWeight = SkillManager.Instance.GetSkillWeights(EntityType.Player, skillName);
+        if(skillWeight == null)
+        {
+            Debug.Log("스킬 가중치가 null");
+            return;
+        }
 
         switch (levelUp)
         {

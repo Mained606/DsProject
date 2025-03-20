@@ -79,6 +79,8 @@ public class PlayerController : MonoBehaviour
     private BasicTimer RecoveryTimer;
     private float RecoveryTime = 1f;
 
+    private Skills skill;
+
 
     #endregion
 
@@ -125,6 +127,8 @@ public class PlayerController : MonoBehaviour
         behaviour.CanJump = true;
         behaviour.CanDodge = true;
         //behaviour.CanClimb = true;
+
+        skill = SkillManager.Instance.GetSkill(EntityType.Player, "FireStrike");
     }
 
     private void Update()
@@ -136,6 +140,14 @@ public class PlayerController : MonoBehaviour
         if (uiCheck)
         {
             return;
+        }
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            skill.LevelUp();
+        }
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            skill.LevelDown();
         }
 
         // 치트

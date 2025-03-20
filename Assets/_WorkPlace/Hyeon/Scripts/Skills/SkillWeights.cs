@@ -4,6 +4,7 @@ using UnityEngine;
 [Serializable]
 public class SkillWeights
 {
+    public EntityType entityType;
     public string skillName;
     public float damageIncrease;
     public float cooldownDecrease;
