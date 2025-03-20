@@ -49,6 +49,7 @@ public class Skills : ISheetData
         skillLevel = 1;
         currentExperience = 0;
         experienceToLevelUp = CalculateExperienceToLevelUp();
+        skillWeight = SkillManager.Instance.GetSkillWeights(EntityType.Player, skillName);
     }
 
     // 스킬 지속시간: 애니메이션 길이가 있다면 해당 길이 반환, 없으면 기본값 1.0f
@@ -67,7 +68,8 @@ public class Skills : ISheetData
         {
             isLevelingUp = true; // 레벨업 시작
             skillLevel++;
-            currentDamage *= 1.1f; // 스킬 피해량 10% 증가
+            //currentDamage *= skillWeight.damageIncrease; // 스킬 피해량 가중치만큼 증가
+            SkillWeightApply();
             experienceToLevelUp = CalculateExperienceToLevelUp();
             isLevelingUp = false; // 레벨업 종료
         }
@@ -82,7 +84,8 @@ public class Skills : ISheetData
         if (skillLevel > 1)
         {
             skillLevel--;
-            currentDamage /= 1.1f; // 스킬 피해량 원래대로 복귀
+            //currentDamage /= skillWeight.damageIncrease; // 스킬 피해량 원래대로 복귀
+            SkillWeightApply(false);
         }
     }
 
@@ -109,6 +112,20 @@ public class Skills : ISheetData
     private int CalculateExperienceToLevelUp()
     {
         return Mathf.RoundToInt(skillLevel * 100f);
+    }
+
+    // 스킬 가중치 적용 함수
+    private void SkillWeightApply(bool levelUp = true)
+    {
+        switch (levelUp)
+        {
+            case true:
+                currentDamage *= skillWeight.damageIncrease;
+                break;
+            case false:
+                currentDamage /= skillWeight.damageIncrease;
+                break;
+        }
     }
 
     // 아이템이나 포인트로 올릴 수 있는 스킬 레벨 상한 제한 추가 필요
