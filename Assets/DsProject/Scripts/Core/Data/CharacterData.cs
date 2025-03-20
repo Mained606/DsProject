@@ -1085,7 +1085,7 @@ public class DragonData
     public GameObject[] evolutionPrefabs = new GameObject[3]; // 각 진화 단계별 프리팹 (0: Baby, 1: Young, 2: Adult)
     
     // 진화 단계별 최대 레벨 제한
-    public readonly int[] maxLevelPerStage = new int[] { 15, 30, 50 }; // Baby, Young, Adult 각각의 최대 레벨
+    public int[] maxLevelPerStage = new int[] { 15, 30, 50 }; // Baby, Young, Adult 각각의 최대 레벨
     
     public int strength;       // 힘
     public int agility;        // 민첩
@@ -1153,6 +1153,13 @@ public class DragonData
         this.statModifier = modifier ?? new DragonStatModifier();
         this.evolutionStage = DragonEvolutionStage.Baby;
 
+        // maxLevelPerStage 배열이 비어있거나 null이면 기본값으로 초기화
+        if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
+        {
+            maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
+            Debug.Log("Constructor: maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
+        }
+
         // 물리 데미지와 마법 데미지 계산
         UpdateDerivedStats();
         
@@ -1176,6 +1183,13 @@ public class DragonData
         // 진화 단계 초기화
         evolutionStage = DragonEvolutionStage.Baby;
         
+        // maxLevelPerStage 배열이 비어있거나 null이면 기본값으로 초기화
+        if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
+        {
+            maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
+            Debug.Log("Initialize: maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
+        }
+        
         // 유대 레벨 초기화
         bondLevel = 1;
         bondExperience = 0;
@@ -1186,7 +1200,7 @@ public class DragonData
         // 다음 레벨업에 필요한 경험치 초기화
         RequiredExpToNextLevel = CalculateExperienceToLevelUp(bondLevel);
     }
-    
+
     // 물리 데미지와 마법 데미지 계산
     public void UpdateDerivedStats()
     {
@@ -1222,6 +1236,15 @@ public class DragonData
     public void AddBondExperience(int amount)
     {
         if (amount < 0) return;
+        
+        Debug.Log($"evolutionStage = {(int)evolutionStage} / maxLevelPerStage.Length = {maxLevelPerStage.Length}");
+        
+        // maxLevelPerStage 배열이 비어있거나 null이면 기본값으로 초기화
+        if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
+        {
+            maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
+            Debug.Log("maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
+        }
         
         // 현재 진화 단계의 최대 레벨 체크 (안전하게 처리)
         int maxLevel = (evolutionStage >= 0 && (int)evolutionStage < maxLevelPerStage.Length) 
