@@ -277,7 +277,7 @@ public class CombatManager : BaseManager<CombatManager>
                 }
             }
         }
-        
+        //
         // UI에 데미지 텍스트 표시
         if (damage > 0)
         {
