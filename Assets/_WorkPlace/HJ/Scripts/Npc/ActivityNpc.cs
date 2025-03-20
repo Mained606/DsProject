@@ -29,6 +29,10 @@ public class ActivityNpc : MonoBehaviour
     [SerializeField] private float turnSpeed = 10f;
     [SerializeField] private bool isMoving = false;
     [SerializeField] private bool isStart = false;
+    public bool IsMoving
+    {
+        get => isMoving;
+    }
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
@@ -140,7 +144,7 @@ public class ActivityNpc : MonoBehaviour
 
             animator.SetBool(FishingState, false);
 
-            yield return StartCoroutine(DelayNextAction(0.5f));
+            yield return StartCoroutine(DelayBeforeNextAction(0.5f));
 
             FindNpcAndMove();
 
@@ -239,6 +243,13 @@ public class ActivityNpc : MonoBehaviour
         if (Random.value <= talkingChance)
         {            
             Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
+            ActivityNpc activityNpc = ohterNpc?.GetComponent<ActivityNpc>();
+            if (activityNpc != null && activityNpc.IsMoving)
+            {
+                Debug.Log(ohterNpc.name + "이동 중");
+                return;
+            }
+
             if (ohterNpc != null)
             {
                 Debug.Log($"{ohterNpc.name}으로 이동");
@@ -313,7 +324,7 @@ public class ActivityNpc : MonoBehaviour
 
         float angle = Vector3.Angle(transform.forward, direction);
 
-        bool shouldWalk = angle > 90f;
+        bool shouldWalk = angle > 10f;
 
         Quaternion startRotation = transform.rotation;
 
@@ -346,7 +357,7 @@ public class ActivityNpc : MonoBehaviour
 
         StopCurrentAction();
 
-        yield return StartCoroutine(DelayNextAction(-0.5f));
+        yield return StartCoroutine(DelayBeforeNextAction(-0.5f));
 
         yield return StartCoroutine(LookAtTarget(target.position));
 
@@ -431,7 +442,7 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
-    private IEnumerator DelayNextAction(float addTime = 0)
+    private IEnumerator DelayBeforeNextAction(float addTime = 0)
     {
         float clipLnegth = animator.GetCurrentAnimatorClipInfo(0).Length;
         yield return new WaitForSeconds(clipLnegth + addTime);
