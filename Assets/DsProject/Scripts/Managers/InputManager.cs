@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class InputManager : BaseManager<InputManager>
-{
+{ 
     public static PlayerInput InputActions;
 
     // 모든 입력의 활성 상태를 관리하는 딕셔너리
@@ -25,7 +25,7 @@ public class InputManager : BaseManager<InputManager>
         InputActions.actions["ESC"].performed += OnMainMenu;
         InputActions.actions["Craft"].performed += OnCrafting;
         InputActions.actions["Cook"].performed += OnCooking;
-        InputActions.actions["Skill"].performed += OnSkill;
+        InputActions.actions["Skill"].performed += OnSkills;
         #endregion
     }
 
@@ -134,7 +134,7 @@ public class InputManager : BaseManager<InputManager>
         }
     }
 
-    private void OnSkill(InputAction.CallbackContext context)
+    private void OnSkills(InputAction.CallbackContext context)
     {
         if (GameStateMachine.Instance.CurrentState != GameSystemState.Skill)
         {
@@ -171,7 +171,7 @@ public class InputManager : BaseManager<InputManager>
         if (GameStateMachine.Instance.CurrentState != GameSystemState.StatusUI)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.StatusUI);
-            Debug.Log("Quest 상태로 전환됨.");
+            Debug.Log("StatusUI 상태로 전환됨.");
         }
         else
         {
