@@ -1,64 +1,47 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StatusUI : MonoBehaviour
 {
-    [SerializeField] private GameObject statPrefab1; // 첫 번째 프리팹
-    [SerializeField] private GameObject statPrefab2; // 두 번째 프리팹
-    [SerializeField] private Transform statPanel;    // 스탯 슬롯들이 추가될 부모 오브젝트
+    [SerializeField] private GameObject defaultPanel;// 공용 네임, 레벨, 경험치 판넬
+    [SerializeField] private GameObject playerPanel; // 플레이어 스탯판넬 
+    [SerializeField] private GameObject dragonbPanel;// 드래곤 스탯판넬
 
-    private PlayerData playerData; //
+    PlayerData playerData; 
+    DragonData dragonData;
 
-    private void Start()
+    private TextMeshProUGUI[] PlayerStats;
+    private TextMeshProUGUI[] DragonStats;
+    private TextMeshProUGUI[] DefaultText; // 공용 판넬
+    private Image[] DeFaultImage;
+    private Button[] buttons;
+
+
+    private void Awake()
     {
-        // 필요한 필드 확인
-        if (statPrefab1 == null || statPrefab2 == null || statPanel == null)
-        {
-            Debug.LogError("StatUI에 필요한 프리팹 또는 부모 오브젝트가 연결되지 않았습니다.");
-            return;
-        }
-
         // CharacterManager에서 PlayerCharacterData 가져오기
         playerData = CharacterManager.PlayerCharacterData;
-
-        if (playerData == null)
+        dragonData = CharacterManager.DragonData;
+        if (playerData == null && dragonData == null)
         {
-            Debug.LogError("PlayerCharacterData가 null입니다. CharacterManager를 확인하세요.");
+            Debug.LogError("캐릭터 데이터가 없어욘");
             return;
         }
 
-        // 스탯 슬롯 생성
-        GenerateStatSlots();
+        PlayerStats = playerPanel.GetComponentsInChildren<TextMeshProUGUI>();
+        DragonStats = dragonbPanel.GetComponentsInChildren<TextMeshProUGUI>();
+
+        DeFaultImage = defaultPanel.GetComponentsInChildren<Image>();
+        DefaultText = defaultPanel.GetComponentsInChildren<TextMeshProUGUI>();
+
     }
 
-    // 스탯 슬롯 생성 함수
-    private void GenerateStatSlots()
+    private void OnEnable()
     {
-        var stats = new (string statName, string value)[]
-        {
-            ("Strength", playerData.strength.ToString()),
-            ("Vitality", playerData.vitality.ToString()),
-            ("Agility", playerData.agility.ToString()),
-            ("Intelligence", playerData.intelligence.ToString()),
-            ("Stamina", $"{playerData.staminaCurrent}/{playerData.stamina}"),
-            ("Physical Defense", playerData.physicalDefense.ToString()),
-            ("Magic Defense", playerData.magicDefense.ToString()),
-            ("Physical Damage", playerData.physicalDamage.ToString()),
-            ("Magic Damage", playerData.magicDamage.ToString())
-        };
+        
 
-        // 번갈아 가면서 생성
-        for (int i = 0; i < stats.Length; i++)
-        {
-            GameObject prefabToUse = i % 2 == 0 ? statPrefab1 : statPrefab2;
-            var slot = Instantiate(prefabToUse, statPanel);
 
-            var texts = slot.GetComponentsInChildren<TextMeshProUGUI>();
-            if (texts.Length >= 2)
-            {
-                texts[0].text = stats[i].statName; // 스탯 이름 적용
-                texts[1].text = stats[i].value;   // 스탯 값 적용 
-            }
-        }
     }
+
 }
