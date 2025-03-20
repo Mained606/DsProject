@@ -307,14 +307,13 @@ public class ActivityNpc : MonoBehaviour
     }
 
     private IEnumerator LookAtTarget(Vector3 target, float duration = 0.5f)
-    {        
+    {
         Vector3 direction = (target - transform.position).normalized;
         direction.y = 0f;
 
         float angle = Vector3.Angle(transform.forward, direction);
 
         bool shouldWalk = angle > 90f;
-        if (shouldWalk) animator.SetBool(WalkingState, true);
 
         Quaternion startRotation = transform.rotation;
 
@@ -322,7 +321,10 @@ public class ActivityNpc : MonoBehaviour
 
         float elapsedTime = 0f;
 
-        while(elapsedTime < duration)
+        bool isTurningInPlace = (target == startPosition);
+        if (shouldWalk || isTurningInPlace) animator.SetBool(WalkingState, true);
+
+        while (elapsedTime < duration)
         {
             float t = elapsedTime / duration;
             transform.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
@@ -330,7 +332,7 @@ public class ActivityNpc : MonoBehaviour
             yield return null;
         }
 
-        if (shouldWalk) animator.SetBool(WalkingState, false);
+        if (shouldWalk || isTurningInPlace) animator.SetBool(WalkingState, false);
 
         transform.rotation = targetRotation;
     }
