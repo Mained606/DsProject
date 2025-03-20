@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
     public bool isAttack;
     public bool isUseSkill;
     public bool isParry;
-    [SerializeField] private bool isHit;
+    //[SerializeField] private bool isHit;
     public bool isStunned;
 
 
@@ -79,6 +79,8 @@ public class PlayerController : MonoBehaviour
     private BasicTimer RecoveryTimer;
     private float RecoveryTime = 1f;
 
+    private Skills skill;
+
 
     #endregion
 
@@ -124,8 +126,9 @@ public class PlayerController : MonoBehaviour
         behaviour.CanMove = true;
         behaviour.CanJump = true;
         behaviour.CanDodge = true;
-        
         //behaviour.CanClimb = true;
+
+        skill = SkillManager.Instance.GetSkill(EntityType.Player, "FireStrike");
     }
 
     private void Update()
@@ -137,6 +140,14 @@ public class PlayerController : MonoBehaviour
         if (uiCheck)
         {
             return;
+        }
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            skill.LevelUp();
+        }
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            skill.LevelDown();
         }
 
         // 치트
@@ -679,18 +690,18 @@ public class PlayerController : MonoBehaviour
     {
         if (isParry || isInvincible)
         {
-            isHit = false;
+            //isHit = false;
             return;
         }
         else if (isUseSkill)
         {
-            isHit = true;
+            //isHit = true;
             playerAnimator.ResetTrigger("Hit");
             return;
         }
         else
         {
-            isHit = true;
+            //isHit = true;
             playerAnimator.SetTrigger("Hit");
             behaviour.CanMove = false;
             behaviour.CanAttack = false;
@@ -718,8 +729,7 @@ public class PlayerController : MonoBehaviour
         // 기존 스턴 코루틴이 있다면 중지
         if(stunCoroutine != null)
         {
-            StopCoroutine(stunCoroutine);
-            stunCoroutine = null;
+            return;
         }
         
         // 새 스턴 코루틴 시작
@@ -759,7 +769,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator Hit()
     {
         yield return new WaitForSeconds(0.1f);
-        isHit = false;
+        //isHit = false;
         if (!playerData.isStunned)
         {
             behaviour.CanMove = true;
