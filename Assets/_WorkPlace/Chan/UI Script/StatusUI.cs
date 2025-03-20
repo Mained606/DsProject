@@ -95,12 +95,12 @@ public class StatusUI : MonoBehaviour
     private void OnEnable()
     {
         ShowPlayerStats(); // 기본적으로 플레이어 패널 활성화
-
+        // AddButtonListenrs();
     }
 
     private void OnDisable()
     {
-        
+     //   RemoveButtonListeners();
     }
     private void ShowPlayerStats()
     {
