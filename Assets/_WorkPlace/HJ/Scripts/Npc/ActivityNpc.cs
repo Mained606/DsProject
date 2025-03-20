@@ -1,13 +1,10 @@
 using System.Collections;
-using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class ActivityNpc : MonoBehaviour
 {
     [Header("Animation Settings")]
-    public Animator animator;
+    private Animator animator;
     private static readonly int FishingState = Animator.StringToHash("IsFishing");
     private static readonly int FarmingState = Animator.StringToHash("IsFarming");
     private static readonly int CraftingState = Animator.StringToHash("IsCrafting");
@@ -24,46 +21,34 @@ public class ActivityNpc : MonoBehaviour
     private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
 
     [Header("Movement Setting")]
+    private Quaternion startRotation;
     [SerializeField] private Vector3 startPosition;
-    [SerializeField] private Transform targetNpc;
+    [SerializeField] private Vector3 targetPosition;
     [SerializeField] private float npcDistance = 100f;
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float turnSpeed = 10f;
     [SerializeField] private bool isMoving = false;
-    //public bool IsMoving
-    //{
-    //    get { return isMoving; }
-    //    set
-    //    {
-    //        isMoving = value;
-    //        if (isMoving) MoveToWards(targetNpc.position);
-    //        else StopCurrentAction();
-    //    }
-    //}
+    [SerializeField] private bool isStart = false;
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
     private float talkingChance = 1f;
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
-    //public bool IsTalking
-    //{
-    //    get { return isTalking; }
-    //    set
-    //    {
-    //        isTalking = value;
-    //        if (isTalking) StartConversation();
-    //        else StopConversation();
-    //    }
-    //}
+    public bool IsTalking
+    {
+        get => isTalking;
+    }
 
     private NpcController npcController;
-    [SerializeField] private int defaultState;
-    private IEnumerator defaultRoutine;
+    private int defaultState;
+    private Coroutine currentCoroutine;
+    private System.Func<IEnumerator> defaultRoutineFactory;
 
     private void Start()
     {
-        startPosition = this.transform.position;
+        startRotation = transform.rotation;
+        startPosition = transform.position;
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -73,32 +58,41 @@ public class ActivityNpc : MonoBehaviour
         if (npcController.npcType == NpcType.Fishing)
         {
             defaultState = FishingState;
-            defaultRoutine = Fishing();
+            defaultRoutineFactory = Fishing;
         }
         else if (npcController.npcType == NpcType.Farmer)
         {
             defaultState = FarmingState;
-            defaultRoutine = Farming();
+            defaultRoutineFactory = Farming;
         }
         else if (npcController.npcType == NpcType.Craft)
         {
             defaultState = CraftingState;
-            defaultRoutine = Crafting();
+            defaultRoutineFactory = Crafting;
         }
         else if (npcController.npcType == NpcType.Sitting)
         {
             defaultState = SittingState;
-            defaultRoutine = Sitting();
+            defaultRoutineFactory = Sitting;
         }
 
-        StartCoroutine(defaultRoutine);
+        currentCoroutine = StartCoroutine(defaultRoutineFactory());
     }
 
     private void Update()
     {
         if(isMoving)
         {
-            MoveToWards(targetNpc.position);
+            MoveToWards(targetPosition);
+
+            float distance = Vector3.Distance(transform.position, startPosition);
+            if(distance <= 1f && !isStart)
+            {
+                isMoving = false;
+                StopCurrentAction();
+                transform.rotation = startRotation;
+                currentCoroutine = StartCoroutine(defaultRoutineFactory());
+            }
         }
     }
 
@@ -110,12 +104,11 @@ public class ActivityNpc : MonoBehaviour
             {
                 isNearNpc = true;
             }
-            else
+            else if(!isTalking)
             {
-                isTalking = true;
+                isStart = false;
                 isMoving = false;
-                LookAtTarget(other.transform);
-                StartConversation();
+                StartCoroutine(StartConversation(other.transform));
             }
         }
 
@@ -134,10 +127,6 @@ public class ActivityNpc : MonoBehaviour
             {
                 isNearNpc = false;
             }
-            else
-            {
-                isTalking = false;
-            }
         }
     }
 
@@ -151,8 +140,7 @@ public class ActivityNpc : MonoBehaviour
 
             animator.SetBool(FishingState, false);
 
-            float clipLnegth = animator.GetCurrentAnimatorClipInfo(0).Length;
-            yield return new WaitForSeconds(clipLnegth);
+            yield return StartCoroutine(DelayNextAction(0.5f));
 
             FindNpcAndMove();
 
@@ -164,6 +152,7 @@ public class ActivityNpc : MonoBehaviour
     {
         while (true)
         {
+            Debug.Log("Farming 실행");
             animator.SetBool(FarmingState, true);
 
             yield return new WaitForSeconds(Random.Range(20, 40f));
@@ -182,10 +171,10 @@ public class ActivityNpc : MonoBehaviour
     {
         while (true)
         {
-            if (!animator.GetBool(CraftingState))
-            {
-                animator.SetBool(CraftingState, true);
-            }
+            //if (!animator.GetBool(CraftingState))
+            //{
+            animator.SetBool(CraftingState, true);
+            //}
 
             yield return new WaitForSeconds(Random.Range(20f, 40f));
 
@@ -253,15 +242,12 @@ public class ActivityNpc : MonoBehaviour
             if (ohterNpc != null)
             {
                 Debug.Log($"{ohterNpc.name}으로 이동");
-                if (animator.GetBool(defaultState))
-                {
-                    animator.SetBool(defaultState, false);
-                }
 
-                StopAllCoroutines();
+                StopCurrentAction();
 
+                isStart = true;
                 isMoving = true;
-                targetNpc = ohterNpc;
+                targetPosition = ohterNpc.position;
             }
             else
             {
@@ -320,33 +306,57 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
-    private void LookAtTarget(Transform target)
-    {
-        if (target == null) return;
-
-        Vector3 direction = (target.position - transform.position).normalized;
+    private IEnumerator LookAtTarget(Vector3 target, float duration = 0.5f)
+    {        
+        Vector3 direction = (target - transform.position).normalized;
         direction.y = 0f;
 
+        float angle = Vector3.Angle(transform.forward, direction);
+
+        bool shouldWalk = angle > 90f;
+        if (shouldWalk) animator.SetBool(WalkingState, true);
+
+        Quaternion startRotation = transform.rotation;
+
         Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+        float elapsedTime = 0f;
+
+        while(elapsedTime < duration)
+        {
+            float t = elapsedTime / duration;
+            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        if (shouldWalk) animator.SetBool(WalkingState, false);
+
         transform.rotation = targetRotation;
     }
 
-    private void StartConversation()
+
+    private IEnumerator StartConversation(Transform target)
     {
+        isTalking = true;
         if(isMoving) isMoving = false;
-        if(targetNpc) targetNpc = null;
+        //if(targetPosition != Vector3.zero) targetPosition = Vector3.zero;
 
         StopCurrentAction();
+
+        yield return StartCoroutine(DelayNextAction(-0.5f));
+
+        yield return StartCoroutine(LookAtTarget(target.position));
 
         animator.SetBool(TalkingState, true);
         PlayRandomTrigger(talkingTriggers);
 
-        StartCoroutine(ContinueConversation());
+        StartCoroutine(ContinueConversation(target));
     }
 
-    private IEnumerator ContinueConversation()
+    private IEnumerator ContinueConversation(Transform target)
     {
-        int minConversations = Random.Range(3, 6);
+        int minConversations = Random.Range(6, 10);
         int conversationCount = 0;
 
         while (isTalking)
@@ -360,7 +370,13 @@ public class ActivityNpc : MonoBehaviour
             }
             else
             {
-                isTalking = false;
+                StopConversation();
+            }
+
+            ActivityNpc targetNpc = target.GetComponent<ActivityNpc>();
+            if (targetNpc != null && !targetNpc.IsTalking)
+            {
+                Debug.Log($"{target.name} IsTalking = false");
                 StopConversation();
             }
         }
@@ -368,10 +384,14 @@ public class ActivityNpc : MonoBehaviour
 
     private void StopConversation()
     {
+        isTalking = false;
+
+        Debug.Log($"{transform.name} 대화 종료");
+
         animator.SetTrigger(ExitTrigger);
         animator.SetBool(TalkingState, false);
 
-        DoAction();
+        StartCoroutine(DoAction());
     }
 
     private void StopCurrentAction()
@@ -380,16 +400,38 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(defaultState, false);
         }
-        if(animator.GetBool(WalkingState))
+
+        if (animator.GetBool(WalkingState))
         {
             animator.SetBool(WalkingState, false);
         }
 
-        StopAllCoroutines();
+        if (currentCoroutine != null)
+        {
+            StopCoroutine(currentCoroutine);
+            currentCoroutine = null;
+        }
     }
 
-    private void DoAction()
+    private IEnumerator DoAction()
     {
-        //처음 위치로 이동하거나 그 자리에서 실행
+        float distance = Vector3.Distance(transform.position, startPosition);
+        if(distance > 0.1f)
+        {   
+            targetPosition = startPosition;
+            isMoving = true;
+        }
+        else
+        {
+            Debug.Log($"{transform.name} DoAction");
+            yield return StartCoroutine(LookAtTarget(startPosition));
+            currentCoroutine = StartCoroutine(defaultRoutineFactory());
+        }
+    }
+
+    private IEnumerator DelayNextAction(float addTime = 0)
+    {
+        float clipLnegth = animator.GetCurrentAnimatorClipInfo(0).Length;
+        yield return new WaitForSeconds(clipLnegth + addTime);
     }
 }
