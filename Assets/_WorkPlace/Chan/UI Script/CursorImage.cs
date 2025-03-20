@@ -33,7 +33,7 @@ public class CursorImage : MonoBehaviour
 
     public void SetCursorIdle()
     {
-        Cursor.SetCursor(idleCursorImage, Point, CursorMode.Auto);
+        Cursor.SetCursor(idleCursorImage,Point, CursorMode.Auto);
     }
 
     public void SetCursorClick()

@@ -10,7 +10,7 @@ public class CharacterStatusUI : MonoBehaviour
     [SerializeField] private Transform character_Stat; // 메인판넬 바인딩
     [SerializeField] private Transform statsNamePosition;   // 스탯네임 판넬
     [SerializeField] private Transform statsValuePosition;  // 스탯수치 판넬
-    [SerializeField] private Transform ImagePanel;          // 스탯 아래 이미지 판넬
+    [SerializeField] private Transform ImagePanel;          // 스탯 엣지 판넬
     [SerializeField] private Transform NamePanel;           // 스탯창 플레이어 네임 & 경험치 판넬
     [SerializeField] private Transform equirePrefab;        // 인벤토리에서 사용되는 아이템슬롯 프리팹
     [SerializeField] private RectTransform equirePannel;    // 우측 장비 퀵슬롯 -> 제거 예정
