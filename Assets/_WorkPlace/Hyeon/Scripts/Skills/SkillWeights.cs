@@ -7,7 +7,7 @@ public class SkillWeights
     public string skillName;
     public float damageIncrease;
     public float cooldownDecrease;
-    public float energyCostVariation;
+    public float energyCostIncrease;
     public GameObject fullLevelEffectPrefab;
 
     public float buffDurationIncrease;

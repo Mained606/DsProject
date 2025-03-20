@@ -9,7 +9,6 @@ public class FireStrike : MonoBehaviour
     private Dictionary<GameObject, int> enemyDamageCount = new Dictionary<GameObject, int>();
     public int maxHits = 3;
 
-    [SerializeField] private float multiplier = 0.1f;
     private Skills skills;
 
     private void Start()

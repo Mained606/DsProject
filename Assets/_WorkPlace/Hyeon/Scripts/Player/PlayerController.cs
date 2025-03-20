@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
     public bool isAttack;
     public bool isUseSkill;
     public bool isParry;
-    [SerializeField] private bool isHit;
+    //[SerializeField] private bool isHit;
     public bool isStunned;
 
 
@@ -678,18 +678,18 @@ public class PlayerController : MonoBehaviour
     {
         if (isParry || isInvincible)
         {
-            isHit = false;
+            //isHit = false;
             return;
         }
         else if (isUseSkill)
         {
-            isHit = true;
+            //isHit = true;
             playerAnimator.ResetTrigger("Hit");
             return;
         }
         else
         {
-            isHit = true;
+            //isHit = true;
             playerAnimator.SetTrigger("Hit");
             behaviour.CanMove = false;
             behaviour.CanAttack = false;
@@ -757,7 +757,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator Hit()
     {
         yield return new WaitForSeconds(0.1f);
-        isHit = false;
+        //isHit = false;
         if (!playerData.isStunned)
         {
             behaviour.CanMove = true;
