@@ -253,8 +253,8 @@ public class CharacterStatusUI : MonoBehaviour
     private void GetDragonStatsValue()
     {
         DragonData dragonData = CharacterManager.DragonData;
-        experienceText.text = $"{dragonData.bondExperience} / {dragonData.bondThresholds}";
-     //   experienceFillBar.fillAmount = (float)dragonData.bondExperience / (float)dragonData.bondThresholds;
+        experienceText.text = $"{dragonData.bondExperience} / {dragonData.CalculateExperienceToLevelUp(dragonData.bondLevel)}";
+     //   experienceFillBar.fillAmount = (float)dragonData.bondExperience / (float)dragonData.CalculateExperienceToLevelUp(dragonData.bondLevel);
 
         CharacterName.text = dragonData.characterName;
 
