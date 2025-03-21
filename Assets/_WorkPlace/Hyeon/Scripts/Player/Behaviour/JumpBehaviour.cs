@@ -46,7 +46,7 @@ public class JumpBehaviour : IBehaviour
     private void OnJump()
     {
         controller.isJumping = true;
-        controller.verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        controller.verticalVelocity.y = Mathf.Sqrt(jumpHeight * -1f * gravity);
         animator.SetBool("Jump", true);
     }
 

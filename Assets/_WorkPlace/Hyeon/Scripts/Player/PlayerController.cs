@@ -27,14 +27,13 @@ public class PlayerController : MonoBehaviour
     public bool isFreefall;
     public bool isJumping = false;
     public bool isClimb;
-    [SerializeField] private bool isGliding;
+    public bool isGliding;
     public bool isDodging = false;
     public bool isAttack;
     public bool isUseSkill;
     public bool isParry;
     //[SerializeField] private bool isHit;
     public bool isStunned;
-
 
     [Header("이동")]
     public Vector2 moveInput;
@@ -45,8 +44,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
     
     [Header("점프 / 중력")]
-    public float jumpHeight = 0.5f;
-    private float gravity = -9.81f;
+    public float jumpHeight = 20f;
+    private float gravity = -15f;
     public Vector3 verticalVelocity;
     private float lastGroundHeight;
     [SerializeField] private float fallDamageThreshold = 5f;
@@ -60,6 +59,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("글라이딩")]
     [SerializeField] private float glidableHeight = 6f;
+    public float glideSpeed = 15f;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 6.5f;
