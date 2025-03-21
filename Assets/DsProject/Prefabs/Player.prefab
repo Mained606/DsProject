@@ -8574,6 +8574,92 @@ SkinnedMeshRenderer:
     m_Center: {x: 0, y: 0.254719, z: -0.0006836951}
     m_Extent: {x: 0.12548824, y: 0.093414456, z: 0.07125348}
   m_DirtyAABB: 0
+--- !u!1 &5968738282788369252
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3646550764231697399}
+  - component: {fileID: 8531276157108181197}
+  - component: {fileID: 3635815143515845950}
+  m_Layer: 0
+  m_Name: Wing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3646550764231697399
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968738282788369252}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 0.039, z: -0.27}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5766994705702461224}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!33 &8531276157108181197
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968738282788369252}
+  m_Mesh: {fileID: -5495902117074765545, guid: 68a8408e9fe76794593120026f1842dc, type: 3}
+--- !u!23 &3635815143515845950
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968738282788369252}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 999810901c673434786d04e46b1b1687, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6005185894709553138
 GameObject:
   m_ObjectHideFlags: 0
@@ -8937,10 +9023,12 @@ MonoBehaviour:
       magicResistanceMultiplier: 2
       intelligenceMultiplier: 1.5
     instance: {fileID: 0}
-    availableSkillPoints: 0
+    availableSkillPoints: 3
     availableStatPoints: 0
     attribute: 0
     isStunned: 0
+    equipmentPhysicalBonus: 0
+    equipmentMagicBonus: 0
     skills: []
     gold: 0
   playerCombat: {fileID: 0}
@@ -8960,19 +9048,19 @@ MonoBehaviour:
   isAttack: 0
   isUseSkill: 0
   isParry: 0
-  isHit: 0
+  isStunned: 0
   moveInput: {x: 0, y: 0}
   cameraTransform: {fileID: 0}
   walkSpeed: 0
   sprintSpeed: 0
-  jumpHeight: 5
+  jumpHeight: 20
   verticalVelocity: {x: 0, y: 0, z: 0}
   fallDamageThreshold: 10
   fallDamageMultiplier: 5
   detectionRange: 2
   climbRange: 1
   climbEndCheckOffset: 0.7
-  glidableHeight: 5
+  glideSpeed: 12
   dodgeDist: 6.5
   dodgeDuration: 0.67
   dashAttackDuration: 0.5
@@ -11265,6 +11353,7 @@ Transform:
   - {fileID: 1848342490489219615}
   - {fileID: 4673974900332224382}
   - {fileID: 2930405784508711372}
+  - {fileID: 3646550764231697399}
   m_Father: {fileID: 5143136094930265228}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9009649241797883164

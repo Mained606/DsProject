@@ -14,7 +14,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
     [SerializeField] private bool canMove;
     [SerializeField] private bool canJump;
     [SerializeField] private bool canClimb;
-    [SerializeField] private bool canGliding;
+    [SerializeField] private bool canGlide;
     [SerializeField] private bool canAttack;
     [SerializeField] private bool canUseSkill;
     [SerializeField] private bool canBlock;
@@ -26,7 +26,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
     public bool CanMove { get => canMove; set { if (canMove != value) { canMove = value; UpdateBehaviours(); } } }
     public bool CanJump { get => canJump; set { if (canJump != value) { canJump = value; UpdateBehaviours(); } } }
     public bool CanClimb { get => canClimb; set { if (canClimb != value) { canClimb = value; UpdateBehaviours(); } } }
-    //public bool CanGliding { get => canGliding; set { if (canGliding != value) { canGliding = value; UpdateBehaviours(); } } }
+    public bool CanGlide { get => canGlide; set { if (canGlide != value) { canGlide = value; UpdateBehaviours(); } } }
     public bool CanAttack { get => canAttack; set { if (canAttack != value) { canAttack = value; UpdateBehaviours(); } } }
     public bool CanUseSkill { get => canUseSkill; set { if (canUseSkill != value) { canUseSkill = value; UpdateBehaviours(); } } }
     public bool CanBlock { get => canBlock; set { if (canBlock != value) { canBlock = value; UpdateBehaviours(); } } }
@@ -47,7 +47,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
             { () => CanMove, typeof(MoveBehaviour) },
             { () => CanJump, typeof(JumpBehaviour) },
             { () => CanClimb, typeof(ClimbBehaviour) },
-            //{ () => CanGliding, typeof(GlidingBehaviour) },
+            { () => CanGlide, typeof(GlideBehaviour) },
             { () => CanAttack, typeof(AttackBehaviour) },
             { () => CanUseSkill, typeof(SkillBehaviour) },
             { () => CanBlock, typeof(BlockBehaviour) },
@@ -69,6 +69,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
             for (int i = activeBehaviours.Count - 1; i >= 0; i--)
             {
                 activeBehaviours[i].Execute();
+                Debug.Log($"{activeBehaviours[i]} 가능");
             }
         }
 

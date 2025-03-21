@@ -52,13 +52,11 @@ public class AttackBehaviour : IBehaviour
     {
         if (controller.isSprinting)
         {
-            Debug.LogWarning("대쉬공격");
             PlayerBehaviourManager.Instance.CanDodge = false;
             controller.DashAttack();
         }
         else
         {
-            Debug.LogWarning("안대쉬공격");
             controller.playerCombat.LookEnemy(attackPerceptionRange);
         }
         PlayerBehaviourManager.Instance.CanBlock = false;
