@@ -1,5 +1,8 @@
 using System.Collections;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ActivityNpc : MonoBehaviour
 {
@@ -21,10 +24,10 @@ public class ActivityNpc : MonoBehaviour
     private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
 
     [Header("Movement Setting")]
-    private Quaternion startRotation;
-    [SerializeField] private Vector3 startPosition;
-    //[SerializeField] private Vector3 targetPosition;
-    private Transform targetTransform;
+    [SerializeField] private Quaternion originalRotation;
+    [SerializeField] private Vector3 originalPosition;
+    [SerializeField] private Vector3 targetPosition;
+    [SerializeField] private Transform targetNpc;
     [SerializeField] private float npcDistance = 100f;
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float turnSpeed = 10f;
@@ -37,7 +40,7 @@ public class ActivityNpc : MonoBehaviour
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    private float talkingChance = 1f;
+    private float talkingChance = 0.5f;
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
     public bool IsTalking
@@ -52,8 +55,8 @@ public class ActivityNpc : MonoBehaviour
 
     private void Start()
     {
-        startRotation = transform.rotation;
-        startPosition = transform.position;
+        originalRotation = transform.rotation;
+        originalPosition = transform.position;
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -88,14 +91,17 @@ public class ActivityNpc : MonoBehaviour
     {
         if(isMoving)
         {
-            MoveToWards(targetTransform);
+            if (targetNpc)
+                MoveToWards(targetNpc);
+            else
+                MoveToWards(targetPosition);
 
-            float distance = Vector3.Distance(transform.position, startPosition);
+            float distance = Vector3.Distance(transform.position, originalPosition);
             if(distance <= 1f && !isStart)
             {
                 isMoving = false;
                 StopCurrentAction();
-                transform.rotation = startRotation;
+                StartCoroutine(LookAtTarget(originalPosition));
                 currentCoroutine = StartCoroutine(defaultRoutineFactory());
             }
         }
@@ -111,6 +117,7 @@ public class ActivityNpc : MonoBehaviour
             }
             else if(!isTalking)
             {
+                if (targetNpc) targetNpc = null;
                 isStart = false;
                 isMoving = false;
                 StartCoroutine(StartConversation(other.transform));
@@ -157,12 +164,18 @@ public class ActivityNpc : MonoBehaviour
     {
         while (true)
         {
-            Debug.Log("Farming 실행");
             animator.SetBool(FarmingState, true);
 
-            yield return new WaitForSeconds(Random.Range(20, 40f));
+            //yield return new WaitForSeconds(Random.Range(20, 40f));
+            yield return new WaitForSeconds(Random.Range(5f, 5f));
 
-            animator.SetTrigger(WipeSweatTrigger);
+            //animator.SetTrigger(WipeSweatTrigger);
+
+            //yield return StartCoroutine(DelayBeforeNextAction(0.5f));
+
+            //FindNpcAndMove();
+
+            yield return StartCoroutine(StartAction(0.5f));
 
             yield return new WaitForSeconds(Random.Range(20f, 40f));
 
@@ -178,12 +191,21 @@ public class ActivityNpc : MonoBehaviour
         {
             //if (!animator.GetBool(CraftingState))
             //{
-            animator.SetBool(CraftingState, true);
+                animator.SetBool(CraftingState, true);
             //}
 
-            yield return new WaitForSeconds(Random.Range(20f, 40f));
+            //yield return new WaitForSeconds(Random.Range(20f, 40f));
+            yield return new WaitForSeconds(Random.Range(5f, 5f));
 
-            animator.SetTrigger(WipeSweatTrigger);
+            //animator.SetTrigger(WipeSweatTrigger);
+
+            //yield return StartCoroutine(DelayBeforeNextAction(0.5f));
+
+            //FindNpcAndMove();
+
+            yield return StartCoroutine(StartAction(0.5f));
+
+            yield return new WaitForSeconds(Random.Range(20f, 40f));
         }
     }
 
@@ -202,6 +224,20 @@ public class ActivityNpc : MonoBehaviour
             {
                 PlayRandomTrigger(sittingTriggers);
             }
+        }
+    }
+
+    private IEnumerator StartAction(float delayTime)
+    {
+        if(Random.value < talkingChance)
+        {
+            yield return StartCoroutine(DelayBeforeNextAction(delayTime));
+
+            FindNpcAndMove();
+        }
+        else
+        {
+            animator.SetTrigger(WipeSweatTrigger);
         }
     }
 
@@ -241,26 +277,29 @@ public class ActivityNpc : MonoBehaviour
 
     private void FindNpcAndMove()
     {
-        if (Random.value <= talkingChance)
+        //if (Random.value <= talkingChance)
         {            
             Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
 
-            ActivityNpc activityNpc = ohterNpc?.GetComponent<ActivityNpc>();
-            if (activityNpc != null && activityNpc.IsMoving || activityNpc.IsTalking)
-            {
-                Debug.Log(ohterNpc.name + "이동 또는 대화 중, 리턴");
-                return;
-            }
+            //ActivityNpc activityNpc = ohterNpc?.GetComponent<ActivityNpc>();
+            //if (activityNpc != null && activityNpc.IsMoving || activityNpc.IsTalking)
+            //{
+            //    Debug.Log(ohterNpc.name + "이동 또는 대화 중, 리턴");
+            //    return;
+            //}
 
             if (ohterNpc != null)
             {
                 Debug.Log($"{transform.name}이 {ohterNpc.name}으로 이동");
 
+                //originalRotation = transform.rotation;
+                //originalPosition = transform.position;
+
                 StopCurrentAction();
 
                 isStart = true;
                 isMoving = true;
-                targetTransform = ohterNpc;
+                targetNpc = ohterNpc;
             }
             else
             {
@@ -348,21 +387,29 @@ public class ActivityNpc : MonoBehaviour
 
     private IEnumerator LookAtTarget(Vector3 target)
     {
-        Vector3 direction = (target - transform.position).normalized;
-        direction.y = 0f;
+        float angle;
+        Quaternion targetRotation;
 
-        float angle = Vector3.Angle(transform.forward, direction);
+        if (target == originalPosition)
+        {
+            angle = Quaternion.Angle(transform.rotation, originalRotation);
+            targetRotation = originalRotation;
+        }
+        else
+        {
+            Vector3 direction = (target - transform.position).normalized;
+            direction.y = 0f;
 
-        bool shouldWalk = angle > 15f;
+            angle = Vector3.Angle(transform.forward, direction);
+            targetRotation = Quaternion.LookRotation(direction);
+        }
 
         Quaternion startRotation = transform.rotation;
-
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
-
+        bool shouldWalk = angle > 15f;
         float elapsedTime = 0f;
         float duration = SetDuration(angle);
 
-        bool isTurningInPlace = (target == startPosition);
+        bool isTurningInPlace = (target == originalPosition);
         if (shouldWalk || isTurningInPlace) animator.SetBool(WalkingState, true);
 
         while (elapsedTime < duration)
@@ -465,23 +512,26 @@ public class ActivityNpc : MonoBehaviour
 
     private IEnumerator DoAction()
     {
-        float distance = Vector3.Distance(transform.position, startPosition);
+        float distance = Vector3.Distance(transform.position, originalPosition);
         if(distance > 0.1f)
         {
-            targetTransform.position = startPosition;
+            targetPosition = originalPosition;
             isMoving = true;
         }
         else
         {
             Debug.Log($"{transform.name} DoAction");
-            yield return StartCoroutine(LookAtTarget(startPosition));
+            yield return StartCoroutine(LookAtTarget(originalPosition));
             currentCoroutine = StartCoroutine(defaultRoutineFactory());
         }
     }
 
-    private IEnumerator DelayBeforeNextAction(float addTime = 0)
+    private IEnumerator DelayBeforeNextAction(float addDelayTime = 0)
     {
-        float clipLnegth = animator.GetCurrentAnimatorClipInfo(0).Length;
-        yield return new WaitForSeconds(clipLnegth + addTime);
+        float clipLength = animator.GetCurrentAnimatorClipInfo(0).Length;
+
+        Debug.Log(transform.name + "애니메이션 딜레이 타임: " + clipLength);
+
+        yield return new WaitForSeconds(clipLength + addDelayTime);
     }
 }
