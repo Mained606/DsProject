@@ -13,6 +13,8 @@ public enum NpcType
 public class NpcController : MonoBehaviour
 {
     public NpcType npcType;
+    //public Transform leftLeg;
+    //public Transform rightLeg;
 
     private void Awake()
     {
