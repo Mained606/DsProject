@@ -319,7 +319,6 @@ public class BaseBossAI : MonoBehaviour
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.BossBattle);
         }
-        Debug.Log("스타트 배틀");
         SetState(BossState.Roaring);
     }
 

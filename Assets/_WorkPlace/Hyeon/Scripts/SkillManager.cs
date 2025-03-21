@@ -14,13 +14,22 @@ public enum EntityType
     Boss
 }
 
+[System.Serializable]
 public class BuffInfo {
+    [System.NonSerialized]
     public Coroutine coroutine;
     public float startTime;  // 버프가 시작된 시간
     public float duration;   // 버프 지속시간
     public float originalPhysicalMultiplier; // 원래 물리 데미지 배율 저장
     public float originalMagicMultiplier;    // 원래 마법 데미지 배율 저장
     public int originalHpBonus;              // 원래 HP 버프 보너스 저장
+    
+    // 버프 남은 시간 계산
+    public float GetRemainingTime()
+    {
+        float elapsedTime = Time.time - startTime;
+        return Mathf.Max(0, duration - elapsedTime);
+    }
 }
 
 public class SkillManager : BaseManager<SkillManager>
@@ -34,21 +43,28 @@ public class SkillManager : BaseManager<SkillManager>
     //========== 250320 SH 추가 ==========
 
     // <(엔티티 타입, 스킬 이름), 스킬 정보> 형태로 모든 스킬 저장
+    [System.NonSerialized]
     private Dictionary<(EntityType, string), Skills> skillList = new Dictionary<(EntityType, string), Skills>();
     public static Dictionary<(EntityType, string), Skills> SkillList => Instance.skillList;
 
     // <(엔티티 타입, 스킬 이름), 스킬 정보> 형태로 모든 스킬 가중치 저장 ========== 250320 SH 추가 ==========
+    [System.NonSerialized]
     private Dictionary<(EntityType, string), SkillWeights> skillWeightList = new Dictionary<(EntityType, string), SkillWeights>();
     public static Dictionary<(EntityType, string), SkillWeights> SkillWeightList => Instance.skillWeightList;
     // ========== 250320 SH 추가 ==========
 
+    [System.NonSerialized]
     private Dictionary<Skills, Image> activeSkill = new Dictionary<Skills, Image>();
+    [System.NonSerialized]
     private Dictionary<string, BuffInfo> activeBuffs = new Dictionary<string, BuffInfo>();
+    [System.NonSerialized]
     private Dictionary<Skills, Coroutine> blinkCoroutines = new Dictionary<Skills, Coroutine>();
+    [System.NonSerialized]
     private Dictionary<Skills, bool> skillBlinkState = new Dictionary<Skills, bool>();
 
     [SerializeField] private List<Skills> currentUsedSkills = new List<Skills>();
 
+    [System.NonSerialized]
     private Animator animator;
     [SerializeField] private GameObject[] skillImage;
     [SerializeField] private Transform[] skillPanel;
@@ -61,6 +77,14 @@ public class SkillManager : BaseManager<SkillManager>
     protected override void Awake()
     {
         base.Awake();
+        // 직렬화되지 않는 변수들 초기화
+        skillList = new Dictionary<(EntityType, string), Skills>();
+        skillWeightList = new Dictionary<(EntityType, string), SkillWeights>();
+        activeSkill = new Dictionary<Skills, Image>();
+        activeBuffs = new Dictionary<string, BuffInfo>();
+        blinkCoroutines = new Dictionary<Skills, Coroutine>();
+        skillBlinkState = new Dictionary<Skills, bool>();
+        
         InitializeSkillDictionary();
     }
 
@@ -95,6 +119,7 @@ public class SkillManager : BaseManager<SkillManager>
             {
                 skillList[key] = skill;
                 skill.Initialize();
+                Debug.Log($"[SkillManager] 스킬 등록: {entityType}-{skill.skillName}, 지속시간: {skill.buffDuration}초, 쿨타임: {skill.cooldown}초");
             }
         }
     }
@@ -111,6 +136,7 @@ public class SkillManager : BaseManager<SkillManager>
             }
         }
     }
+
     public Skills GetSkill(EntityType entityType, string skillName)
     {
         return skillList.TryGetValue((entityType, skillName), out var skill) ? skill : null;
@@ -273,56 +299,33 @@ public class SkillManager : BaseManager<SkillManager>
         };
     }
 
-    public void CheckSkillCoolTime()
+    private void CheckSkillCoolTime()
     {
         List<Skills> skillsToRemove = new List<Skills>();
 
-        foreach (var skill in skillList.Values)
+        foreach (var skill in currentUsedSkills)
         {
-            if (!skill.cooldownTimer.IsRunning) continue;
-
             if (skill.cooldownTimer.RemainingTime <= 0.1f)
             {
-                if (activeSkill.ContainsKey(skill))
-                {
-                    Destroy(activeSkill[skill].transform.parent.gameObject);
-                    activeSkill.Remove(skill);
-                }
                 skillsToRemove.Add(skill);
                 skill.cooldownTimer.Stop();
             }
-            else
+            else if (skill.entityType != EntityType.Player && skill.skillType != SkillType.Support)
             {
-                if (skill.entityType != EntityType.Player) UpdateSkillCooldownUI(skill);
+                // 버프 스킬(Support 타입)이 아닌 스킬만 쿨다운 UI 업데이트
+                UpdateSkillCooldownUI(skill);
             }
         }
 
+        // 쿨다운이 끝난 스킬 처리
         foreach (var skill in skillsToRemove)
         {
             currentUsedSkills.Remove(skill);
-            CharacterData targetCharacter = skill.entityType switch
-            {
-                EntityType.Dragon => CharacterManager.PlayerCharacterData,
-                //EntityType.Player => CharacterManager.PlayerCharacterData,
-                //EntityType.Boss => CharacterManager.BossCharacterData,
-                _ => null
-            };
-
-            if (targetCharacter == null) return;
-
-            if (activeBuffs.ContainsKey(skill.skillName))
-            {
-                BuffInfo existingBuff = activeBuffs[skill.skillName];
-                RemoveBuffEffect(skill.skillName, targetCharacter);
-                StopCoroutine(existingBuff.coroutine);
-                activeBuffs.Remove(skill.skillName);
-                targetCharacter.UpdateDerivedStats();
-                if (targetCharacter.maxHp < targetCharacter.currentHp)
-                {
-                    targetCharacter.currentHp = targetCharacter.maxHp;
-                }
-            }
+            Debug.Log($"[CheckSkillCoolTime] {skill.skillName} 스킬 쿨다운 완료");
         }
+        
+        // 모든 활성 버프에 대해 UI 업데이트 - 지속시간 기반
+        UpdateAllBuffsUI();
     }
 
     private void UpdateSkillCooldownUI(Skills skill)
@@ -384,6 +387,176 @@ public class SkillManager : BaseManager<SkillManager>
         blinkCoroutines.Remove(skill);
     }
 
+    // 모든 활성 버프의 UI를 업데이트하는 메서드
+    private void UpdateAllBuffsUI()
+    {
+        if (activeBuffs == null) return;
+        
+        foreach (var buffEntry in activeBuffs)
+        {
+            string buffName = buffEntry.Key;
+            BuffInfo buffInfo = buffEntry.Value;
+            
+            // 버프 스킬 정보 가져오기
+            Skills buffSkill = null;
+            
+            // 엔티티 타입을 확인하여 스킬 검색
+            if (skillList != null && skillList.TryGetValue((EntityType.Dragon, buffName), out var dragonSkill))
+            {
+                buffSkill = dragonSkill;
+            }
+            else if (skillList != null && skillList.TryGetValue((EntityType.Player, buffName), out var playerSkill))
+            {
+                buffSkill = playerSkill;
+            }
+            
+            if (buffSkill != null)
+            {
+                // 버프 UI 업데이트
+                UpdateBuffUI(buffSkill, buffInfo);
+            }
+        }
+    }
+    
+    // 버프 UI를 업데이트하는 메서드 (지속시간 기반)
+    private void UpdateBuffUI(Skills skill, BuffInfo buffInfo)
+    {
+        if (activeSkill == null) return;
+
+        if (!activeSkill.ContainsKey(skill))
+        {
+            // 새 버프 아이콘 생성
+            var skillImg = Instantiate(skillImage[0], // 버프는 항상 Support 타입 (0번 인덱스)
+                                      skill.entityType != EntityType.Boss ? skillPanel[0] : skillPanel[1]);
+            skillImg.AddComponent<CanvasGroup>();
+            activeSkill[skill] = skillImg.transform.GetChild(1).GetComponent<Image>();
+            activeSkill[skill].sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
+            
+            // 제목 설정 (옵션)
+            var titleText = skillImg.GetComponentInChildren<TextMeshProUGUI>();
+            if (titleText != null)
+            {
+                if (skill.skillName.Contains("Health") || skill.skillName.Contains("HP"))
+                {
+                    titleText.text = "체력 버프";
+                }
+                else if (skill.skillName.Contains("Physical") || skill.skillName.Contains("물리"))
+                {
+                    titleText.text = "물리 버프";
+                }
+                else if (skill.skillName.Contains("Magic") || skill.skillName.Contains("Magical") || skill.skillName.Contains("마법"))
+                {
+                    titleText.text = "마법 버프";
+                }
+                else
+                {
+                    titleText.text = skill.skillName;
+                }
+            }
+        }
+        
+        // 버프 아이콘의 쿨다운 UI는 지속시간 표시로 사용
+        if (activeSkill.TryGetValue(skill, out var image))
+        {
+            // 남은 시간 계산
+            float remainingTime = buffInfo.GetRemainingTime();
+            
+            // 지속시간 표시 (원형 필 이미지가 줄어들게)
+            float remainingPercentage = remainingTime / buffInfo.duration;
+            
+            // 자식 이미지(필)의 fillAmount 업데이트
+            Image fillImage = image;
+            if (fillImage != null)
+            {
+                fillImage.fillAmount = remainingPercentage;
+            }
+            
+            // 남은 시간 텍스트 표시 (있다면)
+            TextMeshProUGUI timeText = image.transform.parent.GetComponentInChildren<TextMeshProUGUI>();
+            if (timeText != null)
+            {
+                timeText.text = $"{Mathf.CeilToInt(remainingTime)}";
+            }
+            
+            // 남은 시간이 10초 미만일 때 깜빡임 효과 추가
+            if (remainingTime > 0f && remainingTime < 10f)
+            {
+                // 이미 깜빡임 코루틴이 실행 중인지 확인
+                if (blinkCoroutines != null && !blinkCoroutines.ContainsKey(skill))
+                {
+                    blinkCoroutines[skill] = StartCoroutine(BlinkBuffIcon(skill, buffInfo));
+                }
+            }
+            else if (blinkCoroutines != null && blinkCoroutines.ContainsKey(skill))
+            {
+                // 남은 시간이 10초 이상이면 깜빡임 코루틴 정리
+                StopCoroutine(blinkCoroutines[skill]);
+                blinkCoroutines.Remove(skill);
+                
+                // 깜빡임이 중지된 경우 알파값을 1로 복원
+                CanvasGroup canvasGroup = activeSkill[skill].transform.parent.GetComponent<CanvasGroup>();
+                if (canvasGroup != null)
+                {
+                    canvasGroup.alpha = 1f;
+                }
+            }
+        }
+    }
+    
+    // 버프 아이콘 깜빡임 효과 (지속시간 기준)
+    private IEnumerator BlinkBuffIcon(Skills skill, BuffInfo buffInfo)
+    {
+        if (activeSkill == null || !activeSkill.ContainsKey(skill))
+        {
+            Debug.LogError($"Skill {skill.skillName} is missing in activeSkill dictionary.");
+            yield break;
+        }
+
+        CanvasGroup canvasGroup = activeSkill[skill].transform.parent.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            Debug.LogError($"CanvasGroup is missing for buff {skill.skillName}");
+            yield break;
+        }
+
+        if (skillBlinkState == null)
+        {
+            skillBlinkState = new Dictionary<Skills, bool>();
+        }
+        
+        if (!skillBlinkState.ContainsKey(skill))
+            skillBlinkState[skill] = true;
+
+        // 버프 지속시간이 10초 미만인 동안 깜빡임
+        while (buffInfo.GetRemainingTime() > 0f && buffInfo.GetRemainingTime() < 10f)
+        {
+            if (canvasGroup == null) yield break;
+            
+            // 남은 시간에 따라 깜빡임 속도 계산
+            // 10초에 가까울수록 느리게, 0초에 가까울수록 빠르게
+            float remainingTime = buffInfo.GetRemainingTime();
+            float dynamicBlinkInterval = blinkInterval * (2.0f - (remainingTime / 10f) * 1.7f);
+            
+            if (skillBlinkState[skill])
+            {
+                canvasGroup.alpha = Mathf.Max(0.5f, canvasGroup.alpha - dynamicBlinkInterval); // 최소 0.5 이상으로 유지
+                if (Mathf.Approximately(canvasGroup.alpha, 0.5f)) skillBlinkState[skill] = false;
+            }
+            else
+            {
+                canvasGroup.alpha = Mathf.Min(1f, canvasGroup.alpha + dynamicBlinkInterval);
+                if (Mathf.Approximately(canvasGroup.alpha, 1f)) skillBlinkState[skill] = true;
+            }
+            yield return null;
+        }
+        
+        // 깜빡임이 끝났을 때 alpha를 1로 복원
+        if (canvasGroup != null)
+            canvasGroup.alpha = 1f;
+            
+        if (blinkCoroutines != null)
+            blinkCoroutines.Remove(skill);
+    }
 
     public List<string> GetAvailableSkills(EntityType entityType)
     {
@@ -478,99 +651,122 @@ public class SkillManager : BaseManager<SkillManager>
     }
 
     // ========================== 🛠️ 버프 기능 추가 ==========================
-    public void ApplyBuff(EntityType entityType, string skillName)
+    public void ApplyBuff(EntityType entityType, string skillName, CharacterData targetCharacter = null)
     {
-        Skills skill = GetSkill(entityType, skillName);
-        if (skill == null) return;
-
-        CharacterData targetCharacter = entityType switch
+        // 타겟 캐릭터가 지정되지 않은 경우, 기본값 설정
+        if (targetCharacter == null)
         {
-            EntityType.Dragon => CharacterManager.PlayerCharacterData,
-            //EntityType.Player => CharacterManager.PlayerCharacterData,
-            //EntityType.Boss => CharacterManager.BossCharacterData,
-            _ => null
-        };
-
-        if (targetCharacter == null) return;
-
-        // 버프 적용 전 플레이어 스탯 로깅
-        Debug.Log($"[ApplyBuff] 버프 적용 전 플레이어 스탯: 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}, 물리데미지={targetCharacter.physicalDamage}, 마법데미지={targetCharacter.magicDamage}");
-        Debug.Log($"[ApplyBuff] 장비 보너스: 물리={targetCharacter.equipmentPhysicalBonus}, 마법={targetCharacter.equipmentMagicBonus}");
-
+            targetCharacter = entityType switch
+            {
+                EntityType.Dragon => CharacterManager.PlayerCharacterData,
+                //EntityType.Player => CharacterManager.PlayerCharacterData,
+                //EntityType.Boss => CharacterManager.BossCharacterData,
+                _ => null
+            };
+        }
+        
+        if (targetCharacter == null)
+        {
+            Debug.LogError("[ApplyBuff] 타겟 캐릭터가 null입니다!");
+            return;
+        }
+        
         // 이미 적용된 버프가 있다면 제거
         if (activeBuffs.ContainsKey(skillName))
         {
             BuffInfo existingBuff = activeBuffs[skillName];
-            Debug.Log($"[ApplyBuff] 이미 적용된 버프 '{skillName}' 제거");
-            RemoveBuffEffect(skillName, targetCharacter);
-            StopCoroutine(existingBuff.coroutine);
+            RemoveBuffEffect(entityType, skillName, targetCharacter);
+            if (existingBuff.coroutine != null)
+            {
+                StopCoroutine(existingBuff.coroutine);
+            }
             activeBuffs.Remove(skillName);
             targetCharacter.UpdateDerivedStats();
         }
+        
+        // 엔티티 타입으로 스킬 가져오기
+        Skills skill = GetSkill(entityType, skillName);
+        
+        if (skill == null)
+        {
+            Debug.LogError($"[ApplyBuff] {entityType} 엔티티의 {skillName} 스킬을 찾을 수 없습니다.");
+            return;
+        }
+        
+        // 각 스킬의 버프 지속시간은 스킬 정의에 따름
+        float buffDuration = skill.buffDuration;
 
         // 원본 값 저장
         BuffInfo newBuffInfo = new BuffInfo
         {
             startTime = Time.time,
-            duration = skill.buffDuration,
+            duration = buffDuration, 
             originalPhysicalMultiplier = targetCharacter.physicalDamageBuffMultiplier,
             originalMagicMultiplier = targetCharacter.magicDamageBuffMultiplier,
             originalHpBonus = targetCharacter.hpBuffBonus
         };
 
-        Debug.Log($"[ApplyBuff] 버프 '{skillName}'에 원본 값 저장: 물리배율={newBuffInfo.originalPhysicalMultiplier}, 마법배율={newBuffInfo.originalMagicMultiplier}");
-
         // BuffInfo를 저장
         activeBuffs[skillName] = newBuffInfo;
         
         // 버프 효과 적용
-        ApplyBuffEffect(skillName, targetCharacter);
+        ApplyBuffEffect(entityType, skillName, targetCharacter);
         
         // 버프 적용 후 스탯 업데이트
         targetCharacter.UpdateDerivedStats();
         
-        // 버프 종료 코루틴 시작
-        newBuffInfo.coroutine = StartCoroutine(RemoveBuff(skillName, skill.buffDuration, targetCharacter));
+        // 버프 종료 코루틴 시작 - buffDuration을 전달
+        newBuffInfo.coroutine = StartCoroutine(RemoveBuff(entityType, skillName, buffDuration, targetCharacter));
         
         // 이펙트 있으면 생성
         if (skill.effectPrefab != null)
         {
             InstantiateBuffEffect(skill.effectPrefab, GameManager.playerTransform.position);
         }
-
-        TimerManager.Instance.StartTimer(skill.cooldownTimer);
         
-        // 적용 후 값 로깅
-        Debug.Log($"[ApplyBuff] 버프 적용 후 플레이어 스탯: 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}, 물리데미지={targetCharacter.physicalDamage}, 마법데미지={targetCharacter.magicDamage}");
+        // 쿨다운 타이머 시작 (스킬 자체의 쿨다운)
+        TimerManager.Instance.StartTimer(skill.cooldownTimer);
     }
 
-    private void ApplyBuffEffect(string skillName, CharacterData targetCharacter)
+    private void ApplyBuffEffect(EntityType entityType, string skillName, CharacterData targetCharacter)
     {
-        // 버프 타입에 따라 필요한 속성만 변경
-        switch (skillName)
+        // 엔티티 타입으로 스킬 가져오기
+        Skills skill = GetSkill(entityType, skillName);
+        
+        if (skill == null)
         {
-            case "PlayerBuffPhysical":
-                float newPhysicalMultiplier = activeBuffs[skillName].originalPhysicalMultiplier * 1.2f;
-                Debug.Log($"[ApplyBuffEffect] 물리 공격력 버프 적용: {activeBuffs[skillName].originalPhysicalMultiplier} -> {newPhysicalMultiplier}");
-                targetCharacter.physicalDamageBuffMultiplier = newPhysicalMultiplier;
-                break;
-                
-            case "PlayerBuffMagic":
-                float newMagicMultiplier = activeBuffs[skillName].originalMagicMultiplier * 1.2f;
-                Debug.Log($"[ApplyBuffEffect] 마법 공격력 버프 적용: {activeBuffs[skillName].originalMagicMultiplier} -> {newMagicMultiplier}");
-                targetCharacter.magicDamageBuffMultiplier = newMagicMultiplier;
-                break;
-                
-            case "PlayerBuffHP":
-                int newHpBonus = activeBuffs[skillName].originalHpBonus + 100;
-                Debug.Log($"[ApplyBuffEffect] 체력 버프 적용: {activeBuffs[skillName].originalHpBonus} -> {newHpBonus}");
-                targetCharacter.hpBuffBonus = newHpBonus;
-                targetCharacter.currentHp = Mathf.Min(targetCharacter.currentHp + 100, targetCharacter.maxHp);
-                break;
+            Debug.LogError($"[ApplyBuffEffect] {entityType} 엔티티의 {skillName} 스킬을 찾을 수 없습니다.");
+            return;
+        }
+        
+        // 스킬 이름이 아닌 스킬 내용에 따라 버프 적용
+        // 스킬 이름에 특정 키워드가 포함된 경우 해당 유형의 버프로 판단
+        if (skillName.Contains("Health") || skillName.Contains("HP"))
+        {
+            // 체력 버프
+            int healthBonus = activeBuffs[skillName].originalHpBonus + (int)skill.buffValue;
+            targetCharacter.hpBuffBonus = healthBonus;
+            targetCharacter.currentHp = Mathf.Min(targetCharacter.currentHp + (int)skill.buffValue, targetCharacter.maxHp);
+        }
+        else if (skillName.Contains("Physical") || skillName.Contains("물리"))
+        {
+            // 물리 공격력 버프
+            float physicalMultiplier = activeBuffs[skillName].originalPhysicalMultiplier * (1 + skill.buffValue / 100f);
+            targetCharacter.physicalDamageBuffMultiplier = physicalMultiplier;
+        }
+        else if (skillName.Contains("Magic") || skillName.Contains("Magical") || skillName.Contains("마법"))
+        {
+            // 마법 공격력 버프
+            float magicMultiplier = activeBuffs[skillName].originalMagicMultiplier * (1 + skill.buffValue / 100f);
+            targetCharacter.magicDamageBuffMultiplier = magicMultiplier;
+        }
+        else
+        {
+            Debug.LogWarning($"[ApplyBuffEffect] 알 수 없는 버프 유형: {skillName}");
         }
     }
 
-    private void RemoveBuffEffect(string skillName, CharacterData targetCharacter)
+    private void RemoveBuffEffect(EntityType entityType, string skillName, CharacterData targetCharacter)
     {
         if (!activeBuffs.ContainsKey(skillName))
         {
@@ -578,33 +774,36 @@ public class SkillManager : BaseManager<SkillManager>
             return;
         }
 
-        // 버프 제거 전 로깅
-        Debug.Log($"[RemoveBuffEffect] 버프 제거 전: 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}, 물리데미지={targetCharacter.physicalDamage}, 마법데미지={targetCharacter.magicDamage}");
-
-        // 버프 타입에 따라 원래 값으로 복원
-        switch (skillName)
+        Skills skill = GetSkill(entityType, skillName);
+        if (skill == null)
         {
-            case "PlayerBuffPhysical":
-                float originalPhysical = activeBuffs[skillName].originalPhysicalMultiplier;
-                Debug.Log($"[RemoveBuffEffect] 물리 공격력 버프 제거: {targetCharacter.physicalDamageBuffMultiplier} -> {originalPhysical}");
-                targetCharacter.physicalDamageBuffMultiplier = originalPhysical;
-                break;
-                
-            case "PlayerBuffMagic":
-                float originalMagic = activeBuffs[skillName].originalMagicMultiplier;
-                Debug.Log($"[RemoveBuffEffect] 마법 공격력 버프 제거: {targetCharacter.magicDamageBuffMultiplier} -> {originalMagic}");
-                targetCharacter.magicDamageBuffMultiplier = originalMagic;
-                break;
-                
-            case "PlayerBuffHP":
-                int originalHp = activeBuffs[skillName].originalHpBonus;
-                Debug.Log($"[RemoveBuffEffect] 체력 버프 제거: {targetCharacter.hpBuffBonus} -> {originalHp}");
-                targetCharacter.hpBuffBonus = originalHp;
-                break;
+            Debug.LogError($"[RemoveBuffEffect] {entityType} 엔티티의 {skillName} 스킬을 찾을 수 없습니다.");
+            return;
         }
 
-        // 버프 제거 후 로깅
-        Debug.Log($"[RemoveBuffEffect] 버프 제거 후(UpdateDerivedStats 전): 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}");
+        // 스킬 이름 대신 스킬 내용에 따라 처리
+        if (skillName.Contains("Health") || skillName.Contains("HP"))
+        {
+            // 체력 버프 제거
+            int originalHp = activeBuffs[skillName].originalHpBonus;
+            targetCharacter.hpBuffBonus = originalHp;
+        }
+        else if (skillName.Contains("Physical") || skillName.Contains("물리"))
+        {
+            // 물리 공격력 버프 제거
+            float originalPhysical = activeBuffs[skillName].originalPhysicalMultiplier;
+            targetCharacter.physicalDamageBuffMultiplier = originalPhysical;
+        }
+        else if (skillName.Contains("Magic") || skillName.Contains("Magical") || skillName.Contains("마법"))
+        {
+            // 마법 공격력 버프 제거
+            float originalMagic = activeBuffs[skillName].originalMagicMultiplier;
+            targetCharacter.magicDamageBuffMultiplier = originalMagic;
+        }
+        else
+        {
+            Debug.LogWarning($"[RemoveBuffEffect] 알 수 없는 버프 유형: {skillName}");
+        }
     }
 
     private void InstantiateBuffEffect(GameObject effectPrefab, Vector3 targetPosition)
@@ -614,18 +813,15 @@ public class SkillManager : BaseManager<SkillManager>
         Destroy(effect, 3f);
     }
 
-    private IEnumerator RemoveBuff(string skillName, float duration, CharacterData targetCharacter)
+    // 버프 종료 코루틴을 시작하는 메서드 (이름+엔티티 기반)
+    private IEnumerator RemoveBuff(EntityType entityType, string skillName, float duration, CharacterData targetCharacter)
     {
-        Debug.Log($"[RemoveBuff] {skillName} 버프 시작됨, 지속시간: {duration}초");
+        // 지정된 시간만큼 대기 후 버프 제거
         yield return new WaitForSeconds(duration);
         
-        Debug.Log($"[RemoveBuff] {skillName} 버프 종료, 효과 제거 중...");
-        
         // 버프 효과 제거 및 스탯 업데이트
-        RemoveBuffEffect(skillName, targetCharacter);
+        RemoveBuffEffect(entityType, skillName, targetCharacter);
         targetCharacter.UpdateDerivedStats();
-        
-        Debug.Log($"[RemoveBuff] 스탯 업데이트 후: 물리배율={targetCharacter.physicalDamageBuffMultiplier}, 마법배율={targetCharacter.magicDamageBuffMultiplier}, 물리데미지={targetCharacter.physicalDamage}, 마법데미지={targetCharacter.magicDamage}");
         
         // 체력 제한
         if (targetCharacter.maxHp < targetCharacter.currentHp)
@@ -633,9 +829,58 @@ public class SkillManager : BaseManager<SkillManager>
             targetCharacter.currentHp = targetCharacter.maxHp;
         }
         
+        // 스킬 객체 찾기
+        Skills buffSkill = GetSkill(entityType, skillName);
+        if (buffSkill != null)
+        {
+            // 깜빡임 코루틴 정리
+            if (blinkCoroutines != null && blinkCoroutines.ContainsKey(buffSkill))
+            {
+                StopCoroutine(blinkCoroutines[buffSkill]);
+                blinkCoroutines.Remove(buffSkill);
+            }
+            
+            // UI 제거
+            if (activeSkill != null && activeSkill.ContainsKey(buffSkill))
+            {
+                Destroy(activeSkill[buffSkill].transform.parent.gameObject);
+                activeSkill.Remove(buffSkill);
+            }
+        }
+        
         // 활성 버프 목록에서 제거
-        activeBuffs.Remove(skillName);
-        Debug.Log($"[RemoveBuff] {skillName} 버프 완전히 제거됨.");
+        if (activeBuffs != null && activeBuffs.ContainsKey(skillName))
+        {
+            activeBuffs.Remove(skillName);
+        }
+    }
+
+    // 버프가 현재 활성화되어 있는지 확인
+    public bool IsBuffActive(string skillName)
+    {
+        return activeBuffs.ContainsKey(skillName);
+    }
+
+    // 버프의 남은 시간을 가져오는 메소드
+    public float GetBuffRemainingTime(string skillName)
+    {
+        if (!activeBuffs.ContainsKey(skillName))
+        {
+            return 0f;
+        }
+        
+        return activeBuffs[skillName].GetRemainingTime();
+    }
+    
+    // 버프의 총 지속시간을 가져오는 메소드
+    public float GetBuffTotalDuration(string skillName)
+    {
+        if (!activeBuffs.ContainsKey(skillName))
+        {
+            return 0f;
+        }
+        
+        return activeBuffs[skillName].duration;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
