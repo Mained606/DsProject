@@ -23,6 +23,9 @@ public class Skills : ISheetData
     public float buffDuration;
     public float buffValue;
     public BasicTimer cooldownTimer;
+    
+    // 드래곤 버프용 원본 지속시간 (buffDurationIncrease 적용되지 않음)
+    [HideInInspector] public float originalBuffDuration;
 
     // 스킬 레벨 관련 필드
     public int skillLevel = 1;
@@ -65,6 +68,7 @@ public class Skills : ISheetData
 
     private void TestFunc()
     {
+        // 현재 값 설정
         currentDamage = damage;
         currentCooldown = cooldown;
         currentEnergyCost = energyCost;
@@ -73,6 +77,13 @@ public class Skills : ISheetData
         currentBuffValue = buffValue;
         currentDebuffDuration = debuffDuration;
         currentDebuffValue = debuffValue;
+        
+        // 원본 지속시간 저장 (레벨업 시 배율 적용을 위해)
+        originalBuffDuration = buffDuration;
+        
+        // 디버그 로그
+        string skillTypeStr = skillType == SkillType.Support ? "버프" : skillType.ToString();
+        Debug.Log($"[Skills:{skillName}] 초기화 - 유형:{skillTypeStr}, 데미지:{damage}, 쿨타임:{cooldown}초, 지속시간:{buffDuration}초");
     }
 
     // 스킬 지속시간: 애니메이션 길이가 있다면 해당 길이 반환, 없으면 기본값 1.0f
