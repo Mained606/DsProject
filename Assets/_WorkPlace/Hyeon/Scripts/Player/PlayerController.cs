@@ -45,7 +45,8 @@ public class PlayerController : MonoBehaviour
     
     [Header("점프 / 중력")]
     public float jumpHeight = 20f;
-    private float gravity = -15f;
+    private float normalGravity = -15f;
+    private float currentGravity;
     public Vector3 verticalVelocity;
     private float lastGroundHeight;
     [SerializeField] private float fallDamageThreshold = 5f;
@@ -58,8 +59,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float climbEndCheckOffset = 0.2f; // 절벽 끝 검사 오프셋
 
     [Header("글라이딩")]
-    [SerializeField] private float glidableHeight = 6f;
-    public float glideSpeed = 15f;
+    public float glideSpeed = 10f;
+    private float glideGravity = -9.81f;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 6.5f;
@@ -127,8 +128,6 @@ public class PlayerController : MonoBehaviour
         behaviour.CanJump = true;
         behaviour.CanDodge = true;
         //behaviour.CanClimb = true;
-
-        skill = SkillManager.Instance.GetSkill(EntityType.Player, "FireStrike");
     }
 
     private void Update()
@@ -140,14 +139,6 @@ public class PlayerController : MonoBehaviour
         if (uiCheck)
         {
             return;
-        }
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            skill.LevelUp();
-        }
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            skill.LevelDown();
         }
 
         // 치트
@@ -164,15 +155,10 @@ public class PlayerController : MonoBehaviour
         RecoverStats();
         AvoidKeyInput();
 
-        //DetectCliff();
-        //UpdateClimbState();
         if (!isDodging)
         {
             CheckCombatState();
         }
-
-        //CanGlidingCheck();
-        //OnGliding();
     }
 
     #region ====================치트====================
@@ -253,7 +239,7 @@ public class PlayerController : MonoBehaviour
     public void UsingStamina()
     {
         if (cheatMode) return;  // 치트
-        if (isSprinting)
+        if (isSprinting || isGliding)
         {
             playerData.UseStamina(staminaUseAmount);
         }
@@ -283,7 +269,6 @@ public class PlayerController : MonoBehaviour
         isGrounded = characterController.isGrounded;
         if (!isGrounded && !isJumping)
         {
-            //Debug.Log("캐릭터가 공중에 뜸");
             RaycastHit hit;
             if(Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 1f, layerMask))
             {
@@ -296,10 +281,12 @@ public class PlayerController : MonoBehaviour
             }
         }
         playerAnimator.SetBool("Grounded", isGrounded);
+        PlayerBehaviourManager.Instance.CanGlide = !isGrounded;
     }
 
     public void ApplyGravity()
     {
+        GravityStateCheck();
         if (isGrounded)
         {
             if (isFreefall)
@@ -322,13 +309,15 @@ public class PlayerController : MonoBehaviour
         {
             if (isGliding)
             {
-                // TODO
+                isFreefall = false;
+                playerAnimator.SetBool("Freefall", false);
+                verticalVelocity.y = currentGravity * 0.1f;
             }
             else
             {
                 isFreefall = true;
                 playerAnimator.SetBool("Freefall", true);
-                verticalVelocity.y += gravity * 2.5f * Time.deltaTime;
+                verticalVelocity.y += currentGravity * 2.5f * Time.deltaTime;
             }
         }
     }
@@ -353,6 +342,19 @@ public class PlayerController : MonoBehaviour
         else
         {
             return false;
+        }
+    }
+
+    // 중력 상태
+    private void GravityStateCheck()
+    {
+        if (isGliding)
+        {
+            currentGravity = glideGravity;
+        }
+        else
+        {
+            currentGravity = normalGravity;
         }
     }
 
@@ -795,21 +797,21 @@ public class PlayerController : MonoBehaviour
 
     #region ====================글라이딩====================
     // 글라이딩
-    private void CanGlidingCheck()
-    {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, glidableHeight))
-        {
-            //CanGliding = false;
-            Debug.DrawLine(transform.position, hit.point, Color.magenta);
-        }
-        else
-        {
-            if (!isGrounded && isFreefall)
-            {
-                //CanGliding = true;
-            }
-        }
-    }
+    //private void CanGlidingCheck()
+    //{
+    //    if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, glidableHeight))
+    //    {
+    //        //CanGliding = false;
+    //        Debug.DrawLine(transform.position, hit.point, Color.magenta);
+    //    }
+    //    else
+    //    {
+    //        if (!isGrounded && isFreefall)
+    //        {
+    //            //CanGliding = true;
+    //        }
+    //    }
+    //}
 
     //private void OnGliding()
     //{
