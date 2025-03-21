@@ -388,5 +388,5 @@ MonoBehaviour:
   layer:
     serializedVersion: 2
     m_Bits: 1024
-  attackRange: 10
-  attackInterval: 3
+  attackInterval: 1.5
+  hitAnimCooldown: 0.5

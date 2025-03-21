@@ -23,7 +23,7 @@ public class Skills : ISheetData
     public float buffDuration;
     public float buffValue;
     public BasicTimer cooldownTimer;
-
+    
     // 스킬 레벨 관련 필드
     public int skillLevel = 1;
     public int maxSkillLevel = 10; // 최대 레벨 (필요에 따라 조정 가능)
@@ -52,19 +52,12 @@ public class Skills : ISheetData
     public float currentDebuffValue;
 
     private SkillWeights skillWeight;
+    
     // 초기화: cooldownTimer 설정 및 초기 경험치 계산
     public void Initialize()
     {
-        TestFunc();
-        cooldownTimer = new BasicTimer(currentCooldown);
-        //currentDamage = damage;
-        skillLevel = 1;
-        currentExperience = 0;
-        experienceToLevelUp = CalculateExperienceToLevelUp();
-    }
-
-    private void TestFunc()
-    {
+        // TestFunc() 호출 대신 초기화 로직을 여기로 통합
+        // 현재 값 설정
         currentDamage = damage;
         currentCooldown = cooldown;
         currentEnergyCost = energyCost;
@@ -73,6 +66,18 @@ public class Skills : ISheetData
         currentBuffValue = buffValue;
         currentDebuffDuration = debuffDuration;
         currentDebuffValue = debuffValue;
+        
+        // 쿨다운 타이머 초기화
+        cooldownTimer = new BasicTimer(currentCooldown);
+        
+        // 스킬 레벨 초기화
+        skillLevel = 1;
+        currentExperience = 0;
+        experienceToLevelUp = CalculateExperienceToLevelUp();
+        
+        // 디버그 로그
+        string skillTypeStr = skillType == SkillType.Support ? "버프" : skillType.ToString();
+        Debug.Log($"[Skills:{skillName}] 초기화 - 유형:{skillTypeStr}, 데미지:{damage}, 쿨타임:{cooldown}초, 지속시간:{buffDuration}초");
     }
 
     // 스킬 지속시간: 애니메이션 길이가 있다면 해당 길이 반환, 없으면 기본값 1.0f
@@ -91,7 +96,6 @@ public class Skills : ISheetData
         {
             isLevelingUp = true; // 레벨업 시작
             skillLevel++;
-            //currentDamage *= skillWeight.damageIncrease; // 스킬 피해량 가중치만큼 증가
             SkillWeightApply();
             experienceToLevelUp = CalculateExperienceToLevelUp();
             isLevelingUp = false; // 레벨업 종료
@@ -107,7 +111,6 @@ public class Skills : ISheetData
         if (skillLevel > 1)
         {
             skillLevel--;
-            //currentDamage /= skillWeight.damageIncrease; // 스킬 피해량 원래대로 복귀
             SkillWeightApply(false);
         }
     }
@@ -141,7 +144,6 @@ public class Skills : ISheetData
     private void SkillWeightApply(bool levelUp = true)  // 디폴트 값은 레벨 상승, false는 레벨 하락
     {
         // TODO : 가중치 보정 함수
-        Debug.Log("스킬보정 함수");
         skillWeight = SkillManager.Instance.GetSkillWeights(EntityType.Player, skillName);
         if(skillWeight == null)
         {
@@ -243,7 +245,6 @@ public class Skills : ISheetData
         return info;
     }
     #endregion
-
 }
 
 public enum SkillType
