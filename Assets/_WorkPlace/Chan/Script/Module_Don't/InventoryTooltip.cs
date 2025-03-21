@@ -107,7 +107,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
             // 툴팁 창 활성화 및 정보 업데이트
             InventorytooltipWindow.SetActive(true);
             ItemImage.sprite = currentItem.sprite;
-            textPoint[1].text = currentItem.name;
+            textPoint[1].text = currentItem.id;
             textPoint[2].text = currentItem.ToStringTMPro();
 
             RectTransform itemRect = GetComponent<RectTransform>();
