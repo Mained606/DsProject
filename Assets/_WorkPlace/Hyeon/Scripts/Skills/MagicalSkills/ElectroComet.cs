@@ -27,6 +27,7 @@ public class ElectroComet : MonoBehaviour
         vfx = GetComponentInChildren<VisualEffect>();
         attackRange = vfx.GetFloat("Radius");
         spawnPosition = transform.position;
+        timer = attackInterval/2;
     }
 
     private void Update()
@@ -79,7 +80,6 @@ public class ElectroComet : MonoBehaviour
             timer += Time.deltaTime;
             return;
         }
-
         Collider[] hitColliders = Physics.OverlapSphere(spawnPosition, attackRange, layer);
         foreach(Collider hit in hitColliders)
         {
