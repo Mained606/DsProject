@@ -50,11 +50,6 @@ public class AttackBehaviour : IBehaviour
 
     private void PerformComboAttack()
     {
-        PlayerBehaviourManager.Instance.CanBlock = false;
-        PlayerBehaviourManager.Instance.CanMove = false;
-        PlayerBehaviourManager.Instance.CanJump = false;
-        PlayerBehaviourManager.Instance.CanUseSkill = false;
-
         if (controller.isSprinting)
         {
             Debug.LogWarning("대쉬공격");
@@ -63,8 +58,13 @@ public class AttackBehaviour : IBehaviour
         }
         else
         {
+            Debug.LogWarning("안대쉬공격");
             controller.playerCombat.LookEnemy(attackPerceptionRange);
         }
+        PlayerBehaviourManager.Instance.CanBlock = false;
+        PlayerBehaviourManager.Instance.CanMove = false;
+        PlayerBehaviourManager.Instance.CanJump = false;
+        PlayerBehaviourManager.Instance.CanUseSkill = false;
         controller.playerCombat.firstAttack = false;
         controller.isAttack = true;
         animator.SetTrigger("NextCombo");
