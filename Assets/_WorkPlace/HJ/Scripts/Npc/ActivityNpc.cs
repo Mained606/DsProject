@@ -23,7 +23,8 @@ public class ActivityNpc : MonoBehaviour
     [Header("Movement Setting")]
     private Quaternion startRotation;
     [SerializeField] private Vector3 startPosition;
-    [SerializeField] private Vector3 targetPosition;
+    //[SerializeField] private Vector3 targetPosition;
+    private Transform targetTransform;
     [SerializeField] private float npcDistance = 100f;
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float turnSpeed = 10f;
@@ -87,7 +88,7 @@ public class ActivityNpc : MonoBehaviour
     {
         if(isMoving)
         {
-            MoveToWards(targetPosition);
+            MoveToWards(targetTransform);
 
             float distance = Vector3.Distance(transform.position, startPosition);
             if(distance <= 1f && !isStart)
@@ -243,22 +244,23 @@ public class ActivityNpc : MonoBehaviour
         if (Random.value <= talkingChance)
         {            
             Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
+
             ActivityNpc activityNpc = ohterNpc?.GetComponent<ActivityNpc>();
-            if (activityNpc != null && activityNpc.IsMoving)
+            if (activityNpc != null && activityNpc.IsMoving || activityNpc.IsTalking)
             {
-                Debug.Log(ohterNpc.name + "이동 중");
+                Debug.Log(ohterNpc.name + "이동 또는 대화 중, 리턴");
                 return;
             }
 
             if (ohterNpc != null)
             {
-                Debug.Log($"{ohterNpc.name}으로 이동");
+                Debug.Log($"{transform.name}이 {ohterNpc.name}으로 이동");
 
                 StopCurrentAction();
 
                 isStart = true;
                 isMoving = true;
-                targetPosition = ohterNpc.position;
+                targetTransform = ohterNpc;
             }
             else
             {
@@ -317,20 +319,48 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
-    private IEnumerator LookAtTarget(Vector3 target, float duration = 0.5f)
+    private void MoveToWards(Transform targetTransform)
+    {
+        animator.SetBool(WalkingState, true);
+
+        //현재 위치에서 목표 방향(y값 제외)
+        Vector3 direction = (targetTransform.position - transform.position).normalized;
+        direction.y = 0f;
+
+        //앞으로 이동할 위치
+        Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
+
+        //Raycast로 지형 높이 감지
+        if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
+        {
+            nextPosition.y = hit.point.y;
+        }
+
+        //이동 적용
+        transform.position = nextPosition;
+
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
+        }
+    }
+
+    private IEnumerator LookAtTarget(Vector3 target)
     {
         Vector3 direction = (target - transform.position).normalized;
         direction.y = 0f;
 
         float angle = Vector3.Angle(transform.forward, direction);
 
-        bool shouldWalk = angle > 10f;
+        bool shouldWalk = angle > 15f;
 
         Quaternion startRotation = transform.rotation;
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
 
         float elapsedTime = 0f;
+        float duration = SetDuration(angle);
 
         bool isTurningInPlace = (target == startPosition);
         if (shouldWalk || isTurningInPlace) animator.SetBool(WalkingState, true);
@@ -348,6 +378,13 @@ public class ActivityNpc : MonoBehaviour
         transform.rotation = targetRotation;
     }
 
+    private float SetDuration(float angle)
+    {
+        if (angle < 15) return 0.1f;
+        else if (angle < 90) return 0.3f;
+        else return 0.5f;
+    }
+
 
     private IEnumerator StartConversation(Transform target)
     {
@@ -357,7 +394,7 @@ public class ActivityNpc : MonoBehaviour
 
         StopCurrentAction();
 
-        yield return StartCoroutine(DelayBeforeNextAction(-0.5f));
+        yield return StartCoroutine(DelayBeforeNextAction());
 
         yield return StartCoroutine(LookAtTarget(target.position));
 
@@ -430,8 +467,8 @@ public class ActivityNpc : MonoBehaviour
     {
         float distance = Vector3.Distance(transform.position, startPosition);
         if(distance > 0.1f)
-        {   
-            targetPosition = startPosition;
+        {
+            targetTransform.position = startPosition;
             isMoving = true;
         }
         else
