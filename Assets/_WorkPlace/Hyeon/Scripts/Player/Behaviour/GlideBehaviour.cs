@@ -82,7 +82,6 @@ public class GlideBehaviour : IBehaviour
 
     private void OnGlide()
     {
-        Debug.Log("OnGlide");
         Vector2 moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
 
         Vector3 direction = controller.GetDirection(moveInput);

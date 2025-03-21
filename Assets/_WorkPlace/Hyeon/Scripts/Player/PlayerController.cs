@@ -248,7 +248,7 @@ public class PlayerController : MonoBehaviour
     // 플레이어 자원 회복 (현재 : 마나, 스태미나 회복)
     private void RecoverStats()
     {
-        if (!isSprinting)
+        if (!isSprinting && !isGliding)
         {
             playerData.RegenerateStamina();
             isRecovery = true;
