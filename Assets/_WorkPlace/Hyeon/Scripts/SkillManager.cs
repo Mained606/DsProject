@@ -676,7 +676,10 @@ public class SkillManager : BaseManager<SkillManager>
         {
             BuffInfo existingBuff = activeBuffs[skillName];
             RemoveBuffEffect(entityType, skillName, targetCharacter);
-            StopCoroutine(existingBuff.coroutine);
+            if (existingBuff.coroutine != null)
+            {
+                StopCoroutine(existingBuff.coroutine);
+            }
             activeBuffs.Remove(skillName);
             targetCharacter.UpdateDerivedStats();
         }

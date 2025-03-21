@@ -24,7 +24,7 @@ public class DragonController : MonoBehaviour
     private static readonly int IsMoving = Animator.StringToHash("isMoving");
     private static readonly int IsRangedAttack = Animator.StringToHash("isRangedAttack");
     private static readonly int IsMeleeAttack = Animator.StringToHash("isMeleeAttack");
-    private static readonly int IsUseSkill = Animator.StringToHash("isUseSkill");
+    private static readonly int IsUseSkill = Animator.StringToHash("isSkillAttack");
     private static readonly int IsUltimate = Animator.StringToHash("isUltimate");
     #endregion
 
@@ -536,20 +536,16 @@ public class DragonController : MonoBehaviour
                         availableBuffs.Add(buffName);
                     }
                 }
-                
-                Debug.Log($"[드래곤] 버프 '{buffName}' 상태: 쿨다운={isOnCooldown}, 활성={isActive}");
             }
             
             if (availableBuffs.Count == 0)
             {
-                Debug.Log($"[드래곤] 사용 가능한 버프 스킬이 없습니다. 모든 스킬이 쿨다운 중입니다.");
                 isAttacking = false;
                 return;
             }
 
             // 랜덤으로 버프 선택
             string chosenBuff = availableBuffs[UnityEngine.Random.Range(0, availableBuffs.Count)];
-            Debug.Log($"[드래곤] 선택된 버프 스킬: {chosenBuff}");
             
             // Skills 객체 가져오기
             Skills buffSkill = SkillManager.Instance.GetSkill(EntityType.Dragon, chosenBuff);
