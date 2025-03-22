@@ -131,9 +131,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // UI 상태에서는 플레이어 업데이트 로직 실행하지 않음
-        // 이제 입력 제어는 InputManager의 HandleGameStateChange에서 처리
-        if (IsUIActive())
+        // 게임 상태에 따른 플레이어 업데이트 로직 제어
+        if (ShouldDisablePlayerControl())
         {
             return;
         }
@@ -157,18 +156,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // UI가 활성화되어 있는지 확인하는 함수
-    private bool IsUIActive()
+    // 플레이어 컨트롤을 비활성화해야 하는지 확인
+    private bool ShouldDisablePlayerControl()
     {
-        // UI 관련 상태 확인
-        GameSystemState currentState = GameStateMachine.Instance.CurrentState;
-        return currentState == GameSystemState.Inventory 
-            || currentState == GameSystemState.StatusUI
-            || currentState == GameSystemState.QuestReview
-            || currentState == GameSystemState.Shopping
-            || currentState == GameSystemState.Skill
-            || currentState == GameSystemState.Cook
-            || UIManager.Instance.IsUIWindowOpen();
+        // InputManager를 통해 UI 관련 상태인지 확인
+        return InputManager.Instance.IsUIRelatedState(GameStateMachine.Instance.CurrentState);
     }
 
     #region ====================치트====================
