@@ -60,7 +60,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
     // 행동가능 리스트에 있는 요소들의 Execute() 함수를 실행시켜줌
     private void Update()
     {
-        if (controller.uiCheck) return;
+        if (UIManager.Instance.IsUIWindowOpen()) return;
 
         activeBehaviours.RemoveAll(b => b == null);
 

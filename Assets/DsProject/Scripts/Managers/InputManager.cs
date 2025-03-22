@@ -182,10 +182,19 @@ public class InputManager : BaseManager<InputManager>
 
     private void OnMainMenu(InputAction.CallbackContext context)
     {
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.MainMenu)
+        GameSystemState currentState = GameStateMachine.Instance.CurrentState;
+        
+        // UI 관련 상태인 경우 Play 상태로 복귀
+        if (IsUIRelatedState(currentState))
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+            Debug.Log("ESC로 Play 상태로 복귀.");
+        }
+        // 그 외의 상태에서는 MainMenu로 전환
+        else if (currentState != GameSystemState.MainMenu)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("ESC로 MainMenu상태로 전환.");
+            Debug.Log("ESC로 MainMenu 상태로 전환.");
         }
     }
 
@@ -193,7 +202,33 @@ public class InputManager : BaseManager<InputManager>
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-
+        // UI 관련 상태인지 확인
+        bool isUIState = IsUIRelatedState(newState);
+        
+        // 플레이어 이동 및 액션 관련 입력 활성화/비활성화
+        SetInputEnabled(!isUIState, "Move");
+        SetInputEnabled(!isUIState, "Jump");
+        SetInputEnabled(!isUIState, "Attack");
+        SetInputEnabled(!isUIState, "Block");
+        SetInputEnabled(!isUIState, "Sprint");
+        SetInputEnabled(!isUIState, "Dodge");
+        
+        // 스킬 관련 입력 설정
+        SetMultipleInputsEnabled(!isUIState, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
+    }
+    
+    // UI 관련 상태인지 확인하는 메서드
+    private bool IsUIRelatedState(GameSystemState state)
+    {
+        return state == GameSystemState.Inventory 
+            || state == GameSystemState.StatusUI
+            || state == GameSystemState.QuestReview
+            || state == GameSystemState.Shopping
+            || state == GameSystemState.Craft
+            || state == GameSystemState.Cook
+            || state == GameSystemState.Skill
+            || state == GameSystemState.PetInteraction
+            || state == GameSystemState.DialogueState;
     }
 }
 

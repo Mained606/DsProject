@@ -82,7 +82,6 @@ public class PlayerController : MonoBehaviour
 
     private Skills skill;
 
-
     #endregion
 
     private void OnEnable()
@@ -132,11 +131,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-        }
-        if (uiCheck)
+        // UI 상태에서는 플레이어 업데이트 로직 실행하지 않음
+        // 이제 입력 제어는 InputManager의 HandleGameStateChange에서 처리
+        if (IsUIActive())
         {
             return;
         }
@@ -153,12 +150,25 @@ public class PlayerController : MonoBehaviour
         }
 
         RecoverStats();
-        AvoidKeyInput();
 
         if (!isDodging)
         {
             CheckCombatState();
         }
+    }
+
+    // UI가 활성화되어 있는지 확인하는 함수
+    private bool IsUIActive()
+    {
+        // UI 관련 상태 확인
+        GameSystemState currentState = GameStateMachine.Instance.CurrentState;
+        return currentState == GameSystemState.Inventory 
+            || currentState == GameSystemState.StatusUI
+            || currentState == GameSystemState.QuestReview
+            || currentState == GameSystemState.Shopping
+            || currentState == GameSystemState.Skill
+            || currentState == GameSystemState.Cook
+            || UIManager.Instance.IsUIWindowOpen();
     }
 
     #region ====================치트====================
@@ -433,7 +443,6 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DashAttackRoutine()
     {
-
         Vector3 dashDirection = transform.forward;
         dashDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
@@ -448,24 +457,6 @@ public class PlayerController : MonoBehaviour
         behaviour.CanDodge = true;
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
-    }
-
-    public bool uiCheck = false;
-
-    // 키 활성화 변경
-    private void AvoidKeyInput()
-    {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-            InputManager.Instance.SetAllInputs(!uiCheck);
-            //SetActionStates(!uiCheck);
-            Debug.LogWarning($"uiCheck : {uiCheck}");
-        }
-        //InputManager.Instance.SetInputEnabled(CanMove, "Move");
-        //InputManager.Instance.SetInputEnabled(CanAttack, "Attack");
-        //InputManager.Instance.SetMultipleInputsEnabled(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
-        //InputManager.Instance.SetInputEnabled(CanBlock, "Block");
     }
 
     #region ---------------Climb---------------
