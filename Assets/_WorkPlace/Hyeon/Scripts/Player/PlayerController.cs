@@ -82,7 +82,6 @@ public class PlayerController : MonoBehaviour
 
     private Skills skill;
 
-
     #endregion
 
     private void OnEnable()
@@ -132,11 +131,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-        }
-        if (uiCheck)
+        // 게임 상태에 따른 플레이어 업데이트 로직 제어
+        if (ShouldDisablePlayerControl())
         {
             return;
         }
@@ -153,12 +149,18 @@ public class PlayerController : MonoBehaviour
         }
 
         RecoverStats();
-        AvoidKeyInput();
 
         if (!isDodging)
         {
             CheckCombatState();
         }
+    }
+
+    // 플레이어 컨트롤을 비활성화해야 하는지 확인
+    private bool ShouldDisablePlayerControl()
+    {
+        // InputManager를 통해 UI 관련 상태인지 확인
+        return InputManager.Instance.IsUIRelatedState(GameStateMachine.Instance.CurrentState);
     }
 
     #region ====================치트====================
@@ -433,7 +435,6 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DashAttackRoutine()
     {
-
         Vector3 dashDirection = transform.forward;
         dashDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
@@ -448,24 +449,6 @@ public class PlayerController : MonoBehaviour
         behaviour.CanDodge = true;
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
-    }
-
-    public bool uiCheck = false;
-
-    // 키 활성화 변경
-    private void AvoidKeyInput()
-    {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-            InputManager.Instance.SetAllInputs(!uiCheck);
-            //SetActionStates(!uiCheck);
-            Debug.LogWarning($"uiCheck : {uiCheck}");
-        }
-        //InputManager.Instance.SetInputEnabled(CanMove, "Move");
-        //InputManager.Instance.SetInputEnabled(CanAttack, "Attack");
-        //InputManager.Instance.SetMultipleInputsEnabled(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
-        //InputManager.Instance.SetInputEnabled(CanBlock, "Block");
     }
 
     #region ---------------Climb---------------

@@ -52,7 +52,7 @@ public class PlayerCombat : MonoBehaviour
 
     private void Update()
     {
-        if (controller.uiCheck) return;
+        if (UIManager.Instance.IsUIWindowOpen()) return;
 
         SkillFinishedCheck();
         ParryFinishedCheck();

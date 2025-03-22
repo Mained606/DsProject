@@ -10,23 +10,22 @@ public class InputManager : BaseManager<InputManager>
     // 모든 입력의 활성 상태를 관리하는 딕셔너리
     private Dictionary<string, bool> inputStates = new Dictionary<string, bool>();
 
+    // UI 관련 액션 이름 저장
+    private readonly string[] uiActions = new string[] { "Inventory", "Quest", "StatusUI", "ESC", "Craft", "Cook", "Skill" };
+    
+    // 플레이어 이동 및 전투 관련 액션 이름
+    private readonly string[] gameplayActions = new string[] { 
+        "Move", "Jump", "Attack", "Block", "Sprint", "Dodge", 
+        "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3", "Interact"
+    };
+
     protected override void Awake()
     {
         base.Awake();
         InputActions = GetComponent<PlayerInput>();
 
         InputInitialize();
-
-        #region Delete
-        // ui키 연결
-        InputActions.actions["Inventory"].performed += OnInventoryKey;
-        InputActions.actions["Quest"].performed += OnQuestReview;
-        InputActions.actions["StatusUI"].performed += OnStatKey;
-        InputActions.actions["ESC"].performed += OnMainMenu;
-        InputActions.actions["Craft"].performed += OnCrafting;
-        InputActions.actions["Cook"].performed += OnCooking;
-        InputActions.actions["Skill"].performed += OnSkills;
-        #endregion
+        RegisterUIActionCallbacks();
     }
 
     private void InputInitialize()
@@ -34,6 +33,64 @@ public class InputManager : BaseManager<InputManager>
         foreach(var action in InputActions.actions)
         {
             inputStates[action.name] = true;
+        }
+    }
+
+    private void RegisterUIActionCallbacks()
+    {
+        // UI 키 연결 - 딕셔너리와 델리게이트를 활용하여 중복 코드 제거
+        var actionStateMap = new Dictionary<string, GameSystemState>
+        {
+            { "Inventory", GameSystemState.Inventory },
+            { "Quest", GameSystemState.QuestReview },
+            { "StatusUI", GameSystemState.StatusUI },
+            { "Craft", GameSystemState.Craft },
+            { "Cook", GameSystemState.Cook },
+            { "Skill", GameSystemState.Skill }
+        };
+
+        foreach (var actionPair in actionStateMap)
+        {
+            string actionName = actionPair.Key;
+            GameSystemState targetState = actionPair.Value;
+            
+            InputActions.actions[actionName].performed += context => ToggleUIState(targetState);
+        }
+
+        // ESC 키는 특별하게 처리
+        InputActions.actions["ESC"].performed += OnMainMenu;
+    }
+
+    // UI 상태 전환을 처리하는 공통 메서드
+    private void ToggleUIState(GameSystemState targetState)
+    {
+        if (GameStateMachine.Instance.CurrentState != targetState)
+        {
+            GameStateMachine.Instance.ChangeState(targetState);
+            Debug.Log($"{targetState} 상태로 전환됨.");
+        }
+        else
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("MainMenu 상태로 복귀됨.");
+        }
+    }
+
+    private void OnMainMenu(InputAction.CallbackContext context)
+    {
+        GameSystemState currentState = GameStateMachine.Instance.CurrentState;
+        
+        // UI 관련 상태인 경우 Play 상태로 복귀
+        if (IsUIRelatedState(currentState))
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+            Debug.Log("ESC로 Play 상태로 복귀.");
+        }
+        // 그 외의 상태에서는 MainMenu로 전환
+        else if (currentState != GameSystemState.MainMenu)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+            Debug.Log("ESC로 MainMenu 상태로 전환.");
         }
     }
 
@@ -51,7 +108,7 @@ public class InputManager : BaseManager<InputManager>
             else
             {
                 InputActions.actions[actionName].Disable();
-                Debug.Log("InputAction Disable");
+                // Debug.Log($"InputAction {actionName} Disabled");
             }
         }
         else
@@ -77,123 +134,45 @@ public class InputManager : BaseManager<InputManager>
         }
     }
 
-    #region Delete
-
-
-    private void OnInventoryKey(InputAction.CallbackContext context)
+    // 게임플레이 관련 입력 활성화/비활성화
+    public void SetGameplayInputsEnabled(bool enabled)
     {
-
-        // 상태를 Inventory로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.Inventory)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Inventory);
-            Debug.Log("Inventory 상태로 전환됨.");
-        }
-
-        else
-        {
-            Debug.Log("I 1");
-
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
-        }
-
+        SetMultipleInputsEnabled(enabled, gameplayActions);
     }
 
-    #region 03.17 C
-    private void OnCrafting(InputAction.CallbackContext context)
+    // UI 관련 입력 활성화/비활성화
+    public void SetUIInputsEnabled(bool enabled)
     {
-        // 상태를 Crafting으로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.Craft)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Craft);
-            Debug.Log("Crafting 상태로 전환됨.");
-        }
-
-        else
-        {
-            Debug.Log("I 1");
-
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
-        }
+        SetMultipleInputsEnabled(enabled, uiActions);
     }
-    private void OnCooking(InputAction.CallbackContext context)
-    {
-        if(GameStateMachine.Instance.CurrentState != GameSystemState.Cook)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Cook);
-            Debug.Log("Cooking 상태로 전환됨.");
-        }
-        else
-        {
-            Debug.Log("I 1");
-
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
-        }
-    }
-
-    private void OnSkills(InputAction.CallbackContext context)
-    {
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.Skill)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Skill);
-            Debug.Log("Skill 상태로 전환됨.");
-        }
-        else
-        {
-            Debug.Log("I 1");
-
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
-        }
-    }
-    #endregion
-
-    private void OnQuestReview(InputAction.CallbackContext context)
-    {
-        // 상태를 Inventory로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.QuestReview)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.QuestReview);
-            Debug.Log("Quest 상태로 전환됨.");
-        }
-        else
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
-        }
-    }
-    private void OnStatKey(InputAction.CallbackContext context)
-    {
-        // 상태를 Inventory로 전환
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.StatusUI)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.StatusUI);
-            Debug.Log("StatusUI 상태로 전환됨.");
-        }
-        else
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
-        }
-    }
-
-    private void OnMainMenu(InputAction.CallbackContext context)
-    {
-        if (GameStateMachine.Instance.CurrentState != GameSystemState.MainMenu)
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("ESC로 MainMenu상태로 전환.");
-        }
-    }
-
-    #endregion
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-
+        // UI 관련 상태인지 확인
+        bool isUIState = IsUIRelatedState(newState);
+        
+        // 플레이어 이동 및 액션 관련 입력 활성화/비활성화
+        SetGameplayInputsEnabled(!isUIState);
+        
+        // UI 상태에 따라 인터랙트 입력 특별 처리
+        if (newState == GameSystemState.Play)
+        {
+            SetInputEnabled(true, "Interact");
+        }
+    }
+    
+    // UI 관련 상태인지 확인하는 메서드
+    public bool IsUIRelatedState(GameSystemState state)
+    {
+        return state == GameSystemState.Inventory 
+            || state == GameSystemState.StatusUI
+            || state == GameSystemState.QuestReview
+            || state == GameSystemState.Shopping
+            || state == GameSystemState.Craft
+            || state == GameSystemState.Cook
+            || state == GameSystemState.Skill
+            || state == GameSystemState.PetInteraction
+            || state == GameSystemState.DialogueState;
     }
 }
 
