@@ -25,7 +25,7 @@ public class InputManager : BaseManager<InputManager>
         InputActions.actions["ESC"].performed += OnMainMenu;
         InputActions.actions["Craft"].performed += OnCrafting;
         InputActions.actions["Cook"].performed += OnCooking;
-        InputActions.actions["Skill"].performed += OnSkills;
+        InputActions.actions["SkillUI"].performed += OnSkills;
         #endregion
     }
 

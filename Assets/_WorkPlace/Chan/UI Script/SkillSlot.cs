@@ -25,9 +25,6 @@ public class SkillSlot : MonoBehaviour, IDropHandler
 
     public void SetSkill(Skills skill, Sprite icon = null)
     {
-        // 다른 슬롯에 이미 이 스킬이 있으면 제거
-        GetComponentInParent<SkillQuickSlotUI>().RemoveSkillIfExists(skill);
-
         ClearSlot();
 
         currentSkill = skill;
@@ -65,7 +62,7 @@ public class SkillSlot : MonoBehaviour, IDropHandler
 
         Debug.Log($"[SkillSlot] SkillDrag 감지됨: {dragItem.SkillData.skillName}");
 
-        SetSkill(dragItem.SkillData, dragItem.Icon);
+        SkillQuickSlotUI.Instance.AssignSkillToSlot(dragItem.SkillData, dragItem.Icon, slotIndex);
     }
 
     private void Update()

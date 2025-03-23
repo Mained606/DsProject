@@ -55,7 +55,7 @@ public class UIManager : BaseManager<UIManager>
     public static SkillUI SkillUI;
 
     // ========== 250312 SH 추가 ==========
-    public static SkillsUI SkillsQuickSlot;
+    public static SkillQuickSlotUI SkillsQuickSlot;
     // ========== 250312 SH 추가 ==========
     
 
@@ -88,7 +88,7 @@ public class UIManager : BaseManager<UIManager>
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
         ShopUI = shopUI.GetComponent<ShopUI>();
         dialogUI = dialogWindow.GetComponent<DialogUI>();
-        SkillsQuickSlot = skillQuickSlot.GetComponent<SkillsUI>();
+        SkillsQuickSlot = skillQuickSlot.GetComponent<SkillQuickSlotUI>();
 
         // 03.13 C 
         CookingUI = cookingUI.GetComponent<CookingUI>();

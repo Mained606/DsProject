@@ -229,15 +229,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "Skill",
-                    "type": "Button",
-                    "id": "42f06e34-dc5f-40b7-8ef5-abf088aa618e",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -854,17 +845,6 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "SkillUI",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "16f4d2f4-77f8-4a50-822d-1bf24dfc511e",
-                    "path": "<Keyboard>/j",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Skill",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

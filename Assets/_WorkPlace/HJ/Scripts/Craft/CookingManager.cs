@@ -31,18 +31,6 @@ public class CookingManager : CraftManager
             Recipes = recipeList.recipeList.Where(r => r.recipeType == RecipeType.Cook).ToList();
         }
     }
-    #region 03.17 C
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.F8))
-        {
-            Debug.Log("F8 키 입력 감지됨 - 아이템 추가 실행");
-            ItemManager.Instance.AddItemLogic("버섯", 10);
-            ItemManager.Instance.AddItemLogic("무", 10);
-            ItemManager.Instance.AddItemLogic("비트", 10);
-        }
-    }
-    #endregion
 
     //요리 효과 계산
     private Item CalculateDishStat(List<Item> ingredients, Recipe recipe)

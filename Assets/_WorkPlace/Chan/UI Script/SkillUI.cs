@@ -67,9 +67,10 @@ public class SkillUI : MonoBehaviour
             drag = go.AddComponent<SkillDrag>();
         drag.Initialize(skill, icon);
 
-        if (!go.TryGetComponent(out SkillHover hover))
-            hover = go.AddComponent<SkillHover>();
-        hover.Initialize(skill, this);
+        if (go.TryGetComponent(out Button btn))
+        {
+            btn.onClick.AddListener(() => ShowSkillInfo(skill));
+        }
     }
     #endregion
 

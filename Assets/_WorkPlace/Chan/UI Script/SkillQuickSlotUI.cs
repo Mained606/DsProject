@@ -7,7 +7,7 @@ public class SkillQuickSlotUI : MonoBehaviour
 
     [SerializeField] private SkillSlot[] quickSlots;
 
-    public List<Skills> registedSkillList = new List<Skills>(); // 🔥 SkillBehaviour용 공개 리스트
+    public List<Skills> registedSkillList = new List<Skills>(); // 진짜 등록된 스킬만 담김
 
     private void Awake()
     {
@@ -19,6 +19,7 @@ public class SkillQuickSlotUI : MonoBehaviour
         for (int i = 0; i < quickSlots.Length; i++)
         {
             quickSlots[i].Initialize(i);
+            quickSlots[i].ClearSlot(); // 시작 시 슬롯 완전 초기화
         }
 
         UpdateRegistedList();
@@ -28,10 +29,10 @@ public class SkillQuickSlotUI : MonoBehaviour
     {
         if (slotIndex < 0 || slotIndex >= quickSlots.Length) return;
 
-        RemoveSkillIfExists(skill); // 기존 슬롯에서 제거
+        RemoveSkillIfExists(skill); // 중복 방지
         quickSlots[slotIndex].SetSkill(skill, icon);
 
-        UpdateRegistedList(); // 🧠 동기화
+        UpdateRegistedList(); // 리스트 동기화
     }
 
     public void RemoveSkillIfExists(Skills skill)
@@ -45,16 +46,17 @@ public class SkillQuickSlotUI : MonoBehaviour
             }
         }
 
-        UpdateRegistedList(); // 🧠 동기화
+        UpdateRegistedList(); // 리스트 동기화
     }
 
     private void UpdateRegistedList()
     {
         registedSkillList.Clear();
-        foreach (var slot in quickSlots)
+
+        for (int i = 0; i < quickSlots.Length; i++)
         {
-            var skill = slot.GetAssignedSkill();
-            registedSkillList.Add(skill); // null도 포함 (자리 보존용)
+            var skill = quickSlots[i].GetAssignedSkill();
+            registedSkillList.Add(skill); // 슬롯 인덱스를 그대로 리스트 인덱스로 반영
         }
     }
 }
