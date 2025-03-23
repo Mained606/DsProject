@@ -30,158 +30,115 @@ public class SkillUI : MonoBehaviour
     // 스킬 목록 UI 업데이트: 기존 프리팹 제거 후 플레이어 스킬 목록 재생성
     void UpdateSkillUI()
     {
-        foreach (Transform child in ADPanelParent)
-            Destroy(child.gameObject);
-        foreach (Transform child in APPanelParent)
-            Destroy(child.gameObject);
+        foreach (Transform child in ADPanelParent) Destroy(child.gameObject);
+        foreach (Transform child in APPanelParent) Destroy(child.gameObject);
 
         List<Skills> playerSkills = GetPlayerSkills();
         foreach (var skill in playerSkills)
         {
-            if (skill.skillType == SkillType.Physical)
-                AddSkillToPanel(ADPanelParent, ADskillPrefab, skill);
-            else if (skill.skillType == SkillType.Magic)
-                AddSkillToPanel(APPanelParent, APskillPrefab, skill);
+            var parent = skill.skillType == SkillType.Physical ? ADPanelParent : APPanelParent;
+            var prefab = skill.skillType == SkillType.Physical ? ADskillPrefab : APskillPrefab;
+            AddSkillToPanel(parent, prefab, skill);
         }
     }
 
     // 플레이어 스킬 목록 반환
     List<Skills> GetPlayerSkills()
     {
-        List<Skills> playerSkills = new List<Skills>();
+        List<Skills> skills = new();
         foreach (var entry in SkillManager.SkillList)
         {
             if (entry.Key.Item1 == EntityType.Player)
-                playerSkills.Add(entry.Value);
+                skills.Add(entry.Value);
         }
-        return playerSkills;
+        return skills;
     }
 
     #region 수정중
     // 스킬 프리팹 생성 및 버튼 이벤트 등록
-    void AddSkillToPanel(Transform panelParent, GameObject skillPrefab, Skills skill)
+    void AddSkillToPanel(Transform panelParent, GameObject prefab, Skills skill)
+    {
+        GameObject go = Instantiate(prefab, panelParent);
+        var img = go.GetComponentsInChildren<Image>()[1];
+        Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
+        img.sprite = icon;
+
+        if (!go.TryGetComponent(out SkillDrag drag))
+            drag = go.AddComponent<SkillDrag>();
+        drag.Initialize(skill, icon);
+
+        if (!go.TryGetComponent(out SkillHover hover))
+            hover = go.AddComponent<SkillHover>();
+        hover.Initialize(skill, this);
+    }
+    #endregion
+
+    #region 수정전 기존 메서드 
+    /*void AddSkillToPanel(Transform panelParent, GameObject skillPrefab, Skills skill)
     {
         GameObject skillInstance = Instantiate(skillPrefab, panelParent);
 
+        // 두 번째 Image 컴포넌트로 스킬 아이콘 설정
         var skillImage = skillInstance.GetComponentsInChildren<Image>()[1];
-        Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
         if (skillImage != null)
-            skillImage.sprite = icon;
-
-        SkillDrag dragComponent = skillInstance.GetComponent<SkillDrag>();
-        if (dragComponent != null)
-            dragComponent.Initialize(skill, icon);
+            skillImage.sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
 
         Button skillButton = skillInstance.GetComponent<Button>();
         if (skillButton != null)
             skillButton.onClick.AddListener(() => ShowSkillInfo(skill));
-    }
+    }*/
     #endregion
 
-    /*  #region 수정전 기존 메서드 
-      void AddSkillToPanel(Transform panelParent, GameObject skillPrefab, Skills skill)
-      {
-          GameObject skillInstance = Instantiate(skillPrefab, panelParent);
-
-          // 두 번째 Image 컴포넌트로 스킬 아이콘 설정
-          var skillImage = skillInstance.GetComponentsInChildren<Image>()[1];
-          if (skillImage != null)
-              skillImage.sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
-
-          Button skillButton = skillInstance.GetComponent<Button>();
-          if (skillButton != null)
-              skillButton.onClick.AddListener(() => ShowSkillInfo(skill));
-      }
-      #endregion*/
-
     // InfoPanel에 스킬 정보 표시 (클릭 시)5
-    void ShowSkillInfo(Skills skill)
+    public void ShowSkillInfo(Skills skill)
     {
         currentSelectedSkill = skill;
-        tempSkillDelta = 0; // 새로 선택하면 임시 변화량 초기화
-        InfoPanel.SetActive(true);
+        tempSkillDelta = 0;
+        if (!InfoPanel.activeSelf)
+            InfoPanel.SetActive(true);
 
-        if (skillInfoText != null)
-            skillInfoText.text = skill.ToStringTMPro();
-        if (skillInfoImage != null)
-            skillInfoImage.sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
-        if (skillLevelPreviewText != null)
-            skillLevelPreviewText.text = ""; // 미리보기 텍스트 초기 상태는 빈 문자열
+        skillInfoImage.sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
+        skillInfoText.text = skill.ToStringTMPro();
+        skillLevelPreviewText.text = "";
     }
 
     public string GetSkillPreviewString(Skills skill, int delta)
     {
-        // delta: 플러스/마이너스 누른 누적 변화량
         int newLevel = skill.skillLevel + delta;
-        // 선형 증가: 기본 데미지의 10%씩 증가
         float newDamage = skill.currentDamage + (skill.currentDamage * 0.1f * delta);
-        float newEnergyCost = skill.energyCost;
-        float newCooldown = skill.cooldown;
-        // 원래 ToStringTMPro()는 첫 줄에 스킬 이름과 색상이 들어가는데,
-        // 여기서는 첫 줄을 빈 문자열로 남기고, 그 다음 줄부터 정보를 표기
-        string preview =
-        $"<b><color=#FFFFFF></color></b>\n" +   // 첫 줄은 빈 상태
-        $"레벨: {newLevel}\n" +
-        $"데미지: {newDamage:F1}\n" +
-        $"소모 MP: {newEnergyCost}\n" +
-        $"쿨타임: {newCooldown}초\n";
-
-        return preview;
+        return $"<b><color=#FFFFFF></color></b>\n레벨: {newLevel}\n데미지: {newDamage:F1}\n소모 MP: {skill.energyCost}\n쿨타임: {skill.cooldown}초\n";
     }
 
     // 플러스 버튼 이벤트: 임시로 스킬 레벨 +1 적용
     public void OnSkillLevelUpButton()
     {
-        if (currentSelectedSkill != null)
+        if (currentSelectedSkill == null || !currentSelectedSkill.unLockSkill) return;
+
+        if (CharacterManager.PlayerCharacterData.AdjustTempSkill(currentSelectedSkill, 1))
         {
-            // 스킬이 잠겨 있으면 아무 동작도 하지 않음.
-            if (!currentSelectedSkill.unLockSkill)
-            {
-                Debug.LogWarning($"{currentSelectedSkill.skillName}은(는) 잠겨있어 레벨업할 수 없어.");
-                return;
-            }
-            // AdjustTempSkill()가 성공하면 누적된 임시 변화량을 가져옴
-            if (CharacterManager.PlayerCharacterData.AdjustTempSkill(currentSelectedSkill, 1))
-            {
-                tempSkillDelta = CharacterManager.PlayerCharacterData.GetPreviewSkillLevel(currentSelectedSkill);
-                if (skillLevelPreviewText != null)
-                    skillLevelPreviewText.text = GetSkillPreviewString(currentSelectedSkill, tempSkillDelta);
-            }
+            tempSkillDelta = CharacterManager.PlayerCharacterData.GetPreviewSkillLevel(currentSelectedSkill);
+            skillLevelPreviewText.text = GetSkillPreviewString(currentSelectedSkill, tempSkillDelta);
         }
     }
 
-    // 마이너스 버튼 이벤트: 임시로 스킬 레벨 -1 적용
     public void OnSkillLevelDownButton()
     {
-        if (currentSelectedSkill != null)
-        {
-            // 스킬이 잠겨 있으면 아무 동작도 하지 않음.
-            if (!currentSelectedSkill.unLockSkill)
-            {
-                Debug.LogWarning($"{currentSelectedSkill.skillName}은(는) 잠겨있어 레벨다운할 수 없어.");
-                return;
-            }
+        if (currentSelectedSkill == null || !currentSelectedSkill.unLockSkill) return;
 
-            if (CharacterManager.PlayerCharacterData.AdjustTempSkill(currentSelectedSkill, -1))
-            {
-                tempSkillDelta = CharacterManager.PlayerCharacterData.GetPreviewSkillLevel(currentSelectedSkill);
-                if (skillLevelPreviewText != null)
-                    skillLevelPreviewText.text = GetSkillPreviewString(currentSelectedSkill, tempSkillDelta);
-            }
+        if (CharacterManager.PlayerCharacterData.AdjustTempSkill(currentSelectedSkill, -1))
+        {
+            tempSkillDelta = CharacterManager.PlayerCharacterData.GetPreviewSkillLevel(currentSelectedSkill);
+            skillLevelPreviewText.text = GetSkillPreviewString(currentSelectedSkill, tempSkillDelta);
         }
     }
 
-    // 확정 버튼 이벤트: 임시 할당값을 최종 확정하고 미리보기 텍스트를 초기화, UI 갱신
     public void OnSkillLevelConfirmButton()
     {
-        if (currentSelectedSkill != null)
-        {
-            CharacterManager.PlayerCharacterData.ConfirmTempSkillAllocation();
-            // 최신 스킬 데이터를 다시 불러와서 currentSelectedSkill에 재할당
-            currentSelectedSkill = SkillManager.Instance.GetSkill(EntityType.Player, currentSelectedSkill.skillName);
-            if (skillLevelPreviewText != null)
-                skillLevelPreviewText.text = "";
-            ShowSkillInfo(currentSelectedSkill);
-        }
+        if (currentSelectedSkill == null) return;
+
+        CharacterManager.PlayerCharacterData.ConfirmTempSkillAllocation();
+        currentSelectedSkill = SkillManager.Instance.GetSkill(EntityType.Player, currentSelectedSkill.skillName);
+        skillLevelPreviewText.text = "";
+        ShowSkillInfo(currentSelectedSkill);
     }
 }

@@ -7,14 +7,13 @@ public class SkillSlot : MonoBehaviour, IDropHandler
     [SerializeField] private Image iconImage;
     private Animator animator;
 
-    private Image cooldownOverlay; // Image[1] 기준으로 동적으로 가져오기
+    private Image cooldownOverlay;
     private int slotIndex;
     private Skills currentSkill;
     private Sprite currentIcon;
 
     private void Awake()
     {
-       // animator = transform.GetComponent<Animator>();
         cooldownOverlay = GetComponentsInChildren<Image>()[1];
     }
 
@@ -26,13 +25,15 @@ public class SkillSlot : MonoBehaviour, IDropHandler
 
     public void SetSkill(Skills skill, Sprite icon = null)
     {
+        // 다른 슬롯에 이미 이 스킬이 있으면 제거
+        GetComponentInParent<SkillQuickSlotUI>().RemoveSkillIfExists(skill);
+
+        ClearSlot();
+
         currentSkill = skill;
         currentIcon = icon ?? ItemManager.Instance.GetSkillSprite(skill.skillName);
-
         iconImage.sprite = currentIcon;
         iconImage.enabled = true;
-
-      //  animator?.SetTrigger("Set");
     }
 
     public void ClearSlot()
@@ -41,18 +42,30 @@ public class SkillSlot : MonoBehaviour, IDropHandler
         currentIcon = null;
         iconImage.sprite = null;
         iconImage.enabled = false;
-
-        if (cooldownOverlay != null)
-            cooldownOverlay.fillAmount = 0f;
+        if (cooldownOverlay != null) cooldownOverlay.fillAmount = 0f;
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        SkillDrag dragItem = eventData.pointerDrag?.GetComponent<SkillDrag>();
-        if (dragItem != null)
+        Debug.Log("[SkillSlot] 드랍 발생");
+
+        GameObject droppedObj = eventData.pointerDrag;
+        if (droppedObj == null)
         {
-            SetSkill(dragItem.SkillData, dragItem.Icon);
+            Debug.LogWarning("[SkillSlot] pointerDrag가 null이다.");
+            return;
         }
+
+        SkillDrag dragItem = droppedObj.GetComponent<SkillDrag>();
+        if (dragItem == null)
+        {
+            Debug.LogWarning("[SkillSlot] 드래그된 오브젝트에 SkillDrag가 없다.");
+            return;
+        }
+
+        Debug.Log($"[SkillSlot] SkillDrag 감지됨: {dragItem.SkillData.skillName}");
+
+        SetSkill(dragItem.SkillData, dragItem.Icon);
     }
 
     private void Update()
@@ -62,13 +75,7 @@ public class SkillSlot : MonoBehaviour, IDropHandler
         float percent = currentSkill.cooldownTimer.RemainingPercent;
         if (cooldownOverlay != null)
             cooldownOverlay.fillAmount = percent;
-
-       /* if (percent > 0f)
-        {
-            if (currentSkill.cooldownTimer.IsRunning)
-                animator?.SetTrigger("Hover");
-            else
-                animator?.SetTrigger("Normal");
-        }*/
     }
+
+    public Skills GetAssignedSkill() => currentSkill;
 }

@@ -1,52 +1,86 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SkillDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public Skills SkillData { get; private set; }
     public Sprite Icon { get; private set; }
 
-    private Image image;
     private CanvasGroup canvasGroup;
-    private Transform originalParent;
-    private Vector2 originalPosition;
+    private Canvas mainCanvas;
+
+    private GameObject dragImageObject;
+    private Image dragImage;
 
     public void Initialize(Skills skillData, Sprite icon)
     {
         SkillData = skillData;
         Icon = icon;
 
-        if (image == null) image = GetComponent<Image>();
-        image.sprite = icon;
-        image.enabled = true;
+        if (canvasGroup == null)
+            canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
     }
 
     private void Awake()
     {
-        image = GetComponent<Image>();
-        canvasGroup = GetComponent<CanvasGroup>();
+        mainCanvas = GetComponentInParent<Canvas>();
+        if (mainCanvas.renderMode != RenderMode.ScreenSpaceOverlay && mainCanvas.worldCamera == null)
+        {
+            mainCanvas.worldCamera = Camera.main;
+        }
+
         if (canvasGroup == null)
-            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        originalParent = transform.parent;
-        originalPosition = transform.position;
-        transform.SetParent(transform.root); // 맨 위로 올림
+        if (mainCanvas == null) return;
+
         canvasGroup.blocksRaycasts = false;
+        CreateDragImage();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        transform.position = eventData.position;
+        if (dragImageObject != null)
+        {
+            dragImageObject.GetComponent<RectTransform>().position = eventData.position;
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        transform.SetParent(originalParent);
-        transform.position = originalPosition;
         canvasGroup.blocksRaycasts = true;
+        DestroyDragImage();
+    }
+
+    private void CreateDragImage()
+    {
+        dragImageObject = new GameObject("SkillDragImage", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
+        dragImageObject.transform.SetParent(mainCanvas.transform, false);
+
+        dragImage = dragImageObject.GetComponent<Image>();
+        dragImage.sprite = Icon;
+        dragImage.raycastTarget = false;
+        dragImage.color = new Color(1, 1, 1, 0.6f);
+
+        CanvasGroup dragCanvasGroup = dragImageObject.GetComponent<CanvasGroup>();
+        dragCanvasGroup.blocksRaycasts = false;
+
+        // 🔥 핵심: 드래그 정보 복사
+        SkillDrag clone = dragImageObject.AddComponent<SkillDrag>();
+        clone.SkillData = this.SkillData;
+        clone.Icon = this.Icon;
+    }
+
+    private void DestroyDragImage()
+    {
+        if (dragImageObject != null)
+        {
+            Destroy(dragImageObject);
+            dragImageObject = null;
+        }
     }
 }
