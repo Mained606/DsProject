@@ -57,22 +57,44 @@ public class SkillUI : MonoBehaviour
         return playerSkills;
     }
 
+    #region 수정중
     // 스킬 프리팹 생성 및 버튼 이벤트 등록
     void AddSkillToPanel(Transform panelParent, GameObject skillPrefab, Skills skill)
     {
         GameObject skillInstance = Instantiate(skillPrefab, panelParent);
 
-        // 두 번째 Image 컴포넌트로 스킬 아이콘 설정
         var skillImage = skillInstance.GetComponentsInChildren<Image>()[1];
+        Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
         if (skillImage != null)
-            skillImage.sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
+            skillImage.sprite = icon;
+
+        SkillDrag dragComponent = skillInstance.GetComponent<SkillDrag>();
+        if (dragComponent != null)
+            dragComponent.Initialize(skill, icon);
 
         Button skillButton = skillInstance.GetComponent<Button>();
         if (skillButton != null)
             skillButton.onClick.AddListener(() => ShowSkillInfo(skill));
     }
+    #endregion
 
-    // InfoPanel에 스킬 정보 표시 (클릭 시)
+    /*  #region 수정전 기존 메서드 
+      void AddSkillToPanel(Transform panelParent, GameObject skillPrefab, Skills skill)
+      {
+          GameObject skillInstance = Instantiate(skillPrefab, panelParent);
+
+          // 두 번째 Image 컴포넌트로 스킬 아이콘 설정
+          var skillImage = skillInstance.GetComponentsInChildren<Image>()[1];
+          if (skillImage != null)
+              skillImage.sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
+
+          Button skillButton = skillInstance.GetComponent<Button>();
+          if (skillButton != null)
+              skillButton.onClick.AddListener(() => ShowSkillInfo(skill));
+      }
+      #endregion*/
+
+    // InfoPanel에 스킬 정보 표시 (클릭 시)5
     void ShowSkillInfo(Skills skill)
     {
         currentSelectedSkill = skill;

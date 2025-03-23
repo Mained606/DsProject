@@ -250,6 +250,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3281524664194052654}
   - component: {fileID: -6880684478781708014}
+  - component: {fileID: -8824127777698471309}
   m_Layer: 5
   m_Name: AD_Prefab
   m_TagString: Untagged
@@ -322,3 +323,15 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-8824127777698471309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8794664876656177652}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02250609db3225840873e684346fdf6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
