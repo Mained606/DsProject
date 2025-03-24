@@ -11,6 +11,7 @@ public class ActivityNpc : MonoBehaviour
     private static readonly int SittingState = Animator.StringToHash("IsSitting");
     private static readonly int WalkingState = Animator.StringToHash("IsWalking");
     private static readonly int TalkingState = Animator.StringToHash("IsTalking");
+    private static readonly int TerrifyingState = Animator.StringToHash("IsTerrifying");
     private static readonly int ExitTrigger = Animator.StringToHash("ExitTrigger");
     private static readonly int WipeSweatTrigger = Animator.StringToHash("WipeSweatTrigger");
 
@@ -26,13 +27,20 @@ public class ActivityNpc : MonoBehaviour
     [SerializeField] private Vector3 targetPosition;
     [SerializeField] private Transform targetNpc;
     [SerializeField] private float npcDistance = 100f;
+    [SerializeField] private float monsterDistnace = 20f;
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float turnSpeed = 10f;
+    [SerializeField] private bool isNearMonster = false;
     [SerializeField] private bool isMoving = false;
     [SerializeField] private bool isStart = false;
     public bool IsMoving
     {
         get => isMoving;
+        private set
+        {
+            isMoving = value;
+            ActiveTool(!isMoving);
+        }
     }
 
     [Header("Talking State")]
@@ -43,15 +51,18 @@ public class ActivityNpc : MonoBehaviour
     public bool IsTalking
     {
         get => isTalking;
+        private set
+        {
+            isTalking = value;
+            ActiveTool(!isTalking);
+        }
     }
 
     private NpcController npcController;
     private int defaultState;
     private Coroutine currentCoroutine;
     private System.Func<IEnumerator> defaultRoutineFactory;
-    //[SerializeField] private Quaternion leftLegRotation;
-    //[SerializeField] private Quaternion rightLegRotation;
-    //[SerializeField] bool isFixedLeg = false;
+    [SerializeField] private GameObject tool;
 
     private void Start()
     {
@@ -62,6 +73,12 @@ public class ActivityNpc : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
 
         rb.isKinematic = true;
+
+        if(npcController.npcTool && npcController.npcType != NpcType.Sitting)
+        {
+            tool = npcController.npcTool.GetChild((int)npcController.npcType - 1)?.gameObject;
+            tool?.SetActive(true);
+        }
 
         if (npcController.npcType == NpcType.Fishing)
         {
@@ -85,17 +102,11 @@ public class ActivityNpc : MonoBehaviour
         }
 
         currentCoroutine = StartCoroutine(defaultRoutineFactory());
-
-        //if(npcController.leftLeg != null && npcController.rightLeg != null)
-        //{
-        //    leftLegRotation = npcController.leftLeg.localRotation;
-        //    rightLegRotation = npcController.rightLeg.localRotation;
-        //}
     }
 
     private void Update()
     {
-        if(isMoving)
+        if(IsMoving)
         {
             if (targetNpc)
                 MoveToWards(targetNpc);
@@ -105,22 +116,26 @@ public class ActivityNpc : MonoBehaviour
             float distance = Vector3.Distance(transform.position, originalPosition);
             if(distance <= 1f && !isStart)
             {
-                isMoving = false;
+                IsMoving = false;
                 StopCurrentAction();
                 StartCoroutine(LookAtTarget(originalPosition));
                 currentCoroutine = StartCoroutine(defaultRoutineFactory());
             }
         }
-    }
 
-    //void OnAnimatorIK(int layerIndex)
-    //{
-    //    if (isFixedLeg)
-    //    {
-    //        npcController.leftLeg.localRotation = leftLegRotation;
-    //        npcController.rightLeg.localRotation = rightLegRotation;
-    //    }
-    //}
+        //if (InputManager.InputActions.actions["Interact"].triggered)
+        //{
+        //    if(currentCoroutine != null)
+        //    {
+        //        Debug.Log(transform.name + " : " + currentCoroutine);
+        //    }
+        //    else
+        //    {
+        //        Debug.Log(transform.name + "현재 코루틴 없음");
+        //    }
+            
+        //}
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -130,12 +145,13 @@ public class ActivityNpc : MonoBehaviour
             {
                 isNearNpc = true;
             }
-            else if(!isTalking)
+            else if(!IsTalking)
             {
                 if (targetNpc) targetNpc = null;
                 isStart = false;
-                isMoving = false;
-                StartCoroutine(StartConversation(other.transform));
+                IsMoving = false;
+                StopCurrentAction();
+                currentCoroutine = StartCoroutine(StartConversation(other.transform));
             }
         }
 
@@ -143,6 +159,15 @@ public class ActivityNpc : MonoBehaviour
         {
             SittingAtBench(other.GetComponent<Bench>());
             this.transform.position += sittingOffset;
+        }
+
+        if(other.CompareTag("Monster") && isNearMonster == false)
+        {
+            Debug.Log("몬스터 닿음");
+            if(targetNpc) targetNpc = null;
+            isNearMonster = true;
+            StopCurrentAction();
+            StartCoroutine(StartTerrifying());
         }
     }
 
@@ -254,15 +279,6 @@ public class ActivityNpc : MonoBehaviour
         else
         {
             animator.SetTrigger(WipeSweatTrigger);
-
-            //if(npcController.npcType == NpcType.Craft)
-            //{
-            //    isFixedLeg = true;
-
-            //    yield return new WaitForSeconds(1f);
-
-            //    isFixedLeg = false;
-            //}
         }
     }
 
@@ -323,7 +339,7 @@ public class ActivityNpc : MonoBehaviour
                 StopCurrentAction();
 
                 isStart = true;
-                isMoving = true;
+                IsMoving = true;
                 targetNpc = ohterNpc;
             }
             else
@@ -333,7 +349,7 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
-    private Transform FindNearestNpc(Vector3 position, float maxDistance)
+    private Transform FindNearestNpc(Vector3 position, float maxDistance, string npcTag = "TownNPC")
     {
         Transform nearestNpc = null;
         Collider[] colliders = Physics.OverlapSphere(position, maxDistance);
@@ -341,7 +357,7 @@ public class ActivityNpc : MonoBehaviour
 
         foreach (Collider collider in colliders)
         {
-            if (collider.CompareTag("TownNPC") && collider.transform != this.transform)
+            if (collider.CompareTag(npcTag) && collider.transform != this.transform)
             {
                 float distance = Vector3.Distance(position, collider.transform.position);
 
@@ -459,10 +475,10 @@ public class ActivityNpc : MonoBehaviour
 
     private IEnumerator StartConversation(Transform target)
     {
-        isTalking = true;
-        if(isMoving) isMoving = false;
+        IsTalking = true;
+        if(IsMoving) IsMoving = false;
 
-        StopCurrentAction();
+        //StopCurrentAction();
 
         yield return StartCoroutine(DelayBeforeNextAction());
 
@@ -471,7 +487,7 @@ public class ActivityNpc : MonoBehaviour
         animator.SetBool(TalkingState, true);
         PlayRandomTrigger(talkingTriggers);
 
-        StartCoroutine(ContinueConversation(target));
+        currentCoroutine = StartCoroutine(ContinueConversation(target));
     }
 
     private IEnumerator ContinueConversation(Transform target)
@@ -479,7 +495,7 @@ public class ActivityNpc : MonoBehaviour
         int minConversations = Random.Range(6, 10);
         int conversationCount = 0;
 
-        while (isTalking)
+        while (IsTalking)
         {
             yield return new WaitForSeconds(talkingDuration);
 
@@ -503,12 +519,12 @@ public class ActivityNpc : MonoBehaviour
 
     private void StopConversation()
     {
-        isTalking = false;
+        IsTalking = false;
 
         animator.SetTrigger(ExitTrigger);
         animator.SetBool(TalkingState, false);
 
-        StartCoroutine(DoAction());
+        currentCoroutine = StartCoroutine(DoAction());
     }
 
     private void StopCurrentAction()
@@ -521,6 +537,14 @@ public class ActivityNpc : MonoBehaviour
         if (animator.GetBool(WalkingState))
         {
             animator.SetBool(WalkingState, false);
+            isMoving = false;
+        }
+
+        if(animator.GetBool(TalkingState))
+        {
+            animator.SetTrigger(ExitTrigger);
+            animator.SetBool(TalkingState, false);
+            isTalking = false;
         }
 
         if (currentCoroutine != null)
@@ -532,11 +556,12 @@ public class ActivityNpc : MonoBehaviour
 
     private IEnumerator DoAction()
     {
+        Debug.Log("Start DoAction");
         float distance = Vector3.Distance(transform.position, originalPosition);
         if(distance > 0.1f)
         {
             targetPosition = originalPosition;
-            isMoving = true;
+            IsMoving = true;
         }
         else
         {
@@ -545,10 +570,46 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
+    private void ActiveTool(bool isActive)
+    {
+        if(tool != null)
+        {
+            tool.SetActive(isActive);
+        }
+    }
+
+    private IEnumerator StartTerrifying()
+    {
+        while(isNearMonster)
+        {
+            Debug.Log("코루틴 실행");
+            if (!animator.GetBool(TerrifyingState))
+                animator.SetBool(TerrifyingState, true);
+
+            yield return new WaitForSeconds(10f);
+
+            Transform monster = FindNearestNpc(transform.position, monsterDistnace, "Monster");
+            if (monster == null)
+            {
+                Debug.Log("몬스터 근처에 없음");
+                isNearMonster = false;
+            }
+        }
+
+        animator.SetBool(TerrifyingState, false);
+        StartCoroutine(DoAction());       
+    }
+
     private IEnumerator DelayBeforeNextAction(float addDelayTime = 0)
     {
         float clipLength = animator.GetCurrentAnimatorClipInfo(0).Length;
 
         yield return new WaitForSeconds(clipLength + addDelayTime);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red; // 기즈모 색상을 빨간색으로 설정
+        Gizmos.DrawWireSphere(transform.position, monsterDistnace); // 탐색 범위를 구 형태로 그림
     }
 }
