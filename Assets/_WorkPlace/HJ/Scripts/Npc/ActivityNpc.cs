@@ -42,6 +42,7 @@ public class ActivityNpc : MonoBehaviour
             ActiveTool(!isMoving);
         }
     }
+    
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
@@ -63,6 +64,8 @@ public class ActivityNpc : MonoBehaviour
     private Coroutine currentCoroutine;
     private System.Func<IEnumerator> defaultRoutineFactory;
     [SerializeField] private GameObject tool;
+    private string[] commonTriggers = { "ArmStretching", "NeckStretching", "LookAround" };
+    [SerializeField] private float repeatTriggerChance = 0.7f;
 
     private void Start()
     {
@@ -122,19 +125,6 @@ public class ActivityNpc : MonoBehaviour
                 currentCoroutine = StartCoroutine(defaultRoutineFactory());
             }
         }
-
-        //if (InputManager.InputActions.actions["Interact"].triggered)
-        //{
-        //    if(currentCoroutine != null)
-        //    {
-        //        Debug.Log(transform.name + " : " + currentCoroutine);
-        //    }
-        //    else
-        //    {
-        //        Debug.Log(transform.name + "현재 코루틴 없음");
-        //    }
-            
-        //}
     }
 
     private void OnTriggerEnter(Collider other)
@@ -163,7 +153,6 @@ public class ActivityNpc : MonoBehaviour
 
         if(other.CompareTag("Monster") && isNearMonster == false)
         {
-            Debug.Log("몬스터 닿음");
             if(targetNpc) targetNpc = null;
             isNearMonster = true;
             StopCurrentAction();
@@ -278,19 +267,54 @@ public class ActivityNpc : MonoBehaviour
         }
         else
         {
-            animator.SetTrigger(WipeSweatTrigger);
+            string trigger = PlayRandomTrigger(commonTriggers, true);
+            float clipLength = GetClipLengthFromTrigger(trigger);
+
+            while (Random.value < repeatTriggerChance)
+            {
+                yield return new WaitForSeconds(clipLength);
+
+                trigger = PlayRandomTrigger(commonTriggers);
+                clipLength = GetClipLengthFromTrigger(trigger);
+            }
         }
     }
 
-    private void PlayRandomTrigger(string[] triggers)
+    private float GetClipLengthFromTrigger(string triggerName)
     {
+        if (animator == null) return 0f;
+
+        // 현재 연결된 AnimatorController 가져오기
+        RuntimeAnimatorController controller = animator.runtimeAnimatorController;
+
+        foreach (AnimationClip clip in controller.animationClips)
+        {
+            if (clip.name == triggerName) // 트리거와 같은 이름을 가진 애니메이션 클립 찾기
+            {
+                return clip.length;
+            }
+        }
+
+        return 0f; // 찾지 못한 경우
+    }
+
+    private string PlayRandomTrigger(string[] triggers, bool returnTrigger = false)
+    {
+        if (triggers == null || triggers.Length == 0)
+            return null;
+
         int randomIndex = Random.Range(0, triggers.Length);
         string randomTrigger = triggers[randomIndex];
 
-        if (randomTrigger != null)
+        if (!string.IsNullOrEmpty(randomTrigger))
         {
             animator.SetTrigger(randomTrigger);
+
+            if (returnTrigger)
+                return randomTrigger;
         }
+
+        return null;
     }
 
     private void SittingAtBench(Bench bench)
@@ -318,34 +342,20 @@ public class ActivityNpc : MonoBehaviour
 
     private void FindNpcAndMove()
     {
-        //if (Random.value <= talkingChance)
-        {            
-            Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
+        Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
 
-            //ActivityNpc activityNpc = ohterNpc?.GetComponent<ActivityNpc>();
-            //if (activityNpc != null && activityNpc.IsMoving || activityNpc.IsTalking)
-            //{
-            //    Debug.Log(ohterNpc.name + "이동 또는 대화 중, 리턴");
-            //    return;
-            //}
 
-            if (ohterNpc != null)
-            {
-                Debug.Log($"{transform.name}이 {ohterNpc.name}으로 이동");
+        if (ohterNpc != null)
+        {
+            StopCurrentAction();
 
-                //originalRotation = transform.rotation;
-                //originalPosition = transform.position;
-
-                StopCurrentAction();
-
-                isStart = true;
-                IsMoving = true;
-                targetNpc = ohterNpc;
-            }
-            else
-            {
-                Debug.Log("범위내에 다른 npc 없음");
-            }
+            isStart = true;
+            IsMoving = true;
+            targetNpc = ohterNpc;
+        }
+        else
+        {
+            Debug.Log("범위내에 다른 npc 없음");
         }
     }
 
@@ -376,20 +386,16 @@ public class ActivityNpc : MonoBehaviour
     {
         animator.SetBool(WalkingState, true);
 
-        //현재 위치에서 목표 방향(y값 제외)
         Vector3 direction = (destination - transform.position).normalized;
         direction.y = 0f;
 
-        //앞으로 이동할 위치
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        //Raycast로 지형 높이 감지
         if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
         {
             nextPosition.y = hit.point.y;
         }
 
-        //이동 적용
         transform.position = nextPosition;
 
         if (direction != Vector3.zero)
@@ -403,20 +409,16 @@ public class ActivityNpc : MonoBehaviour
     {
         animator.SetBool(WalkingState, true);
 
-        //현재 위치에서 목표 방향(y값 제외)
         Vector3 direction = (targetTransform.position - transform.position).normalized;
         direction.y = 0f;
 
-        //앞으로 이동할 위치
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        //Raycast로 지형 높이 감지
         if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
         {
             nextPosition.y = hit.point.y;
         }
 
-        //이동 적용
         transform.position = nextPosition;
 
         if (direction != Vector3.zero)
@@ -478,8 +480,6 @@ public class ActivityNpc : MonoBehaviour
         IsTalking = true;
         if(IsMoving) IsMoving = false;
 
-        //StopCurrentAction();
-
         yield return StartCoroutine(DelayBeforeNextAction());
 
         yield return StartCoroutine(LookAtTarget(target.position));
@@ -538,6 +538,7 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(WalkingState, false);
             isMoving = false;
+            isStart = false;
         }
 
         if(animator.GetBool(TalkingState))
@@ -556,7 +557,6 @@ public class ActivityNpc : MonoBehaviour
 
     private IEnumerator DoAction()
     {
-        Debug.Log("Start DoAction");
         float distance = Vector3.Distance(transform.position, originalPosition);
         if(distance > 0.1f)
         {
@@ -572,7 +572,7 @@ public class ActivityNpc : MonoBehaviour
 
     private void ActiveTool(bool isActive)
     {
-        if(tool != null)
+        if(tool != null && tool.activeSelf != isActive)
         {
             tool.SetActive(isActive);
         }
@@ -582,22 +582,17 @@ public class ActivityNpc : MonoBehaviour
     {
         while(isNearMonster)
         {
-            Debug.Log("코루틴 실행");
             if (!animator.GetBool(TerrifyingState))
                 animator.SetBool(TerrifyingState, true);
 
             yield return new WaitForSeconds(10f);
 
             Transform monster = FindNearestNpc(transform.position, monsterDistnace, "Monster");
-            if (monster == null)
-            {
-                Debug.Log("몬스터 근처에 없음");
-                isNearMonster = false;
-            }
+            if (monster == null) isNearMonster = false;
         }
 
         animator.SetBool(TerrifyingState, false);
-        StartCoroutine(DoAction());       
+        StartCoroutine(DoAction());
     }
 
     private IEnumerator DelayBeforeNextAction(float addDelayTime = 0)
@@ -607,9 +602,17 @@ public class ActivityNpc : MonoBehaviour
         yield return new WaitForSeconds(clipLength + addDelayTime);
     }
 
+    private float GetCurrentAnimationClipLength()
+    {
+        if (animator == null) return 0f;
+
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        return stateInfo.length;
+    }
+
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red; // 기즈모 색상을 빨간색으로 설정
-        Gizmos.DrawWireSphere(transform.position, monsterDistnace); // 탐색 범위를 구 형태로 그림
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, monsterDistnace);
     }
 }
