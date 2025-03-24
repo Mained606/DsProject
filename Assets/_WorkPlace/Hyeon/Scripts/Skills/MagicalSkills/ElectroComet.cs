@@ -130,7 +130,7 @@ public class ElectroComet : MonoBehaviour
                 CharacterManager.PlayerCharacterData, 
                 targetData, 
                 targetTransform, 
-                true, // 히트 애니메이션 재생
+                true, 
                 true, // 데미지 적용
                 skills, 
                 false, 
@@ -156,7 +156,7 @@ public class ElectroComet : MonoBehaviour
                 CharacterManager.PlayerCharacterData, 
                 targetData, 
                 targetTransform, 
-                playHitAnim, // 히트 애니메이션 재생 여부
+                true, // 항상 플레이어의 공격임을 표시
                 true, // 데미지 적용
                 skills, 
                 false, 
@@ -164,9 +164,18 @@ public class ElectroComet : MonoBehaviour
                 0f
             );
             
-            // 히트 애니메이션이 재생된 경우에만 타이머 설정
+            // 히트 애니메이션 제어 - BaseMonsterAI 컴포넌트를 찾아서 직접 제어
             if (playHitAnim)
             {
+                // 타겟의 Animator 컴포넌트를 찾아 Hit 트리거를 직접 설정
+                Animator animator = targetTransform.GetComponent<Animator>();
+                if (animator != null)
+                {
+                    // Hit 트리거를 초기화하고 다시 설정하여 애니메이션 재생
+                    animator.ResetTrigger("Hit");
+                    animator.SetTrigger("Hit");
+                }
+                
                 hitAnimTimers[targetData] = hitAnimCooldown;
             }
         }
