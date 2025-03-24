@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
     [Header("글라이딩")]
     public float glideSpeed = 10f;
     private float glideGravity = -9.81f;
+    public GameObject wings;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 6.5f;
@@ -291,7 +292,7 @@ public class PlayerController : MonoBehaviour
         GravityStateCheck();
         if (isGrounded)
         {
-            if (isFreefall)
+            if (!isFreefall)
             {
                 float fallDistance = lastGroundHeight - transform.position.y;
 
@@ -300,9 +301,10 @@ public class PlayerController : MonoBehaviour
                     ApplyFallDamage(fallDistance);
                 }
             }
+
             isFreefall = false;
             playerAnimator.SetBool("Freefall", false);
-            if (verticalVelocity.y < 0)
+            if (verticalVelocity.y < 0 && !isJumping)
             {
                 verticalVelocity.y = -2f;
             }
