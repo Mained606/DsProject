@@ -4,8 +4,9 @@ public class GlideBehaviour : IBehaviour
 {
     private PlayerController controller;
     private Animator animator;
+    private GameObject wings;
 
-    private float glidableHeight = 6f;
+    private float glidableHeight = 7f;
     private float glideSpeed;
     private bool canGlide;
 
@@ -14,13 +15,18 @@ public class GlideBehaviour : IBehaviour
     {
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
         animator = controller.PlayerAnimator;
+        wings = controller.wings;
     }
 
     public void Enter()
     {
         glideSpeed = controller.glideSpeed;
+        canGlide = false;
         controller.isGliding = false;
-        //animator.SetBool("Glide", false);
+        if (wings.activeSelf)
+        {
+            wings.SetActive(false);
+        }
     }
 
     public void Execute()
@@ -29,6 +35,13 @@ public class GlideBehaviour : IBehaviour
         {
             GlidableCheck();
             GroundedCheck();
+            if (canGlide)
+            {
+                if (InputManager.InputActions.actions["Jump"].triggered)
+                {
+                    StartGilde();
+                }
+            }
         }
         else
         {
@@ -36,15 +49,7 @@ public class GlideBehaviour : IBehaviour
             StaminaCheck();
             if (InputManager.InputActions.actions["Jump"].triggered)
             {
-                SwitchGlideState();
-            }
-        }
-
-        if (canGlide)
-        {
-            if (InputManager.InputActions.actions["Jump"].triggered)
-            {
-                SwitchGlideState();
+                EndGlide();
             }
         }
         
@@ -53,12 +58,16 @@ public class GlideBehaviour : IBehaviour
     public void Exit()
     {
         controller.isGliding = false;
-        //animator.SetBool("Glide", false);
+        canGlide = false;
+        if (wings.activeSelf)
+        {
+            wings.SetActive(false);
+        }
     }
 
     private void GlidableCheck()
     {
-        if(Physics.Raycast(controller.transform.position, Vector3.down, out RaycastHit hit, glidableHeight))
+        if(Physics.Raycast(controller.transform.position + Vector3.up * 1f, Vector3.down, out RaycastHit hit, glidableHeight))
         {
             canGlide = false;
         }
@@ -68,16 +77,30 @@ public class GlideBehaviour : IBehaviour
         }
     }
 
-    private void SwitchGlideState()
+    private void StartGilde()
     {
-        controller.isGliding = !controller.isGliding;
+        controller.isGliding = true;
         if (controller.isJumping)
         {
-            controller.isJumping = false;
+            //controller.isJumping = false;
             animator.SetBool("Jump", false);
         }
-        //animator.SetBool("Glide", controller.isGliding);
-        PlayerBehaviourManager.Instance.CanMove = !controller.isGliding;
+        if (!wings.activeSelf)
+        {
+            wings.SetActive(true);
+        }
+        PlayerBehaviourManager.Instance.CanMove = false;
+        PlayerBehaviourManager.Instance.CanJump = false;
+    }
+    private void EndGlide()
+    {
+        controller.isGliding = false;
+        if (wings.activeSelf)
+        {
+            wings.SetActive(false);
+        }
+        PlayerBehaviourManager.Instance.CanMove = true;
+        PlayerBehaviourManager.Instance.CanJump = true;
     }
 
     private void OnGlide()
@@ -109,7 +132,7 @@ public class GlideBehaviour : IBehaviour
     {
         if(controller.playerData.staminaCurrent <= 0)
         {
-            SwitchGlideState();
+            EndGlide();
         }
     }
 
@@ -118,12 +141,13 @@ public class GlideBehaviour : IBehaviour
         if (controller.isGrounded)
         {
             PlayerBehaviourManager.Instance.CanMove = true;
+            PlayerBehaviourManager.Instance.CanJump = true;
             PlayerBehaviourManager.Instance.CanAttack = true;
             PlayerBehaviourManager.Instance.CanBlock = true;
             PlayerBehaviourManager.Instance.CanUseSkill = true;
             PlayerBehaviourManager.Instance.CanDodge = true;
+
             controller.isGliding = false;
-            //animator.SetBool("Glide", false);
         }
         else
         {
