@@ -249,5 +249,7 @@ public enum QuestConditionType
     Collect,  // 아이템 수집
     Explore,  // 지역 탐험
     Kill,     // 몬스터 처치
-    Meet      // NPC 만남
+    Meet,      // NPC 만남
+    Enter,     // 지역 진입
+    Level      // 레벨 달성
 }

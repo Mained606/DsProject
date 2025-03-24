@@ -27,14 +27,13 @@ public class PlayerController : MonoBehaviour
     public bool isFreefall;
     public bool isJumping = false;
     public bool isClimb;
-    [SerializeField] private bool isGliding;
+    public bool isGliding;
     public bool isDodging = false;
     public bool isAttack;
     public bool isUseSkill;
     public bool isParry;
     //[SerializeField] private bool isHit;
     public bool isStunned;
-
 
     [Header("이동")]
     public Vector2 moveInput;
@@ -45,8 +44,9 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
     
     [Header("점프 / 중력")]
-    public float jumpHeight = 0.5f;
-    private float gravity = -9.81f;
+    public float jumpHeight = 20f;
+    private float normalGravity = -15f;
+    private float currentGravity;
     public Vector3 verticalVelocity;
     private float lastGroundHeight;
     [SerializeField] private float fallDamageThreshold = 5f;
@@ -59,7 +59,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float climbEndCheckOffset = 0.2f; // 절벽 끝 검사 오프셋
 
     [Header("글라이딩")]
-    [SerializeField] private float glidableHeight = 6f;
+    public float glideSpeed = 10f;
+    private float glideGravity = -9.81f;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 6.5f;
@@ -80,7 +81,6 @@ public class PlayerController : MonoBehaviour
     private float RecoveryTime = 1f;
 
     private Skills skill;
-
 
     #endregion
 
@@ -127,27 +127,14 @@ public class PlayerController : MonoBehaviour
         behaviour.CanJump = true;
         behaviour.CanDodge = true;
         //behaviour.CanClimb = true;
-
-        skill = SkillManager.Instance.GetSkill(EntityType.Player, "FireStrike");
     }
 
     private void Update()
     {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-        }
-        if (uiCheck)
+        // 게임 상태에 따른 플레이어 업데이트 로직 제어
+        if (ShouldDisablePlayerControl())
         {
             return;
-        }
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            skill.LevelUp();
-        }
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            skill.LevelDown();
         }
 
         // 치트
@@ -162,17 +149,18 @@ public class PlayerController : MonoBehaviour
         }
 
         RecoverStats();
-        AvoidKeyInput();
 
-        //DetectCliff();
-        //UpdateClimbState();
         if (!isDodging)
         {
             CheckCombatState();
         }
+    }
 
-        //CanGlidingCheck();
-        //OnGliding();
+    // 플레이어 컨트롤을 비활성화해야 하는지 확인
+    private bool ShouldDisablePlayerControl()
+    {
+        // InputManager를 통해 UI 관련 상태인지 확인
+        return InputManager.Instance.IsUIRelatedState(GameStateMachine.Instance.CurrentState);
     }
 
     #region ====================치트====================
@@ -253,7 +241,7 @@ public class PlayerController : MonoBehaviour
     public void UsingStamina()
     {
         if (cheatMode) return;  // 치트
-        if (isSprinting)
+        if (isSprinting || isGliding)
         {
             playerData.UseStamina(staminaUseAmount);
         }
@@ -262,7 +250,7 @@ public class PlayerController : MonoBehaviour
     // 플레이어 자원 회복 (현재 : 마나, 스태미나 회복)
     private void RecoverStats()
     {
-        if (!isSprinting)
+        if (!isSprinting && !isGliding)
         {
             playerData.RegenerateStamina();
             isRecovery = true;
@@ -283,7 +271,6 @@ public class PlayerController : MonoBehaviour
         isGrounded = characterController.isGrounded;
         if (!isGrounded && !isJumping)
         {
-            //Debug.Log("캐릭터가 공중에 뜸");
             RaycastHit hit;
             if(Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 1f, layerMask))
             {
@@ -296,10 +283,12 @@ public class PlayerController : MonoBehaviour
             }
         }
         playerAnimator.SetBool("Grounded", isGrounded);
+        PlayerBehaviourManager.Instance.CanGlide = !isGrounded;
     }
 
     public void ApplyGravity()
     {
+        GravityStateCheck();
         if (isGrounded)
         {
             if (isFreefall)
@@ -322,13 +311,15 @@ public class PlayerController : MonoBehaviour
         {
             if (isGliding)
             {
-                // TODO
+                isFreefall = false;
+                playerAnimator.SetBool("Freefall", false);
+                verticalVelocity.y = currentGravity * 0.1f;
             }
             else
             {
                 isFreefall = true;
                 playerAnimator.SetBool("Freefall", true);
-                verticalVelocity.y += gravity * 2.5f * Time.deltaTime;
+                verticalVelocity.y += currentGravity * 2.5f * Time.deltaTime;
             }
         }
     }
@@ -353,6 +344,19 @@ public class PlayerController : MonoBehaviour
         else
         {
             return false;
+        }
+    }
+
+    // 중력 상태
+    private void GravityStateCheck()
+    {
+        if (isGliding)
+        {
+            currentGravity = glideGravity;
+        }
+        else
+        {
+            currentGravity = normalGravity;
         }
     }
 
@@ -431,7 +435,6 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DashAttackRoutine()
     {
-
         Vector3 dashDirection = transform.forward;
         dashDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
@@ -446,24 +449,6 @@ public class PlayerController : MonoBehaviour
         behaviour.CanDodge = true;
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
-    }
-
-    public bool uiCheck = false;
-
-    // 키 활성화 변경
-    private void AvoidKeyInput()
-    {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-            InputManager.Instance.SetAllInputs(!uiCheck);
-            //SetActionStates(!uiCheck);
-            Debug.LogWarning($"uiCheck : {uiCheck}");
-        }
-        //InputManager.Instance.SetInputEnabled(CanMove, "Move");
-        //InputManager.Instance.SetInputEnabled(CanAttack, "Attack");
-        //InputManager.Instance.SetMultipleInputsEnabled(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
-        //InputManager.Instance.SetInputEnabled(CanBlock, "Block");
     }
 
     #region ---------------Climb---------------
@@ -795,21 +780,21 @@ public class PlayerController : MonoBehaviour
 
     #region ====================글라이딩====================
     // 글라이딩
-    private void CanGlidingCheck()
-    {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, glidableHeight))
-        {
-            //CanGliding = false;
-            Debug.DrawLine(transform.position, hit.point, Color.magenta);
-        }
-        else
-        {
-            if (!isGrounded && isFreefall)
-            {
-                //CanGliding = true;
-            }
-        }
-    }
+    //private void CanGlidingCheck()
+    //{
+    //    if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, glidableHeight))
+    //    {
+    //        //CanGliding = false;
+    //        Debug.DrawLine(transform.position, hit.point, Color.magenta);
+    //    }
+    //    else
+    //    {
+    //        if (!isGrounded && isFreefall)
+    //        {
+    //            //CanGliding = true;
+    //        }
+    //    }
+    //}
 
     //private void OnGliding()
     //{
