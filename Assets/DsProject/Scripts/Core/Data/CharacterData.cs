@@ -234,9 +234,10 @@ public class CharacterData : ISheetData
     }
 
     // 파생 스탯 계산
-    public virtual void UpdateDerivedStats()
+    public virtual void UpdateDerivedStats(bool updateCurrentValues = true)
     {
         // 기본 체력 및 MP 계산에 버프 보너스를 반영
+        int oldMaxHp = maxHp; // 이전 최대 체력 저장
         maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier) + hpBuffBonus;
         maxMp = Mathf.RoundToInt((intelligence * statModifier.mpMultiplier) +
                                (level * statModifier.levelMpBonus)); // MP는 버프 효과가 없다고 가정
@@ -263,18 +264,34 @@ public class CharacterData : ISheetData
         physicalDamageReduction = Mathf.Min(physicalDefense / (physicalDefense + 100), 0.5f);
         magicDamageReduction = Mathf.Min(magicDefense / (magicDefense + 100), 0.5f);
 
-        // 체력 증가 처리
-        if (maxHp > currentHp)
+        // 현재 값 업데이트 옵션이 true인 경우에만 체력 및 MP 증가 처리
+        if (updateCurrentValues)
         {
-            currentHp += maxHp - currentHp;
-            currentHp = Mathf.Clamp(currentHp, 0, maxHp); // 현재 체력은 최대 체력보다 크지 않게 설정
-        }
+            // 체력 증가 처리 (버프 적용 시)
+            if (maxHp > oldMaxHp)
+            {
+                // 현재 체력에 버프로 인한 증가량만큼 추가
+                int hpIncrease = maxHp - oldMaxHp;
+                currentHp += hpIncrease;
+                currentHp = Mathf.Clamp(currentHp, 0, maxHp);
+            }
+            // 체력 감소 처리 (버프 해제 시)
+            else if (maxHp < oldMaxHp)
+            {
+                // 현재 체력이 새로운 최대 체력을 초과하는 경우에만 조정
+                if (currentHp > maxHp)
+                {
+                    currentHp = maxHp;
+                }
+                // 현재 체력이 새로운 최대 체력보다 작은 경우에는 그대로 유지
+            }
 
-        // MP 증가 처리
-        if (maxMp > currentMp)
-        {
-            currentMp += maxMp - currentMp;
-            currentMp = Mathf.Clamp(currentMp, 0, maxMp); // 현재 MP는 최대 MP보다 크지 않게 설정
+            // MP 증가 처리
+            if (maxMp > currentMp)
+            {
+                currentMp += maxMp - currentMp;
+                currentMp = Mathf.Clamp(currentMp, 0, maxMp); // 현재 MP는 최대 MP보다 크지 않게 설정
+            }
         }
     }
 
