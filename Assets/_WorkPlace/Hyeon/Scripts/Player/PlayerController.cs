@@ -292,7 +292,7 @@ public class PlayerController : MonoBehaviour
         GravityStateCheck();
         if (isGrounded)
         {
-            if (isFreefall)
+            if (!isFreefall)
             {
                 float fallDistance = lastGroundHeight - transform.position.y;
 
@@ -301,6 +301,7 @@ public class PlayerController : MonoBehaviour
                     ApplyFallDamage(fallDistance);
                 }
             }
+
             isFreefall = false;
             playerAnimator.SetBool("Freefall", false);
             if (verticalVelocity.y < 0 && !isJumping)
