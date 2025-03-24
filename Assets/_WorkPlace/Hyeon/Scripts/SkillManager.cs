@@ -681,7 +681,9 @@ public class SkillManager : BaseManager<SkillManager>
                 StopCoroutine(existingBuff.coroutine);
             }
             activeBuffs.Remove(skillName);
-            targetCharacter.UpdateDerivedStats();
+            // 체력 업데이트 여부 결정 (체력 버프만 현재 체력 업데이트)
+            bool updateHp = skillName.Contains("Health") || skillName.Contains("HP");
+            targetCharacter.UpdateDerivedStats(updateHp);
         }
         
         // 엔티티 타입으로 스킬 가져오기
@@ -712,8 +714,9 @@ public class SkillManager : BaseManager<SkillManager>
         // 버프 효과 적용
         ApplyBuffEffect(entityType, skillName, targetCharacter);
         
-        // 버프 적용 후 스탯 업데이트
-        targetCharacter.UpdateDerivedStats();
+        // 버프 적용 후 스탯 업데이트 (체력 버프만 현재 체력 업데이트)
+        bool updateCurrentHp = skillName.Contains("Health") || skillName.Contains("HP");
+        targetCharacter.UpdateDerivedStats(updateCurrentHp);
         
         // 버프 종료 코루틴 시작 - buffDuration을 전달
         newBuffInfo.coroutine = StartCoroutine(RemoveBuff(entityType, skillName, buffDuration, targetCharacter));
@@ -730,6 +733,8 @@ public class SkillManager : BaseManager<SkillManager>
 
     private void ApplyBuffEffect(EntityType entityType, string skillName, CharacterData targetCharacter)
     {
+        if (targetCharacter == null) return;
+
         // 엔티티 타입으로 스킬 가져오기
         Skills skill = GetSkill(entityType, skillName);
         
@@ -746,7 +751,7 @@ public class SkillManager : BaseManager<SkillManager>
             // 체력 버프
             int healthBonus = activeBuffs[skillName].originalHpBonus + (int)skill.buffValue;
             targetCharacter.hpBuffBonus = healthBonus;
-            targetCharacter.currentHp = Mathf.Min(targetCharacter.currentHp + (int)skill.buffValue, targetCharacter.maxHp);
+            // 현재 체력은 UpdateDerivedStats에서 처리하므로 여기서는 수정하지 않음
         }
         else if (skillName.Contains("Physical") || skillName.Contains("물리"))
         {
@@ -821,12 +826,18 @@ public class SkillManager : BaseManager<SkillManager>
         
         // 버프 효과 제거 및 스탯 업데이트
         RemoveBuffEffect(entityType, skillName, targetCharacter);
-        targetCharacter.UpdateDerivedStats();
         
-        // 체력 제한
-        if (targetCharacter.maxHp < targetCharacter.currentHp)
+        // 체력 버프만 현재 체력 업데이트 (다른 버프에서는 체력 회복이 안되게)
+        bool updateCurrentHp = skillName.Contains("Health") || skillName.Contains("HP");
+        targetCharacter.UpdateDerivedStats(updateCurrentHp);
+        
+        // 체력 제한 - 체력 버프일 경우에만 체력 제한 적용
+        if (skillName.Contains("Health") || skillName.Contains("HP"))
         {
-            targetCharacter.currentHp = targetCharacter.maxHp;
+            if (targetCharacter.maxHp < targetCharacter.currentHp)
+            {
+                targetCharacter.currentHp = targetCharacter.maxHp;
+            }
         }
         
         // 스킬 객체 찾기
