@@ -7,24 +7,24 @@ AvatarMask:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: New Avatar Mask
-  m_Mask: 00000000010000000100000000000000000000000100000001000000000000000000000000000000000000000000000000000000
+  m_Mask: 00000000010000000100000000000000000000000100000001000000010000000100000000000000000000000100000001000000
   m_Elements:
   - m_Path: 
     m_Weight: 1
   - m_Path: 5_+Eyes (Normal).Eyes normal_1_0_0
     m_Weight: 1
   - m_Path: 5_+Neckpiece/Hood.hood_1_0_0
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: 5_+Neckpiece/Hood.neckpiece_1_0_0
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: 5_arms_1_0_0
     m_Weight: 1
   - m_Path: 5_body_1_0_0
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: 5_face_1_0_0
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: 5_hair_1_0_0
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: 7_eyeshadow_1_0_0
     m_Weight: 1
   - m_Path: Armature
@@ -34,7 +34,7 @@ AvatarMask:
   - m_Path: Armature/root ground/root hips
     m_Weight: 1
   - m_Path: Armature/root ground/root hips/spine lower
-    m_Weight: 1
+    m_Weight: 0
   - m_Path: Armature/root ground/root hips/spine lower/spine upper
     m_Weight: 1
   - m_Path: Armature/root ground/root hips/spine lower/spine upper/arm left shoulder

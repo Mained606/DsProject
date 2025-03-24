@@ -31,9 +31,9 @@ public class ItemSkill
     public float debuffValue;
     // ----------------------------
 
-    [Header("방어구 속성 저항.. 쓸지 안쓸지 모르겠음")]
+    [Header("방어구 속성 저항(비율 적용) - 쓸지 안쓸지 모름")]
     public ElementalAttribute resistance;    //저항 속성
-    public float resistantAmount;            //저항 수치
+    public float resistantRate;                //저항 비율
 
     //속성, 레벨, 아이템 등급 적용한 강화 수치
     public float ApplyPower(Item item)
@@ -131,7 +131,7 @@ public class ItemSkill
 
     //등급에 따른 파워 배율
     //수치 조정 예정
-    private float ApplyGradeMultiplier(Item item)
+    public float ApplyGradeMultiplier(Item item)
     {
         switch(item.grade)
         {

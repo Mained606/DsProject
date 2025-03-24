@@ -1,6 +1,6 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -42,6 +42,9 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
             PlayWeaponParticle(ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손));
         }
     }
+
+    private event Action<int> onLevelChangedHandler;
+
 
 
     //속성 공격
@@ -90,22 +93,31 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         }
     }
 
-    //속성 저항 값
-    public float ElementResistantAmount(Item item, CharacterData enemy)
+    //속성 저항 계산(비율)
+    public float ApplyElementalResistance(Item item, CharacterData enemy)
     {
-        if (item.itemSkill == null) return 0;
+        if (item.type != ItemType.방어구) return 0f;
+        if (item.itemSkill.resistance == ElementalAttribute.None) return 0f;
 
-        float reductionDamage = 0;
-
-        if (item.type == ItemType.방어구 && item.itemSkill.resistance != ElementalAttribute.None)
+        float reductionRate = 0f;
+        
+        if(enemy.attribute == item.itemSkill.resistance)
         {
-            if(enemy.attribute == item.itemSkill.resistance)
-            {
-                reductionDamage = item.itemSkill.resistantAmount;
-            }
+            //기본 아이템 저항 비율
+            reductionRate = item.itemSkill.resistantRate;
+
+            //등급 적용
+            reductionRate *= item.itemSkill.ApplyGradeMultiplier(item);
+
+            //레벨 적용
+            float levelBonus = Mathf.Clamp(1 + item.itemSkill.Level * 0.02f, 1f, 1.5f);
+            reductionRate *= levelBonus;
+
+            //최대 저항율 제한
+            reductionRate = Mathf.Clamp(reductionRate, 0f, 0.8f);
         }
 
-        return reductionDamage;
+        return reductionRate;
     }
 
     //ComboAttackState에서 호출할 함수
@@ -139,7 +151,8 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         if(item.itemSkill != null)
         {
-            item.itemSkill.OnLevelChanged += level => ApplyLevelEffect(item, WeaponTransform, level);
+            onLevelChangedHandler = level => ApplyLevelEffect(item, WeaponTransform, level);
+            item.itemSkill.OnLevelChanged += onLevelChangedHandler;
         }
 
         if (WeaponTransform != null)
@@ -167,9 +180,10 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
 
         ActiveEffect(item, false);
 
-        if(item.itemSkill != null)
+        if(item.itemSkill != null && onLevelChangedHandler != null)
         {
-            item.itemSkill.OnLevelChanged -= level => ApplyLevelEffect(item, WeaponTransform, level);
+            item.itemSkill.OnLevelChanged -= onLevelChangedHandler;
+            onLevelChangedHandler = null;
         }
     }
 
