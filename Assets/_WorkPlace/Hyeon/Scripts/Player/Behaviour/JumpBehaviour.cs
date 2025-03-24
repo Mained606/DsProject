@@ -27,7 +27,7 @@ public class JumpBehaviour : IBehaviour
             GroundedCheck();
         }
 
-        if (InputManager.InputActions.actions["Jump"].triggered && !controller.isJumping && !controller.isGliding)
+        if (InputManager.InputActions.actions["Jump"].triggered && !controller.isJumping && !controller.isGliding && !controller.isFreefall)
         {
             PlayerBehaviourManager.Instance.CanAttack = false;
             PlayerBehaviourManager.Instance.CanBlock = false;

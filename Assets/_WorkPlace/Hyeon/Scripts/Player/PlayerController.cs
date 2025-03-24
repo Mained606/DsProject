@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("글라이딩")]
     public float glideSpeed = 10f;
-    private float glideGravity = -9.81f;
+    private float glideGravity = -15f;
     public GameObject wings;
 
     [Header("닷지")]
