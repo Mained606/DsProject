@@ -16,7 +16,7 @@ public class TestCraft : MonoBehaviour
         if (InputManager.InputActions.actions["Interact"].triggered)
         {
             //CookingManager.Instance.AddIngredient(InventoryManager.InventoryList[index]);
-            Debug.Log(InventoryManager.Instance.selectedItem.name);
+            //Debug.Log(InventoryManager.Instance.selectedItem.name);
         }
 
         if (InputManager.InputActions.actions["SkillUI"].triggered)

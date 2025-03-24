@@ -35,6 +35,9 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject cookingUI;
     [SerializeField] private GameObject skillUI;
 
+    // UI 요소를 타입별로 관리하기 위한 딕셔너리
+    private Dictionary<GameSystemState, GameObject> uiStateMap;
+
     private PickUpItemTextDisplay pickUpItemTextDisplay;
     public GameObject DisplaySpeechWindow => dialogWindow;
     public GameObject MainTitleButton => mainTitleButton;
@@ -55,20 +58,62 @@ public class UIManager : BaseManager<UIManager>
     public static SkillUI SkillUI;
 
     // ========== 250312 SH 추가 ==========
-    public static SkillQuickSlotUI SkillsQuickSlot;
+    public static SkillsUI SkillsQuickSlot;
     // ========== 250312 SH 추가 ==========
     
+    private Coroutine infoMessageCoroutine; // 코루틴 추가부분
 
     protected override void OnEnable()
     {
         base.OnEnable();
+        
+        // 컴포넌트 참조 초기화
+        InitializeComponents();
+        
+        // UI 상태 맵 초기화
+        InitializeUIStateMap();
+        
+        // 초기 UI 상태 설정
+        SetInitialUIState();
+    }
+
+    private void InitializeComponents()
+    {
         pickUpItemTextDisplay = GetComponent<PickUpItemTextDisplay>();
         InventoryUI = inventoryUI.GetComponent<InventoryUI>();
         Quest_UI = questWindow.GetComponent<QuestUI>();
         MainButtonUI = mainTitleButton.GetComponent<MainButtonUI>();
         InteractPopupUI = interactTextUI.GetComponent<InteractPopupUI>();
+        HistoryManager = new HistoryManager();
+        HistoryUI = historyLog.GetComponent<HistoryUI>();
+        HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
+        ShopUI = shopUI.GetComponent<ShopUI>();
+        dialogUI = dialogWindow.GetComponent<DialogUI>();
+        SkillsQuickSlot = skillQuickSlot.GetComponent<SkillsUI>();
+        CookingUI = cookingUI.GetComponent<CookingUI>();
+        SkillUI = skillUI.GetComponent<SkillUI>();
+    }
+
+    private void InitializeUIStateMap()
+    {
+        uiStateMap = new Dictionary<GameSystemState, GameObject>
+        {
+            { GameSystemState.Inventory, inventoryUI },
+            { GameSystemState.QuestReview, questWindow },
+            { GameSystemState.StatusUI, characterStaus },
+            { GameSystemState.Shopping, shopUI },
+            { GameSystemState.DialogueState, dialogWindow },
+            { GameSystemState.Cook, cookingUI },
+            { GameSystemState.Skill, skillUI }
+        };
+    }
+
+    private void SetInitialUIState()
+    {
         mainCanvas.SetActive(true);
         mainTitleButton.SetActive(true);
+        
+        // 모든 UI 요소 비활성화
         dialogWindow.SetActive(false);
         questWindow.SetActive(false);
         shopUI.SetActive(false);
@@ -78,21 +123,8 @@ public class UIManager : BaseManager<UIManager>
         InventorytooltipWindow.SetActive(false);
         characterStaus.SetActive(false);
         bossHud.SetActive(false);
-
-        // 03.13 C
         cookingUI.SetActive(false);
         skillUI.SetActive(false);
-
-        HistoryManager = new HistoryManager();
-        HistoryUI = historyLog.GetComponent<HistoryUI>();
-        HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
-        ShopUI = shopUI.GetComponent<ShopUI>();
-        dialogUI = dialogWindow.GetComponent<DialogUI>();
-        SkillsQuickSlot = skillQuickSlot.GetComponent<SkillQuickSlotUI>();
-
-        // 03.13 C 
-        CookingUI = cookingUI.GetComponent<CookingUI>();
-        SkillUI = skillUI.GetComponent<SkillUI>();
     }
 
     private void Update()
@@ -102,7 +134,6 @@ public class UIManager : BaseManager<UIManager>
 
     private void CheckInputStat()
     {
-        // if (IsUIWindowOpen() || IsPointerOverUI())
         if (IsUIWindowOpen())
         {
             InputManager.InputActions.actions["Interact"].Disable();
@@ -112,6 +143,7 @@ public class UIManager : BaseManager<UIManager>
             InputManager.InputActions.actions["Interact"].Enable();
             InputManager.InputActions.actions["Move"].Enable();
         }
+        
         if (infoMessageWindow.activeSelf && Input.GetMouseButtonDown(1))
         {
             ToggleinfoMessageWindow("");
@@ -130,7 +162,69 @@ public class UIManager : BaseManager<UIManager>
         return results.Count > 0;
     }
 
-    public void ToggleDialog( bool isOn = false)
+    // UI 창 토글 메서드 통합
+    public void ToggleUIWindow(GameSystemState uiState, object additionalData = null)
+    {
+        if (!uiStateMap.TryGetValue(uiState, out GameObject uiWindow))
+        {
+            Debug.LogWarning($"UI 창을 찾을 수 없음: {uiState}");
+            return;
+        }
+
+        bool activateUI = !uiWindow.activeSelf;
+        
+        // 특정 UI에 대한 추가 처리
+        if (activateUI && uiState == GameSystemState.Shopping)
+        {
+            NPCData npcData = additionalData as NPCData;
+            if (npcData != null) ShopUI.SetShopInfo(npcData);
+        }
+        
+        // 활성화/비활성화 설정
+        uiWindow.SetActive(activateUI);
+        
+        // 메인 캔버스 및 관련 UI 상태 업데이트
+        UpdateMainCanvasState(activateUI, uiState);
+        
+        // 퀵슬롯 상태 업데이트
+        UpdateQuickSlotState(activateUI, uiState);
+    }
+
+    private void UpdateMainCanvasState(bool activateUI, GameSystemState uiState)
+    {
+        // 대화창은 메인 캔버스와 상호 배타적
+        if (uiState == GameSystemState.DialogueState)
+        {
+            mainCanvas.SetActive(!activateUI);
+            return;
+        }
+        
+        // 기본적으로는 메인 캔버스와 메인 버튼 UI는 UI 창과 상호 배타적
+        mainCanvas.SetActive(!activateUI);
+        MainButtonUI.gameObject.SetActive(!activateUI);
+    }
+
+    private void UpdateQuickSlotState(bool activateUI, GameSystemState uiState)
+    {
+        // 쇼핑 UI는 퀵슬롯 비활성화
+        if (uiState == GameSystemState.Shopping)
+        {
+            quickSlot.SetActive(false);
+            return;
+        }
+        
+        // 대화창은 퀵슬롯 비활성화
+        if (uiState == GameSystemState.DialogueState)
+        {
+            quickSlot.SetActive(false);
+            return;
+        }
+        
+        // 기본적으로는 메인 캔버스가 활성화될 때 퀵슬롯도 활성화
+        quickSlot.SetActive(!activateUI ? true : false);
+    }
+
+    public void ToggleDialog(bool isOn = false)
     {
         if (isOn)
         {
@@ -140,9 +234,7 @@ public class UIManager : BaseManager<UIManager>
         }
         else
         {
-            dialogWindow.SetActive(!dialogWindow.activeSelf);
-            mainCanvas.SetActive(!mainCanvas.activeSelf);
-            quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
+            ToggleUIWindow(GameSystemState.DialogueState);
         }
     }
 
@@ -155,66 +247,37 @@ public class UIManager : BaseManager<UIManager>
 
     public void ToggleInventory()
     {
-
-        inventoryUI.gameObject.SetActive(!inventoryUI.gameObject.activeSelf);
-        mainCanvas.SetActive(!mainCanvas.activeSelf);
-        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
-        quickSlot.SetActive(true);
+        ToggleUIWindow(GameSystemState.Inventory);
     }
 
-        public void ToggleQuestWindow()
+    public void ToggleQuestWindow()
     {
-        questWindow.gameObject.SetActive(!questWindow.gameObject.activeSelf);
-        mainCanvas.SetActive(!mainCanvas.activeSelf);
-        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
-        quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
+        ToggleUIWindow(GameSystemState.QuestReview);
     }
 
     public void ToggleStatusWindow()
     {
-        characterStaus.gameObject.SetActive(!characterStaus.gameObject.activeSelf);
-        mainCanvas.SetActive(!mainCanvas.activeSelf);
-        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
-        quickSlot.SetActive(mainCanvas.activeSelf ? true : false);
+        ToggleUIWindow(GameSystemState.StatusUI);
     }
 
     public void ToggleShopWindow(NPCData nPCData)
     {
-        shopUI.gameObject.SetActive(!shopUI.gameObject.activeSelf);
-        mainCanvas.SetActive(!mainCanvas.activeSelf);
-        //MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
-        quickSlot.SetActive(false);
-        if (shopUI.gameObject.activeSelf) ShopUI.SetShopInfo(nPCData);
+        ToggleUIWindow(GameSystemState.Shopping, nPCData);
     }
 
     // 03.13 C
     public void ToggleCookingUIWindow()
     {
-        cookingUI.gameObject.SetActive(!cookingUI.gameObject.activeSelf);
-        mainCanvas.SetActive(!mainCanvas.activeSelf);
-        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
-        quickSlot.SetActive(true);
+        ToggleUIWindow(GameSystemState.Cook);
     }
+    
     public void ToggleSkillUIWindow()
     {
-        skillUI.gameObject.SetActive(!cookingUI.gameObject.activeSelf);
-        mainCanvas.SetActive(!mainCanvas.activeSelf);
-        MainButtonUI.gameObject.SetActive(!MainButtonUI.gameObject.activeSelf);
-        quickSlot.SetActive(true);
+        ToggleUIWindow(GameSystemState.Skill);
     }
-
-    private Coroutine infoMessageCoroutine; // 코루틴 추가부분 
 
     public void ToggleinfoMessageWindow(string message)
     {
-        #region 기존 인포메시지 로직
-      /*  infoMessageWindow.gameObject.SetActive(!infoMessageWindow.gameObject.activeSelf);
-        if (infoMessageWindow.gameObject.activeSelf)
-        {
-            infoMessageWindow.transform.GetComponentInChildren<TextMeshProUGUI>().text = message;
-        }*/
-        #endregion
-
         bool isActive = !infoMessageWindow.gameObject.activeSelf;
         infoMessageWindow.gameObject.SetActive(isActive);
 
@@ -231,7 +294,6 @@ public class UIManager : BaseManager<UIManager>
             // 2초 후 창을 자동으로 닫는 코루틴 실행
             infoMessageCoroutine = StartCoroutine(AutoHideInfoMessage());
         }
-
     }
 
     // 코루틴 
@@ -350,76 +412,6 @@ public class UIManager : BaseManager<UIManager>
         bossHud.SetActive(isOnOff && bossData != null);
     }
 
-    #region 구 퀘스트 구현부분
-    //public void DisplayQuestDialogWindow(string title, Quest quest)
-    //{
-    //    if (dialogWindow == null)
-    //    {
-    //        return;
-    //    }
-
-    //    dialogWindow.SetActive(true);
-    //    mainCanvas.SetActive(false);
-
-    //    TextMeshProUGUI[] subDisplay = dialogWindow.GetComponentsInChildren<TextMeshProUGUI>(includeInactive: true);
-    //    Button acceptButton = dialogWindow.GetComponentInChildren<Button>(includeInactive: true);
-
-    //    if (subDisplay.Length < 2)
-    //    {
-    //        Debug.LogError("텍스트 박스가 없습니다.");
-    //        return;
-    //    }
-
-    //    acceptButton.onClick.RemoveAllListeners();
-    //    subDisplay[0].text = title;
-
-    //    if (quest.isCompleted)
-    //    {
-    //        SetupDialog(
-    //            acceptButton,
-    //            subDisplay[1],
-    //            "보상수령",
-    //            "감사합니다! 퀘스트 완료에 따른 보상을 지급하겠습니다.",
-    //            () => HandleQuest(quest, true)
-    //        );
-    //    }
-    //    else
-    //    {
-    //        bool isQuestInProgress = QuestManager.QuestDatabase.Contains(quest);
-    //        bool canAccept = !isQuestInProgress && quest.acceptCount < 3;
-
-    //        SetupDialog(
-    //            acceptButton,
-    //            subDisplay[1],
-    //            canAccept ? "수락" : "닫기",
-    //            canAccept ? quest.description : "퀘스트를 완료하고 다시 찾아주세요.",
-    //            () => HandleQuest(quest, canAccept)
-    //        );
-    //    }
-    //}
-
-    //private void SetupDialog(Button button, TextMeshProUGUI display, string buttonText, string message, UnityEngine.Events.UnityAction onClickAction)
-    //{
-    //    button.GetComponentInChildren<TextMeshProUGUI>().text = buttonText;
-    //    button.onClick.AddListener(onClickAction);
-    //    StartCoroutine(AnimateText(button, display, message));
-    //}
-
-    //private IEnumerator AnimateText(Button button, TextMeshProUGUI display, string message, float delay = 0.05f)
-    //{
-    //    button.gameObject.SetActive(false);
-    //    display.text = "";
-    //    foreach (char c in message)
-    //    {
-    //        string key = c.ToString().ToUpper();
-    //        display.text += c;
-    //        yield return new WaitForSeconds(delay);
-    //    }
-    //    yield return new WaitForSeconds(0.5f);
-    //    button.gameObject.SetActive(true);
-    //}
-    #endregion
-
     private void HandleQuest(Quest quest, bool state)
     {
         if (state)
@@ -459,17 +451,15 @@ public class UIManager : BaseManager<UIManager>
         mainCanvas.SetActive(true);
         quickSlot.SetActive(true);
         MainButtonUI.gameObject.SetActive(true);
-        dialogWindow.SetActive(false);
-        questWindow.SetActive(false);
-        characterStaus.SetActive(false);
-        shopUI.SetActive(false);
+        
+        // 모든 UI 창 비활성화
+        foreach (var uiWindow in uiStateMap.Values)
+        {
+            uiWindow.SetActive(false);
+        }
+        
         infoMessageWindow.SetActive(false);
-        inventoryUI.gameObject.SetActive(false);
         historyWindow.gameObject.SetActive(false);
-
-        // 03.13 C
-        cookingUI.gameObject.SetActive(false);
-        skillUI.gameObject.SetActive(false);
 
         if (InventorytooltipWindow.activeSelf)
         {
@@ -504,20 +494,31 @@ public class UIManager : BaseManager<UIManager>
 
     public bool IsUIWindowOpen()
     {
-        return shopUI.activeSelf || characterStaus.activeSelf || dialogWindow.activeSelf || questWindow.activeSelf || 
-            inventoryUI.gameObject.activeSelf || historyWindow.gameObject.activeSelf || infoMessageWindow.gameObject.activeSelf ||
-            cookingUI.activeSelf || skillUI.activeSelf;
+        // UI 상태 맵의 값들 중 하나라도 활성화되어 있는지 확인
+        foreach (var uiWindow in uiStateMap.Values)
+        {
+            if (uiWindow.activeSelf)
+                return true;
+        }
+        
+        // 다른 UI 창들도 확인
+        return historyWindow.gameObject.activeSelf || infoMessageWindow.gameObject.activeSelf;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-        if (newState != GameSystemState.InfoMessage) UIClose();
-        #region Delete
+        // 현재 UI 상태를 InputManager에 알려줌
+        bool isUIState = InputManager.Instance.IsUIRelatedState(newState);
+        
+        // InfoMessage 상태가 아니면 모든 UI 닫기
+        if (newState != GameSystemState.InfoMessage)
+            UIClose();
 
+        // 각 상태에 따른 처리
         switch (newState)
         {
             case GameSystemState.MainMenu:
-                UIClose();
+                // 이미 UIClose()에서 처리됨
                 break;
             case GameSystemState.Inventory:
                 ToggleInventory();
@@ -536,11 +537,6 @@ public class UIManager : BaseManager<UIManager>
                 string message = additionalData as string;
                 ToggleinfoMessageWindow(message);
                 break;
-            case GameSystemState.BossBattle:
-                break;
-            case GameSystemState.Exploration:
-                break;
-
             case GameSystemState.Cook:
                 ToggleCookingUIWindow();
                 break;
@@ -548,7 +544,16 @@ public class UIManager : BaseManager<UIManager>
                 ToggleSkillUIWindow();
                 break;
         }
-        #endregion
+        
+        // InputManager에게 UI 상태 변경 알림
+        if (isUIState)
+        {
+            InputManager.Instance.SetGameplayInputsEnabled(false);
+        }
+        else
+        {
+            InputManager.Instance.SetGameplayInputsEnabled(true);
+        }
     }
 
     private readonly Dictionary<MessageTag, string> tagColors = new Dictionary<MessageTag, string>

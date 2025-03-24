@@ -37,8 +37,9 @@ public class InventoryUI : MonoBehaviour
 
     private void OnDisable()
     {
+        //강화 테스트용
         //03.12 Hj 추가
-        InventoryManager.Instance.ResetSelectedItem();
+        //InventoryManager.Instance.ResetSelectedItem();
 
         RemoveButtonListeners();
     }

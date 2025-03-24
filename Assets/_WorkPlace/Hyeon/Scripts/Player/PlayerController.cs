@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
     [Header("글라이딩")]
     public float glideSpeed = 10f;
     private float glideGravity = -9.81f;
+    public GameObject wings;
 
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 6.5f;
@@ -81,7 +82,6 @@ public class PlayerController : MonoBehaviour
     private float RecoveryTime = 1f;
 
     private Skills skill;
-
 
     #endregion
 
@@ -132,11 +132,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-        }
-        if (uiCheck)
+        // 게임 상태에 따른 플레이어 업데이트 로직 제어
+        if (ShouldDisablePlayerControl())
         {
             return;
         }
@@ -153,12 +150,18 @@ public class PlayerController : MonoBehaviour
         }
 
         RecoverStats();
-        AvoidKeyInput();
 
         if (!isDodging)
         {
             CheckCombatState();
         }
+    }
+
+    // 플레이어 컨트롤을 비활성화해야 하는지 확인
+    private bool ShouldDisablePlayerControl()
+    {
+        // InputManager를 통해 UI 관련 상태인지 확인
+        return InputManager.Instance.IsUIRelatedState(GameStateMachine.Instance.CurrentState);
     }
 
     #region ====================치트====================
@@ -289,7 +292,7 @@ public class PlayerController : MonoBehaviour
         GravityStateCheck();
         if (isGrounded)
         {
-            if (isFreefall)
+            if (!isFreefall)
             {
                 float fallDistance = lastGroundHeight - transform.position.y;
 
@@ -298,9 +301,10 @@ public class PlayerController : MonoBehaviour
                     ApplyFallDamage(fallDistance);
                 }
             }
+
             isFreefall = false;
             playerAnimator.SetBool("Freefall", false);
-            if (verticalVelocity.y < 0)
+            if (verticalVelocity.y < 0 && !isJumping)
             {
                 verticalVelocity.y = -2f;
             }
@@ -433,7 +437,6 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator DashAttackRoutine()
     {
-
         Vector3 dashDirection = transform.forward;
         dashDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
@@ -448,24 +451,6 @@ public class PlayerController : MonoBehaviour
         behaviour.CanDodge = true;
         playerAnimator.SetBool("Sprint", false);
         playerAnimator.SetFloat("Speed", 0);
-    }
-
-    public bool uiCheck = false;
-
-    // 키 활성화 변경
-    private void AvoidKeyInput()
-    {
-        if (uiCheck != UIManager.Instance.IsUIWindowOpen())
-        {
-            uiCheck = UIManager.Instance.IsUIWindowOpen();
-            InputManager.Instance.SetAllInputs(!uiCheck);
-            //SetActionStates(!uiCheck);
-            Debug.LogWarning($"uiCheck : {uiCheck}");
-        }
-        //InputManager.Instance.SetInputEnabled(CanMove, "Move");
-        //InputManager.Instance.SetInputEnabled(CanAttack, "Attack");
-        //InputManager.Instance.SetMultipleInputsEnabled(CanUseSkill, "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3");
-        //InputManager.Instance.SetInputEnabled(CanBlock, "Block");
     }
 
     #region ---------------Climb---------------

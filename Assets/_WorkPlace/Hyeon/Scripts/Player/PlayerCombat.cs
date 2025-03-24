@@ -52,10 +52,10 @@ public class PlayerCombat : MonoBehaviour
 
     private void Update()
     {
-        if (controller.uiCheck) return;
-
         SkillFinishedCheck();
         ParryFinishedCheck();
+
+        if (UIManager.Instance.IsUIWindowOpen()) return;
     }
 
     // 현재 콤보진행상태 받아보는 함수 의미 없음.

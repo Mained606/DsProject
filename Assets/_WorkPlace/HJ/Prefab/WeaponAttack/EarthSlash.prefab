@@ -146,6 +146,9 @@ VisualEffect:
       - m_Value: 0.15
         m_Name: BrightSlashSize
         m_Overridden: 1
+      - m_Value: 1.2
+        m_Name: ParticlesSize
+        m_Overridden: 1
     m_Vector2f:
       m_Array:
       - m_Value: {x: 2, y: 2}
