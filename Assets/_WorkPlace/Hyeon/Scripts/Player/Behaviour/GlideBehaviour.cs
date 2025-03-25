@@ -83,6 +83,7 @@ public class GlideBehaviour : IBehaviour
     private void StartGilde()
     {
         controller.isGliding = true;
+        animator.SetBool("Glide", true);
         if (controller.isJumping)
         {
             //controller.isJumping = false;
@@ -98,6 +99,7 @@ public class GlideBehaviour : IBehaviour
     private void EndGlide()
     {
         controller.isGliding = false;
+        animator.SetBool("Glide", false);
         if (wings.activeSelf)
         {
             wings.SetActive(false);
@@ -150,7 +152,7 @@ public class GlideBehaviour : IBehaviour
             PlayerBehaviourManager.Instance.CanUseSkill = true;
             PlayerBehaviourManager.Instance.CanDodge = true;
 
-            controller.isGliding = false;
+            EndGlide();
         }
         else
         {
