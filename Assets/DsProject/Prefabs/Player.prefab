@@ -8975,6 +8975,7 @@ MonoBehaviour:
   climbRange: 1
   climbEndCheckOffset: 0.7
   glideSpeed: 12
+  wings: {fileID: 2430454198518691932}
   dodgeDist: 6.5
   dodgeDuration: 0.67
   dashAttackDuration: 0.5
@@ -12487,6 +12488,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7986ea1b0e8a8f142886bffbd5776520, type: 3}
+--- !u!1 &2430454198518691932 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6285928816946605671, guid: 7986ea1b0e8a8f142886bffbd5776520, type: 3}
+  m_PrefabInstance: {fileID: 8540706995423827515}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8517009810495324776 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 50894809211671635, guid: 7986ea1b0e8a8f142886bffbd5776520, type: 3}
