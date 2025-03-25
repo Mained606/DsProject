@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class ActivityNpc : MonoBehaviour
@@ -12,8 +13,8 @@ public class ActivityNpc : MonoBehaviour
     private static readonly int WalkingState = Animator.StringToHash("IsWalking");
     private static readonly int TalkingState = Animator.StringToHash("IsTalking");
     private static readonly int TerrifyingState = Animator.StringToHash("IsTerrifying");
+    private static readonly int AnimationSpeed = Animator.StringToHash("Speed");
     private static readonly int ExitTrigger = Animator.StringToHash("ExitTrigger");
-    private static readonly int WipeSweatTrigger = Animator.StringToHash("WipeSweatTrigger");
 
     [Header("Sitting Setting")]
     [SerializeField] private bool isNearNpc = false;
@@ -28,11 +29,21 @@ public class ActivityNpc : MonoBehaviour
     [SerializeField] private Transform targetNpc;
     [SerializeField] private float npcDistance = 100f;
     [SerializeField] private float monsterDistnace = 20f;
+    [SerializeField] private float fleeDistance = 10f;
     [SerializeField] private float moveSpeed = 3f;
+    [SerializeField] private float minSpeed = 3f;
+    [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private float turnSpeed = 10f;
+
     [SerializeField] private bool isNearMonster = false;
     [SerializeField] private bool isMoving = false;
     [SerializeField] private bool isStart = false;
+    public bool IsNearMonster
+    {
+        get => isNearMonster;
+        private set => isNearMonster = value;
+    }
+
     public bool IsMoving
     {
         get => isMoving;
@@ -64,8 +75,8 @@ public class ActivityNpc : MonoBehaviour
     private Coroutine currentCoroutine;
     private System.Func<IEnumerator> defaultRoutineFactory;
     [SerializeField] private GameObject tool;
-    private string[] commonTriggers = { "ArmStretching", "NeckStretching", "LookAround" };
-    [SerializeField] private float repeatTriggerChance = 0.7f;
+    private string[] commonTriggers = { "ArmStretching", "NeckStretching", "LookAround", "WipeSweatTrigger" };
+    //[SerializeField] private float repeatTriggerChance = 0.7f;
 
     private void Start()
     {
@@ -117,12 +128,23 @@ public class ActivityNpc : MonoBehaviour
                 MoveToWards(targetPosition);
 
             float distance = Vector3.Distance(transform.position, originalPosition);
-            if(distance <= 1f && !isStart)
+            if(distance <= 1f && !isStart && !isNearMonster)
             {
                 IsMoving = false;
                 StopCurrentAction();
                 StartCoroutine(LookAtTarget(originalPosition));
                 currentCoroutine = StartCoroutine(defaultRoutineFactory());
+            }
+
+            if(isNearMonster)
+            {
+                distance = Vector3.Distance(transform.position, targetPosition);
+                if(distance <= 1f)
+                {
+                    IsMoving = false;
+                    StopCurrentAction();
+                    StartCoroutine(StartTerrifying());
+                }
             }
         }
     }
@@ -153,10 +175,12 @@ public class ActivityNpc : MonoBehaviour
 
         if(other.CompareTag("Monster") && isNearMonster == false)
         {
+            Debug.Log("몬스터 닿음");
             if(targetNpc) targetNpc = null;
-            isNearMonster = true;
+            IsNearMonster = true;
             StopCurrentAction();
-            StartCoroutine(StartTerrifying());
+
+            RunAway(other.transform);
         }
     }
 
@@ -267,41 +291,13 @@ public class ActivityNpc : MonoBehaviour
         }
         else
         {
-            string trigger = PlayRandomTrigger(commonTriggers, true);
-            float clipLength = GetClipLengthFromTrigger(trigger);
-
-            while (Random.value < repeatTriggerChance)
-            {
-                yield return new WaitForSeconds(clipLength);
-
-                trigger = PlayRandomTrigger(commonTriggers);
-                clipLength = GetClipLengthFromTrigger(trigger);
-            }
+            PlayRandomTrigger(commonTriggers);
         }
     }
 
-    private float GetClipLengthFromTrigger(string triggerName)
+    private void PlayRandomTrigger(string[] triggers)
     {
-        if (animator == null) return 0f;
-
-        // 현재 연결된 AnimatorController 가져오기
-        RuntimeAnimatorController controller = animator.runtimeAnimatorController;
-
-        foreach (AnimationClip clip in controller.animationClips)
-        {
-            if (clip.name == triggerName) // 트리거와 같은 이름을 가진 애니메이션 클립 찾기
-            {
-                return clip.length;
-            }
-        }
-
-        return 0f; // 찾지 못한 경우
-    }
-
-    private string PlayRandomTrigger(string[] triggers, bool returnTrigger = false)
-    {
-        if (triggers == null || triggers.Length == 0)
-            return null;
+        if (triggers == null || triggers.Length == 0) return;
 
         int randomIndex = Random.Range(0, triggers.Length);
         string randomTrigger = triggers[randomIndex];
@@ -309,12 +305,7 @@ public class ActivityNpc : MonoBehaviour
         if (!string.IsNullOrEmpty(randomTrigger))
         {
             animator.SetTrigger(randomTrigger);
-
-            if (returnTrigger)
-                return randomTrigger;
         }
-
-        return null;
     }
 
     private void SittingAtBench(Bench bench)
@@ -343,12 +334,14 @@ public class ActivityNpc : MonoBehaviour
     private void FindNpcAndMove()
     {
         Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
-
+        ActivityNpc activityNpc = ohterNpc?.GetComponent<ActivityNpc>();
+        if (activityNpc == null || activityNpc.IsNearMonster) return;
 
         if (ohterNpc != null)
         {
             StopCurrentAction();
 
+            moveSpeed = minSpeed;
             isStart = true;
             IsMoving = true;
             targetNpc = ohterNpc;
@@ -382,8 +375,19 @@ public class ActivityNpc : MonoBehaviour
         return nearestNpc;
     }
 
+    private void RunAway(Transform monster)
+    {
+        Vector3 fleeDirection = (transform.position - monster.position).normalized;
+        fleeDirection.y = 0f;
+        Vector3 fleeDestination = transform.position + fleeDirection * fleeDistance;
+        targetPosition = fleeDestination;
+        moveSpeed = maxSpeed;
+        IsMoving = true;
+    }
+
     private void MoveToWards(Vector3 destination)
     {
+        animator.SetFloat(AnimationSpeed, moveSpeed);
         animator.SetBool(WalkingState, true);
 
         Vector3 direction = (destination - transform.position).normalized;
@@ -407,6 +411,7 @@ public class ActivityNpc : MonoBehaviour
 
     private void MoveToWards(Transform targetTransform)
     {
+        animator.SetFloat(AnimationSpeed, moveSpeed);
         animator.SetBool(WalkingState, true);
 
         Vector3 direction = (targetTransform.position - transform.position).normalized;
@@ -541,7 +546,7 @@ public class ActivityNpc : MonoBehaviour
             isStart = false;
         }
 
-        if(animator.GetBool(TalkingState))
+        if (animator.GetBool(TalkingState))
         {
             animator.SetTrigger(ExitTrigger);
             animator.SetBool(TalkingState, false);
@@ -561,6 +566,7 @@ public class ActivityNpc : MonoBehaviour
         if(distance > 0.1f)
         {
             targetPosition = originalPosition;
+            moveSpeed = minSpeed;
             IsMoving = true;
         }
         else
@@ -600,14 +606,6 @@ public class ActivityNpc : MonoBehaviour
         float clipLength = animator.GetCurrentAnimatorClipInfo(0).Length;
 
         yield return new WaitForSeconds(clipLength + addDelayTime);
-    }
-
-    private float GetCurrentAnimationClipLength()
-    {
-        if (animator == null) return 0f;
-
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        return stateInfo.length;
     }
 
     private void OnDrawGizmos()
