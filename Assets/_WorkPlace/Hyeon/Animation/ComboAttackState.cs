@@ -1,13 +1,22 @@
-using JetBrains.Annotations;
+using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 
 public class ComboAttackState : StateMachineBehaviour
 {
     private PlayerCombat combat;
+    private WeaponAttack weaponAttack;
     private bool isPressedAttackKey = false;
     private bool nextComboInput = false;
     [SerializeField] private float attackPerceptionRange = 2.5f;
     [SerializeField] private float comboTime = 0.5f;
+
+    private List<string> swordComboSounds = new List<string> { "Sword_Swing_1", "Sword_Swing_2", "Sword_Swing_3", "Sword_Swing_4" };
+    private List<string> wandComboSounds = new List<string> { "Wand_Swing_1", "Wand_Swing_3" };
+
+    private int soundIndex = 0;
+    private int swordCombo = 4;
+    private int wandCombo = 2;
 
     private StateComboName GetStateCombo(AnimatorStateInfo stateInfo)
     {
@@ -27,12 +36,14 @@ public class ComboAttackState : StateMachineBehaviour
             {
                 Debug.LogError("⚠ PlayerCombat 컴포넌트를 찾을 수 없습니다.");
             }
+            weaponAttack = combat.weapon.weaponAttack;
         }
     }
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         SetCombatComponent(animator);
+        weaponAttack.ResetDamagedTargets();
         //animator.ResetTrigger("NextCombo");
         //combat?.CurrentComboStates(GetStateCombo(stateInfo));
         if (!combat.weaponCollider.enabled)
@@ -45,6 +56,7 @@ public class ComboAttackState : StateMachineBehaviour
 
         //03.10 HJ 추가
         ItemSkillManager.Instance.UpdateAttack();
+        PlayAttackSound();
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -103,6 +115,7 @@ public class ComboAttackState : StateMachineBehaviour
                 //Debug.LogWarning("🛑 무기 콜라이더 비활성화!");
             }
             animator.ResetTrigger("NextCombo");
+            soundIndex = 0;
         }
 
         //SetCombatComponent(animator);
@@ -121,6 +134,29 @@ public class ComboAttackState : StateMachineBehaviour
         //if (combat.weaponCollider.enabled) combat.weaponCollider.enabled = false;
         //InputManager.InputActions.actions["Move"].Enable();
         //InputManager.InputActions.actions["Jump"].Enable();
+    }
+
+    private void PlayAttackSound()
+    {
+        if (combat.physicsWeapon)
+        {
+            if(soundIndex >= swordCombo)
+            {
+                soundIndex = 0;
+            }
+            SoundManager.Instance.PlayClipAtPoint(swordComboSounds[soundIndex], combat.transform.position, 0.2f, false);
+            soundIndex++;
+
+        }
+        else if (combat.magicalWeapon)
+        {
+            if (soundIndex >= wandCombo)
+            {
+                soundIndex = 0;
+            }
+            SoundManager.Instance.PlayClipAtPoint(wandComboSounds[soundIndex], combat.transform.position, 0.5f, false);
+            soundIndex++;
+        }
     }
 
 }

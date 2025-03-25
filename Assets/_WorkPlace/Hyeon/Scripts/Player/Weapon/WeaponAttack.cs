@@ -30,7 +30,7 @@ public class WeaponAttack : MonoBehaviour
         if (!DamagedTargets.Contains(other.gameObject))
         {
             DamagedTargets.Add(other.gameObject);
-            
+
             // ================ 2025-02-07 09:18 HYO 코드 추가 ====================================================================================================================================
             if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
             {
@@ -54,16 +54,15 @@ public class WeaponAttack : MonoBehaviour
                     }
                 }
             }
-            // ===================================================================================================================================================================================
-            else
-            {
-                //Debug.Log("암튼 뭔갈 침");
-            }
         }
     }
-    private void OnTriggerExit(Collider other)
+
+    public void ResetDamagedTargets()
     {
-        DamagedTargets.Remove(other.gameObject);
+        if(DamagedTargets.Count > 0)
+        {
+            DamagedTargets.Clear();
+        }
     }
 
 
