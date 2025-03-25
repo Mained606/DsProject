@@ -276,5 +276,16 @@ public class SoundManager : MonoBehaviour
         //    //Debug.Log($"{_loadedMainMusicClips.Count}개의 메인 음악을 로드했습니다.");
         //};
     }
+
+    public bool ProbabilityPlay(float probability = 0.5f)
+    {
+        return Random.value < probability;
+    }
+
+    public void RandomPlay(List<string> soundList, Transform playPoint, float vol = 0.5f)
+    {
+        string selectedVoice = soundList[Random.Range(0, soundList.Count)];
+        PlayClipAtPoint(selectedVoice, playPoint.position, vol, false);
+    }
 }
 

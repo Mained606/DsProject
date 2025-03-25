@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 
 public class ComboAttackState : StateMachineBehaviour
@@ -13,6 +12,7 @@ public class ComboAttackState : StateMachineBehaviour
 
     private List<string> swordComboSounds = new List<string> { "Sword_Swing_1", "Sword_Swing_2", "Sword_Swing_3", "Sword_Swing_4" };
     private List<string> wandComboSounds = new List<string> { "Wand_Swing_1", "Wand_Swing_3" };
+    private List<string> attackVoices = new List<string> { "Ellen_Emotes_Attacks_01", "Ellen_Emotes_Attacks_02", "Ellen_Emotes_Attacks_03" };
 
     private int soundIndex = 0;
     private int swordCombo = 4;
@@ -57,6 +57,7 @@ public class ComboAttackState : StateMachineBehaviour
         //03.10 HJ 추가
         ItemSkillManager.Instance.UpdateAttack();
         PlayAttackSound();
+        PlayAttackVoice();
     }
 
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -156,6 +157,14 @@ public class ComboAttackState : StateMachineBehaviour
             }
             SoundManager.Instance.PlayClipAtPoint(wandComboSounds[soundIndex], combat.transform.position, 0.5f, false);
             soundIndex++;
+        }
+    }
+
+    private void PlayAttackVoice()
+    {
+        if (SoundManager.Instance.ProbabilityPlay())
+        {
+            SoundManager.Instance.RandomPlay(attackVoices, combat.transform, 0.2f);
         }
     }
 
