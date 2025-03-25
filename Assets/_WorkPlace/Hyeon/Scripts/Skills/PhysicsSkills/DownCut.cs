@@ -16,7 +16,7 @@ public class DownCut : MonoBehaviour
     private void Start()
     {
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "DownCut");
-        
+        SoundManager.Instance.PlayClipAtPoint("Ellen_Emotes_Attacks_01", transform.position, 0.3f, false);
     }
     private void Update()
     {
@@ -30,6 +30,7 @@ public class DownCut : MonoBehaviour
             if (!playSound)
             {
                 SoundManager.Instance.PlayClipAtPoint("DownCut", transform.position, 0.2f, false);
+                SoundManager.Instance.PlayClipAtPoint("Mgc_Electric_Hit_01", transform.position, 0.3f, false);
                 playSound = true;
             }
             if (!alreadyAttack)

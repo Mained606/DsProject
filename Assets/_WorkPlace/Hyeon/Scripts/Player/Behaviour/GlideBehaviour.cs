@@ -11,6 +11,8 @@ public class GlideBehaviour : IBehaviour
     private float glideSpeed;
     private bool canGlide;
 
+    private string glideSound = "Glide_hmm";
+
 
     public GlideBehaviour()
     {
@@ -83,6 +85,7 @@ public class GlideBehaviour : IBehaviour
     private void StartGilde()
     {
         controller.isGliding = true;
+        SoundManager.Instance.PlayClipAtPoint(glideSound, controller.transform.position);
         animator.SetBool("Glide", true);
         if (controller.isJumping)
         {
