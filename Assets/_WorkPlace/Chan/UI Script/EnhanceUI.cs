@@ -15,7 +15,9 @@ public class EnhanceUI : MonoBehaviour
     [SerializeField] private Button cancelButton;
 
     [SerializeField] private Image enhanceSlotImage;
-    [SerializeField] private TextMeshProUGUI enhanceSlotText;
+
+    [SerializeField] private GameObject CurrentItem;
+    [SerializeField] private GameObject AfterItem;
 
     private List<Item> targetItems = new(); // 강화 가능한 장비 목록
     private List<Item> previousItems = new(); // 변경 감지용
@@ -132,8 +134,8 @@ public class EnhanceUI : MonoBehaviour
     private void ClearEnhanceSlot()
     {
         selectedItem = null;
-        enhanceSlotImage.sprite = defaultSprite;  // 빈 슬롯용 기본 이미지
-        enhanceSlotText.text = "장비 없음";
+        enhanceSlotImage.sprite = null;
+        enhanceSlotImage.enabled = false; // 슬롯 비우면 안 보이게
     }
 
     private bool AreListsEqual(List<Item> a, List<Item> b)
@@ -149,8 +151,8 @@ public class EnhanceUI : MonoBehaviour
     public void SetSelectedItem(Item item)
     {
         selectedItem = item;
-        enhanceSlotImage.sprite = item.sprite;
-        enhanceSlotText.text = item.name;
+        enhanceSlotImage.sprite = item.sprite; // ✅ 드랍된 장비 이미지 표시
+        enhanceSlotImage.enabled = true;       // 혹시 꺼져 있을 수도 있으니까
 
     }
 }
