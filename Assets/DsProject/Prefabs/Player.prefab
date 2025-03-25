@@ -8273,6 +8273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8169b469a56a00c4082414b11c346e54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponAttack: {fileID: 0}
 --- !u!1 &5561973531846721551
 GameObject:
   m_ObjectHideFlags: 0
@@ -9719,7 +9720,6 @@ GameObject:
   - component: {fileID: 5264475562808799088}
   - component: {fileID: 5429668476682211760}
   - component: {fileID: 7332189938541755886}
-  - component: {fileID: 5913819692873056199}
   m_Layer: 3
   m_Name: pico_chan_chr_pico_00
   m_TagString: Untagged
@@ -9781,30 +9781,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 144
 --- !u!114 &7332189938541755886
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6949841579525280964}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81f7e4244ac5b4543b98b60cc42f066b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerAnimator: {fileID: 0}
-  LayerMask:
-    serializedVersion: 2
-    m_Bits: 1074791927
-  leftToe: {fileID: 6390966915643974288}
-  rightToe: {fileID: 6547908796282360596}
-  leftHandOffset: {x: 0, y: 0, z: 0}
-  rightHandOffset: {x: 0, y: 0, z: 0}
-  DistanceToGround: 0.22
-  DistanceToWall: 0
---- !u!114 &5913819692873056199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -16,6 +16,7 @@ public class WeaponManager : MonoBehaviour
         set { currentWeaponObject = value; }
     }
     private PlayerCombat combat;
+    public WeaponAttack weaponAttack;
 
     private void Start()
     {
@@ -64,6 +65,7 @@ public class WeaponManager : MonoBehaviour
         {
             currentWeaponObject.SetActive(false);
             currentWeaponObject = null;
+            weaponAttack = null;
             combat.hasWeapon = false;
             combat.playerAnimator.SetBool("PhysicsWeapon", false);
             combat.playerAnimator.SetBool("MagicalWeapon", false);
@@ -90,6 +92,7 @@ public class WeaponManager : MonoBehaviour
                     combat.playerAnimator.SetBool("MagicalWeapon", true);
                 }
             }
+            weaponAttack = currentWeaponObject.GetComponent<WeaponAttack>();
             combat.hasWeapon = true;
         }
     }

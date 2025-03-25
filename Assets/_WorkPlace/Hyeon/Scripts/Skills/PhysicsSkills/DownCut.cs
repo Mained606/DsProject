@@ -11,10 +11,12 @@ public class DownCut : MonoBehaviour
     [SerializeField] private LayerMask layer;
     private float timer = 0f;
     private bool alreadyAttack = false;
+    private bool playSound = false;
 
     private void Start()
     {
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "DownCut");
+        
     }
     private void Update()
     {
@@ -25,6 +27,11 @@ public class DownCut : MonoBehaviour
     {
         if(timer >= skills.particleDelay)
         {
+            if (!playSound)
+            {
+                SoundManager.Instance.PlayClipAtPoint("DownCut", transform.position, 0.2f, false);
+                playSound = true;
+            }
             if (!alreadyAttack)
             {
                 Collider[] hitColliders = Physics.OverlapSphere(transform.position, attackRange, layer)
@@ -35,7 +42,6 @@ public class DownCut : MonoBehaviour
 
                 foreach (var hit in hitColliders)
                 {
-                    Debug.Log($"{hit.transform.name}");
                     alreadyAttack = true;
                     BaseMonsterData baseMonsterData = hit.transform.GetComponent<BaseMonsterData>();
                     if (baseMonsterData != null)
@@ -53,10 +59,9 @@ public class DownCut : MonoBehaviour
                         {
                             CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, hit.transform, true, true, skills, false, skills.attribute, skills.debuffDuration, skills.debuffValue);
                         }
-
-
                     }
                 }
+                
             }
         }
         else
