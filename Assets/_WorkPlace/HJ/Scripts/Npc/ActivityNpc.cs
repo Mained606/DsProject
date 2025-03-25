@@ -151,17 +151,27 @@ public class ActivityNpc : MonoBehaviour
     {
         if (other.CompareTag("TownNPC") && other.transform != this.transform)
         {
+            ActivityNpc activityNpc = other.GetComponent<ActivityNpc>();
+
             if (npcController.npcType == NpcType.Sitting)
             {
                 isNearNpc = true;
             }
-            else if(!IsTalking)
+            else if(!IsTalking && !activityNpc.IsNearMonster && !IsNearMonster)
             {
                 if (targetNpc) targetNpc = null;
                 isStart = false;
                 IsMoving = false;
                 StopCurrentAction();
                 currentCoroutine = StartCoroutine(StartConversation(other.transform));
+            }
+            
+            if(activityNpc.IsNearMonster)
+            {
+                Debug.Log(transform.name + "두려움 전염");
+                IsNearMonster = true;
+                StopCurrentAction();
+                StartCoroutine(StartTerrifying());
             }
         }
 
@@ -171,7 +181,7 @@ public class ActivityNpc : MonoBehaviour
             this.transform.position += sittingOffset;
         }
 
-        if(other.CompareTag("Monster") && isNearMonster == false)
+        if(other.CompareTag("Monster") && IsNearMonster == false)
         {
             Debug.Log("몬스터 닿음");
             if(targetNpc) targetNpc = null;
@@ -349,7 +359,10 @@ public class ActivityNpc : MonoBehaviour
     {
         Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
         ActivityNpc activityNpc = ohterNpc?.GetComponent<ActivityNpc>();
-        if (activityNpc == null || activityNpc.IsNearMonster) return;
+        if (activityNpc == null || activityNpc.IsNearMonster)
+        {
+            Debug.Log(ohterNpc + "IsNearMonster :" + activityNpc.IsNearMonster.ToString());
+        }
 
         if (ohterNpc != null)
         {
