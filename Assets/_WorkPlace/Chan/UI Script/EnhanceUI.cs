@@ -129,7 +129,7 @@ public class EnhanceUI : MonoBehaviour
     private void ClearEnhanceSlot()
     {
         selectedItem = null;
-        // 슬롯 UI 비우는 로직 네가 만든 슬롯 구조에 따라 추가해야 함
+       
     }
 
     private bool AreListsEqual(List<Item> a, List<Item> b)
@@ -145,7 +145,6 @@ public class EnhanceUI : MonoBehaviour
     public void SetSelectedItem(Item item)
     {
         selectedItem = item;
-        // 슬롯에 표시될 UI도 같이 갱신해줘야 함 (이미지, 이름 등)
-        // 예: enhanceSlotImage.sprite = item.sprite; 같은 거
+        
     }
 }

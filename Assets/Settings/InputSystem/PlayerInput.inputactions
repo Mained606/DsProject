@@ -204,15 +204,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Craft",
-                    "type": "Button",
-                    "id": "51186962-b02b-4bcd-8255-47e793027603",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Cook",
                     "type": "Button",
                     "id": "ae86e620-f2cc-478c-997b-8d24820ebe0a",
@@ -225,6 +216,15 @@
                     "name": "Skill",
                     "type": "Button",
                     "id": "45c41565-6050-4fb7-b826-1a6fc9ed0ee1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Enhance",
+                    "type": "Button",
+                    "id": "0002edd4-78e5-450e-bdd6-b937f924c92b",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -817,17 +817,6 @@
                 },
                 {
                     "name": "",
-                    "id": "c518471d-27c8-4cc4-9312-efb8f4da152a",
-                    "path": "<Keyboard>/h",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Craft",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "7ca57315-79f3-4fec-b4ca-e90982057083",
                     "path": "<Keyboard>/g",
                     "interactions": "",
@@ -845,6 +834,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Skill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d5d8740-0c1a-4093-9094-bd5f1634a739",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Enhance",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
