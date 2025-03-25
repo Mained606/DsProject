@@ -28,6 +28,15 @@ public class InputManager : BaseManager<InputManager>
         RegisterUIActionCallbacks();
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F8))
+        {
+            var itemsToAdd = new[] { "완드", "나뭇가지", "나무완드", "도끼", "낡은검", "양손검","버섯","비트","무", "소형 체력포션", "소형 마나포션" };
+            foreach (var item in itemsToAdd) ItemManager.Instance.AddItemLogic(item);
+        }
+    }
+
     private void InputInitialize()
     {
         foreach(var action in InputActions.actions)
