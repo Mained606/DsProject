@@ -1,5 +1,4 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
 
 public class ActivityNpc : MonoBehaviour
@@ -57,7 +56,7 @@ public class ActivityNpc : MonoBehaviour
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    [SerializeField] private float talkingChance = 0f;  //수정하기!!
+    [SerializeField] private float talkingChance = 0.5f;  //수정하기!!
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
     public bool IsTalking
@@ -76,7 +75,6 @@ public class ActivityNpc : MonoBehaviour
     private System.Func<IEnumerator> defaultRoutineFactory;
     [SerializeField] private GameObject tool;
     private string[] commonTriggers = { "ArmStretching", "NeckStretching", "LookAround", "WipeSweatTrigger" };
-    //[SerializeField] private float repeatTriggerChance = 0.7f;
 
     private void Start()
     {
@@ -201,15 +199,20 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FishingState, true);
 
-            yield return new WaitForSeconds(Random.Range(5f, 5f));            
+            yield return new WaitForSeconds(Random.Range(20f, 40f));
 
             animator.SetBool(FishingState, false);
 
-            yield return StartCoroutine(DelayBeforeNextAction());
+            yield return new WaitForSeconds(ClipLength());
 
-            FindNpcAndMove();
-
-            yield return new WaitForSeconds(Random.Range(5f, 10f));
+            if(Random.value < talkingChance)
+            {
+                FindNpcAndMove();
+            }
+            else
+            {
+                yield return new WaitForSeconds(Random.Range(3f, 5f));
+            }
         }
     }
 
@@ -219,8 +222,8 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FarmingState, true);
 
-            //yield return new WaitForSeconds(Random.Range(20, 40f));
-            yield return new WaitForSeconds(Random.Range(5f, 5f));
+            yield return new WaitForSeconds(Random.Range(20, 40f));
+            //yield return new WaitForSeconds(Random.Range(5f, 5f));
 
             //animator.SetTrigger(WipeSweatTrigger);
 
@@ -230,11 +233,11 @@ public class ActivityNpc : MonoBehaviour
 
             yield return StartCoroutine(StartAction());
 
-            yield return new WaitForSeconds(Random.Range(20f, 40f));
+            //yield return new WaitForSeconds(Random.Range(20f, 40f));
 
-            animator.SetBool(FarmingState, false);
+            //animator.SetBool(FarmingState, false);
 
-            yield return new WaitForSeconds(Random.Range(3f, 5f));
+            //yield return new WaitForSeconds(Random.Range(3f, 5f));
         }
     }
 
@@ -247,8 +250,8 @@ public class ActivityNpc : MonoBehaviour
                 animator.SetBool(CraftingState, true);
             //}
 
-            //yield return new WaitForSeconds(Random.Range(20f, 40f));
-            yield return new WaitForSeconds(Random.Range(5f, 5f));
+            yield return new WaitForSeconds(Random.Range(20f, 40f));
+            //yield return new WaitForSeconds(Random.Range(5f, 5f));
 
             //animator.SetTrigger(WipeSweatTrigger);
 
@@ -259,7 +262,7 @@ public class ActivityNpc : MonoBehaviour
             yield return StartCoroutine(StartAction(0.5f));
 
             //yield return new WaitForSeconds(Random.Range(20f, 40f));
-            yield return new WaitForSeconds(Random.Range(5f, 5f));
+            //yield return new WaitForSeconds(Random.Range(5f, 5f));
         }
     }
 
@@ -281,17 +284,28 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
-    private IEnumerator StartAction(float delayTime = 0)
+    private IEnumerator StartAction(float delayTime = 0f)
     {
         if(Random.value < talkingChance)
         {
-            yield return StartCoroutine(DelayBeforeNextAction(delayTime));
+            yield return new WaitForSeconds(ClipLength() + delayTime);
 
             FindNpcAndMove();
         }
         else
         {
             PlayRandomTrigger(commonTriggers);
+
+            int minCount = Random.Range(0, 3);
+            int count = 0;
+
+            while (count < minCount)
+            {
+                yield return new WaitForSeconds(3f);
+
+                PlayRandomTrigger(commonTriggers);
+                count++;
+            }
         }
     }
 
@@ -485,7 +499,7 @@ public class ActivityNpc : MonoBehaviour
         IsTalking = true;
         if(IsMoving) IsMoving = false;
 
-        yield return StartCoroutine(DelayBeforeNextAction());
+        yield return new WaitForSeconds(ClipLength());
 
         yield return StartCoroutine(LookAtTarget(target.position));
 
@@ -601,11 +615,11 @@ public class ActivityNpc : MonoBehaviour
         StartCoroutine(DoAction());
     }
 
-    private IEnumerator DelayBeforeNextAction(float addDelayTime = 0)
+    private float ClipLength()
     {
         float clipLength = animator.GetCurrentAnimatorClipInfo(0).Length;
 
-        yield return new WaitForSeconds(clipLength + addDelayTime);
+        return clipLength;
     }
 
     private void OnDrawGizmos()
