@@ -7,14 +7,14 @@ public class SkillSlot : MonoBehaviour, IDropHandler
     [SerializeField] private Image iconImage;
     private Animator animator;
 
-    private Image cooldownOverlay;
+    [SerializeReference]private Image cooldownOverlay;
     private int slotIndex;
     private Skills currentSkill;
     private Sprite currentIcon;
 
     private void Awake()
     {
-        cooldownOverlay = GetComponentsInChildren<Image>()[1];
+        cooldownOverlay = GetComponent<Image>();
     }
 
     public void Initialize(int index)
@@ -44,24 +44,19 @@ public class SkillSlot : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
-        Debug.Log("[SkillSlot] 드랍 발생");
 
         GameObject droppedObj = eventData.pointerDrag;
         if (droppedObj == null)
         {
-            Debug.LogWarning("[SkillSlot] pointerDrag가 null이다.");
             return;
         }
 
         SkillDrag dragItem = droppedObj.GetComponent<SkillDrag>();
         if (dragItem == null)
         {
-            Debug.LogWarning("[SkillSlot] 드래그된 오브젝트에 SkillDrag가 없다.");
             return;
         }
-
         Debug.Log($"[SkillSlot] SkillDrag 감지됨: {dragItem.SkillData.skillName}");
-
         SkillQuickSlotUI.Instance.AssignSkillToSlot(dragItem.SkillData, dragItem.Icon, slotIndex);
     }
 

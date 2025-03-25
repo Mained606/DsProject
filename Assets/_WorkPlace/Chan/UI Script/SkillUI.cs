@@ -54,7 +54,7 @@ public class SkillUI : MonoBehaviour
         return skills;
     }
 
-    #region 수정중
+    #region 수정완료
     // 스킬 프리팹 생성 및 버튼 이벤트 등록
     void AddSkillToPanel(Transform panelParent, GameObject prefab, Skills skill)
     {
