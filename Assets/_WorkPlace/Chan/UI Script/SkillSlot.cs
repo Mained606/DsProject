@@ -7,15 +7,12 @@ public class SkillSlot : MonoBehaviour, IDropHandler
     [SerializeField] private Image iconImage;
     private Animator animator;
 
-    [SerializeReference]private Image cooldownOverlay;
+    [SerializeField]private Image cooldownOverlay;
     private int slotIndex;
     private Skills currentSkill;
     private Sprite currentIcon;
 
-    private void Awake()
-    {
-        cooldownOverlay = GetComponent<Image>();
-    }
+   
 
     public void Initialize(int index)
     {
@@ -31,6 +28,15 @@ public class SkillSlot : MonoBehaviour, IDropHandler
         currentIcon = icon ?? ItemManager.Instance.GetSkillSprite(skill.skillName);
         iconImage.sprite = currentIcon;
         iconImage.enabled = true;
+
+        if (cooldownOverlay != null)
+        {
+            if (currentSkill.cooldownTimer == null || !currentSkill.cooldownTimer.IsRunning)
+            {
+                cooldownOverlay.fillAmount = 0f;
+            }
+        }
+
     }
 
     public void ClearSlot()
@@ -64,9 +70,10 @@ public class SkillSlot : MonoBehaviour, IDropHandler
     {
         if (currentSkill == null || currentSkill.cooldownTimer == null) return;
 
-        float percent = currentSkill.cooldownTimer.RemainingPercent;
-        if (cooldownOverlay != null)
-            cooldownOverlay.fillAmount = percent;
+        if (cooldownOverlay != null && currentSkill.cooldownTimer.IsRunning)
+        {
+            cooldownOverlay.fillAmount = currentSkill.cooldownTimer.RemainingPercent;
+        }
     }
 
     public Skills GetAssignedSkill() => currentSkill;

@@ -90,7 +90,7 @@ public class SkillUI : MonoBehaviour
     }*/
     #endregion
 
-    // InfoPanel에 스킬 정보 표시 (클릭 시)5
+    // InfoPanel에 스킬 정보 표시 (클릭 시)
     public void ShowSkillInfo(Skills skill)
     {
         currentSelectedSkill = skill;

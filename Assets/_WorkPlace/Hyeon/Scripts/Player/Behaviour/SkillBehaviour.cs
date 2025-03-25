@@ -132,6 +132,8 @@ public class SkillBehaviour : IBehaviour
                 {
                     SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName);
                 }
+                if (skill.cooldownTimer != null)
+                    TimerManager.Instance.StartTimer(skill.cooldownTimer);
             }
             else
             {
