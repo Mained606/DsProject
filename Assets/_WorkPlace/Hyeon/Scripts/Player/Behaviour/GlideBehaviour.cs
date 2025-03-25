@@ -6,9 +6,12 @@ public class GlideBehaviour : IBehaviour
     private Animator animator;
     private GameObject wings;
 
-    private float glidableHeight = 7f;
+    private float glidableHeight = 3.7f;
+    private LayerMask groundLayer;
     private float glideSpeed;
     private bool canGlide;
+
+    private string glideSound = "Glide_hmm";
 
 
     public GlideBehaviour()
@@ -16,6 +19,7 @@ public class GlideBehaviour : IBehaviour
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
         animator = controller.PlayerAnimator;
         wings = controller.wings;
+        groundLayer = LayerMask.GetMask("Ground");
     }
 
     public void Enter()
@@ -46,6 +50,7 @@ public class GlideBehaviour : IBehaviour
         else
         {
             OnGlide();
+            GroundedCheck();
             StaminaCheck();
             if (InputManager.InputActions.actions["Jump"].triggered)
             {
@@ -67,7 +72,7 @@ public class GlideBehaviour : IBehaviour
 
     private void GlidableCheck()
     {
-        if(Physics.Raycast(controller.transform.position + Vector3.up * 1f, Vector3.down, out RaycastHit hit, glidableHeight))
+        if(Physics.Raycast(controller.transform.position + Vector3.up * 1f, Vector3.down, out RaycastHit hit, glidableHeight, groundLayer))
         {
             canGlide = false;
         }
@@ -80,6 +85,8 @@ public class GlideBehaviour : IBehaviour
     private void StartGilde()
     {
         controller.isGliding = true;
+        SoundManager.Instance.PlayClipAtPoint(glideSound, controller.transform.position);
+        animator.SetBool("Glide", true);
         if (controller.isJumping)
         {
             //controller.isJumping = false;
@@ -95,6 +102,7 @@ public class GlideBehaviour : IBehaviour
     private void EndGlide()
     {
         controller.isGliding = false;
+        animator.SetBool("Glide", false);
         if (wings.activeSelf)
         {
             wings.SetActive(false);
@@ -147,7 +155,7 @@ public class GlideBehaviour : IBehaviour
             PlayerBehaviourManager.Instance.CanUseSkill = true;
             PlayerBehaviourManager.Instance.CanDodge = true;
 
-            controller.isGliding = false;
+            EndGlide();
         }
         else
         {

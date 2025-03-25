@@ -17,9 +17,13 @@ public class GlacierSpear : MonoBehaviour
 
     private bool flag = false;
 
+    // Sound
+    private string skillSound = "Mgc_Glacier_Impact_01";
+
     private void Start()
     {
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "GlacierSpear");
+        SoundManager.Instance.PlayClipAtPoint(skillSound, transform.position, 0.3f, false);
         if (!min_col.enabled)
         {
             min_col.enabled = true;

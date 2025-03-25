@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     #region ----------Variables----------
     public PlayerData playerData;
     public PlayerCombat playerCombat;
-    private WeaponManager weapon;
+    //private WeaponManager weapon;
     private PlayerBehaviourManager behaviour;
 
     [SerializeField] private float staminaRecoveryRate;
@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("글라이딩")]
     public float glideSpeed = 10f;
-    private float glideGravity = -9.81f;
+    private float glideGravity = -15f;
     public GameObject wings;
 
     [Header("닷지")]
@@ -105,7 +105,7 @@ public class PlayerController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         characterController = GetComponent<CharacterController>();
         playerCombat = GetComponent<PlayerCombat>();
-        weapon = playerCombat.weapon;
+        //weapon = playerCombat.weapon;
         behaviour = PlayerBehaviourManager.Instance;
 
         SetState(PlayerState.Idle);
@@ -509,7 +509,7 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("Climb", true);
         playerAnimator.SetBool("Jump", false);
         transform.position = climbStartPosition;
-        weapon.SwitchWeapon(-1);
+        //weapon.SwitchWeapon(-1);
         //CanWeaponSwitch = false;
         // Anim
     }
@@ -555,7 +555,7 @@ public class PlayerController : MonoBehaviour
 
             //CanWeaponSwitch = true;
 
-            weapon.SwitchWeapon(-1);
+            //weapon.SwitchWeapon(-1);
 
             StartCoroutine(FinishingClimbing());
         }
@@ -566,7 +566,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("절벽타기 취소됨");
             //CanWeaponSwitch = true;
 
-            weapon.SwitchWeapon(-1);
+            //weapon.SwitchWeapon(-1);
             //SetState(PlayerState.Idle);
         }
 
