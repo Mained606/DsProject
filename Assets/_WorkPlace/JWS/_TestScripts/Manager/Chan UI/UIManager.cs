@@ -58,9 +58,9 @@ public class UIManager : BaseManager<UIManager>
     public static SkillUI SkillUI;
 
     // ========== 250312 SH 추가 ==========
-    public static SkillsUI SkillsQuickSlot;
+    public static SkillQuickSlotUI SkillsQuickSlot;
     // ========== 250312 SH 추가 ==========
-    
+
     private Coroutine infoMessageCoroutine; // 코루틴 추가부분
 
     protected override void OnEnable()
@@ -89,7 +89,7 @@ public class UIManager : BaseManager<UIManager>
         HistoryWindowUI = historyWindow.GetComponent<HistoryWindowUI>();
         ShopUI = shopUI.GetComponent<ShopUI>();
         dialogUI = dialogWindow.GetComponent<DialogUI>();
-        SkillsQuickSlot = skillQuickSlot.GetComponent<SkillsUI>();
+        SkillsQuickSlot = skillQuickSlot.GetComponent<SkillQuickSlotUI>();
         CookingUI = cookingUI.GetComponent<CookingUI>();
         SkillUI = skillUI.GetComponent<SkillUI>();
     }
@@ -248,6 +248,8 @@ public class UIManager : BaseManager<UIManager>
     public void ToggleInventory()
     {
         ToggleUIWindow(GameSystemState.Inventory);
+        skillQuickSlot.SetActive(true);
+        quickSlot.SetActive(true);
     }
 
     public void ToggleQuestWindow()
@@ -269,11 +271,15 @@ public class UIManager : BaseManager<UIManager>
     public void ToggleCookingUIWindow()
     {
         ToggleUIWindow(GameSystemState.Cook);
+        skillQuickSlot.SetActive(true);
+        quickSlot.SetActive(true);
     }
     
     public void ToggleSkillUIWindow()
     {
         ToggleUIWindow(GameSystemState.Skill);
+        skillQuickSlot.SetActive(true);
+        quickSlot.SetActive(true);
     }
 
     public void ToggleinfoMessageWindow(string message)
