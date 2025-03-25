@@ -41,13 +41,13 @@ public class SkillsUI : MonoBehaviour
         if (ItemManager.Instance != null) CheckskillSlot();
 
         // ========== 250312 SH 추가 ==========
-        if (InputManager.InputActions.actions["SkillUI"].triggered)
+      /*  if (InputManager.InputActions.actions["SkillUI"].triggered)
         {
             if (registedSkillList.Count > 2) return;
             registedSkillList.Add(playerSkillList[skillIndex]);
             InitskillSlotItems();
             skillIndex++;
-        }
+        }*/
         // ========== 250312 SH 추가 ==========
     }
 

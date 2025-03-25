@@ -30,11 +30,7 @@ public class WeaponManager : MonoBehaviour
         {
             ItemEffectManager.Instance.UnequipmentEffect(EquipmentSlot.손);
         }
-        if (Input.GetKeyDown(KeyCode.F12))
-        {
-            var itemsToAdd = new[] { "완드", "나뭇가지", "나무완드", "도끼", "낡은검", "양손검" };
-            foreach (var item in itemsToAdd) ItemManager.Instance.AddItemLogic(item);
-        }
+       
     }
 
     private void InitializeWeapons()

@@ -28,21 +28,7 @@ public class QuickSlotsUI : MonoBehaviour
         {
             TryUseQuickSlot(1);
         }
-        if (Input.GetKeyDown(KeyCode.F3))
-        {
-            ItemManager.Instance.AddItemLogic(condition[0], 1);
-        }
-        if (Input.GetKeyDown(KeyCode.F4))
-        {
-            ItemManager.Instance.AddItemLogic(condition[1], 1);
-        }
-        if (Input.GetKeyDown(KeyCode.F5))
-        {
-            playerData.currentHp = 1;
-            playerData.currentMp = 1;
-            playerData.staminaCurrent = 1;
-        }
-
+      
         CheckQuickSlotItems();
     }
 

@@ -222,18 +222,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SkillUI",
-                    "type": "Button",
-                    "id": "ce404175-6531-4d34-a1f2-675652e67a27",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Skill",
                     "type": "Button",
-                    "id": "42f06e34-dc5f-40b7-8ef5-abf088aa618e",
+                    "id": "45c41565-6050-4fb7-b826-1a6fc9ed0ee1",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -848,19 +839,8 @@
                 },
                 {
                     "name": "",
-                    "id": "e6465186-ca3a-4fad-9a7e-ce3b363845ff",
+                    "id": "e6f2c290-bfd0-47ed-8a74-56672ab113ec",
                     "path": "<Keyboard>/k",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "SkillUI",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "16f4d2f4-77f8-4a50-822d-1bf24dfc511e",
-                    "path": "<Keyboard>/j",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",

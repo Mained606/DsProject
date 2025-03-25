@@ -120,57 +120,6 @@ MonoBehaviour:
   inventory: []
   quickSlotsUI: {fileID: 0}
   maxCapacity: 99
-  selectedItem:
-    id: 
-    name: 
-    description: 
-    type: 0
-    costValue: 0
-    quantity: 0
-    maxStack: 0
-    isDiscardable: 0
-    isStackable: 0
-    sprite: {fileID: 0}
-    dropChance: 0
-    effect:
-      effectType: 0
-      itemSize: 0
-      duration: 0
-      effectParticle: {fileID: 0}
-      isAlreadyInitialize: 0
-    isQuestItem: 0
-    itemStat:
-      Strength: 0
-      Dexterity: 0
-      Intelligence: 0
-      Vitality: 0
-      MaxHealth: 0
-      MaxMana: 0
-      PhysicalAttack: 0
-      MagicAttack: 0
-      PhysicalDefense: 0
-      MagicDefense: 0
-      CriticalChance: 0
-      AttackSpeed: 0
-      Evasion: 0
-      BlockChance: 0
-      HealHp: 0
-      HealMp: 0
-      durationBonus: 0
-    itemSkill:
-      element: 0
-      level: 0
-      debuffDuration: 0
-      debuffValue: 0
-      resistance: 0
-      resistantAmount: 0
-    grade: 0
-    equipmentSlot: 0
-    weaponType: 0
-    isEquired: 0
-    consumableType: 0
-    effectAmount: 0
-    questId: 
 --- !u!114 &769395438982336461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,7 +177,7 @@ MonoBehaviour:
       debuffDuration: 0
       debuffValue: 0
       resistance: 0
-      resistantAmount: 0
+      resistantRate: 0
     grade: 0
     equipmentSlot: 0
     weaponType: 0
@@ -586,6 +535,9 @@ MonoBehaviour:
     characterName: 
     characterType: 0
     prefab: {fileID: 0}
+    evolutionStage: 0
+    evolutionPrefabs: []
+    maxLevelPerStage: 
     strength: 0
     agility: 0
     vitality: 0
@@ -595,7 +547,7 @@ MonoBehaviour:
     attackRange: 0
     bondLevel: 0
     bondExperience: 0
-    bondThresholds: 
+    _requiredExpToNextLevel: 0
     statModifier:
       strengthMultiplier: 1.5
       agilityMultiplier: 0.01
@@ -632,6 +584,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillDatabase: {fileID: 11400000, guid: 49876a0e478f4ec45a7d558d3506fc22, type: 2}
+  skillWeightDatabase: {fileID: 11400000, guid: 0ab3ef0057c873845995d85597ac5b1f, type: 2}
   currentUsedSkills: []
   skillImage:
   - {fileID: 1541731337070278605, guid: 20ad94272664f7247a60550c68c0160f, type: 3}
@@ -1034,6 +987,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4186157886206106995}
     m_Modifications:
+    - target: {fileID: 3581484004234617012, guid: 03740ceb27f68484185c66087382d24e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3581484004234617012, guid: 03740ceb27f68484185c66087382d24e, type: 3}
+      propertyPath: idleCursorImage
+      value: 
+      objectReference: {fileID: 2800000, guid: 77da9bccb2d072a4cad74195f4f91d4d, type: 3}
+    - target: {fileID: 3581484004234617012, guid: 03740ceb27f68484185c66087382d24e, type: 3}
+      propertyPath: ClickCursorImage
+      value: 
+      objectReference: {fileID: 2800000, guid: f1e03a982bcf5d449b748f421daee3f5, type: 3}
     - target: {fileID: 4590541401736847720, guid: 03740ceb27f68484185c66087382d24e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
