@@ -15,6 +15,20 @@ public class SkillUI : MonoBehaviour
     [SerializeField] private Image skillInfoImage;       // 인포창에 표시할 스킬 아이콘
     [SerializeField] private TextMeshProUGUI skillInfoText;           // 인포창의 스킬 상세 정보 텍스트
     [SerializeField] private TextMeshProUGUI skillLevelPreviewText;   // 인포창의 미리보기 텍스트 (변동된 레벨/데미지)
+    [SerializeField] private Image skillExpSlider;
+    [SerializeField] private TextMeshProUGUI skillExpText;
+
+
+    private Button[] tabButtons;
+    private Button playerTabButton;
+    private Button dragonTabButton;
+    private Button levelUpButton;
+    private Button levelDownButton;
+    private Button levelConfirmButtom;
+
+    private enum Type { Player, Dragon }
+    private Type currentType;
+
 
     // 현재 InfoPanel에 표시된 스킬
     private Skills currentSelectedSkill;
@@ -25,7 +39,49 @@ public class SkillUI : MonoBehaviour
     {
         UpdateSkillUI();  // 스킬 목록 UI 갱신
         InfoPanel.SetActive(false);
+        AddButtonListeners();
     }
+    private void OnDisable()
+    {
+        RemoveButtonListenrs();
+    }
+    private void AddButtonListeners()
+    {
+        if (tabButtons == null || tabButtons.Length < 5)
+        {
+            tabButtons = GetComponentsInChildren<Button>(true);
+            playerTabButton = tabButtons[0];
+            dragonTabButton = tabButtons[1];
+            levelUpButton = tabButtons[2];
+            levelDownButton = tabButtons[3];
+            levelConfirmButtom = tabButtons[4];
+
+            playerTabButton?.onClick.AddListener(() => OnButtonClick(Type.Player));
+            dragonTabButton?.onClick.AddListener(() => OnButtonClick(Type.Dragon));
+            levelUpButton?.onClick.AddListener(OnSkillLevelUpButton);
+            levelDownButton?.onClick.AddListener(OnSkillLevelDownButton);
+            levelConfirmButtom?.onClick.AddListener(OnSkillLevelConfirmButton);
+        }
+    }
+
+    private void RemoveButtonListenrs()
+    {
+        playerTabButton?.onClick.RemoveAllListeners();
+        dragonTabButton?.onClick.RemoveAllListeners();
+        levelUpButton?.onClick.RemoveAllListeners();
+        levelDownButton?.onClick.RemoveAllListeners();
+        levelConfirmButtom?.onClick.RemoveAllListeners();
+    }
+    private void OnButtonClick(Type type)
+    {
+        currentType = type;
+
+        if (type == Type.Player)
+            UpdateSkillUI();
+        else
+            UpdateDragonSkillUI(); // 이거 만들어야 함
+    }
+
 
     // 스킬 목록 UI 업데이트: 기존 프리팹 제거 후 플레이어 스킬 목록 재생성
     void UpdateSkillUI()
@@ -42,6 +98,24 @@ public class SkillUI : MonoBehaviour
         }
     }
 
+    private void UpdateDragonSkillUI()
+    {
+        foreach (Transform child in ADPanelParent) Destroy(child.gameObject);
+        foreach (Transform child in APPanelParent) Destroy(child.gameObject);
+
+        List<Skills> dragonSkills = GetDragonSkills();
+
+        foreach (var skill in dragonSkills)
+        {
+            bool isSupport = skill.skillType == SkillType.Support;
+
+            var parent = isSupport ? APPanelParent : ADPanelParent;
+            var prefab = isSupport ? APskillPrefab : ADskillPrefab;
+
+            AddSkillToPanel(parent, prefab, skill);
+        }
+    }
+
     // 플레이어 스킬 목록 반환
     List<Skills> GetPlayerSkills()
     {
@@ -49,6 +123,17 @@ public class SkillUI : MonoBehaviour
         foreach (var entry in SkillManager.SkillList)
         {
             if (entry.Key.Item1 == EntityType.Player)
+                skills.Add(entry.Value);
+        }
+        return skills;
+    }
+
+    List<Skills> GetDragonSkills()
+    {
+        List<Skills> skills = new();
+        foreach(var entry in SkillManager.SkillList)
+        {
+            if (entry.Key.Item1 == EntityType.Dragon)
                 skills.Add(entry.Value);
         }
         return skills;
@@ -63,9 +148,12 @@ public class SkillUI : MonoBehaviour
         Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
         img.sprite = icon;
 
-        if (!go.TryGetComponent(out SkillDrag drag))
-            drag = go.AddComponent<SkillDrag>();
-        drag.Initialize(skill, icon);
+        if (currentType == Type.Player)
+        {
+            if (!go.TryGetComponent(out SkillDrag drag))
+                drag = go.AddComponent<SkillDrag>();
+            drag.Initialize(skill, icon);
+        }
 
         if (go.TryGetComponent(out Button btn))
         {
@@ -101,6 +189,19 @@ public class SkillUI : MonoBehaviour
         skillInfoImage.sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
         skillInfoText.text = skill.ToStringTMPro();
         skillLevelPreviewText.text = "";
+
+        skillExpSlider.fillAmount = skill.currentExperience /skill.experienceToLevelUp;
+        skillExpText.text = $"{skill.currentExperience} / {skill.experienceToLevelUp}";
+
+        bool isPlayer = currentType == Type.Player;
+
+        levelUpButton.gameObject.SetActive(isPlayer);
+        levelDownButton.gameObject.SetActive(isPlayer);
+        levelConfirmButtom.gameObject.SetActive(isPlayer);
+
+        skillExpSlider.gameObject.SetActive(isPlayer);
+        skillExpText.gameObject.SetActive(isPlayer);
+
     }
 
     public string GetSkillPreviewString(Skills skill, int delta)
