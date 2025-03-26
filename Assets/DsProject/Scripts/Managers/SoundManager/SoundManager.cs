@@ -225,7 +225,7 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public void PlayClipAtPoint(string clipKey, Vector3 position, float volume = 1f, bool isLoop = false)
+    public void PlayClipAtPoint(string clipKey, Vector3 position, float volume = 1f, bool isLoop = false, float pitch = 1f)
     {
         if (_loadedAudioClips.TryGetValue(clipKey, out var clip))
         {
@@ -234,6 +234,7 @@ public class SoundManager : MonoBehaviour
             source.clip = clip;
             source.volume = volume;
             source.loop = isLoop;
+            source.pitch = pitch;
             source.Play();
 
             _UsedClip.Add(new AudioClipInfo
@@ -282,10 +283,10 @@ public class SoundManager : MonoBehaviour
         return Random.value < probability;
     }
 
-    public void RandomPlay(List<string> soundList, Transform playPoint, float vol = 0.5f)
+    public void RandomPlay(List<string> soundList, Transform playPoint, float vol = 0.5f, float pitch = 1f)
     {
         string selectedVoice = soundList[Random.Range(0, soundList.Count)];
-        PlayClipAtPoint(selectedVoice, playPoint.position, vol, false);
+        PlayClipAtPoint(selectedVoice, playPoint.position, vol, false, pitch);
     }
 }
 
