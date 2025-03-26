@@ -18,6 +18,7 @@ public class UpperAttack : MonoBehaviour
 
     private Dictionary<Collider, int> enemyDamageCount = new Dictionary<Collider, int>();
     public int maxHits = 3;
+    private bool playSound = false;
 
     void Start()
     {
@@ -32,6 +33,7 @@ public class UpperAttack : MonoBehaviour
             Debug.Log("No Rigidbody");
 
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "UpperAttack");
+        SoundManager.Instance.PlayClipAtPoint("Sword_Scratch", transform.position, 0.1f, false);
 
         Destroy(gameObject, destroyDelay);
     }
@@ -73,6 +75,11 @@ public class UpperAttack : MonoBehaviour
         if (timer >= skills.particleDelay)
         {
             rb.linearVelocity = transform.forward * speed;
+            if (!playSound)
+            {
+                SoundManager.Instance.PlayClipAtPoint("Water_Splash", transform.position, 0.1f, false);
+                playSound = true;
+            }
         }
         else
         {

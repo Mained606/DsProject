@@ -95,7 +95,15 @@ public class SkillBehaviour : IBehaviour
     {
         if (UIManager.SkillsQuickSlot.registedSkillList.Count > useSkillIndex)
         {
-            skillName = UIManager.SkillsQuickSlot.registedSkillList[useSkillIndex].skillName;
+            if (UIManager.SkillsQuickSlot.registedSkillList[useSkillIndex] != null)
+            {
+                skillName = UIManager.SkillsQuickSlot.registedSkillList[useSkillIndex].skillName;
+            }
+            else
+            {
+                Debug.Log($"{useSkillIndex + 1}번 퀵슬롯에 스킬이 등록되지 않았습니다.");
+                return;
+            }
         }
         else
         {

@@ -8273,6 +8273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8169b469a56a00c4082414b11c346e54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponAttack: {fileID: 0}
 --- !u!1 &5561973531846721551
 GameObject:
   m_ObjectHideFlags: 0
@@ -8975,6 +8976,7 @@ MonoBehaviour:
   climbRange: 1
   climbEndCheckOffset: 0.7
   glideSpeed: 12
+  wings: {fileID: 2430454198518691932}
   dodgeDist: 6.5
   dodgeDuration: 0.67
   dashAttackDuration: 0.5
@@ -9718,7 +9720,7 @@ GameObject:
   - component: {fileID: 5264475562808799088}
   - component: {fileID: 5429668476682211760}
   - component: {fileID: 7332189938541755886}
-  - component: {fileID: 5913819692873056199}
+  - component: {fileID: 2758114783943007076}
   m_Layer: 3
   m_Name: pico_chan_chr_pico_00
   m_TagString: Untagged
@@ -9780,7 +9782,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 144
 --- !u!114 &7332189938541755886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9803,7 +9805,7 @@ MonoBehaviour:
   rightHandOffset: {x: 0, y: 0, z: 0}
   DistanceToGround: 0.22
   DistanceToWall: 0
---- !u!114 &5913819692873056199
+--- !u!114 &2758114783943007076
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9812,19 +9814,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6949841579525280964}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81f7e4244ac5b4543b98b60cc42f066b, type: 3}
+  m_Script: {fileID: 11500000, guid: 222d2005a597284469f5e66dcbc92d35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerAnimator: {fileID: 0}
-  LayerMask:
-    serializedVersion: 2
-    m_Bits: 1074791927
-  leftToe: {fileID: 6390966915643974288}
-  rightToe: {fileID: 6547908796282360596}
-  leftHandOffset: {x: 0, y: 0, z: 0}
-  rightHandOffset: {x: 0, y: 0, z: 0}
-  DistanceToGround: 0.22
-  DistanceToWall: 0
 --- !u!1 &6961892644257715340
 GameObject:
   m_ObjectHideFlags: 0
@@ -12487,6 +12479,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7986ea1b0e8a8f142886bffbd5776520, type: 3}
+--- !u!1 &2430454198518691932 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6285928816946605671, guid: 7986ea1b0e8a8f142886bffbd5776520, type: 3}
+  m_PrefabInstance: {fileID: 8540706995423827515}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8517009810495324776 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 50894809211671635, guid: 7986ea1b0e8a8f142886bffbd5776520, type: 3}
