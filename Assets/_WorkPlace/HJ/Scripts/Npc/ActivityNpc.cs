@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System.Collections;
 using UnityEngine;
 
@@ -27,21 +28,14 @@ public class ActivityNpc : MonoBehaviour
     [SerializeField] private Vector3 targetPosition;
     [SerializeField] private Transform targetNpc;
     [SerializeField] private float npcDistance = 100f;
-    [SerializeField] private float monsterDistnace = 20f;
-    [SerializeField] private float fleeDistance = 10f;
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float minSpeed = 3f;
     [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private float turnSpeed = 10f;
 
-    [SerializeField] private bool isNearMonster = false;
     [SerializeField] private bool isMoving = false;
     [SerializeField] private bool isStart = false;
-    public bool IsNearMonster
-    {
-        get => isNearMonster;
-        private set => isNearMonster = value;
-    }
+    
 
     public bool IsMoving
     {
@@ -52,7 +46,7 @@ public class ActivityNpc : MonoBehaviour
             ActiveTool(!isMoving);
         }
     }
-    
+
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
@@ -67,6 +61,16 @@ public class ActivityNpc : MonoBehaviour
             isTalking = value;
             ActiveTool(!isTalking);
         }
+    }
+
+    [Header("Detection Monster")]
+    [SerializeField] private float fleeDistance = 10f;
+    [SerializeField] private float monsterDistnace = 20f;
+    [SerializeField] private bool isNearMonster = false;
+    public bool IsNearMonster
+    {
+        get => isNearMonster;
+        private set => isNearMonster = value;
     }
 
     private NpcController npcController;
@@ -166,9 +170,9 @@ public class ActivityNpc : MonoBehaviour
                 currentCoroutine = StartCoroutine(StartConversation(other.transform));
             }
             
-            if(activityNpc.IsNearMonster)
+            if(activityNpc != null && activityNpc.IsNearMonster)
             {
-                Debug.Log(transform.name + "두려움 전염");
+                Debug.Log(transform.name + other.transform.name + "에게서 두려움 전염");
                 IsNearMonster = true;
                 StopCurrentAction();
                 StartCoroutine(StartTerrifying());
@@ -181,15 +185,15 @@ public class ActivityNpc : MonoBehaviour
             this.transform.position += sittingOffset;
         }
 
-        if(other.CompareTag("Monster") && IsNearMonster == false)
-        {
-            Debug.Log("몬스터 닿음");
-            if(targetNpc) targetNpc = null;
-            IsNearMonster = true;
-            StopCurrentAction();
+        //if(other.CompareTag("Monster") && IsNearMonster == false)
+        //{
+        //    Debug.Log("몬스터 닿음");
+        //    if(targetNpc) targetNpc = null;
+        //    IsNearMonster = true;
+        //    StopCurrentAction();
 
-            RunAway(other.transform);
-        }
+        //    RunAway(other.transform);
+        //}
     }
 
     private void OnTriggerExit(Collider other)
@@ -320,9 +324,9 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
-    private void PlayRandomTrigger(string[] triggers)
+    private string PlayRandomTrigger(string[] triggers)
     {
-        if (triggers == null || triggers.Length == 0) return;
+        if (triggers == null || triggers.Length == 0) return null;
 
         int randomIndex = Random.Range(0, triggers.Length);
         string randomTrigger = triggers[randomIndex];
@@ -330,7 +334,9 @@ public class ActivityNpc : MonoBehaviour
         if (!string.IsNullOrEmpty(randomTrigger))
         {
             animator.SetTrigger(randomTrigger);
+            return randomTrigger;
         }
+        return null;
     }
 
     private void SittingAtBench(Bench bench)
@@ -360,10 +366,7 @@ public class ActivityNpc : MonoBehaviour
     {
         Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
         ActivityNpc activityNpc = ohterNpc?.GetComponent<ActivityNpc>();
-        if (activityNpc == null || activityNpc.IsNearMonster)
-        {
-            Debug.Log(ohterNpc + "IsNearMonster :" + activityNpc.IsNearMonster.ToString());
-        }
+        if (activityNpc == null || activityNpc.IsNearMonster) return;
 
         if (ohterNpc != null)
         {
@@ -518,6 +521,7 @@ public class ActivityNpc : MonoBehaviour
         yield return StartCoroutine(LookAtTarget(target.position));
 
         animator.SetBool(TalkingState, true);
+
         PlayRandomTrigger(talkingTriggers);
 
         currentCoroutine = StartCoroutine(ContinueConversation(target));
@@ -532,9 +536,12 @@ public class ActivityNpc : MonoBehaviour
         {
             yield return new WaitForSeconds(talkingDuration);
 
+            ActivityNpc targetNpc = target.GetComponent<ActivityNpc>();
+
             if (conversationCount < minConversations)
             {
                 PlayRandomTrigger(talkingTriggers);
+
                 conversationCount++;
             }
             else
@@ -542,7 +549,6 @@ public class ActivityNpc : MonoBehaviour
                 StopConversation();
             }
 
-            ActivityNpc targetNpc = target.GetComponent<ActivityNpc>();
             if (targetNpc != null && !targetNpc.IsTalking)
             {
                 StopConversation();
@@ -612,6 +618,11 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
+    private void DetectMonsters()
+    {
+        MonsterData monster = CharacterManager.Instance.GetNearestMonster(transform, monsterDistnace);
+    }
+
     private IEnumerator StartTerrifying()
     {
         while(isNearMonster)
@@ -636,6 +647,13 @@ public class ActivityNpc : MonoBehaviour
         return clipLength;
     }
 
+    public string GetCurrentClip()
+    {
+        string currentClip = animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
+
+        return currentClip;
+    }
+    
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
