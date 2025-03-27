@@ -31,7 +31,6 @@ public class MoveBehaviour : IBehaviour
         controller.isMove = false;
         controller.isSprinting = false;
         currentSpeed = animator.GetFloat("Speed");
-        //animator.SetFloat("Speed", 0);
         PlayerBehaviourManager.Instance.CanAttack = true;
         PlayerBehaviourManager.Instance.CanUseSkill = true;
         PlayerBehaviourManager.Instance.CanBlock = true;
@@ -53,7 +52,6 @@ public class MoveBehaviour : IBehaviour
         exiting = true;
         controller.isMove = false;
         controller.isSprinting = false;
-        //animator.SetFloat("Speed", 0);
     }
 
     private void HandleMovement()
