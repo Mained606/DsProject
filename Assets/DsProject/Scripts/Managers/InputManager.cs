@@ -39,6 +39,8 @@ public class InputManager : BaseManager<InputManager>
             ItemManager.Instance.AddItemLogic("비트", 10);
             ItemManager.Instance.AddItemLogic("무", 10);
             ItemManager.Instance.AddItemLogic("강화석", 10);
+            ItemManager.Instance.AddItemLogic("소형 체력포션", 5);
+            ItemManager.Instance.AddItemLogic("소형 마나포션", 5);
         }
     }
 

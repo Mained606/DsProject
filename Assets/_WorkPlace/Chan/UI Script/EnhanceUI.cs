@@ -8,6 +8,8 @@ public class EnhanceUI : MonoBehaviour
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private Transform itemParent;
     [SerializeField] private GameObject itemInfoObject;
+
+
     [SerializeField] private TextMeshProUGUI[] itemInfoTextField;
     [SerializeField] private Image itemInfoImageField;
 
