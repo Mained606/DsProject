@@ -11,7 +11,7 @@ public class FireStrike : MonoBehaviour
 
     private Skills skills;
 
-    private string skillSound = "Mgc_Fire_Impact_01";
+    private string[] skillSound = { "Fire_Heavy_Throw", "Mgc_Fire_Impact_01" };
     private float soundTimer = 0f;
     private bool playSound = false;
 
@@ -74,7 +74,8 @@ public class FireStrike : MonoBehaviour
         {
             if (!playSound)
             {
-                SoundManager.Instance.PlayClipAtPoint(skillSound, transform.position, 0.4f, false);
+                SoundManager.Instance.PlayClipAtPoint(skillSound[0], transform.position, 0.4f, false);
+                SoundManager.Instance.PlayClipAtPoint(skillSound[1], transform.position, 0.4f, false);
                 playSound = true;
             }
         }
