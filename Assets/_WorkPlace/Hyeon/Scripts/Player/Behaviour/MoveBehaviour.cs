@@ -8,11 +8,14 @@ public class MoveBehaviour : IBehaviour
 
     private float walkSpeed;
     private float sprintSpeed;
+    private float currentSpeed;
+    private float acceleration = 20f;
     private bool canSprint;
 
     private float currentStamina;
 
     private Vector2 moveInput;
+    Vector3 direction;
     private bool exiting = false;
 
     public MoveBehaviour()
@@ -55,26 +58,26 @@ public class MoveBehaviour : IBehaviour
     private void HandleMovement()
     {
         moveInput = InputManager.InputActions.actions["Move"].ReadValue<Vector2>();
-
-        Vector3 direction = controller.GetDirection(moveInput);
-        Vector3 moveDirection = direction;
+        
+        
         //moveDirection.y = controller.verticalVelocity.y;
 
         walkSpeed = controller.walkSpeed;
         sprintSpeed = controller.sprintSpeed;
         RunableCheck();
-        float currentSpeed = canSprint ? sprintSpeed : walkSpeed;
+        float finalSpeed = canSprint ? sprintSpeed : walkSpeed;
 
         if (moveInput == Vector2.zero)
         {
-            animator.SetFloat("MotionSpeed", 1);
-            animator.SetFloat("Speed", 0);
+            currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, acceleration * Time.deltaTime);
+            animator.SetFloat("Speed", currentSpeed);
             controller.isMove = false;
             controller.isSprinting = false;
         }
         else
         {
-            animator.SetFloat("MotionSpeed", 1);
+            direction = controller.GetDirection(moveInput);
+            currentSpeed = Mathf.MoveTowards(currentSpeed, finalSpeed, acceleration * Time.deltaTime);
             animator.SetFloat("Speed", currentSpeed);
             controller.isMove = true;
             if (canSprint)
@@ -85,7 +88,7 @@ public class MoveBehaviour : IBehaviour
 
         animator.SetBool("Sprint", controller.isSprinting);
 
-        Vector3 movement = moveDirection * currentSpeed * Time.deltaTime;
+        Vector3 movement = direction * currentSpeed * Time.deltaTime;
         movement.y = controller.verticalVelocity.y * Time.deltaTime;
 
         controller.characterController.Move(movement);
