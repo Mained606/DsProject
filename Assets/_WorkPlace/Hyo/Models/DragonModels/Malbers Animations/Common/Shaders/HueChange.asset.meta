@@ -1,16 +1,17 @@
 fileFormatVersion: 2
 guid: 5cbe9f9fd918cbc4292c90b25314adb1
-timeCreated: 1525798549
-licenseType: Store
+labels:
+- AllCreature
 NativeFormatImporter:
+  externalObjects: {}
   mainObjectFileID: 11400000
   userData: 
   assetBundleName: 
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 64248
-  packageName: 'Little Dragons: Tiger'
-  packageVersion: 3.9a
-  assetPath: Assets/Malbers Animations/Common/Shaders/HueChange.asset
-  uploadId: 639431
+  productId: 84283
+  packageName: Unka the Dragon
+  packageVersion: 3.9b
+  assetPath: Assets/_WorkPlace/Hyo/Models/DragonModels/Malbers Animations/Common/Shaders/HueChange.asset
+  uploadId: 668553
