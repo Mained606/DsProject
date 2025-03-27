@@ -1,16 +1,19 @@
 fileFormatVersion: 2
 guid: 605d1e14bd910db49aa50378eb8e118c
+labels:
+- AllCreature
 ShaderImporter:
   externalObjects: {}
   defaultTextures: []
   nonModifiableTextures: []
+  preprocessorOverride: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 64248
-  packageName: 'Little Dragons: Tiger'
-  packageVersion: 3.9a
-  assetPath: Assets/Malbers Animations/Common/Shaders/Mask8Toon.shader
-  uploadId: 639431
+  productId: 84283
+  packageName: Unka the Dragon
+  packageVersion: 3.9b
+  assetPath: Assets/_WorkPlace/Hyo/Models/DragonModels/Malbers Animations/Common/Shaders/Mask8Toon.shader
+  uploadId: 668553

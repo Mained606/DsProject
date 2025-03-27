@@ -707,7 +707,7 @@ public class DragonController : MonoBehaviour
                     currentModelInstance.transform.localScale = new Vector3(2f, 2f, 2f);
                     break;
                 case DragonEvolutionStage.Adult:
-                    currentModelInstance.transform.localScale = new Vector3(4f, 4f, 4f);
+                    currentModelInstance.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
                     break;
             }
         }
