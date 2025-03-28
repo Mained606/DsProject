@@ -73,6 +73,7 @@ MonoBehaviour:
     prefab: {fileID: 0}
     evolutionStage: 0
     evolutionPrefabs: []
+    maxLevelPerStage: 
     strength: 0
     agility: 0
     vitality: 0
@@ -82,7 +83,7 @@ MonoBehaviour:
     attackRange: 0
     bondLevel: 0
     bondExperience: 0
-    bondThresholds: 
+    _requiredExpToNextLevel: 0
     statModifier:
       strengthMultiplier: 1.5
       agilityMultiplier: 0.01
@@ -94,16 +95,20 @@ MonoBehaviour:
     dragonAttribute: 0
   firePoint: {fileID: 0}
   isMoving: 0
+  currentState: 0
   followDistance: 3
-  teleportDistance: 10
+  teleportDistance: 20
   followSpeed: 5
   hoverHeight: 2
   rotationSpeed: 5
+  groundCheckDistance: 1
   detectRange: 40
   meleeRange: 1.8
+  additionalRangeForSize: -0.8
   maxDistanceFromPlayer: 15
   fireballPrefab: {fileID: 1949376083282614, guid: 4f8e896254c444d4e8162e9c534d6b27, type: 3}
   rangedDelayTime: 1.5
+  dragonSkillCooldown: 20
   isAttacking: 0
   currentTarget:
     characterName: 
@@ -162,11 +167,14 @@ MonoBehaviour:
     experienceReward: 0
     goldReward: 0
   currentTargetTransform: {fileID: 0}
-  currentState: 0
+  buffSkills:
+  - PlayerBuffHP
+  - PlayerBuffPhysical
+  - PlayerBuffMagic
   dragonModelPrefabs:
   - {fileID: 6847506254371132336, guid: d08004c83f77b2a4c8c9ae8c9c2312f5, type: 3}
   - {fileID: 6240156220318603427, guid: a4b87bcd6fc67a8448caa408bbe0ef7c, type: 3}
-  - {fileID: 6240156220318603427, guid: a4b87bcd6fc67a8448caa408bbe0ef7c, type: 3}
+  - {fileID: 2763967484036490562, guid: 76858f9d0cdfd264bab8d4742284e1d9, type: 3}
   modelParents:
   - {fileID: 3519793645587539127}
   - {fileID: 3519793645587539127}
