@@ -41,18 +41,24 @@ public class DragonController : MonoBehaviour
     #region 이동 설정
     [Header("이동 설정")]
     public float followDistance = 3f;
-    public float teleportDistance = 10f;
+    public float teleportDistance = 20f;
     public float followSpeed;
     public float hoverHeight = 2f;
     public float rotationSpeed = 5f;
     public float groundCheckDistance = 1f;
     private Vector3 offset;
+    private float lastGroundHeight; // 마지막 프레임의 지면 높이
+    private float heightSmoothVelocity; // 높이 보간용 속도 변수
+    private bool isTeleporting = false; // 텔레포트 중인지 추적하는 변수
+    private float teleportCooldown = 0f; // 텔레포트 쿨다운 시간
     #endregion
 
     #region 전투 설정
     [Header("전투 설정")]
     public float detectRange = 40f;
     public float meleeRange;
+    [Tooltip("몬스터 크기에 따른 추가 공격 범위 (음수 값은 더 가까이 접근)")]
+    [SerializeField] private float additionalRangeForSize = -0.8f;
     public float maxDistanceFromPlayer = 15f;
     private bool isCheckingEndCombat = false;
     [SerializeField] private GameObject fireballPrefab;
@@ -162,10 +168,13 @@ public class DragonController : MonoBehaviour
         // 쿨다운 초기화
         meleeCooldown = new BasicTimer(dragonData.attackSpeed);
         
+        // 진화 단계에 따른 followDistance 설정
+        UpdateDragonSettingsByEvolutionStage();
+        
         // 오프셋 및 데이터 설정
-        offset = new Vector3(0, hoverHeight, -followDistance);
+        UpdateOffset();
         lastPlayerPosition = player.position;
-        meleeRange = dragonData.attackRange;
+        lastGroundHeight = transform.position.y; // 초기 높이 설정
         followSpeed = dragonData.speed;
         
         // 진화 단계에 맞는 모델 적용
@@ -177,6 +186,12 @@ public class DragonController : MonoBehaviour
 
     private void Update()
     {
+        // 텔레포트 쿨다운 감소
+        if (teleportCooldown > 0)
+        {
+            teleportCooldown -= Time.deltaTime;
+        }
+        
         if (GameStateMachine.Instance.CurrentState == GameSystemState.Combat || 
             GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle)
         {
@@ -264,42 +279,87 @@ public class DragonController : MonoBehaviour
     {
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // 순간이동 조건
-        if (distanceToPlayer > teleportDistance)
+        // 순간이동 조건 - 일정 거리 이상이고 쿨다운이 끝났을 때
+        if (distanceToPlayer > teleportDistance && teleportCooldown <= 0)
         {
             Vector3 teleportPosition = player.position + offset;
             teleportPosition.y = GetGroundHeight(teleportPosition);
             transform.position = teleportPosition;
+            
+            // 순간이동 직후 애니메이션 상태 명시적 설정
             isMoving = false;
+            animator.SetBool(IsMoving, false);
+            currentState = DragonState.Idle;
+            isTeleporting = true;
+            
+            // 텔레포트 쿨다운 설정 (3초)
+            teleportCooldown = 3.0f;
+            
+            // 애니메이션 전환 딜레이를 위해 UpdateMovementState 호출 스킵
+            UpdateTurnDirection();
+            
+            // 마지막 플레이어 위치 저장 (순간이동 이후 플레이어 움직임을 정확히 계산하기 위함)
+            lastPlayerPosition = player.position;
+            
+            // 약간의 지연 후 이동 가능하도록 Coroutine 시작
+            StartCoroutine(ResetTeleportState(0.5f));
+            
+            return;
         }
         else
         {
-            // 플레이어를 따라다니는 동작
-            Vector3 targetPosition = player.position + offset;
-            targetPosition.y = GetGroundHeight(targetPosition);
-            
-            float currentSpeed = distanceToPlayer > teleportDistance/2 ? followSpeed * 2f : followSpeed;
-            transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * currentSpeed);
+            // 텔레포트 중이 아닐 때만 플레이어를 따라다니는 동작 수행
+            if (!isTeleporting)
+            {
+                // 플레이어를 따라다니는 동작
+                Vector3 targetPosition = player.position + offset;
+                targetPosition.y = GetGroundHeight(targetPosition);
+                
+                float currentSpeed = distanceToPlayer > teleportDistance/2 ? followSpeed * 2f : followSpeed;
+                transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * currentSpeed);
 
-            // 회전
-            RotateTowardsPlayer();
+                // 회전
+                RotateTowardsPlayer();
+                
+                UpdateMovementState();
+                UpdateTurnDirection();
+            }
         }
-
-        UpdateMovementState();
-        UpdateTurnDirection();
     }
 
     private float GetGroundHeight(Vector3 position)
     {
         RaycastHit hit;
-        Vector3 rayOrigin = new Vector3(position.x, position.y + 20f, position.z);
+        // 더 높은 위치에서 레이캐스트 시작
+        Vector3 rayOrigin = new Vector3(position.x, position.y + 50f, position.z);
         
-        if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 100f, LayerMask.GetMask("Terrain", "Ground")))
+        if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 150f, LayerMask.GetMask("Terrain", "Ground")))
         {
-            return hit.point.y + hoverHeight; // 땅 위로 hoverHeight만큼 띄움
+            // 지형이 경사면인 경우를 고려하여 드래곤 단계에 따른 추가 여유 높이 적용
+            float terrainInclinationBuffer = Vector3.Angle(hit.normal, Vector3.up) * 0.05f;
+            float rawHeight = hit.point.y + hoverHeight + terrainInclinationBuffer;
+            
+            // 갑작스러운 높이 변화를 완화하기 위해 이전 높이값과 보간
+            float targetHeight = Mathf.SmoothDamp(
+                lastGroundHeight, 
+                rawHeight, 
+                ref heightSmoothVelocity, 
+                0.3f  // 값이 작을수록 더 빠르게 목표 높이에 도달
+            );
+            
+            // 높이 변화가 너무 큰 경우 제한 (갑작스러운 언덕이나 절벽 방지)
+            float maxHeightChange = 2.0f; // 한 번에 변경될 수 있는 최대 높이 차이
+            targetHeight = Mathf.Clamp(
+                targetHeight, 
+                lastGroundHeight - maxHeightChange, 
+                lastGroundHeight + maxHeightChange
+            );
+            
+            lastGroundHeight = targetHeight; // 다음 프레임을 위해 현재 높이 저장
+            return targetHeight;
         }
         
-        return position.y; // 레이캐스트 실패 시 현재 높이 유지
+        return lastGroundHeight; // 레이캐스트 실패 시 이전 높이 유지
     }
 
     private void UpdateMovementState()
@@ -329,6 +389,13 @@ public class DragonController : MonoBehaviour
         float turnDirectionValue = Vector3.SignedAngle(dragonForward, playerForward, Vector3.up) / 90f;
         turnDirectionValue = Mathf.Clamp(turnDirectionValue, -1f, 1f);
         animator.SetFloat(TurnDirection, turnDirectionValue);
+    }
+
+    // 텔레포트 상태 초기화를 위한 코루틴
+    private IEnumerator ResetTeleportState(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isTeleporting = false;
     }
     #endregion
 
@@ -394,8 +461,9 @@ public class DragonController : MonoBehaviour
             }
         }
 
-        float distanceFromTarget = currentTargetTransform != null ? 
-            Vector3.Distance(transform.position, currentTargetTransform.position) : 0f;
+        // 타겟과의 실질적인 거리 계산 (타겟 크기를 고려함)
+        float effectiveDistanceFromTarget = currentTargetTransform != null ? 
+            GetEffectiveDistanceToTarget(currentTargetTransform) : 0f;
 
         // 공격 우선순위: 스킬 > 원거리 > 근접
         if (!skillCooldown.IsRunning && currentState != DragonState.SkillAttack)
@@ -403,7 +471,7 @@ public class DragonController : MonoBehaviour
             currentState = DragonState.SkillAttack;
             UseSkillAttack();
         }
-        else if (!rangedCooldown.IsRunning && distanceFromTarget < detectRange && 
+        else if (!rangedCooldown.IsRunning && effectiveDistanceFromTarget < detectRange && 
                  currentState != DragonState.RangedAttack)
         {
             currentState = DragonState.RangedAttack;
@@ -417,7 +485,7 @@ public class DragonController : MonoBehaviour
         else if (currentState != DragonState.Moving && currentState != DragonState.Idle)
         {
             // 기본 상태로 돌아감
-            currentState = distanceFromTarget > meleeRange ? DragonState.Moving : DragonState.Idle;
+            currentState = effectiveDistanceFromTarget > meleeRange ? DragonState.Moving : DragonState.Idle;
             
             if (currentState == DragonState.Moving)
             {
@@ -465,20 +533,111 @@ public class DragonController : MonoBehaviour
         currentTargetTransform = closestTransform;
     }
 
+    private float GetEffectiveDistanceToTarget(Transform targetTransform)
+    {
+        if (targetTransform == null) return float.MaxValue;
+        
+        // 타겟의 중심점 가져오기
+        Vector3 targetCenter = GetTargetCenter(targetTransform);
+        
+        // 드래곤 모델 크기를 더 정확하게 계산
+        float dragonBodyRadius = 0f;
+        if (currentModelInstance != null)
+        {
+            // 먼저 캡슐 콜라이더 검색 (더 정확한 결과)
+            CapsuleCollider capsuleCollider = currentModelInstance.GetComponentInChildren<CapsuleCollider>();
+            if (capsuleCollider != null)
+            {
+                dragonBodyRadius = capsuleCollider.radius * Mathf.Max(
+                    currentModelInstance.transform.localScale.x,
+                    currentModelInstance.transform.localScale.z
+                );
+                
+                // 모델이 회전되어 있을 수 있으므로 local to world 변환
+                dragonBodyRadius *= transform.lossyScale.x;
+            }
+            else
+            {
+                // 캡슐 콜라이더가 없으면 일반 콜라이더 사용
+                Collider[] colliders = currentModelInstance.GetComponentsInChildren<Collider>();
+                if (colliders.Length > 0)
+                {
+                    // 모든 콜라이더 중 가장 큰 것을 선택
+                    float maxRadius = 0f;
+                    foreach (Collider col in colliders)
+                    {
+                        float radius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
+                        if (radius > maxRadius)
+                        {
+                            maxRadius = radius;
+                        }
+                    }
+                    dragonBodyRadius = maxRadius;
+                }
+                else
+                {
+                    // 콜라이더가 없으면 드래곤 모델의 크기에 기반하여 추정
+                    Renderer[] renderers = currentModelInstance.GetComponentsInChildren<Renderer>();
+                    if (renderers.Length > 0)
+                    {
+                        // 모든 렌더러의 바운드를 확인
+                        Bounds combinedBounds = renderers[0].bounds;
+                        foreach (Renderer renderer in renderers)
+                        {
+                            combinedBounds.Encapsulate(renderer.bounds);
+                        }
+                        dragonBodyRadius = Mathf.Max(combinedBounds.extents.x, combinedBounds.extents.z) * 0.8f; // 80%만 사용
+                    }
+                }
+            }
+        }
+        
+        // 드래곤과 타겟 중심 사이의 거리
+        float baseDistance = Vector3.Distance(transform.position, targetCenter);
+        
+        // 타겟의 CharacterController로부터 크기 정보 추출
+        CharacterController targetController = targetTransform.GetComponent<CharacterController>();
+        float targetRadius = 0f;
+        
+        if (targetController != null)
+        {
+            // 타겟의 반지름 활용 (x,z 평면 기준)
+            targetRadius = targetController.radius;
+        }
+        else
+        {
+            // CharacterController가 없는 경우, 콜라이더 사용 시도
+            Collider targetCollider = targetTransform.GetComponent<Collider>();
+            if (targetCollider != null)
+            {
+                // 대략적인 크기 추정 (바운딩 박스의 절반 크기)
+                targetRadius = Mathf.Max(targetCollider.bounds.extents.x, targetCollider.bounds.extents.z);
+            }
+        }
+        
+        // 실질적인 거리 = 기본 거리 - 드래곤 콜라이더 크기 - 타겟 크기 - 추가 여유 범위
+        return baseDistance - dragonBodyRadius - targetRadius - additionalRangeForSize;
+    }
+
     private void MoveTowardTarget(Transform targetTransform)
     {
         if (!targetTransform) return;
 
-        float distanceToTarget = Vector3.Distance(transform.position, targetTransform.position);
+        // 타겟과의 실질적인 거리 계산 (타겟 크기를 고려함)
+        float effectiveDistanceToTarget = GetEffectiveDistanceToTarget(targetTransform);
         
-        if (distanceToTarget > meleeRange)
+        if (effectiveDistanceToTarget > meleeRange)
         {
             currentState = DragonState.Moving;
             
-            Vector3 dir = (targetTransform.position - transform.position).normalized;
+            // 타겟의 중심으로 방향 설정
+            Vector3 targetCenter = GetTargetCenter(targetTransform);
+            Vector3 dir = (targetCenter - transform.position).normalized;
+            
+            // 진화 단계에 따른 이동 속도 사용 (이미 UpdateDragonSettingsByEvolutionStage에서 설정됨)
             Vector3 movePos = transform.position + dir * (followSpeed * Time.deltaTime);
             
-            // 지형 높이 확인 및 적용
+            // 지형 높이 확인 및 적용 (GetGroundHeight 내부에서 부드러운 보간 처리)
             movePos.y = GetGroundHeight(movePos);
             
             transform.position = movePos;
@@ -491,6 +650,13 @@ public class DragonController : MonoBehaviour
         else
         {
             animator.SetBool(IsMoving, false);
+            
+            // 전투 시 적을 정면으로 바라보도록 설정
+            Vector3 targetDir = (targetTransform.position - transform.position).normalized;
+            Quaternion lookRot = Quaternion.LookRotation(targetDir, Vector3.up);
+            transform.rotation = Quaternion.Lerp(transform.rotation, 
+                                               Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f), 
+                                               Time.deltaTime * rotationSpeed * 2f); // 빠른 회전
             
             if (!meleeCooldown.IsRunning)
             {
@@ -592,6 +758,24 @@ public class DragonController : MonoBehaviour
             isAttacking = true;
             
             Vector3 targetCenter = GetTargetCenter(currentTargetTransform);
+            
+            // 적을 향해 회전하는 코드 추가
+            Vector3 targetDir = (targetCenter - transform.position).normalized;
+            Quaternion lookRot = Quaternion.LookRotation(targetDir, Vector3.up);
+            float rotationTime = 0f;
+            float maxRotationTime = 0.5f; // 최대 회전 시간
+            
+            // 회전이 완료될 때까지 부드럽게 회전
+            while (rotationTime < maxRotationTime)
+            {
+                transform.rotation = Quaternion.Lerp(transform.rotation, 
+                                                   Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f), 
+                                                   Time.deltaTime * rotationSpeed * 3f); // 더 빠른 회전
+                rotationTime += Time.deltaTime;
+                yield return null;
+            }
+            
+            // 회전 완료 후 애니메이션 재생
             animator.SetTrigger(IsRangedAttack);
             
             yield return new WaitForSeconds(0.5f); // 발사 전 딜레이
@@ -702,14 +886,26 @@ public class DragonController : MonoBehaviour
             {
                 case DragonEvolutionStage.Baby:
                     currentModelInstance.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    followDistance = 3f; // 기본 거리
+                    hoverHeight = 2f; // 기본 높이
                     break;
                 case DragonEvolutionStage.Young:
                     currentModelInstance.transform.localScale = new Vector3(2f, 2f, 2f);
+                    followDistance = 5f; // 중간 크기에 맞게 거리 증가
+                    hoverHeight = 3f; // 중간 단계 높이 증가
                     break;
                 case DragonEvolutionStage.Adult:
-                    currentModelInstance.transform.localScale = new Vector3(4f, 4f, 4f);
+                    currentModelInstance.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                    followDistance = 7f; // 큰 크기에 맞게 거리 더 증가
+                    hoverHeight = 5f; // 성체 드래곤의 높이 크게 증가
                     break;
             }
+            
+            // 진화 단계별 설정 업데이트
+            UpdateDragonSettingsByEvolutionStage();
+            
+            // 오프셋 업데이트
+            UpdateOffset();
         }
         else
         {
@@ -752,6 +948,38 @@ public class DragonController : MonoBehaviour
         UpdateDragonModel();
         
         Debug.Log($"드래곤이 {dragonData.evolutionStage} 단계로 진화했습니다!");
+    }
+    
+    // 오프셋 업데이트 메서드 추가
+    private void UpdateOffset()
+    {
+        offset = new Vector3(0, hoverHeight, -followDistance);
+    }
+
+    // 진화 단계별 설정 업데이트 메서드 추가
+    private void UpdateDragonSettingsByEvolutionStage()
+    {
+        switch (dragonData.evolutionStage)
+        {
+            case DragonEvolutionStage.Baby:
+                followDistance = 3f;
+                hoverHeight = 2f;
+                meleeRange = dragonData.attackRange * 0.5f;
+                followSpeed = dragonData.speed;
+                break;
+            case DragonEvolutionStage.Young:
+                followDistance = 5f;
+                hoverHeight = 2f;
+                meleeRange = dragonData.attackRange * 0.7f;
+                followSpeed = dragonData.speed * 1.3f;
+                break;
+            case DragonEvolutionStage.Adult:
+                followDistance = 7f;
+                hoverHeight = 4f;
+                meleeRange = dragonData.attackRange * 0.9f;
+                followSpeed = dragonData.speed * 1.6f;
+                break;
+        }
     }
     #endregion
 

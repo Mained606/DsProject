@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 3acb32e32db84584badf3b97aa2f88b2
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 84283
+  packageName: Unka the Dragon
+  packageVersion: 3.9b
+  assetPath: Assets/_WorkPlace/Hyo/Models/DragonModels/Malbers Animations/Common/Shaders/AnisotropicWard.shader
+  uploadId: 668553
