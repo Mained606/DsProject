@@ -47,6 +47,8 @@ public class DragonController : MonoBehaviour
     public float rotationSpeed = 5f;
     public float groundCheckDistance = 1f;
     private Vector3 offset;
+    private float lastGroundHeight; // 마지막 프레임의 지면 높이
+    private float heightSmoothVelocity; // 높이 보간용 속도 변수
     #endregion
 
     #region 전투 설정
@@ -162,9 +164,27 @@ public class DragonController : MonoBehaviour
         // 쿨다운 초기화
         meleeCooldown = new BasicTimer(dragonData.attackSpeed);
         
+        // 진화 단계에 따른 followDistance 설정
+        switch (dragonData.evolutionStage)
+        {
+            case DragonEvolutionStage.Baby:
+                followDistance = 3f;
+                hoverHeight = 2f;
+                break;
+            case DragonEvolutionStage.Young:
+                followDistance = 5f;
+                hoverHeight = 2f;
+                break;
+            case DragonEvolutionStage.Adult:
+                followDistance = 7f;
+                hoverHeight = 4f;
+                break;
+        }
+        
         // 오프셋 및 데이터 설정
-        offset = new Vector3(0, hoverHeight, -followDistance);
+        UpdateOffset();
         lastPlayerPosition = player.position;
+        lastGroundHeight = transform.position.y; // 초기 높이 설정
         meleeRange = dragonData.attackRange;
         followSpeed = dragonData.speed;
         
@@ -292,14 +312,36 @@ public class DragonController : MonoBehaviour
     private float GetGroundHeight(Vector3 position)
     {
         RaycastHit hit;
-        Vector3 rayOrigin = new Vector3(position.x, position.y + 20f, position.z);
+        // 더 높은 위치에서 레이캐스트 시작
+        Vector3 rayOrigin = new Vector3(position.x, position.y + 50f, position.z);
         
-        if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 100f, LayerMask.GetMask("Terrain", "Ground")))
+        if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 150f, LayerMask.GetMask("Terrain", "Ground")))
         {
-            return hit.point.y + hoverHeight; // 땅 위로 hoverHeight만큼 띄움
+            // 지형이 경사면인 경우를 고려하여 드래곤 단계에 따른 추가 여유 높이 적용
+            float terrainInclinationBuffer = Vector3.Angle(hit.normal, Vector3.up) * 0.05f;
+            float rawHeight = hit.point.y + hoverHeight + terrainInclinationBuffer;
+            
+            // 갑작스러운 높이 변화를 완화하기 위해 이전 높이값과 보간
+            float targetHeight = Mathf.SmoothDamp(
+                lastGroundHeight, 
+                rawHeight, 
+                ref heightSmoothVelocity, 
+                0.3f  // 값이 작을수록 더 빠르게 목표 높이에 도달
+            );
+            
+            // 높이 변화가 너무 큰 경우 제한 (갑작스러운 언덕이나 절벽 방지)
+            float maxHeightChange = 2.0f; // 한 번에 변경될 수 있는 최대 높이 차이
+            targetHeight = Mathf.Clamp(
+                targetHeight, 
+                lastGroundHeight - maxHeightChange, 
+                lastGroundHeight + maxHeightChange
+            );
+            
+            lastGroundHeight = targetHeight; // 다음 프레임을 위해 현재 높이 저장
+            return targetHeight;
         }
         
-        return position.y; // 레이캐스트 실패 시 현재 높이 유지
+        return lastGroundHeight; // 레이캐스트 실패 시 이전 높이 유지
     }
 
     private void UpdateMovementState()
@@ -478,7 +520,7 @@ public class DragonController : MonoBehaviour
             Vector3 dir = (targetTransform.position - transform.position).normalized;
             Vector3 movePos = transform.position + dir * (followSpeed * Time.deltaTime);
             
-            // 지형 높이 확인 및 적용
+            // 지형 높이 확인 및 적용 (GetGroundHeight 내부에서 부드러운 보간 처리)
             movePos.y = GetGroundHeight(movePos);
             
             transform.position = movePos;
@@ -702,14 +744,23 @@ public class DragonController : MonoBehaviour
             {
                 case DragonEvolutionStage.Baby:
                     currentModelInstance.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    followDistance = 3f; // 기본 거리
+                    hoverHeight = 2f; // 기본 높이
                     break;
                 case DragonEvolutionStage.Young:
                     currentModelInstance.transform.localScale = new Vector3(2f, 2f, 2f);
+                    followDistance = 5f; // 중간 크기에 맞게 거리 증가
+                    hoverHeight = 3f; // 중간 단계 높이 증가
                     break;
                 case DragonEvolutionStage.Adult:
                     currentModelInstance.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                    followDistance = 7f; // 큰 크기에 맞게 거리 더 증가
+                    hoverHeight = 5f; // 성체 드래곤의 높이 크게 증가
                     break;
             }
+            
+            // 오프셋 업데이트
+            UpdateOffset();
         }
         else
         {
@@ -752,6 +803,12 @@ public class DragonController : MonoBehaviour
         UpdateDragonModel();
         
         Debug.Log($"드래곤이 {dragonData.evolutionStage} 단계로 진화했습니다!");
+    }
+    
+    // 오프셋 업데이트 메서드 추가
+    private void UpdateOffset()
+    {
+        offset = new Vector3(0, hoverHeight, -followDistance);
     }
     #endregion
 
