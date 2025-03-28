@@ -29,9 +29,8 @@ public class BlockBehaviour : IBehaviour
 
     private void HandleBlockInput()
     {
-        if (InputManager.InputActions.actions["Block"].IsPressed() && controller.playerCombat.hasWeapon)
+        if (InputManager.InputActions.actions["Block"].IsPressed() && controller.playerCombat.physicsWeapon)
         {
-            //PlayerBehaviourManager.Instance.CanBlock = true;    // 테스트때문에 넣어줌 bool수로 잘 제어되면 삭제할 것
             PlayerBehaviourManager.Instance.CanMove = false;
             PlayerBehaviourManager.Instance.CanAttack = false;
             PlayerBehaviourManager.Instance.CanDodge = false;

@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class CombatManager : BaseManager<CombatManager>
 {
+    private List<string> blockSound = new List<string> { "Shield_Block_1", "Shield_Block_2", "Shield_Block_3" };
+    private List<string> parrySound = new List<string> { "Parry_1", "Parry_2" };
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
         
@@ -201,6 +203,7 @@ public class CombatManager : BaseManager<CombatManager>
             if (GameManager.playerTransform.GetComponent<PlayerCombat>().onParry)
             {
                 UIManager.DisplayPopupText("패링", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
+                SoundManager.Instance.RandomPlay(parrySound, GameManager.playerTransform, 0.5f);
                 BaseMonsterAI monsterAI = attackerTransform.GetComponentInParent<BaseMonsterAI>();
                 if (monsterAI != null)
                 {
@@ -219,6 +222,7 @@ public class CombatManager : BaseManager<CombatManager>
             {
                 UIManager.DisplayPopupText("방어", targetPosition, isPlayerAttacking ? MessageTag.플레이어_피해 : MessageTag.적_피해);
                 actualDefender.TakeDamage(0, attackerTransform);
+                SoundManager.Instance.RandomPlay(blockSound, GameManager.playerTransform, 0.5f);
                 // Damage에 따라 방어 성공 or 방어 실패(break) 판단 필요할 수 있음
                 return;
             }
