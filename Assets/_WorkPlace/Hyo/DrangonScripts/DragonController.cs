@@ -58,7 +58,7 @@ public class DragonController : MonoBehaviour
     public float detectRange = 40f;
     public float meleeRange;
     [Tooltip("몬스터 크기에 따른 추가 공격 범위 (음수 값은 더 가까이 접근)")]
-    [SerializeField] private float additionalRangeForSize = -2.0f;
+    [SerializeField] private float additionalRangeForSize = -0.8f;
     public float maxDistanceFromPlayer = 15f;
     private bool isCheckingEndCombat = false;
     [SerializeField] private GameObject fireballPrefab;
@@ -758,6 +758,24 @@ public class DragonController : MonoBehaviour
             isAttacking = true;
             
             Vector3 targetCenter = GetTargetCenter(currentTargetTransform);
+            
+            // 적을 향해 회전하는 코드 추가
+            Vector3 targetDir = (targetCenter - transform.position).normalized;
+            Quaternion lookRot = Quaternion.LookRotation(targetDir, Vector3.up);
+            float rotationTime = 0f;
+            float maxRotationTime = 0.5f; // 최대 회전 시간
+            
+            // 회전이 완료될 때까지 부드럽게 회전
+            while (rotationTime < maxRotationTime)
+            {
+                transform.rotation = Quaternion.Lerp(transform.rotation, 
+                                                   Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f), 
+                                                   Time.deltaTime * rotationSpeed * 3f); // 더 빠른 회전
+                rotationTime += Time.deltaTime;
+                yield return null;
+            }
+            
+            // 회전 완료 후 애니메이션 재생
             animator.SetTrigger(IsRangedAttack);
             
             yield return new WaitForSeconds(0.5f); // 발사 전 딜레이
