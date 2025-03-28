@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4f8c757360de89d418287c17a8617290
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303129
+  packageName: Iron Hole
+  packageVersion: 1.0
+  assetPath: Assets/Iron Hole/Renderer/New Universal Render Pipeline Asset.asset
+  uploadId: 714327

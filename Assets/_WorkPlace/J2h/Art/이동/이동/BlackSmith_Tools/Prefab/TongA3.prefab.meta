@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fd0db16ed226e784598e66f5affc1b6f
+timeCreated: 1478637394
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73992
+  packageName: Blacksmith's tools
+  packageVersion: 1.0
+  assetPath: Assets/BlackSmith_Tools/Prefab/TongA3.prefab
+  uploadId: 145578

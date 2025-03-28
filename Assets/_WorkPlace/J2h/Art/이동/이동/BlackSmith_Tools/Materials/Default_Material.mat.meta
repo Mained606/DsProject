@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ad542765e7dbea04bb9334ccbefb389c
+timeCreated: 1478637203
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 73992
+  packageName: Blacksmith's tools
+  packageVersion: 1.0
+  assetPath: Assets/BlackSmith_Tools/Materials/Default_Material.mat
+  uploadId: 145578

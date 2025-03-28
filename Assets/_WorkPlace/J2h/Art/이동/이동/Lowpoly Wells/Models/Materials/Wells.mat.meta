@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cad1bbde0da8b5a479728b129db52ade
+timeCreated: 1469070178
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 68437
+  packageName: Lowpoly Wells
+  packageVersion: 1.0
+  assetPath: Assets/Lowpoly Wells/Models/Materials/Wells.mat
+  uploadId: 129796
