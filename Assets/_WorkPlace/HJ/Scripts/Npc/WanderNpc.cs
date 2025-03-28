@@ -93,7 +93,7 @@ public class WanderNpc : MonoBehaviour
                 //Debug.Log($"{transform.name} 다른 npc와 너무 가까움, 새로운 목적지 설정");
                 SetNextDestination();
                 nextDestinationTime = Time.time + destinationCooldown;
-            }            
+            }
         }
 
         //도착 판정할때 y축 위치는 고려하지 않음
