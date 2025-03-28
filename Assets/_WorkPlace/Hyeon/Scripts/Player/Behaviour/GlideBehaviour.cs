@@ -101,6 +101,7 @@ public class GlideBehaviour : IBehaviour
         SoundManager.Instance.PlayClipAtPoint(glideSound[0], controller.transform.position);
         SoundManager.Instance.PlayClipAtPoint(glideSound[1], controller.transform.position);
         animator.SetBool("Glide", true);
+        currentSpeed = animator.GetFloat("Speed");
         if (controller.isJumping)
         {
             //controller.isJumping = false;
@@ -141,7 +142,7 @@ public class GlideBehaviour : IBehaviour
             currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, acceleration * Time.deltaTime);
         }
 
-        //animator.SetFloat("Speed", currentSpeed);
+        animator.SetFloat("Speed", currentSpeed);
 
         // 이동
         if(direction != Vector3.zero)

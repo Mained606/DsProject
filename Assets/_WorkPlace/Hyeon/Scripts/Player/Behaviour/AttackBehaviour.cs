@@ -66,5 +66,6 @@ public class AttackBehaviour : IBehaviour
         controller.playerCombat.firstAttack = false;
         controller.isAttack = true;
         animator.SetTrigger("NextCombo");
+        animator.SetFloat("Speed", 0f);
     }
 }
