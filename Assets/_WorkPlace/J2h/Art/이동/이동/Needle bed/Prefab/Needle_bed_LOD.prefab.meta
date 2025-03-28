@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: f65f1e214b30ea8408510b34d30d6e91
+timeCreated: 1550772590
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 140440
+  packageName: Needle bed
+  packageVersion: 1.0
+  assetPath: Assets/Needle bed/Prefab/Needle_bed_LOD.prefab
+  uploadId: 295816
