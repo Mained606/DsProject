@@ -7,6 +7,7 @@ public class WeaponAttack : MonoBehaviour
     public string weaponId;
 
     public string toolTag;
+    [SerializeField] private GameObject hitImpactPrefab;
 
     public HashSet<GameObject> DamagedTargets { get; set; } = new HashSet<GameObject>();
 
@@ -38,6 +39,12 @@ public class WeaponAttack : MonoBehaviour
                 BaseMonsterData baseMonsterData = other.GetComponent<BaseMonsterData>();
                 if (baseMonsterData != null)
                 {
+                    if(hitImpactPrefab != null)
+                    {
+                        GameObject obj = Instantiate(hitImpactPrefab, transform.position, Quaternion.identity);
+
+                        Destroy(obj, 2f);
+                    }
                     // monsterOrBossData가 MonsterData일 경우 처리
                     MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
                     if (enemyMonsterData != null)
