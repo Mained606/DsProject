@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Collections;
 using UnityEngine;
 
@@ -32,11 +31,8 @@ public class ActivityNpc : MonoBehaviour
     [SerializeField] private float minSpeed = 3f;
     [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private float turnSpeed = 10f;
-
     [SerializeField] private bool isMoving = false;
     [SerializeField] private bool isStart = false;
-    
-
     public bool IsMoving
     {
         get => isMoving;
@@ -46,7 +42,6 @@ public class ActivityNpc : MonoBehaviour
             ActiveTool(!isMoving);
         }
     }
-
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
@@ -65,7 +60,9 @@ public class ActivityNpc : MonoBehaviour
 
     [Header("Detection Monster")]
     [SerializeField] private float fleeDistance = 10f;
-    [SerializeField] private float monsterDistnace = 20f;
+    [SerializeField] private float monsterDetectRange = 20f;
+    [SerializeField] private float viewAngle = 90f;
+    private float checkInterval = 3f;
     [SerializeField] private bool isNearMonster = false;
     public bool IsNearMonster
     {
@@ -73,12 +70,14 @@ public class ActivityNpc : MonoBehaviour
         private set => isNearMonster = value;
     }
 
+    [Header("Default")]
     private NpcController npcController;
     private int defaultState;
     private Coroutine currentCoroutine;
     private System.Func<IEnumerator> defaultRoutineFactory;
     [SerializeField] private GameObject tool;
     private string[] commonTriggers = { "ArmStretching", "NeckStretching", "LookAround", "WipeSweatTrigger" };
+
 
     private void Start()
     {
@@ -90,7 +89,7 @@ public class ActivityNpc : MonoBehaviour
 
         rb.isKinematic = true;
 
-        if(npcController.npcTool && npcController.npcType != NpcType.Sitting)
+        if (npcController.npcTool && npcController.npcType != NpcType.Sitting)
         {
             tool = npcController.npcTool.GetChild((int)npcController.npcType - 1)?.gameObject;
             tool?.SetActive(true);
@@ -118,6 +117,8 @@ public class ActivityNpc : MonoBehaviour
         }
 
         currentCoroutine = StartCoroutine(defaultRoutineFactory());
+
+        InvokeRepeating(nameof(DetectMonsters), 0f, checkInterval);     //3초마다 한번 실행
     }
 
     private void Update()
@@ -151,6 +152,12 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
+    //private void FixedUpdate()
+    //{
+    //    if (!IsNearMonster)
+    //        DetectMonsters();
+    //}
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("TownNPC") && other.transform != this.transform)
@@ -160,8 +167,8 @@ public class ActivityNpc : MonoBehaviour
             if (npcController.npcType == NpcType.Sitting)
             {
                 isNearNpc = true;
-            }
-            else if(!IsTalking && !activityNpc.IsNearMonster && !IsNearMonster)
+            }            
+            if(!IsTalking && !activityNpc.IsNearMonster && !IsNearMonster)
             {
                 if (targetNpc) targetNpc = null;
                 isStart = false;
@@ -184,16 +191,6 @@ public class ActivityNpc : MonoBehaviour
             SittingAtBench(other.GetComponent<Bench>());
             this.transform.position += sittingOffset;
         }
-
-        //if(other.CompareTag("Monster") && IsNearMonster == false)
-        //{
-        //    Debug.Log("몬스터 닿음");
-        //    if(targetNpc) targetNpc = null;
-        //    IsNearMonster = true;
-        //    StopCurrentAction();
-
-        //    RunAway(other.transform);
-        //}
     }
 
     private void OnTriggerExit(Collider other)
@@ -620,7 +617,46 @@ public class ActivityNpc : MonoBehaviour
 
     private void DetectMonsters()
     {
-        MonsterData monster = CharacterManager.Instance.GetNearestMonster(transform, monsterDistnace);
+        if (IsNearMonster) return;
+        
+        Transform monster = GetNearestMonster(transform, monsterDetectRange);
+
+        if (monster != null && IsInshight(monster))
+        {
+            IsNearMonster = true;
+            StopCurrentAction();
+            RunAway(monster);
+        }
+    }
+
+    public Transform GetNearestMonster(Transform transform, float detectRange)
+    {
+        Transform closestMonster = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (var character in CharacterManager.Instance.CharacterList)
+        {
+            if (character is MonsterData monster)
+            {
+                float distanceToMonster = Vector3.Distance(transform.position, monster.instance.transform.position);
+
+                if (distanceToMonster < closestDistance && distanceToMonster <= detectRange)
+                {
+                    closestDistance = distanceToMonster;
+                    closestMonster = monster.instance.transform;
+                }
+            }
+        }
+
+        return closestMonster;
+    }
+
+    private bool IsInshight(Transform target)
+    {
+        Vector3 direction = (target.position - transform.position).normalized;
+        float angle = Vector3.Angle(transform.forward, direction);
+
+        return angle <= viewAngle * 0.5f;
     }
 
     private IEnumerator StartTerrifying()
@@ -632,7 +668,7 @@ public class ActivityNpc : MonoBehaviour
 
             yield return new WaitForSeconds(10f);
 
-            Transform monster = FindNearestNpc(transform.position, monsterDistnace, "Monster");
+            Transform monster = GetNearestMonster(transform, monsterDetectRange);
             if (monster == null) isNearMonster = false;
         }
 
@@ -657,6 +693,6 @@ public class ActivityNpc : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, monsterDistnace);
+        Gizmos.DrawWireSphere(transform.position, monsterDetectRange);
     }
 }
