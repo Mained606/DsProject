@@ -123,6 +123,7 @@ public class SkillBehaviour : IBehaviour
                 PlayerBehaviourManager.Instance.CanBlock = false;
                 controller.isUseSkill = true;
                 animator.SetBool("IsUseSkill", true);
+                animator.SetFloat("Speed", 0f);
                 skill = SkillManager.Instance.GetSkill(EntityType.Player, skillName);
                 if (skill.targeting)
                 {
