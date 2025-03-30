@@ -5,32 +5,39 @@ using UnityEngine.UI;
 
 public class EnhanceUI : MonoBehaviour
 {
+    [Header("아이템 리스트")]
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private Transform itemParent;
+
+    [Header("툴팁 패널")]
     [SerializeField] private GameObject itemInfoObject;
-
-
     [SerializeField] private TextMeshProUGUI[] itemInfoTextField;
     [SerializeField] private Image itemInfoImageField;
 
+    [Header("버튼")]
     [SerializeField] private Button enhanceButton;
     [SerializeField] private Button cancelButton;
 
+    [Header("슬롯")]
     [SerializeField] private Image enhanceSlotImage;
 
-    [SerializeField] private GameObject CurrentItem;
-    [SerializeField] private GameObject AfterItem;
+    [Header("강화 비교 패널")]
+    [SerializeField] private GameObject infoPanelPrefab;
 
-    private List<Item> targetItems = new(); // 강화 가능한 장비 목록
-    private List<Item> previousItems = new(); // 변경 감지용
-    private Item selectedItem = null; // 강화 슬롯에 들어간 아이템
+    [SerializeField] private Transform currentPanelParent;
+    [SerializeField] private Transform afterPanelParent;
 
-    private const string ENHANCE_MATERIAL_ID = "강화석";
+    private GameObject currentPanel;
+    private GameObject afterPanel;
+
+    private List<Item> targetItems = new();
+    private List<Item> previousItems = new();
+    private Item selectedItem = null;
 
     private void OnEnable()
     {
         AddButtonListeners();
-        LoadTargetItems(); // 무기/방어구 필터링해서 불러옴
+        LoadTargetItems();
     }
 
     private void OnDisable()
@@ -46,9 +53,7 @@ public class EnhanceUI : MonoBehaviour
         foreach (var item in InventoryManager.InventoryList)
         {
             if (item.type == ItemType.무기 || item.type == ItemType.방어구)
-            {
                 targetItems.Add(item);
-            }
         }
 
         if (!AreListsEqual(previousItems, targetItems))
@@ -61,14 +66,10 @@ public class EnhanceUI : MonoBehaviour
     private void UpdateUI()
     {
         ClearUI();
-
-        // 인벤토리에 실제 존재하는 아이템만 유지
         targetItems = targetItems.FindAll(item => InventoryManager.Instance.HasItem(item.id));
 
         foreach (var item in targetItems)
-        {
             CreateItemUI(item);
-        }
     }
 
     private void CreateItemUI(Item item)
@@ -84,18 +85,13 @@ public class EnhanceUI : MonoBehaviour
     private void ClearUI()
     {
         foreach (Transform child in itemParent)
-        {
             Destroy(child.gameObject);
-        }
     }
 
     private void AddButtonListeners()
     {
         enhanceButton.onClick.RemoveAllListeners();
-        enhanceButton.onClick.AddListener(() =>
-        {
-            TryEnhance();
-        });
+        enhanceButton.onClick.AddListener(() => TryEnhance());
 
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(() =>
@@ -119,14 +115,21 @@ public class EnhanceUI : MonoBehaviour
             return;
         }
 
-        int qty = InventoryManager.Instance.GetItemQuantity(ENHANCE_MATERIAL_ID);
-        if (qty <= 0)
+        string materialId = EnhanceManager.Instance.enhancementItemIds[0];
+        if (string.IsNullOrEmpty(materialId))
         {
-            UIManager.SystemMessage("강화석이 부족합니다.");
+            UIManager.SystemMessage("강화 재료가 설정되어 있지 않습니다.");
             return;
         }
 
-        var mat = ItemManager.Instance.GetItemById(ENHANCE_MATERIAL_ID);
+        int qty = InventoryManager.Instance.GetItemQuantity(materialId);
+        if (qty <= 0)
+        {
+            UIManager.SystemMessage("강화 재료가 부족합니다.");
+            return;
+        }
+
+        var mat = ItemManager.Instance.GetItemById(materialId);
         EnhanceManager.Instance.Enhance(selectedItem, mat);
 
         ClearEnhanceSlot();
@@ -137,8 +140,46 @@ public class EnhanceUI : MonoBehaviour
     {
         selectedItem = null;
         enhanceSlotImage.sprite = null;
-        enhanceSlotImage.enabled = false; // 슬롯 비우면 안 보이게
+        enhanceSlotImage.enabled = false;
+
+        if (currentPanel != null) Destroy(currentPanel);
+        if (afterPanel != null) Destroy(afterPanel);
     }
+
+   public void SetSelectedItem(Item item)
+{
+    selectedItem = item;
+    enhanceSlotImage.sprite = item.sprite;
+    enhanceSlotImage.enabled = true;
+
+    // 기존 패널 삭제
+    if (currentPanel != null) Destroy(currentPanel);
+    if (afterPanel != null) Destroy(afterPanel);
+
+    // Current Panel 생성 (빈 오브젝트 currentPanelParent 위치)
+    currentPanel = Instantiate(infoPanelPrefab, currentPanelParent);
+    currentPanel.transform.localPosition = Vector3.zero; // currentPanelParent의 위치에 맞게 생성
+
+    // After Panel 생성 (빈 오브젝트 afterPanelParent 위치)
+    afterPanel = Instantiate(infoPanelPrefab, afterPanelParent);
+    afterPanel.transform.localPosition = Vector3.zero; // afterPanelParent의 위치에 맞게 생성
+
+    // 텍스트, 이미지 바인딩
+    var currentTexts = currentPanel.GetComponentsInChildren<TextMeshProUGUI>();
+    var currentImage = currentPanel.GetComponentsInChildren<Image>()[2]; // 3번째 Image로 설정
+    currentTexts[0].text = item.id;
+    currentTexts[1].text = item.ToStringTMPro();
+    currentImage.sprite = item.sprite;
+
+    // 프리뷰 아이템 생성 (강화된 아이템 정보)
+    Item previewItem = EnhanceManager.Instance.PreviewEnhance(item);
+
+    var afterTexts = afterPanel.GetComponentsInChildren<TextMeshProUGUI>();
+    var afterImage = afterPanel.GetComponentsInChildren<Image>()[2];
+    afterTexts[0].text = previewItem.id;
+    afterTexts[1].text = previewItem.ToStringTMPro();
+    afterImage.sprite = previewItem.sprite;
+}
 
     private bool AreListsEqual(List<Item> a, List<Item> b)
     {
@@ -149,12 +190,5 @@ public class EnhanceUI : MonoBehaviour
                 return false;
         }
         return true;
-    }
-    public void SetSelectedItem(Item item)
-    {
-        selectedItem = item;
-        enhanceSlotImage.sprite = item.sprite; // ✅ 드랍된 장비 이미지 표시
-        enhanceSlotImage.enabled = true;       // 혹시 꺼져 있을 수도 있으니까
-
     }
 }
