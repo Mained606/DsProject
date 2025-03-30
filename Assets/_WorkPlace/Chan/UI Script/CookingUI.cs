@@ -25,10 +25,15 @@ public class CookingUI : MonoBehaviour
     private List<Item> craftingMaterials = new(); // 제작재료 리스트
     private List<Item> previousMaterials = new(); // 이전 UI 상태 비교용 리스트
 
+    //==========================================================================
+    [SerializeField] private Transform potSlotParent;
+    [SerializeField] private GameObject potSlotPrefab;
     private void OnEnable()
     {
+        CookingManager.Instance.ClearIngredients();
         AddButtonListeners();
         LoadCraftingMaterials();
+        UpdatePotSlotUI();
     }
     private void OnDisable()
     {
@@ -98,6 +103,7 @@ public class CookingUI : MonoBehaviour
         {
             CookingManager.Instance.ClearIngredients();
             LoadCraftingMaterials(); //  요리 재료 목록 다시 불러오기
+            UpdatePotSlotUI();
         });
 
         cookButton.onClick.RemoveAllListeners();
@@ -105,6 +111,7 @@ public class CookingUI : MonoBehaviour
         {
             CookingManager.Instance.Craft();
             LoadCraftingMaterials(); // 요리 완료 후 재료 갱신
+            UpdatePotSlotUI();
         });
     }
 
@@ -125,4 +132,38 @@ public class CookingUI : MonoBehaviour
         }
         return true;
     }
+
+    public void UpdatePotSlotUI()
+    {
+        ClearPotSlotUI();
+
+        foreach (var item in CookingManager.Instance.SelectedIngredients)
+        {
+            var slot = Instantiate(potSlotPrefab, potSlotParent);
+            var icon = slot.GetComponentInChildren<Image>();
+            var countText = slot.GetComponentInChildren<TextMeshProUGUI>();
+
+            // 원본 아이템에서 스프라이트만 참조
+            var original = ItemManager.Instance.GetItemById(item.id);
+            if (original != null)
+            {
+                icon.sprite = original.sprite;
+            }
+            else
+            {
+                icon.sprite = item.sprite; // fallback
+            }
+
+            countText.text = $"x{item.quantity}";
+        }
+    }
+
+    private void ClearPotSlotUI()
+    {
+        foreach (Transform child in potSlotParent)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+
 }
