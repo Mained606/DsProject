@@ -138,56 +138,87 @@ public class Item : ISheetData
     // UI에 표시할 아이템 정보 (TextMeshPro 전용)
     public string ToStringTMPro()
     {
-        // 등급에 따른 색상 가져오기
+        // 등급 색상
         string gradeColor = GetGradeColor(grade);
 
-        #region 무기 속성 표시 추가 03.12 
-        // 무기 속성 타입 색상
+        // 무기 속성 색상
         string elementColor = itemSkill != null ? GetElementColor(itemSkill.element) : "#FFFFFF";
         string elementInfo = itemSkill != null && itemSkill.element != ElementalAttribute.None
-            ? $"                                     <size=120%>속성: <color={elementColor}>{itemSkill.element}</color></size>"
+            ? $"                                <size=120%>속성: <color={elementColor}>{itemSkill.element}</color></size>"
             : "";
-        #endregion
 
-        // 기본 정보
-        // string itemName = $"<b>이름: <color={gradeColor}>{name}</color></b>";
+        // 공통 정보
         string itemType = $"종류: <i><color=#87CEEB>{type}</color></i>    등급: <i><color={gradeColor}>{grade}</color></i>{elementInfo}\n";
         string itemDescription = $"<color=#FFFFFF>{description}</color>\n";
         string itemQuantity = isStackable
             ? $"수량: <color=#00FF00>{quantity}/{maxStack}</color>"
             : "수량: <color=#FF0000>중첩 불가</color>";
 
-        // 장착 위치 및 무기 타입
+        // 장비 전용
         string equipmentInfo = type == ItemType.무기 || type == ItemType.방어구 || type == ItemType.장신구
             ? $"\n장착 위치: <color=#FFD700>{equipmentSlot}</color>" +
               (type == ItemType.무기 ? $"    무기 타입: <color=#FFD700>{weaponType}</color>" : "")
             : "";
 
-        // 소모품 효과량
-        string consumableInfo = type == ItemType.소모품
-            ? $"효과: <color=#00FF00>{effectAmount}</color>" +
-              (consumableType != ConsumableType.없음 ? $"    소모품 타입: <color=#FFD700>{consumableType}</color>" : "")
-            : "";
-      
-        // 스탯 정보
-        string statInfo = itemStat != null
-            ? $"\n<b><color=#FFD700>[스탯 정보]</color></b>\n" +
-              (itemStat.Strength > 0 ? $"힘 : {itemStat.Strength}    " : "") +
-              (itemStat.Dexterity > 0 ? $"민첩 : {itemStat.Dexterity}    " : "") +
-              (itemStat.Intelligence > 0 ? $"지능 : {itemStat.Intelligence}    " : "") +
-              (itemStat.Vitality > 0 ? $"활력 : {itemStat.Vitality}    " : "") +
-              //(itemStat.Luck > 0 ? $"운 : {itemStat.Luck}    " : "") +
-              (itemStat.PhysicalAttack > 0 ? $"\n물리 공격력 : {itemStat.PhysicalAttack}    " : "") +
-              (itemStat.MagicAttack > 0 ? $"마법 공격력 : {itemStat.MagicAttack}    " : "") +
-              (itemStat.PhysicalDefense > 0 ? $"물리 방어력 : {itemStat.PhysicalDefense}    " : "") +
-              (itemStat.MagicDefense > 0 ? $"\n마법 방어력 : {itemStat.MagicDefense}    " : "") +
-              (itemStat.CriticalChance > 0 ? $"치명타 확률 : {itemStat.CriticalChance}%    " : "") +
-              (itemStat.AttackSpeed > 0 ? $"공격 속도 : {itemStat.AttackSpeed}    " : "") +
-              (itemStat.Evasion > 0 ? $"\n회피율 : {itemStat.Evasion}%    " : "")
-            : "";
+        // 하단 효과 정보
+        string statInfo = "";
 
-        // 전체 문자열 조합
-        return $"{itemType}{itemDescription}\n{itemQuantity}\n{equipmentInfo}\n{consumableInfo}{statInfo}".Trim();
+        // 1. 장비
+        if (type == ItemType.무기 || type == ItemType.방어구 || type == ItemType.장신구)
+        {
+            statInfo = itemStat != null
+                ? $"\n<b><color=#FFD700>[스탯 정보]</color></b>\n\n" +  // ⬅ 공백 추가됨
+                  (itemStat.Strength > 0 ? $"힘 : {itemStat.Strength}    " : "") +
+                  (itemStat.Dexterity > 0 ? $"민첩 : {itemStat.Dexterity}    " : "") +
+                  (itemStat.Intelligence > 0 ? $"지능 : {itemStat.Intelligence}    " : "") +
+                  (itemStat.Vitality > 0 ? $"활력 : {itemStat.Vitality}    " : "") +
+                  (itemStat.PhysicalAttack > 0 ? $"\n물리 공격력 : {itemStat.PhysicalAttack}    " : "") +
+                  (itemStat.MagicAttack > 0 ? $"마법 공격력 : {itemStat.MagicAttack}    " : "") +
+                  (itemStat.PhysicalDefense > 0 ? $"물리 방어력 : {itemStat.PhysicalDefense}    " : "") +
+                  (itemStat.MagicDefense > 0 ? $"\n마법 방어력 : {itemStat.MagicDefense}    " : "") +
+                  (itemStat.CriticalChance > 0 ? $"치명타 확률 : {itemStat.CriticalChance}%    " : "") +
+                  (itemStat.AttackSpeed > 0 ? $"공격 속도 : {itemStat.AttackSpeed}    " : "") +
+                  (itemStat.Evasion > 0 ? $"\n회피율 : {itemStat.Evasion}%    " : "")
+                : "";
+        }
+
+        // 2. 소모품
+        else if (type == ItemType.소모품)
+        {
+            string effectLine = "";
+            if (effect.effectType == EffectType.Hp)
+                effectLine = $"체력 회복량: <color=#00FF00>{effectAmount}</color>";
+            else if (effect.effectType == EffectType.Mp)
+                effectLine = $"마나 회복량: <color=#00BFFF>{effectAmount}</color>";
+            else if (effect.effectType == EffectType.Buff)
+            {
+                string buffText = itemStat?.GetEffectDescription() ?? "";
+                string durationText = effect.duration > 0 ? $"\n지속시간: <color=#FFD700>{effect.duration}초</color>" : "";
+                effectLine = $"<b>버프 효과:</b> {buffText}{durationText}";
+            }
+
+            statInfo = !string.IsNullOrEmpty(effectLine)
+                ? $"\n<b><color=#FFD700>[소모품 효과]</color></b>\n\n{effectLine}"
+                : "";
+        }
+
+        // 3. 요리
+        else if (type == ItemType.요리)
+        {
+            string recovery = "";
+            if (itemStat.HealHp > 0) recovery += $"체력 회복: <color=#00FF00>+{itemStat.HealHp}</color>    ";
+            if (itemStat.HealMp > 0) recovery += $"마나 회복: <color=#00BFFF>+{itemStat.HealMp}</color>";
+
+            string buffText = itemStat.HasBuffStat() ? itemStat.GetEffectDescription() : "";
+            string durationText = effect.duration > 0 ? $"\n지속시간: <color=#FFD700>{effect.duration}초</color>" : "";
+
+            statInfo = $"\n<b><color=#FFD700>[요리 효과]</color></b>\n\n";  // ⬅ 공백 추가됨
+            if (!string.IsNullOrEmpty(recovery)) statInfo += recovery + "\n";
+            if (!string.IsNullOrEmpty(buffText)) statInfo += $"버프 효과: {buffText}{durationText}";
+        }
+
+        // 최종 문자열 조합
+        return $"{itemType}{itemDescription}\n{itemQuantity}\n{equipmentInfo}{statInfo}".Trim();
     }
 
     #region 타입별 속성 03.12
