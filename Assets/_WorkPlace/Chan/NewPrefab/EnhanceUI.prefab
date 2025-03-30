@@ -2029,7 +2029,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6816619408114900006
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2114,6 +2114,8 @@ MonoBehaviour:
   infoPanelPrefab: {fileID: 0}
   currentPanelParent: {fileID: 0}
   afterPanelParent: {fileID: 0}
+  enhanceStoneImage: {fileID: 0}
+  enhanceStoneQuantityText: {fileID: 0}
 --- !u!1 &4557826499028791842
 GameObject:
   m_ObjectHideFlags: 0

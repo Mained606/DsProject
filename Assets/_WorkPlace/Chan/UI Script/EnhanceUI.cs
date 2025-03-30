@@ -30,6 +30,9 @@ public class EnhanceUI : MonoBehaviour
     private GameObject currentPanel;
     private GameObject afterPanel;
 
+    [SerializeField] private Image enhanceStoneImage;
+    [SerializeField] private TextMeshProUGUI enhanceStoneQuantityText;
+
     private List<Item> targetItems = new();
     private List<Item> previousItems = new();
     private Item selectedItem = null;
@@ -38,6 +41,7 @@ public class EnhanceUI : MonoBehaviour
     {
         AddButtonListeners();
         LoadTargetItems();
+        UpdateEnhanceStoneUI();
     }
 
     private void OnDisable()
@@ -134,6 +138,7 @@ public class EnhanceUI : MonoBehaviour
 
         ClearEnhanceSlot();
         LoadTargetItems();
+        UpdateEnhanceStoneUI();
     }
 
     private void ClearEnhanceSlot()
@@ -190,5 +195,26 @@ public class EnhanceUI : MonoBehaviour
                 return false;
         }
         return true;
+    }
+
+    private void UpdateEnhanceStoneUI()
+    {
+        string materialId = EnhanceManager.Instance.enhancementItemIds[0];
+
+        Item enhanceStone = ItemManager.Instance.GetItemById(materialId);
+
+        if (enhanceStone != null)
+        {
+            enhanceStoneImage.sprite = enhanceStone.sprite;
+            enhanceStoneImage.enabled = true;
+
+            int quantity = InventoryManager.Instance.GetItemQuantity(materialId);
+            enhanceStoneQuantityText.text = quantity.ToString();
+        }
+        else
+        {
+            enhanceStoneImage.enabled = false;
+            enhanceStoneQuantityText.text = "0";
+        }
     }
 }
