@@ -429,7 +429,7 @@ public class SkillManager : BaseManager<SkillManager>
             var skillImg = Instantiate(skillImage[0], // 버프는 항상 Support 타입 (0번 인덱스)
                                       skill.entityType != EntityType.Boss ? skillPanel[0] : skillPanel[1]);
             skillImg.AddComponent<CanvasGroup>();
-            activeSkill[skill] = skillImg.transform.GetChild(1).GetComponent<Image>();
+            activeSkill[skill] = skillImg.transform.GetChild(0).GetComponent<Image>();
             activeSkill[skill].sprite = ItemManager.Instance.GetSkillSprite(skill.skillName);
             
             // 제목 설정 (옵션)
