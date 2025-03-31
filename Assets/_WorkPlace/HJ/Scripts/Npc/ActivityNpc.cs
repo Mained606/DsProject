@@ -58,6 +58,7 @@ public class ActivityNpc : MonoBehaviour
             ActiveTool(!isTalking);
         }
     }
+    public Transform currentTalking = null;
 
     [Header("Detection Monster")]
     private float fleeDistance = 10f;
@@ -92,6 +93,7 @@ public class ActivityNpc : MonoBehaviour
     {
         originalRotation = transform.rotation;
         originalPosition = transform.position;
+
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
         rb = GetComponent<Rigidbody>();
@@ -265,7 +267,7 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FarmingState, true);
 
-            yield return new WaitForSeconds(Random.Range(20, 40));
+            yield return new WaitForSeconds(Random.Range(5, 5));
 
             yield return StartCoroutine(StartAction());
         }
@@ -558,7 +560,18 @@ public class ActivityNpc : MonoBehaviour
         yield return StartCoroutine(LookAtTarget(target.position));
 
         animator.SetBool(TalkingState, true);
-        PlayRandomTrigger(talkingTriggers);
+
+        ActivityNpc targetNpc = target.GetComponent<ActivityNpc>();
+        if(targetNpc.currentTalking == null)
+        {
+            currentTalking = this.transform;
+            PlayRandomTrigger(talkingTriggers);
+        }
+        else
+        {
+            currentTalking = targetNpc.currentTalking;
+            animator.SetTrigger("NodTrigger");
+        }        
 
         currentCoroutine = StartCoroutine(ContinueConversation(target));
     }
@@ -576,7 +589,16 @@ public class ActivityNpc : MonoBehaviour
 
             if (conversationCount < minConversations)
             {
-                PlayRandomTrigger(talkingTriggers);
+                if(currentTalking == transform)
+                {
+                    currentTalking = target;
+                    animator.SetTrigger("NodTrigger");                    
+                }
+                else
+                {
+                    currentTalking = transform;
+                    PlayRandomTrigger(talkingTriggers);
+                }
 
                 conversationCount++;
             }
@@ -595,6 +617,7 @@ public class ActivityNpc : MonoBehaviour
     private void StopConversation()
     {
         IsTalking = false;
+        currentTalking = null;
 
         animator.SetTrigger(ExitTrigger);
         animator.SetBool(TalkingState, false);

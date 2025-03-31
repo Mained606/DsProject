@@ -8,8 +8,7 @@ public enum NpcType
     Farmer,
     Craft,
     Fishing,
-    Sitting,
-    Animal
+    Sitting
 }
 
 public class NpcController : MonoBehaviour
