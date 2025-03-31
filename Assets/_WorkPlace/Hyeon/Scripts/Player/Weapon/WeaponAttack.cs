@@ -39,7 +39,7 @@ public class WeaponAttack : MonoBehaviour
                 BaseMonsterData baseMonsterData = other.GetComponent<BaseMonsterData>();
                 if (baseMonsterData != null)
                 {
-                    if(hitImpactPrefab != null)
+                    if (hitImpactPrefab != null)
                     {
                         GameObject obj = Instantiate(hitImpactPrefab, transform.position, Quaternion.identity);
 

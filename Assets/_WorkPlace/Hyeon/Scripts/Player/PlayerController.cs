@@ -13,7 +13,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float staminaRecoveryRate;
 
     public PlayerState currentState = PlayerState.Idle;
-    private int layerMask;
+    private LayerMask groundLayer;
+    private LayerMask enemyLayer;
     public CharacterController characterController;
     [SerializeField] private Animator playerAnimator;
     public Animator PlayerAnimator => playerAnimator;
@@ -80,9 +81,6 @@ public class PlayerController : MonoBehaviour
 
     private BasicTimer RecoveryTimer;
     private float RecoveryTime = 1f;
-
-    private Skills skill;
-
     #endregion
 
     private void OnEnable()
@@ -113,7 +111,6 @@ public class PlayerController : MonoBehaviour
         //CanWeaponSwitch = true;
         playerData = CharacterManager.PlayerCharacterData;
         RecoveryTimer = new BasicTimer(RecoveryTime);
-        layerMask = ~LayerMask.GetMask("Ds Player");
 
         // Hit 이벤트 구독
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
@@ -273,7 +270,7 @@ public class PlayerController : MonoBehaviour
         if (!isGrounded && !isJumping)
         {
             RaycastHit hit;
-            if(Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 1f, layerMask))
+            if(Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 1f, groundLayer))
             {
                 //Debug.Log($"Ray맞는 중 : {hit.transform.name}");
                 if(hit.point.y < transform.position.y)
