@@ -234,7 +234,7 @@ public class SoundManager : MonoBehaviour
             source.clip = clip;
             source.volume = volume;
             source.loop = isLoop;
-            source.pitch = pitch;
+            source.pitch = pitch;   //03.31 HJ 추가
             source.Play();
 
             _UsedClip.Add(new AudioClipInfo

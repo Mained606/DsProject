@@ -16,13 +16,12 @@ public class NpcController : MonoBehaviour
 {
     public NpcType npcType;
     public Transform npcTool;
-    public Vector3 sittinOffset;
+    public Vector3 sittingOffset;
     public bool isFemale;
     [SerializeField] private float voicePitch;
     [SerializeField] LayerMask layer;
     private List<string> speakVoices = new List<string>{ "cartoon voice1", "cartoon voice2", "cartoon voice3", "cartoon voice4" };
     
-
     private Animator animator;
 
     private void Awake()
@@ -35,7 +34,7 @@ public class NpcController : MonoBehaviour
         //{
         //    gameObject.AddComponent<WanderNpc>();
         //}
-        //else if(npcType == NpcType.Animal)
+        //else if (npcType == NpcType.Animal)
         //{
         //    gameObject.AddComponent<AnimalNpc>();
         //}
@@ -44,7 +43,7 @@ public class NpcController : MonoBehaviour
         //    gameObject.AddComponent<ActivityNpc>();
         //}
 
-        if(isFemale)
+        if (isFemale)
         {
             voicePitch = Random.Range(0.8f, 0.9f);
         }
@@ -54,7 +53,12 @@ public class NpcController : MonoBehaviour
         }
     }
 
-    void Speak(AnimationEvent animationEvent)
+    void OnFootStep(AnimationEvent animationEvent)
+    {
+        SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+    }
+
+    void OnSpeak(AnimationEvent animationEvent)
     {
         SoundManager.Instance.RandomPlay(speakVoices, transform, 0.5f, voicePitch);
     }
