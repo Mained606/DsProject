@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 22b1d621cef5a7b42a342fa2e3963063
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 303129
+  packageName: Iron Hole
+  packageVersion: 1.0
+  assetPath: Assets/Iron Hole/Materials/IronHole_LOD1.mat
+  uploadId: 714327

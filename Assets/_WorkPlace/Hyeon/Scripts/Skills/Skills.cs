@@ -234,14 +234,28 @@ public class Skills : ISheetData
     #region 03.17 C
     public string ToStringTMPro()
     {
-        string color = (skillType == SkillType.Physical) ? "#1E90FF" : "#FFD700";
+        string color = (skillType == SkillType.Physical) ? "#1E90FF" :
+                   (skillType == SkillType.Magic) ? "#FFD700" :
+                   "#7CFC00"; // Support
+
         string info = $"<b><color={color}>{skillName}</color></b>\n" +
                       $"유형: {skillType}\n" +
-                      $"레벨: {skillLevel}\n" +
-                      $"데미지: {currentDamage}\n" +
-                      $"소모 MP: {energyCost}\n" +
-                      $"쿨타임: {cooldown}초\n";
-        // 원하는 정보 더 추가
+                      $"레벨: {skillLevel}\n";
+
+        if (skillType == SkillType.Support)
+        {
+            info += $"버프 지속시간: {currentBuffDuration:F1}초\n" +
+                    $"버프 수치: {currentBuffValue}%\n" +
+                    $"소모 MP: {currentEnergyCost}\n" +
+                    $"쿨타임: {currentCooldown}초\n";
+        }
+        else
+        {
+            info += $"데미지: {currentDamage}\n" +
+                    $"소모 MP: {currentEnergyCost}\n" +
+                    $"쿨타임: {currentCooldown}초\n";
+        }
+
         return info;
     }
     #endregion

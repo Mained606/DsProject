@@ -11,7 +11,7 @@ public class InputManager : BaseManager<InputManager>
     private Dictionary<string, bool> inputStates = new Dictionary<string, bool>();
 
     // UI 관련 액션 이름 저장
-    private readonly string[] uiActions = new string[] { "Inventory", "Quest", "StatusUI", "ESC", "Craft", "Cook", "Skill" };
+    private readonly string[] uiActions = new string[] { "Inventory", "Quest", "StatusUI", "ESC", "Enhance", "Cook", "Skill" };
     
     // 플레이어 이동 및 전투 관련 액션 이름
     private readonly string[] gameplayActions = new string[] { 
@@ -32,8 +32,15 @@ public class InputManager : BaseManager<InputManager>
     {
         if (Input.GetKeyDown(KeyCode.F8))
         {
-            var itemsToAdd = new[] { "완드", "나뭇가지", "나무완드", "도끼", "낡은검", "양손검","버섯","비트","무", "소형 체력포션", "소형 마나포션" };
+            var itemsToAdd = new[] { "완드", "나뭇가지", "나무완드", "도끼", "낡은검", "양손검" };
             foreach (var item in itemsToAdd) ItemManager.Instance.AddItemLogic(item);
+
+            ItemManager.Instance.AddItemLogic("버섯",10);
+            ItemManager.Instance.AddItemLogic("비트", 10);
+            ItemManager.Instance.AddItemLogic("무", 10);
+            ItemManager.Instance.AddItemLogic("강화석", 10);
+            ItemManager.Instance.AddItemLogic("소형 체력포션", 5);
+            ItemManager.Instance.AddItemLogic("소형 마나포션", 5);
         }
     }
 
@@ -53,9 +60,9 @@ public class InputManager : BaseManager<InputManager>
             { "Inventory", GameSystemState.Inventory },
             { "Quest", GameSystemState.QuestReview },
             { "StatusUI", GameSystemState.StatusUI },
-            { "Craft", GameSystemState.Craft },
             { "Cook", GameSystemState.Cook },
-            { "Skill", GameSystemState.Skill }
+            { "Skill", GameSystemState.Skill },
+            {"Enhance", GameSystemState.Enhance}
         };
 
         foreach (var actionPair in actionStateMap)
@@ -180,6 +187,7 @@ public class InputManager : BaseManager<InputManager>
             || state == GameSystemState.Craft
             || state == GameSystemState.Cook
             || state == GameSystemState.Skill
+              || state == GameSystemState.Enhance
             || state == GameSystemState.PetInteraction
             || state == GameSystemState.DialogueState;
     }

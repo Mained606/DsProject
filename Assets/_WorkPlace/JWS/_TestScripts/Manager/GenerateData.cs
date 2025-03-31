@@ -150,21 +150,22 @@ public class GenerateData
                 },
                 new List <Reward> {new Reward("",0,0,0) }),
 
-            new Quest("메인퀘스트", "1_1003", "엄마의 쪽지","의문의 소리 찾기",
+            new Quest("메인퀘스트", "1_1003", "엄마의 쪽지","반짝이는 물체를 줍자",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "-",1) }
+                    {"location_002_meet", new QuestCondition(QuestConditionType.Collect, "용의알", "-",1) }
                 },
-                new List<Reward>{new Reward("의문의 알", 1, 50,0)}),
+                new List<Reward>{new Reward("", 0, 50,0)}),
 
-            new Quest("메인퀘스트", "1_1004", "엄마의 쪽지","집으로 돌아가자",
+            new Quest("메인퀘스트", "1_1004", "엄마의 쪽지","용에게 말을 걸자",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "-",1) }
+                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "용", "-",1) }
                 },
-                new List<Reward>{new Reward("야채스프", 1, 10,0)}),
+                new List<Reward>{new Reward("스킬(1)", 1, 10,0)}),
 
-            new Quest("메인퀘스트", "1_1005", "알에서 나온 친구","옷장을 열자",
+            #region 삭제된 메인 퀘스트
+            /*new Quest("메인퀘스트", "1_1005", "알에서 나온 친구","옷장을 열자",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "-",1) }
@@ -291,7 +292,8 @@ public class GenerateData
                 {
                     new Reward("마족의 증표", 1, 50,100),
                     new Reward("마족의 지도", 1, 0, 0)                   
-                })
+                })*/
+#endregion
         };
         return questList;
     }
@@ -341,7 +343,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("버섯", 3, 50, 50)}),
 
-            new Quest("메인퀘스트", "1_2005", "친절한 용사","밭을 망치는 머쉬룸을 잡아줘!",
+            new Quest("서브퀘스트", "1_2005", "친절한 용사","밭을 망치는 머쉬룸을 잡아줘!",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Mushroom", "머쉬룸을 처치하자",10) },
@@ -349,7 +351,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}),
 
-            new Quest("메인퀘스트", "1_2006", "친절한 용사","내 장난감을 찾아줘",
+            new Quest("서브퀘스트", "1_2006", "친절한 용사","내 장난감을 찾아줘",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "장난감id", "장난감을 찾자",1) },
@@ -357,15 +359,25 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("요리", 1, 50,0)}),
 
-            new Quest("메인퀘스트", "1_2007", "친절한 용사","골렘을 잡아줘!",
+            new Quest("서브퀘스트", "1_2007", "친절한 용사","골렘을 잡아줘!",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Mushroom", "골렘을 처치하자",10) },
+                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Golem", "골렘을 처치하자",10) },
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_03", "수배지를 확인하자",1) }
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}),
 
-            new Quest("서브퀘스트", "1_2008", "마을의 수호자","이장의 선물",
+            new Quest("서브   퀘스트", "1_2008", "친절한 용사","협곡의 보물",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "보스", "보스를 처치하자",1) },
+                    {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "보물id", "상자를 찾자",1) },
+                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_04", "아저씨에게 가자",1) }
+                },
+                new List<Reward>{new Reward("", 0, 50,50)}),
+
+            #region 삭제된 서브 퀘스트
+            /*new Quest("서브퀘스트", "1_2008", "마을의 수호자","이장의 선물",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "-",1) }
@@ -412,7 +424,8 @@ public class GenerateData
                 {
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_10", "-",1) }
                 },
-                new List<Reward>{new Reward("발광석", 1, 0, 0)}),
+                new List<Reward>{new Reward("발광석", 1, 0, 0)}),*/
+#endregion
         };
         return questList;
     }

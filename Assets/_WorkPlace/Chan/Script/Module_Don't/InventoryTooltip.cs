@@ -103,7 +103,13 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
                     gameObject.AddComponent<DraggableItem>();
                 }
             }
-
+            if (currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구)
+            {
+                if (!TryGetComponent(out DraggableItem ditem))
+                {
+                    gameObject.AddComponent<DraggableItem>();
+                }
+            }
             // 툴팁 창 활성화 및 정보 업데이트
             InventorytooltipWindow.SetActive(true);
             ItemImage.sprite = currentItem.sprite;

@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class EnhanceManager : BaseManager<EnhanceManager>
 {
+
     [SerializeField] private List<string> EnhancementItemIds = new List<string>();
+    public List<string> enhancementItemIds => EnhancementItemIds;
     private Dictionary<int, (int success, int downgrade, int destroy)> levelEnhanceChance;
 
     protected override void Start()
@@ -90,6 +92,27 @@ public class EnhanceManager : BaseManager<EnhanceManager>
 
         Debug.Log("강화 실패, 아이템 파괴");
     }
+
+    public Item PreviewEnhance(Item item)
+    {
+        if (item == null || item.itemStat == null || item.itemSkill == null)
+            return null; // 반환할 값 없으면 null 반환
+
+        // 다음 강화 레벨 가정
+        int previewLevel = item.itemSkill.Level + 1;
+
+        // 계산에 쓸 값들
+        float basePower = 5f;
+        float gradeMultiplier = item.itemSkill.ApplyGradeMultiplier(item);
+        float previewPower = basePower * (1f + previewLevel * 0.2f) * gradeMultiplier;
+
+        // 강화 수치 적용 (실제 강화는 아님)
+        item.itemSkill.ApplyItemStat(item, previewPower, 1);
+
+        // 수정된 item을 반환
+        return item;
+    }
+
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
