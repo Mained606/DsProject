@@ -907,6 +907,7 @@ MonoBehaviour:
   levelUpEffect: {fileID: 6532625474870085665, guid: fcbc3a598b83c0249b1e455fba1f60b7, type: 3}
   cookingUI: {fileID: 0}
   skillUI: {fileID: 0}
+  enhanceUI: {fileID: 4354100069606828376, guid: 4f9b941636e56224c8db6f092cc88475, type: 3}
 --- !u!1 &9196922504058191263
 GameObject:
   m_ObjectHideFlags: 0

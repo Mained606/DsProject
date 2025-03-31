@@ -34,6 +34,7 @@ public class UIManager : BaseManager<UIManager>
     // 03.13 C
     [SerializeField] private GameObject cookingUI;
     [SerializeField] private GameObject skillUI;
+    [SerializeField] private GameObject enhanceUI;
 
     // UI 요소를 타입별로 관리하기 위한 딕셔너리
     private Dictionary<GameSystemState, GameObject> uiStateMap;
@@ -59,6 +60,7 @@ public class UIManager : BaseManager<UIManager>
 
     // ========== 250312 SH 추가 ==========
     public static SkillQuickSlotUI SkillsQuickSlot;
+    public static EnhanceUI EnhanceUI;
     // ========== 250312 SH 추가 ==========
 
     private Coroutine infoMessageCoroutine; // 코루틴 추가부분
@@ -92,6 +94,7 @@ public class UIManager : BaseManager<UIManager>
         SkillsQuickSlot = skillQuickSlot.GetComponent<SkillQuickSlotUI>();
         CookingUI = cookingUI.GetComponent<CookingUI>();
         SkillUI = skillUI.GetComponent<SkillUI>();
+        EnhanceUI = enhanceUI.GetComponent<EnhanceUI>();
     }
 
     private void InitializeUIStateMap()
@@ -104,7 +107,8 @@ public class UIManager : BaseManager<UIManager>
             { GameSystemState.Shopping, shopUI },
             { GameSystemState.DialogueState, dialogWindow },
             { GameSystemState.Cook, cookingUI },
-            { GameSystemState.Skill, skillUI }
+            { GameSystemState.Skill, skillUI },
+            { GameSystemState.Enhance,enhanceUI}
         };
     }
 
@@ -125,6 +129,7 @@ public class UIManager : BaseManager<UIManager>
         bossHud.SetActive(false);
         cookingUI.SetActive(false);
         skillUI.SetActive(false);
+        enhanceUI.SetActive(false);
     }
 
     private void Update()
@@ -274,7 +279,14 @@ public class UIManager : BaseManager<UIManager>
         skillQuickSlot.SetActive(true);
         quickSlot.SetActive(true);
     }
-    
+
+    public void ToggleEnhanceUIWindow()
+    {
+        ToggleUIWindow(GameSystemState.Enhance);
+        skillQuickSlot.SetActive(true);
+        quickSlot.SetActive(true);
+    }
+
     public void ToggleSkillUIWindow()
     {
         ToggleUIWindow(GameSystemState.Skill);
@@ -548,6 +560,9 @@ public class UIManager : BaseManager<UIManager>
                 break;
             case GameSystemState.Skill:
                 ToggleSkillUIWindow();
+                break;
+            case GameSystemState.Enhance:
+                ToggleEnhanceUIWindow();
                 break;
         }
         

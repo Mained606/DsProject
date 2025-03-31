@@ -7,7 +7,7 @@ public class SkillQuickSlotUI : MonoBehaviour
 
     [SerializeField] private SkillSlot[] quickSlots;
 
-    public List<Skills> registedSkillList = new List<Skills>(); // 진짜 등록된 스킬만 담김
+    public List<Skills> registedSkillList = new List<Skills>(); 
 
     private void Awake()
     {

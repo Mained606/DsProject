@@ -69,7 +69,6 @@ public class SkillDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
         CanvasGroup dragCanvasGroup = dragImageObject.GetComponent<CanvasGroup>();
         dragCanvasGroup.blocksRaycasts = false;
 
-        // 🔥 핵심: 드래그 정보 복사
         SkillDrag clone = dragImageObject.AddComponent<SkillDrag>();
         clone.SkillData = this.SkillData;
         clone.Icon = this.Icon;

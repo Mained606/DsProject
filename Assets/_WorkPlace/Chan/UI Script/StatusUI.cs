@@ -30,6 +30,7 @@ public class StatusUI : MonoBehaviour
     private Button playerTabButton;
     private Button dragonTabButton;
     private Button confirmButton;
+    private Button cancelButton;
     private Dictionary<StatType, (Button plus, Button minus)> statButtons = new();
 
     private PlayerData playerData;
@@ -51,7 +52,7 @@ public class StatusUI : MonoBehaviour
 
     private void OnEnable()
     {
-       // playerData.CancelTempAllocation();
+        OnClickCancel();
         OnTabClick(CharType.Player);
         AddButtonListeners();
        
@@ -59,13 +60,14 @@ public class StatusUI : MonoBehaviour
 
     private void OnDisable()
     {
+        OnClickCancel();
         RemoveButtonListeners();
     }
 
     private void AssignButtonsByIndex()
     {
         buttons = transform.GetComponentsInChildren<Button>(true);
-        if (buttons.Length < 11)
+        if (buttons.Length < 12)
         {
             Debug.LogError("버튼 개수가 부족합니다. 총 11개 필요.");
             return;
@@ -74,6 +76,7 @@ public class StatusUI : MonoBehaviour
         playerTabButton = buttons[0];
         dragonTabButton = buttons[1];
         confirmButton = buttons[10];
+        cancelButton = buttons[11];
 
         statButtons[StatType.Strength] = (buttons[2], buttons[6]);
         statButtons[StatType.Intelligence] = (buttons[3], buttons[7]);
@@ -87,6 +90,7 @@ public class StatusUI : MonoBehaviour
         playerTabButton?.onClick.AddListener(() => OnTabClick(CharType.Player));
         dragonTabButton?.onClick.AddListener(() => OnTabClick(CharType.Dragon));
         confirmButton?.onClick.AddListener(OnClickConfirm);
+        cancelButton?.onClick.AddListener(OnClickCancel);
 
         foreach (var pair in statButtons)
         {
@@ -100,6 +104,7 @@ public class StatusUI : MonoBehaviour
         playerTabButton?.onClick.RemoveAllListeners();
         dragonTabButton?.onClick.RemoveAllListeners();
         confirmButton?.onClick.RemoveAllListeners();
+        cancelButton?.onClick.RemoveAllListeners();
 
         foreach (var pair in statButtons)
         {
@@ -149,6 +154,13 @@ public class StatusUI : MonoBehaviour
         playerData.ConfirmTempAllocation();
         UpdateUI();
     }
+    private void OnClickCancel()
+    {
+        playerData.CancelTempAllocation();
+        UpdateUI();
+    }
+    
+
 
     private void UpdateUI()
     {

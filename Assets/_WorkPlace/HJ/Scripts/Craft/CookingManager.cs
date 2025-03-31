@@ -11,6 +11,7 @@ public class CookingManager : CraftManager
     [SerializeField] private float maxDuration = 300f;      //최대 버프 지속시간
 
     public List<string> specialIngredients = new List<string>();    //특수 요리 재료
+    public IReadOnlyList<Item> SelectedIngredients => selectedIngredients;
 
     [field: NonSerialized]
     public override List<Recipe> Recipes { get; set; }
