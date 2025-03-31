@@ -65,7 +65,11 @@ public class SkillBehaviour : IBehaviour
             useSkillIndex = 2;
             ReadyToSkill();
         }
-
+        else if (InputManager.InputActions.actions["PlayerSkill_4"].triggered)
+        {
+            useSkillIndex = 3;
+            ReadyToSkill();
+        }
 
         //for (int i = 0; i < skillCounts; i++)
         //{
