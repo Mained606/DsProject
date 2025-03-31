@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading;
 using UnityEngine;
 
 public class ActivityNpc : MonoBehaviour
@@ -45,7 +46,7 @@ public class ActivityNpc : MonoBehaviour
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    [SerializeField] private float talkingChance = 0.3f;
+    [SerializeField] private float talkingChance = 0.5f;
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
     public bool IsTalking
@@ -57,8 +58,6 @@ public class ActivityNpc : MonoBehaviour
             ActiveTool(!isTalking);
         }
     }
-
-    public ActivityNpc talkingNpc = null;
 
     [Header("Detection Monster")]
     private float fleeDistance = 10f;
@@ -176,7 +175,7 @@ public class ActivityNpc : MonoBehaviour
             {
                 IsMoving = false;
                 StopCurrentAction();
-                StartCoroutine(StartTerrifying());               
+                StartCoroutine(StartTerrifying());
             }
         }
     }
@@ -266,7 +265,7 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FarmingState, true);
 
-            yield return new WaitForSeconds(Random.Range(20, 40f));
+            yield return new WaitForSeconds(Random.Range(20, 40));
 
             yield return StartCoroutine(StartAction());
         }
@@ -559,7 +558,6 @@ public class ActivityNpc : MonoBehaviour
         yield return StartCoroutine(LookAtTarget(target.position));
 
         animator.SetBool(TalkingState, true);
-
         PlayRandomTrigger(talkingTriggers);
 
         currentCoroutine = StartCoroutine(ContinueConversation(target));
