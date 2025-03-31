@@ -16,7 +16,7 @@ public class InputManager : BaseManager<InputManager>
     // 플레이어 이동 및 전투 관련 액션 이름
     private readonly string[] gameplayActions = new string[] { 
         "Move", "Jump", "Attack", "Block", "Sprint", "Dodge", 
-        "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3", "Interact"
+        "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3","PlayerSkill_4", "Interact"
     };
 
     protected override void Awake()
