@@ -115,6 +115,10 @@ PrefabInstance:
       propertyPath: npcType
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 4532210424166327686, guid: e15ac7e3c16b2774f97e3a4dce94d8d0, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 8035466683624474092, guid: e15ac7e3c16b2774f97e3a4dce94d8d0, type: 3}
       propertyPath: m_Drag
       value: 0
@@ -161,6 +165,10 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 2782219299397555096, guid: eef95170f67bd4c49bf7db1647b82161, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 3197395131756833021, guid: eef95170f67bd4c49bf7db1647b82161, type: 3}
       propertyPath: m_LocalScale.x
       value: 3
@@ -299,6 +307,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6235225812608375279, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 6275097184024232036, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_Drag
       value: 0
@@ -337,6 +349,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: "\uC140\uB9AC\uC544"
       objectReference: {fileID: 0}
+    - target: {fileID: 2410644368935312287, guid: 406044db3600c5244b8b0039a4299bee, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 2815282236887952258, guid: 406044db3600c5244b8b0039a4299bee, type: 3}
       propertyPath: m_LocalScale.x
       value: 3
@@ -431,6 +447,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7332155913482228316}
     m_Modifications:
+    - target: {fileID: 3926900262131945945, guid: a6961164d6c141b4d8ca44067c2cb76c, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 5094453373394532853, guid: a6961164d6c141b4d8ca44067c2cb76c, type: 3}
       propertyPath: m_Drag
       value: 0
@@ -585,6 +605,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6235225812608375279, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 6275097184024232036, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_Drag
       value: 0
@@ -679,6 +703,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6235225812608375279, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 6275097184024232036, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_Drag
       value: 0
@@ -773,6 +801,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6235225812608375279, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 6275097184024232036, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_Drag
       value: 0
@@ -807,6 +839,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7332155913482228316}
     m_Modifications:
+    - target: {fileID: 435238857156670629, guid: 541b0f8957675834186bd5d2d06dfb41, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 1748804012466240368, guid: 541b0f8957675834186bd5d2d06dfb41, type: 3}
       propertyPath: m_LocalScale.x
       value: 3
@@ -973,6 +1009,10 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 3945148213848927603, guid: 50af7aa2d93ff3f4bb7fd77414cdbd74, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 4085201611994646222, guid: 50af7aa2d93ff3f4bb7fd77414cdbd74, type: 3}
       propertyPath: m_Name
       value: "\uBCA8\uB77C"
@@ -1055,6 +1095,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6235225812608375279, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 6275097184024232036, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_Drag
       value: 0
@@ -1157,6 +1201,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: "\uC694\uB9AC\uC0AC"
       objectReference: {fileID: 0}
+    - target: {fileID: 7156390803648303418, guid: f75c39d91bd86044ba94a24c2f016d3d, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 69ad475446d53654483b58aca1387f96, type: 2}
     - target: {fileID: 8802151927587566896, guid: f75c39d91bd86044ba94a24c2f016d3d, type: 3}
       propertyPath: m_Drag
       value: 0

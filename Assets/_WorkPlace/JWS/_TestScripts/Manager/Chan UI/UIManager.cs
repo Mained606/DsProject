@@ -180,7 +180,10 @@ public class UIManager : BaseManager<UIManager>
         }
 
         bool activateUI = !uiWindow.activeSelf;
-        
+
+        // 활성화/비활성화 설정
+        uiWindow.SetActive(activateUI);
+
         // 특정 UI에 대한 추가 처리
         if (activateUI && uiState == GameSystemState.Shopping)
         {
@@ -188,8 +191,7 @@ public class UIManager : BaseManager<UIManager>
             if (npcData != null) ShopUI.SetShopInfo(npcData);
         }
         
-        // 활성화/비활성화 설정
-        uiWindow.SetActive(activateUI);
+        
         
         // 메인 캔버스 및 관련 UI 상태 업데이트
         UpdateMainCanvasState(activateUI, uiState);
