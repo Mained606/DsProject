@@ -9,7 +9,7 @@ public class GlideBehaviour : IBehaviour
 
     private bool canGlide;
     private float glidableHeight = 3.7f;        // 글라이딩 가능 높이
-    private float bodyRotationSpeed = 0.02f;    // 공중에서 몸 돌리는 속도 가중치
+    private float bodyRotationSpeed = 0.05f;    // 공중에서 몸 돌리는 속도 가중치
     private LayerMask groundLayer;              // 그라운드 감지 레이어
     private float glideSpeed;                   // 글라이딩 최종 속도
     private float currentSpeed;                 // 현재 속도

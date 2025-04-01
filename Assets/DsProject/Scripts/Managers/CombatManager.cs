@@ -7,6 +7,12 @@ public class CombatManager : BaseManager<CombatManager>
 {
     private List<string> blockSound = new List<string> { "Shield_Block_1", "Shield_Block_2", "Shield_Block_3" };
     private List<string> parrySound = new List<string> { "Parry_1", "Parry_2" };
+
+    [SerializeField] private GameObject hitEffectNone;
+    [SerializeField] private GameObject hitEffectFire;
+    [SerializeField] private GameObject hitEffectWater;
+    [SerializeField] private GameObject hitEffectElectric;
+    [SerializeField] private GameObject hitEffectEarth;
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
         
@@ -247,19 +253,50 @@ public class CombatManager : BaseManager<CombatManager>
                 skills.AddExperience(levelPoint);
             }
 
+            // 250331 4:00PM SH ====================
+            GameObject obj;
+            if (!isPlayerAttacking && skills == null)
+            {
+                obj = Instantiate(hitEffectNone, defenderPosition.position + Vector3.up * 1.5f, Quaternion.identity);
+                Destroy(obj, 2f);
+            }
+            else if (skills != null)
+            { 
+                switch (skills.attribute)
+                {
+                    case ElementalAttribute.Fire:
+                        obj = Instantiate(hitEffectFire, defenderPosition.position + Vector3.up * 1.5f, Quaternion.identity);
+                        break;
+                    case ElementalAttribute.Water:
+                        obj = Instantiate(hitEffectWater, defenderPosition.position + Vector3.up * 1.5f, Quaternion.identity);
+                        break;
+                    case ElementalAttribute.Electric:
+                        obj = Instantiate(hitEffectElectric, defenderPosition.position + Vector3.up * 1.5f, Quaternion.identity);
+                        break;
+                    case ElementalAttribute.Earth:
+                        obj = Instantiate(hitEffectEarth, defenderPosition.position + Vector3.up * 1.5f, Quaternion.identity);
+                        break;
+                    default:
+                        obj = Instantiate(hitEffectNone, defenderPosition.position + Vector3.up * 1.5f, Quaternion.identity);
+                        break;
+                }
+                Destroy(obj, 2f);
+            }
+            // 250331 4:00PM SH ====================
+
             // 디버프 적용 로직
-            if (isPlayerAttacking && skills == null) 
+            if (isPlayerAttacking && skills == null)
             {
                 // 플레이어의 경우 아이템 스킬 매니저 사용
                 Item equippedWeapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
                 ItemSkillManager.Instance.ElementAttack(equippedWeapon, actualDefender);
-            } 
-            else if (debuffType != ElementalAttribute.None) 
+            }
+            else if (debuffType != ElementalAttribute.None)
             {
                 // 몬스터의 경우 새로운 통합 시스템 사용
                 Debug.Log($"속성 효과 적용: {debuffType}, 지속시간 {debuffDuration}초, 수치 {debuffValue}");
-                
-                switch (debuffType) 
+
+                switch (debuffType)
                 {
                     case ElementalAttribute.Fire:
                         Debug.Log($"화상 효과 적용: 지속시간 {debuffDuration}초, 매 초마다 최대 체력의 {debuffValue}% 피해");

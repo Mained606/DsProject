@@ -1,11 +1,17 @@
 using UnityEditor;
 using UnityEngine;
+using static UnityEngine.InputSystem.OnScreen.OnScreenStick;
 
 public class AttackBehaviour : IBehaviour
 {
     private PlayerController controller;
     private Animator animator;
     private float attackPerceptionRange;
+
+    private float dashAttackDuration = 0.5f;
+    private float dashSpeed = 15f;
+    private bool isDashAttack = false;
+    private float dashTimer;
 
     public AttackBehaviour()
     {
@@ -19,11 +25,19 @@ public class AttackBehaviour : IBehaviour
         attackPerceptionRange = controller.playerCombat.attackPerceptionRange;
         animator.ResetTrigger("NextCombo");
         controller.isAttack = false;
+        dashTimer = 0f;
     }
 
     public void Execute()
     {
-        HandleAttackInput();
+        if (!isDashAttack)
+        {
+            HandleAttackInput();
+        }
+        else
+        {
+            PerformDashAttack();
+        }
     }
 
     public void Exit()
@@ -39,33 +53,65 @@ public class AttackBehaviour : IBehaviour
         {
             if (controller.playerCombat.hasWeapon)
             {
-                if (controller.playerCombat.firstAttack)
+                if (controller.playerCombat.firstAttack && !controller.isSprinting)
                 {
                     PerformComboAttack();
                 }
+                else if (controller.isSprinting)
+                {
+                    StartDashAttack();
+                }
             }
-
         }
+    }
+
+    private void StartDashAttack()
+    {
+        isDashAttack = true;
+        dashTimer = 0f;
+        PlayerBehaviourManager.Instance.CanDodge = false;
+        BoolSwitch();
+        controller.isAttack = true;
+        animator.SetTrigger("NextCombo");
+        animator.SetFloat("Speed", 0f);
     }
 
     private void PerformComboAttack()
     {
-        if (controller.isSprinting)
-        {
-            PlayerBehaviourManager.Instance.CanDodge = false;
-            controller.DashAttack();
-        }
-        else
-        {
-            controller.playerCombat.LookEnemy(attackPerceptionRange);
-        }
-        PlayerBehaviourManager.Instance.CanBlock = false;
-        PlayerBehaviourManager.Instance.CanMove = false;
-        PlayerBehaviourManager.Instance.CanJump = false;
-        PlayerBehaviourManager.Instance.CanUseSkill = false;
+        controller.playerCombat.LookEnemy(attackPerceptionRange);
+        BoolSwitch();
         controller.playerCombat.firstAttack = false;
         controller.isAttack = true;
         animator.SetTrigger("NextCombo");
         animator.SetFloat("Speed", 0f);
     }
+
+    private void PerformDashAttack()
+    {
+        Vector3 dashDirection = controller.transform.forward;
+        dashDirection.y = controller.verticalVelocity.y;
+
+        if (dashTimer < dashAttackDuration)
+        {
+            controller.characterController.Move(dashDirection * dashSpeed * Time.deltaTime);
+            dashTimer += Time.deltaTime;
+        }
+        else
+        {
+            isDashAttack = false;
+            PlayerBehaviourManager.Instance.CanDodge = true;
+            animator.SetBool("Sprint", false);
+            animator.SetFloat("Speed", 0);
+        }
+    }
+
+    private void BoolSwitch()
+    {
+        PlayerBehaviourManager.Instance.CanBlock = false;
+        PlayerBehaviourManager.Instance.CanMove = false;
+        PlayerBehaviourManager.Instance.CanJump = false;
+        PlayerBehaviourManager.Instance.CanUseSkill = false;
+    }
+
+    
 }
