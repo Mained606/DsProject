@@ -469,9 +469,18 @@ public class ActivityNpc : MonoBehaviour
 
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
+        //if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
+        //{
+        //    nextPosition.y = hit.point.y;
+        //}
+
+        if (Terrain.activeTerrain != null)
         {
-            nextPosition.y = hit.point.y;
+            float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+            if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
+            {
+                nextPosition.y = terrainHeight;
+            }
         }
 
         transform.position = nextPosition;
@@ -493,9 +502,18 @@ public class ActivityNpc : MonoBehaviour
 
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
+        //if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
+        //{
+        //    nextPosition.y = hit.point.y;
+        //}
+
+        if (Terrain.activeTerrain != null)
         {
-            nextPosition.y = hit.point.y;
+            float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+            if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
+            {
+                nextPosition.y = terrainHeight;
+            }
         }
 
         transform.position = nextPosition;
@@ -766,6 +784,15 @@ public class ActivityNpc : MonoBehaviour
 
         return currentClip;
     }
+
+    private bool IsOnTerrain(Vector3 position)
+    {
+        if (Terrain.activeTerrain == null) return false;
+
+        float terrainHeight = Terrain.activeTerrain.SampleHeight(position);
+
+        return Mathf.Abs(position.y - terrainHeight) < 0.5f;
+    }
     
     //private void OnDrawGizmos()
     //{
@@ -796,7 +823,8 @@ public class ActivityNpc : MonoBehaviour
                 randomPosition = originalPosition + new Vector3(Random.Range(-walkingRange, walkingRange), 0f, Random.Range(-walkingRange, walkingRange));
                 safetyCounter++;
             }
-            while (Vector3.Distance(transform.position, randomPosition) < arrivedDistance * 2f && safetyCounter < 10);
+            //while (Vector3.Distance(transform.position, randomPosition) < arrivedDistance * 2f && safetyCounter < 10);
+            while ((!IsOnTerrain(randomPosition) || Vector3.Distance(transform.position, randomPosition) < arrivedDistance * 2f) && safetyCounter < 10);
         }
 
         targetPosition = randomPosition;
