@@ -14,7 +14,7 @@ public class Test_Memo : MonoBehaviour
     public void btnDown()
    {
      memo.gameObject.SetActive(false);
-        UIManager.Instance.ToggleinfoMessageWindow("지도를 받으러 가자.");
+     UIManager.Instance.ToggleinfoMessageWindow("지도를 받으러 가자.");
    }
 
 }

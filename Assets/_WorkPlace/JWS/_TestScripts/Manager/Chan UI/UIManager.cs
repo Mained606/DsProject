@@ -548,7 +548,7 @@ public class UIManager : BaseManager<UIManager>
             if (uiWindow.activeSelf)
                 return true;
         }
-        
+       // if (shopUI.activeSelf) return true;
         // 다른 UI 창들도 확인
         return historyWindow.gameObject.activeSelf || infoMessageWindow.gameObject.activeSelf;
     }
@@ -557,9 +557,9 @@ public class UIManager : BaseManager<UIManager>
     {
         // 현재 UI 상태를 InputManager에 알려줌
         bool isUIState = InputManager.Instance.IsUIRelatedState(newState);
-        
+
         // InfoMessage 상태가 아니면 모든 UI 닫기
-        if (newState != GameSystemState.InfoMessage)
+        if (newState != GameSystemState.InfoMessage && newState != GameSystemState.InventoryChange)
             UIClose();
 
         // 각 상태에 따른 처리
