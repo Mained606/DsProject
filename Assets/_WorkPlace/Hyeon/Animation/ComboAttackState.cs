@@ -103,6 +103,7 @@ public class ComboAttackState : StateMachineBehaviour
         {
             isPressedAttackKey = false;
             nextComboInput = false;
+            weaponAttack.ResetDamagedTargets();
             return;
         }
         else
@@ -117,6 +118,7 @@ public class ComboAttackState : StateMachineBehaviour
             }
             animator.ResetTrigger("NextCombo");
             soundIndex = 0;
+            weaponAttack.ResetDamagedTargets();
         }
 
         //SetCombatComponent(animator);
