@@ -116,10 +116,25 @@ public class SkillBehaviour : IBehaviour
 
         if (skillName != null)
         {
-            if (SkillManager.Instance.CheckMana(EntityType.Player, skillName) &&
-                   SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName) &&
-                   SkillManager.Instance.CheckWeaponType(skillName))
+            skill = SkillManager.Instance.GetSkill(EntityType.Player, skillName);
+            if(skill != null)
             {
+                if (!SkillManager.Instance.CheckMana(EntityType.Player, skillName))
+                {
+                    Debug.Log($"스킬 사용에 필요한 마나가 부족합니다. 필요 마나 : {skill.currentEnergyCost}, 현재 마나 : {controller.playerData.currentMp}");
+                    return;
+                }
+                if(!SkillManager.Instance.CanActivateSkill(EntityType.Player, skillName))
+                {
+                    Debug.Log($"{skillName} 스킬 쿨다운 중");
+                    return;
+                }
+                if (!SkillManager.Instance.CheckWeaponType(skillName))
+                {
+                    Debug.Log($"{skillName} 스킬은 {skill.skillType} 무기로만 사용 가능합니다.");
+                    return;
+                }
+
                 PlayerBehaviourManager.Instance.CanMove = false;
                 PlayerBehaviourManager.Instance.CanAttack = false;
                 PlayerBehaviourManager.Instance.CanDodge = false;
@@ -128,11 +143,11 @@ public class SkillBehaviour : IBehaviour
                 controller.isUseSkill = true;
                 animator.SetBool("IsUseSkill", true);
                 animator.SetFloat("Speed", 0f);
-                skill = SkillManager.Instance.GetSkill(EntityType.Player, skillName);
+
                 if (skill.targeting)
                 {
                     Transform closestMonster = combat.GetClosestMonster(skillPerceptionRange);
-                    if(closestMonster != null)
+                    if (closestMonster != null)
                     {
                         SkillManager.Instance.ActivateSkillForEntity(EntityType.Player, skillName, closestMonster.gameObject);
                     }
@@ -147,10 +162,6 @@ public class SkillBehaviour : IBehaviour
                 }
                 if (skill.cooldownTimer != null)
                     TimerManager.Instance.StartTimer(skill.cooldownTimer);
-            }
-            else
-            {
-                Debug.Log($"스킬 사용 불가: {skillName} (마나 부족 또는 쿨타임 중)");
             }
         }
     }
