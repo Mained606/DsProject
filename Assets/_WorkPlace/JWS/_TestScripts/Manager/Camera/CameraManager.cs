@@ -530,6 +530,7 @@ public class CameraManager : BaseManager<CameraManager>
             case GameSystemState.Cook:
             case GameSystemState.Skill:
             case GameSystemState.Enhance:
+            case GameSystemState.InventoryChange:
                 PlayerVisible(true);
                 HandleUIviewState();
                 break;
