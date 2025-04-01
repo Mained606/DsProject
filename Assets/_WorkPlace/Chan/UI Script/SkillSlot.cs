@@ -12,18 +12,19 @@ public class SkillSlot : MonoBehaviour, IDropHandler
     private Skills currentSkill;
     private Sprite currentIcon;
 
-   
+    [SerializeField]private Image bg;
 
+   
     public void Initialize(int index)
     {
         slotIndex = index;
+        bg.color = new Color(1f, 1f, 1f, 0f);
         ClearSlot();
     }
 
     public void SetSkill(Skills skill, Sprite icon = null)
     {
         ClearSlot();
-
         currentSkill = skill;
         currentIcon = icon ?? ItemManager.Instance.GetSkillSprite(skill.skillName);
         iconImage.sprite = currentIcon;
@@ -36,7 +37,7 @@ public class SkillSlot : MonoBehaviour, IDropHandler
                 cooldownOverlay.fillAmount = 0f;
             }
         }
-
+        bg.color = new Color(1f, 1f, 1f, 1f);
     }
 
     public void ClearSlot()
@@ -46,6 +47,7 @@ public class SkillSlot : MonoBehaviour, IDropHandler
         iconImage.sprite = null;
         iconImage.enabled = false;
         if (cooldownOverlay != null) cooldownOverlay.fillAmount = 0f;
+        bg.color = new Color(1f, 1f, 1f, 0f);
     }
 
     public void OnDrop(PointerEventData eventData)
