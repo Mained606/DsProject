@@ -4324,7 +4324,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Lake (1)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3058964472994263066, guid: 6a69879ffd434ea3831bed5bbe32a28b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
