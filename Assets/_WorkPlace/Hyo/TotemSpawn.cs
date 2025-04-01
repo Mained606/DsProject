@@ -15,13 +15,15 @@ public class TotemSpawn : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("트리거엔터");
             npcSpawner.enabled = true;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Destroy(this.gameObject, 1f);
+        if (other.CompareTag("Player"))
+        {
+            Destroy(this.gameObject, 0.1f);
+        }
     }
 }
