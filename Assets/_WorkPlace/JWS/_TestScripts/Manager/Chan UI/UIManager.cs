@@ -20,7 +20,10 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject interactTextUI;
     [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
+    
     [SerializeField] private GameObject infoMessageWindow;
+    [SerializeField] private Button infoMessageCloseButton; // 04.01 테스트용
+
     [SerializeField] private GameObject InventorytooltipWindow;
     [SerializeField] private GameObject characterStaus;
     [SerializeField] private GameObject quickSlot;
@@ -294,7 +297,8 @@ public class UIManager : BaseManager<UIManager>
         quickSlot.SetActive(true);
     }
 
-    public void ToggleinfoMessageWindow(string message)
+    #region 04.01 기존 메서드
+    /*public void ToggleinfoMessageWindow(string message)
     {
         bool isActive = !infoMessageWindow.gameObject.activeSelf;
         infoMessageWindow.gameObject.SetActive(isActive);
@@ -312,12 +316,36 @@ public class UIManager : BaseManager<UIManager>
             // 2초 후 창을 자동으로 닫는 코루틴 실행
             infoMessageCoroutine = StartCoroutine(AutoHideInfoMessage());
         }
+    }*/
+    #endregion
+
+    #region 04.01 테스트용 버튼 추가 메서드
+    public void ToggleinfoMessageWindow(string message)
+    {
+        infoMessageWindow.SetActive(true);
+
+        infoMessageWindow.GetComponentInChildren<TextMeshProUGUI>().text = message;
+
+        // 기존에 있던 코루틴 중지 (안 써도 되지만 혹시 몰라 남김)
+        if (infoMessageCoroutine != null)
+        {
+            StopCoroutine(infoMessageCoroutine);
+        }
+
+        // 버튼 리스너만 붙임
+        infoMessageCloseButton.onClick.RemoveAllListeners();
+        infoMessageCloseButton.onClick.AddListener(() =>
+        {
+            infoMessageWindow.SetActive(false);
+        });
     }
+    #endregion
+
 
     // 코루틴 
     private IEnumerator AutoHideInfoMessage()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(3f);
         infoMessageWindow.gameObject.SetActive(false);
     }
 
