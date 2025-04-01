@@ -271,7 +271,7 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FarmingState, true);
 
-            yield return new WaitForSeconds(Random.Range(5, 5));
+            yield return new WaitForSeconds(Random.Range(20, 40));
 
             yield return StartCoroutine(StartAction());
         }

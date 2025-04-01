@@ -39,11 +39,22 @@ public class NpcController : MonoBehaviour
 
     void OnFootStep(AnimationEvent animationEvent)
     {
-        SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+        float distance = Vector3.Distance(GameManager.playerTransform.position, transform.position);
+        if(distance <= 10f)
+        {
+            //Debug.Log("플레이어와의 거리" + distance);
+            SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+        }
+            
     }
 
     void OnSpeak(AnimationEvent animationEvent)
     {
-        SoundManager.Instance.RandomPlay(speakVoices, transform, 0.5f, voicePitch);
+        float distance = Vector3.Distance(GameManager.playerTransform.position, transform.position);        
+        if (distance <= 10f)
+        {
+            //Debug.Log("플레이어와의 거리" + distance);
+            SoundManager.Instance.RandomPlay(speakVoices, transform, 10f, voicePitch);
+        }
     }
 }
