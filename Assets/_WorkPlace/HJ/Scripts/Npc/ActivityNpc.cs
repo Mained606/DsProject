@@ -46,7 +46,7 @@ public class ActivityNpc : MonoBehaviour
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    [SerializeField] private float talkingChance = 0.3f;
+    [SerializeField] private float talkingChance = 0.5f;
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
     public bool IsTalking
