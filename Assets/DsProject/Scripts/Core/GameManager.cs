@@ -17,6 +17,15 @@ public class GameManager : MonoBehaviour
     public static event Action OnAllManagersReadyEvent;
     private static List<ScriptableObject> scriptableObjects = new List<ScriptableObject>();
 
+    //=========================
+    [SerializeField] private GameObject memo;
+    //=========================
+
+    private void Start()
+    {
+        memo.SetActive(true);
+    }
+
     private void OnDisable()
     {
         SaveAllAssets();

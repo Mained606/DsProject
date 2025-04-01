@@ -16,14 +16,6 @@ public class GameStateMachine : MonoBehaviour
     
     public static event Action<GameSystemState, object> OnGameStateChanged;
 
-    //=========================
-    [SerializeField] private GameObject memo;
-    //=========================
-
-    private void Start()
-    {
-        memo.SetActive(true);
-    }
     private void Awake()
     {
         // 싱글턴 패턴 설정
