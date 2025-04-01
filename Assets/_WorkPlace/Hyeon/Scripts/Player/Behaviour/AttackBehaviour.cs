@@ -99,6 +99,7 @@ public class AttackBehaviour : IBehaviour
         else
         {
             isDashAttack = false;
+            animator.ResetTrigger("NextCombo");
             PlayerBehaviourManager.Instance.CanDodge = true;
             animator.SetBool("Sprint", false);
             animator.SetFloat("Speed", 0);
