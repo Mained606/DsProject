@@ -20,8 +20,9 @@ public class WeaponAttack : MonoBehaviour
         weaponCollider = GetComponentInParent<Collider>();
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
+        Debug.Log("TriggerStay");
         InteractableOb interactable = other.GetComponent<InteractableOb>();
         if (interactable != null)
         {
@@ -30,6 +31,7 @@ public class WeaponAttack : MonoBehaviour
         if (!weaponCollider.enabled) return;
         if (!DamagedTargets.Contains(other.gameObject))
         {
+            Debug.Log("데미지 입히기");
             DamagedTargets.Add(other.gameObject);
 
             // ================ 2025-02-07 09:18 HYO 코드 추가 ====================================================================================================================================
