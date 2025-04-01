@@ -1195,6 +1195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponId: 
   toolTag: 
+  hitImpactPrefab: {fileID: 7833064701701960165, guid: 05c6cd5d37c98a24cb0caa72ef41da4f, type: 3}
   effectScale: {x: 0, y: 0, z: 0}
   elementMaterials: []
 --- !u!1 &746167499823399861
@@ -2704,6 +2705,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponId: 
   toolTag: 
+  hitImpactPrefab: {fileID: 7833064701701960165, guid: 05c6cd5d37c98a24cb0caa72ef41da4f, type: 3}
   effectScale: {x: 0, y: 0, z: 0}
   elementMaterials: []
 --- !u!1 &1319013561895098257
@@ -5344,6 +5346,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponId: Main_Quest002
   toolTag: Axe
+  hitImpactPrefab: {fileID: 7833064701701960165, guid: 05c6cd5d37c98a24cb0caa72ef41da4f, type: 3}
   effectScale: {x: 0, y: 0, z: 0}
   elementMaterials: []
 --- !u!1 &3354983704015538929
@@ -6038,6 +6041,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponId: 
   toolTag: 
+  hitImpactPrefab: {fileID: 7833064701701960165, guid: 05c6cd5d37c98a24cb0caa72ef41da4f, type: 3}
   effectScale: {x: 0.7, y: 0.7, z: 0.7}
   elementMaterials: []
 --- !u!1 &3745260774677652512
@@ -7335,6 +7339,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponId: 
   toolTag: Pickaxe
+  hitImpactPrefab: {fileID: 7833064701701960165, guid: 05c6cd5d37c98a24cb0caa72ef41da4f, type: 3}
   effectScale: {x: 1.2, y: 1.2, z: 1.2}
   elementMaterials:
   - {fileID: 2100000, guid: 603bead62c65ff341b36851a34a870ac, type: 2}
@@ -8964,6 +8969,7 @@ MonoBehaviour:
   isUseSkill: 0
   isParry: 0
   isStunned: 0
+  isDeath: 0
   moveInput: {x: 0, y: 0}
   cameraTransform: {fileID: 0}
   walkSpeed: 0
@@ -10784,6 +10790,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponId: 
   toolTag: 
+  hitImpactPrefab: {fileID: 7833064701701960165, guid: 05c6cd5d37c98a24cb0caa72ef41da4f, type: 3}
   effectScale: {x: 0, y: 0, z: 0}
   elementMaterials: []
 --- !u!1 &8716749379197681513
