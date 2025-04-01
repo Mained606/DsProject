@@ -13,16 +13,9 @@ public class TotemSpawn : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("PlayerWeapon"))
         {
             npcSpawner.enabled = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
             Destroy(this.gameObject, 0.1f);
         }
     }
