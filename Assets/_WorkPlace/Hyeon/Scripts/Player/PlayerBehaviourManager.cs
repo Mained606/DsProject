@@ -39,8 +39,6 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
     {
         base.Awake();
 
-        controller = GameManager.playerTransform.GetComponent<PlayerController>();
-
 
         behaviourMappings = new Dictionary<Func<bool>, Type>()  // 행동매핑
         {
@@ -55,6 +53,11 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
             { () => CanDodge, typeof(DodgeBehaviour) },
             //{ () => CanWeaponSwitch, typeof(WeaponSwitchBehaviour) }
         };
+    }
+
+    protected override void Start()
+    {
+        controller = GameManager.playerTransform.GetComponent<PlayerController>();
     }
 
     // 행동가능 리스트에 있는 요소들의 Execute() 함수를 실행시켜줌

@@ -103,12 +103,13 @@ public class ComboAttackState : StateMachineBehaviour
         {
             isPressedAttackKey = false;
             nextComboInput = false;
+            weaponAttack.ResetDamagedTargets();
             return;
         }
         else
         {
             combat?.AttackFinished();
-            //Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
+            Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
             combat.firstAttack = true;
             if (combat.weaponCollider.enabled)
             {
@@ -117,6 +118,7 @@ public class ComboAttackState : StateMachineBehaviour
             }
             animator.ResetTrigger("NextCombo");
             soundIndex = 0;
+            weaponAttack.ResetDamagedTargets();
         }
 
         //SetCombatComponent(animator);

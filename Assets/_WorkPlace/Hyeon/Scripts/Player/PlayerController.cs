@@ -791,13 +791,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void RemoteBehaviours()
-    {
-        if (isJumping)
-        {
-        }
-    }
-
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;

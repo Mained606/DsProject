@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using static UnityEngine.InputSystem.OnScreen.OnScreenStick;
@@ -13,10 +14,14 @@ public class AttackBehaviour : IBehaviour
     private bool isDashAttack = false;
     private float dashTimer;
 
+    private LayerMask enemyLayer;
+    private List<GameObject> damagedTarget = new List<GameObject>();
+
     public AttackBehaviour()
     {
         controller = GameManager.playerTransform.GetComponent<PlayerController>();
         animator = controller.PlayerAnimator;
+        enemyLayer = LayerMask.NameToLayer("Enemy");
     }
 
     public void Enter()
@@ -95,6 +100,7 @@ public class AttackBehaviour : IBehaviour
         {
             controller.characterController.Move(dashDirection * dashSpeed * Time.deltaTime);
             dashTimer += Time.deltaTime;
+            //DashAttackDamageProcess();
         }
         else
         {
@@ -103,6 +109,42 @@ public class AttackBehaviour : IBehaviour
             PlayerBehaviourManager.Instance.CanDodge = true;
             animator.SetBool("Sprint", false);
             animator.SetFloat("Speed", 0);
+            //damagedTarget.Clear();
+        }
+    }
+
+    private void DashAttackDamageProcess()
+    {
+        if(Physics.SphereCast(controller.transform.position, 2f, controller.transform.forward, out RaycastHit hit, 2f, enemyLayer))
+        {
+            if (!damagedTarget.Contains(hit.collider.gameObject))
+            {
+                damagedTarget.Add(hit.collider.gameObject);
+                BaseMonsterData baseMonsterData = hit.collider.GetComponent<BaseMonsterData>();
+                if (baseMonsterData != null)
+                {
+                    //if (hitImpactPrefab != null)
+                    //{
+                    //    GameObject obj = Instantiate(hitImpactPrefab, transform.position, Quaternion.identity);
+
+                    //    Destroy(obj, 2f);
+                    //}
+                    // monsterOrBossData가 MonsterData일 경우 처리
+                    MonsterData enemyMonsterData = baseMonsterData.monsterOrBossData as MonsterData;
+                    if (enemyMonsterData != null)
+                    {
+                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyMonsterData, hit.transform, true, false);
+                        return;  // MonsterData 처리 완료 후 반환
+                    }
+
+                    // monsterOrBossData가 BossData일 경우 처리
+                    BossData enemyBossData = baseMonsterData.monsterOrBossData as BossData;
+                    if (enemyBossData != null)
+                    {
+                        CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, enemyBossData, hit.transform, true, false);
+                    }
+                }
+            }
         }
     }
 
