@@ -580,7 +580,7 @@ public class BaseMonsterAI : MonoBehaviour
     {
         if (playerTarget) return;
 
-        Collider[] hits = new Collider[30]; // 배열 크기 설정
+        Collider[] hits = new Collider[100]; // 배열 크기 설정
         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, searchRange, hits);
 
         if (hitCount == hits.Length)
