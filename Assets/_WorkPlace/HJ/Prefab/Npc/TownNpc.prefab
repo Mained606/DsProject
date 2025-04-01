@@ -6901,6 +6901,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcType: 0
   npcTool: {fileID: 2952606622473074116}
+  sittingOffset: {x: 0, y: 0, z: 0}
+  isFemale: 0
+  voicePitch: 0
+  layer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &3478112124033980993
 GameObject:
   m_ObjectHideFlags: 0

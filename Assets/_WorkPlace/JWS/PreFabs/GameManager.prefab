@@ -571,6 +571,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 048f77d9236251d479778aeae8ef5864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitEffectNone: {fileID: 7833064701701960165, guid: 05c6cd5d37c98a24cb0caa72ef41da4f, type: 3}
+  hitEffectFire: {fileID: 2487520784208141818, guid: c7026b65d2fc43644a193fd9f32d8980, type: 3}
+  hitEffectWater: {fileID: 1342919112909788834, guid: b38e212b90124be4fb14e4c1aaebd841, type: 3}
+  hitEffectElectric: {fileID: 744398110752325091, guid: 315e10b78eec8e141b43c07e693e2e94, type: 3}
+  hitEffectEarth: {fileID: 7217386698956705438, guid: 5aaf17cdb6c4f334caf368e84f7a0398, type: 3}
 --- !u!114 &7452877987989998034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -907,7 +912,7 @@ MonoBehaviour:
   levelUpEffect: {fileID: 6532625474870085665, guid: fcbc3a598b83c0249b1e455fba1f60b7, type: 3}
   cookingUI: {fileID: 0}
   skillUI: {fileID: 0}
-  enhanceUI: {fileID: 4354100069606828376, guid: 4f9b941636e56224c8db6f092cc88475, type: 3}
+  enhanceUI: {fileID: 0}
 --- !u!1 &9196922504058191263
 GameObject:
   m_ObjectHideFlags: 0
@@ -1101,6 +1106,18 @@ PrefabInstance:
     - target: {fileID: 2376505851241391104, guid: fef2613012d1fa140a6b95ac0bb94acb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2489291439006771702, guid: fef2613012d1fa140a6b95ac0bb94acb, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2489291439006771702, guid: fef2613012d1fa140a6b95ac0bb94acb, type: 3}
+      propertyPath: EnhancementItemIds.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2489291439006771702, guid: fef2613012d1fa140a6b95ac0bb94acb, type: 3}
+      propertyPath: 'EnhancementItemIds.Array.data[0]'
+      value: "\uAC15\uD654\uC11D"
       objectReference: {fileID: 0}
     - target: {fileID: 3166650936648316711, guid: fef2613012d1fa140a6b95ac0bb94acb, type: 3}
       propertyPath: m_Name

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading;
 using UnityEngine;
 
 public class ActivityNpc : MonoBehaviour
@@ -12,25 +13,25 @@ public class ActivityNpc : MonoBehaviour
     private static readonly int WalkingState = Animator.StringToHash("IsWalking");
     private static readonly int TalkingState = Animator.StringToHash("IsTalking");
     private static readonly int TerrifyingState = Animator.StringToHash("IsTerrifying");
+    private static readonly int AnimationSpeed = Animator.StringToHash("Speed");
     private static readonly int ExitTrigger = Animator.StringToHash("ExitTrigger");
-    private static readonly int WipeSweatTrigger = Animator.StringToHash("WipeSweatTrigger");
 
     [Header("Sitting Setting")]
     [SerializeField] private bool isNearNpc = false;
     [SerializeField] private bool isSitting = false;
-    [SerializeField] private Vector3 sittingOffset = new Vector3(0, 0.4f, 0);
     private string[] sittingTriggers = { "SittingTalkingTrigger", "SittingClapTrigger" };
+    private Bench currentBench;
 
     [Header("Movement Setting")]
-    [SerializeField] private Quaternion originalRotation;
-    [SerializeField] private Vector3 originalPosition;
+    private Quaternion originalRotation;
+    private Vector3 originalPosition;
     [SerializeField] private Vector3 targetPosition;
     [SerializeField] private Transform targetNpc;
-    [SerializeField] private float npcDistance = 100f;
-    [SerializeField] private float monsterDistnace = 20f;
+    private float npcDistance = 100f;
     [SerializeField] private float moveSpeed = 3f;
-    [SerializeField] private float turnSpeed = 10f;
-    [SerializeField] private bool isNearMonster = false;
+    private float minSpeed = 3f;
+    private float maxSpeed = 5f;
+    private float turnSpeed = 10f;
     [SerializeField] private bool isMoving = false;
     [SerializeField] private bool isStart = false;
     public bool IsMoving
@@ -42,11 +43,10 @@ public class ActivityNpc : MonoBehaviour
             ActiveTool(!isMoving);
         }
     }
-    
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    [SerializeField] private float talkingChance = 0f;  //수정하기!!
+    [SerializeField] private float talkingChance = 0.5f;
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
     public bool IsTalking
@@ -58,29 +58,56 @@ public class ActivityNpc : MonoBehaviour
             ActiveTool(!isTalking);
         }
     }
+    public Transform currentTalking = null;
+    private float conversationCoolTime = 5f;
+    private float lastConversationTime = 0f;
 
+    [Header("Detection Monster")]
+    private float fleeDistance = 10f;
+    private float monsterDetectRange = 20f;
+    private float viewAngle = 90f;
+    private float checkInterval = 3f;
+    [SerializeField] private bool isNearMonster = false;
+    public bool IsNearMonster
+    {
+        get => isNearMonster;
+        private set => isNearMonster = value;
+    }
+
+    [Header("Default")]
+    private Rigidbody rb;
     private NpcController npcController;
     private int defaultState;
     private Coroutine currentCoroutine;
     private System.Func<IEnumerator> defaultRoutineFactory;
     [SerializeField] private GameObject tool;
-    private string[] commonTriggers = { "ArmStretching", "NeckStretching", "LookAround" };
-    [SerializeField] private float repeatTriggerChance = 0.7f;
+    private string[] commonTriggers = { "ArmStretching", "NeckStretching", "LookAround", "WipeSweatTrigger" };
+
+    [Header("WanderNpc")]
+    private float walkingRange = 10f;
+    private float idleTime = 5f;
+    private float arrivedDistance = 1f;
+    private float sittingChance = 0.5f;
+    [SerializeField] private bool isJustStoodUp = false;
+    [SerializeField] private bool isSittingTalking = false;
 
     private void Start()
     {
         originalRotation = transform.rotation;
         originalPosition = transform.position;
+
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
-        Rigidbody rb = GetComponent<Rigidbody>();
-
+        rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
 
-        if(npcController.npcTool && npcController.npcType != NpcType.Sitting)
+        if (npcController.npcTool)
         {
-            tool = npcController.npcTool.GetChild((int)npcController.npcType - 1)?.gameObject;
-            tool?.SetActive(true);
+            if (npcController.npcType != NpcType.Sitting && npcController.npcType != NpcType.Wander)
+            {
+                tool = npcController.npcTool.GetChild((int)npcController.npcType - 1)?.gameObject;
+                tool?.SetActive(true);
+            }
         }
 
         if (npcController.npcType == NpcType.Fishing)
@@ -103,8 +130,15 @@ public class ActivityNpc : MonoBehaviour
             defaultState = SittingState;
             defaultRoutineFactory = Sitting;
         }
+        else if(npcController.npcType == NpcType.Wander)
+        {
+            SetNextDestination();
+            rb.isKinematic = false;
+        }
 
-        currentCoroutine = StartCoroutine(defaultRoutineFactory());
+        if (defaultRoutineFactory != null) currentCoroutine = StartCoroutine(defaultRoutineFactory());
+
+        InvokeRepeating(nameof(DetectMonsters), 0f, checkInterval);     //3초마다 한번 실행
     }
 
     private void Update()
@@ -116,13 +150,36 @@ public class ActivityNpc : MonoBehaviour
             else
                 MoveToWards(targetPosition);
 
-            float distance = Vector3.Distance(transform.position, originalPosition);
-            if(distance <= 1f && !isStart)
+            Vector3 horizontalPosition = new Vector3(transform.position.x, 0, transform.position.z);
+            Vector3 horizontalTarget = new Vector3(targetPosition.x, 0, targetPosition.z);
+            float distance = Vector3.Distance(horizontalPosition, horizontalTarget);
+
+            if(distance <= 1f && !isStart && !isNearMonster)
             {
                 IsMoving = false;
                 StopCurrentAction();
-                StartCoroutine(LookAtTarget(originalPosition));
-                currentCoroutine = StartCoroutine(defaultRoutineFactory());
+                if (npcController.npcType == NpcType.Wander)
+                {
+                    if(Mathf.Abs(transform.position.y - targetPosition.y) > 2f)
+                    {
+                        SetNextDestination();
+                        return;
+                    }
+
+                    currentCoroutine = StartCoroutine(IdleAfterWalking());
+                }
+                else
+                {
+                    StartCoroutine(LookAtTarget(originalPosition));
+                    currentCoroutine = StartCoroutine(defaultRoutineFactory());
+                }
+            }
+
+            if(isNearMonster && distance <= 1f)
+            {
+                IsMoving = false;
+                StopCurrentAction();
+                StartCoroutine(StartTerrifying());
             }
         }
     }
@@ -131,32 +188,46 @@ public class ActivityNpc : MonoBehaviour
     {
         if (other.CompareTag("TownNPC") && other.transform != this.transform)
         {
+            if(npcController.npcType == NpcType.Wander && isSitting && currentBench != null && !isSittingTalking)
+            {
+                isSittingTalking = true;
+                StopCoroutine(SittingDuration(currentBench));
+                currentCoroutine = StartCoroutine(SittingTalking(currentBench));
+            }
+
+            ActivityNpc activityNpc = other.GetComponent<ActivityNpc>();
+
             if (npcController.npcType == NpcType.Sitting)
             {
                 isNearNpc = true;
-            }
-            else if(!IsTalking)
+            }            
+            else if(!IsTalking && !activityNpc.IsNearMonster && !IsNearMonster)
             {
+                if (Time.time - lastConversationTime < conversationCoolTime) return;
+
                 if (targetNpc) targetNpc = null;
                 isStart = false;
                 IsMoving = false;
                 StopCurrentAction();
                 currentCoroutine = StartCoroutine(StartConversation(other.transform));
             }
+            
+            if(activityNpc != null && activityNpc.IsNearMonster)
+            {
+                Debug.Log(transform.name + other.transform.name + "에게서 두려움 전염");
+                IsNearMonster = true;
+                StopCurrentAction();
+                StartCoroutine(StartTerrifying());
+            }
         }
 
-        if (npcController.npcType == NpcType.Sitting && other.name.Contains("Bench") && !isSitting)
+        if (npcController.npcType == NpcType.Sitting || npcController.npcType == NpcType.Wander)
         {
-            SittingAtBench(other.GetComponent<Bench>());
-            this.transform.position += sittingOffset;
-        }
-
-        if(other.CompareTag("Monster") && isNearMonster == false)
-        {
-            if(targetNpc) targetNpc = null;
-            isNearMonster = true;
-            StopCurrentAction();
-            StartCoroutine(StartTerrifying());
+            if(other.name.Contains("Bench") && !isSitting)
+            {
+                SittingAtBench(other.GetComponent<Bench>());
+                this.transform.position += npcController.sittingOffset;
+            }            
         }
     }
 
@@ -177,15 +248,20 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FishingState, true);
 
-            yield return new WaitForSeconds(Random.Range(5f, 5f));            
+            yield return new WaitForSeconds(Random.Range(20f, 40f));
 
             animator.SetBool(FishingState, false);
 
-            yield return StartCoroutine(DelayBeforeNextAction());
+            yield return new WaitForSeconds(ClipLength());
 
-            FindNpcAndMove();
-
-            yield return new WaitForSeconds(Random.Range(5f, 10f));
+            if(Random.value < talkingChance)
+            {
+                FindNpcAndMove();
+            }
+            else
+            {
+                yield return new WaitForSeconds(Random.Range(3f, 5f));
+            }
         }
     }
 
@@ -195,22 +271,9 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FarmingState, true);
 
-            //yield return new WaitForSeconds(Random.Range(20, 40f));
-            yield return new WaitForSeconds(Random.Range(5f, 5f));
-
-            //animator.SetTrigger(WipeSweatTrigger);
-
-            //yield return StartCoroutine(DelayBeforeNextAction(0.5f));
-
-            //FindNpcAndMove();
+            yield return new WaitForSeconds(Random.Range(5, 5));
 
             yield return StartCoroutine(StartAction());
-
-            yield return new WaitForSeconds(Random.Range(20f, 40f));
-
-            animator.SetBool(FarmingState, false);
-
-            yield return new WaitForSeconds(Random.Range(3f, 5f));
         }
     }
 
@@ -218,24 +281,11 @@ public class ActivityNpc : MonoBehaviour
     {
         while (true)
         {
-            //if (!animator.GetBool(CraftingState))
-            //{
-                animator.SetBool(CraftingState, true);
-            //}
+            animator.SetBool(CraftingState, true);
 
-            //yield return new WaitForSeconds(Random.Range(20f, 40f));
-            yield return new WaitForSeconds(Random.Range(5f, 5f));
-
-            //animator.SetTrigger(WipeSweatTrigger);
-
-            //yield return StartCoroutine(DelayBeforeNextAction(0.5f));
-
-            //FindNpcAndMove();
+            yield return new WaitForSeconds(Random.Range(20f, 40f));
 
             yield return StartCoroutine(StartAction(0.5f));
-
-            //yield return new WaitForSeconds(Random.Range(20f, 40f));
-            yield return new WaitForSeconds(Random.Range(5f, 5f));
         }
     }
 
@@ -257,51 +307,34 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
-    private IEnumerator StartAction(float delayTime = 0)
+    private IEnumerator StartAction(float delayTime = 0f)
     {
         if(Random.value < talkingChance)
         {
-            yield return StartCoroutine(DelayBeforeNextAction(delayTime));
+            yield return new WaitForSeconds(ClipLength() + delayTime);
 
             FindNpcAndMove();
         }
         else
         {
-            string trigger = PlayRandomTrigger(commonTriggers, true);
-            float clipLength = GetClipLengthFromTrigger(trigger);
+            PlayRandomTrigger(commonTriggers);
 
-            while (Random.value < repeatTriggerChance)
+            int minCount = Random.Range(0, 3);
+            int count = 0;
+
+            while (count < minCount)
             {
-                yield return new WaitForSeconds(clipLength);
+                yield return new WaitForSeconds(3f);
 
-                trigger = PlayRandomTrigger(commonTriggers);
-                clipLength = GetClipLengthFromTrigger(trigger);
+                PlayRandomTrigger(commonTriggers);
+                count++;
             }
         }
     }
 
-    private float GetClipLengthFromTrigger(string triggerName)
+    private string PlayRandomTrigger(string[] triggers)
     {
-        if (animator == null) return 0f;
-
-        // 현재 연결된 AnimatorController 가져오기
-        RuntimeAnimatorController controller = animator.runtimeAnimatorController;
-
-        foreach (AnimationClip clip in controller.animationClips)
-        {
-            if (clip.name == triggerName) // 트리거와 같은 이름을 가진 애니메이션 클립 찾기
-            {
-                return clip.length;
-            }
-        }
-
-        return 0f; // 찾지 못한 경우
-    }
-
-    private string PlayRandomTrigger(string[] triggers, bool returnTrigger = false)
-    {
-        if (triggers == null || triggers.Length == 0)
-            return null;
+        if (triggers == null || triggers.Length == 0) return null;
 
         int randomIndex = Random.Range(0, triggers.Length);
         string randomTrigger = triggers[randomIndex];
@@ -309,49 +342,83 @@ public class ActivityNpc : MonoBehaviour
         if (!string.IsNullOrEmpty(randomTrigger))
         {
             animator.SetTrigger(randomTrigger);
-
-            if (returnTrigger)
-                return randomTrigger;
+            return randomTrigger;
         }
-
         return null;
     }
 
     private void SittingAtBench(Bench bench)
     {
-        if (!bench.right)
-        {
-            transform.position = bench.rightPosition.position;
-            transform.rotation = bench.rightPosition.rotation;
-            bench.right = true;
-            isSitting = true;
-            return;
-        }
+        if (isJustStoodUp) return;
 
-        if (!bench.left)
+        if(npcController.npcType == NpcType.Sitting)
         {
-            transform.position = bench.leftPosition.position;
-            transform.rotation = bench.leftPosition.rotation;
-            bench.left = true;
-            isSitting = true;
-            return;
-        }
+            if (!bench.right)
+            {
+                transform.position = bench.rightPosition.position;
+                transform.rotation = bench.rightPosition.rotation;
+                bench.right = true;
+                isSitting = true;
+                currentBench = bench;
+                return;
+            }
 
-        Debug.Log("비어있는 벤치 없음");
+            if (!bench.left)
+            {
+                transform.position = bench.leftPosition.position;
+                transform.rotation = bench.leftPosition.rotation;
+                bench.left = true;
+                isSitting = true;
+                currentBench = bench;
+                return;
+            }
+
+            Debug.Log("비어있는 벤치 없음");
+        }
+        else if(npcController.npcType == NpcType.Wander)
+        {
+            if (Random.value <= sittingChance)
+            {
+                StopCurrentAction();
+                rb.isKinematic = true;
+                isSitting = true;
+                animator.SetBool(SittingState, true);
+                currentBench = bench;
+
+                if (!bench.left)
+                {
+                    transform.position = bench.leftPosition.position;
+                    transform.rotation = bench.leftPosition.rotation;
+                    bench.left = true;
+                }
+                else if (!bench.right)
+                {
+                    transform.position = bench.rightPosition.position;
+                    transform.rotation = bench.rightPosition.rotation;
+                    bench.right = true;
+                }
+
+                StartCoroutine(SittingDuration(bench));
+            }
+            else
+                SetNextDestination();
+        }
     }
 
     private void FindNpcAndMove()
     {
-        Transform ohterNpc = FindNearestNpc(transform.position, npcDistance);
+        Transform otherNpc = FindNearestNpc(transform.position, npcDistance);
+        ActivityNpc activityNpc = otherNpc?.GetComponent<ActivityNpc>();
+        if (activityNpc == null || activityNpc.IsNearMonster) return;
 
-
-        if (ohterNpc != null)
+        if (otherNpc != null)
         {
             StopCurrentAction();
 
+            moveSpeed = minSpeed;
             isStart = true;
             IsMoving = true;
-            targetNpc = ohterNpc;
+            targetNpc = otherNpc;
         }
         else
         {
@@ -382,8 +449,19 @@ public class ActivityNpc : MonoBehaviour
         return nearestNpc;
     }
 
+    private void RunAway(Transform monster)
+    {
+        Vector3 fleeDirection = (transform.position - monster.position).normalized;
+        fleeDirection.y = 0f;
+        Vector3 fleeDestination = transform.position + fleeDirection * fleeDistance;
+        targetPosition = fleeDestination;
+        moveSpeed = maxSpeed;
+        IsMoving = true;
+    }
+
     private void MoveToWards(Vector3 destination)
     {
+        animator.SetFloat(AnimationSpeed, moveSpeed);
         animator.SetBool(WalkingState, true);
 
         Vector3 direction = (destination - transform.position).normalized;
@@ -407,6 +485,7 @@ public class ActivityNpc : MonoBehaviour
 
     private void MoveToWards(Transform targetTransform)
     {
+        animator.SetFloat(AnimationSpeed, moveSpeed);
         animator.SetBool(WalkingState, true);
 
         Vector3 direction = (targetTransform.position - transform.position).normalized;
@@ -480,12 +559,23 @@ public class ActivityNpc : MonoBehaviour
         IsTalking = true;
         if(IsMoving) IsMoving = false;
 
-        yield return StartCoroutine(DelayBeforeNextAction());
+        yield return new WaitForSeconds(ClipLength());
 
         yield return StartCoroutine(LookAtTarget(target.position));
 
         animator.SetBool(TalkingState, true);
-        PlayRandomTrigger(talkingTriggers);
+
+        ActivityNpc targetNpc = target.GetComponent<ActivityNpc>();
+        if(targetNpc.currentTalking == null)
+        {
+            currentTalking = this.transform;
+            PlayRandomTrigger(talkingTriggers);
+        }
+        else
+        {
+            currentTalking = targetNpc.currentTalking;
+            animator.SetTrigger("NodTrigger");
+        }        
 
         currentCoroutine = StartCoroutine(ContinueConversation(target));
     }
@@ -499,9 +589,21 @@ public class ActivityNpc : MonoBehaviour
         {
             yield return new WaitForSeconds(talkingDuration);
 
+            ActivityNpc targetNpc = target.GetComponent<ActivityNpc>();
+
             if (conversationCount < minConversations)
             {
-                PlayRandomTrigger(talkingTriggers);
+                if(currentTalking == transform)
+                {
+                    currentTalking = target;
+                    animator.SetTrigger("NodTrigger");                    
+                }
+                else
+                {
+                    currentTalking = transform;
+                    PlayRandomTrigger(talkingTriggers);
+                }
+
                 conversationCount++;
             }
             else
@@ -509,8 +611,7 @@ public class ActivityNpc : MonoBehaviour
                 StopConversation();
             }
 
-            ActivityNpc targetNpc = target.GetComponent<ActivityNpc>();
-            if (targetNpc != null && !targetNpc.IsTalking)
+            if (targetNpc != null && !targetNpc.isSitting && !targetNpc.IsTalking)
             {
                 StopConversation();
             }
@@ -520,6 +621,9 @@ public class ActivityNpc : MonoBehaviour
     private void StopConversation()
     {
         IsTalking = false;
+        currentTalking = null;
+
+        lastConversationTime = Time.time;
 
         animator.SetTrigger(ExitTrigger);
         animator.SetBool(TalkingState, false);
@@ -529,7 +633,7 @@ public class ActivityNpc : MonoBehaviour
 
     private void StopCurrentAction()
     {
-        if (animator.GetBool(defaultState))
+        if (defaultState != 0 && animator.GetBool(defaultState))
         {
             animator.SetBool(defaultState, false);
         }
@@ -541,11 +645,16 @@ public class ActivityNpc : MonoBehaviour
             isStart = false;
         }
 
-        if(animator.GetBool(TalkingState))
+        if (animator.GetBool(TalkingState))
         {
             animator.SetTrigger(ExitTrigger);
             animator.SetBool(TalkingState, false);
             isTalking = false;
+        }
+        
+        if(animator.GetBool(SittingState))
+        {
+            StopSitting(currentBench);
         }
 
         if (currentCoroutine != null)
@@ -558,9 +667,14 @@ public class ActivityNpc : MonoBehaviour
     private IEnumerator DoAction()
     {
         float distance = Vector3.Distance(transform.position, originalPosition);
-        if(distance > 0.1f)
+        if(npcController.npcType == NpcType.Wander)
+        {
+            SetNextDestination();
+        }
+        else if (distance > 0.1f)
         {
             targetPosition = originalPosition;
+            moveSpeed = minSpeed;
             IsMoving = true;
         }
         else
@@ -578,6 +692,50 @@ public class ActivityNpc : MonoBehaviour
         }
     }
 
+    private void DetectMonsters()
+    {
+        if (IsNearMonster) return;
+        
+        Transform monster = GetNearestMonster(transform, monsterDetectRange);
+
+        if (monster != null && IsInshight(monster))
+        {
+            IsNearMonster = true;
+            StopCurrentAction();
+            RunAway(monster);
+        }
+    }
+
+    public Transform GetNearestMonster(Transform transform, float detectRange)
+    {
+        Transform closestMonster = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (var character in CharacterManager.Instance.CharacterList)
+        {
+            if (character is MonsterData monster)
+            {
+                float distanceToMonster = Vector3.Distance(transform.position, monster.instance.transform.position);
+
+                if (distanceToMonster < closestDistance && distanceToMonster <= detectRange)
+                {
+                    closestDistance = distanceToMonster;
+                    closestMonster = monster.instance.transform;
+                }
+            }
+        }
+
+        return closestMonster;
+    }
+
+    private bool IsInshight(Transform target)
+    {
+        Vector3 direction = (target.position - transform.position).normalized;
+        float angle = Vector3.Angle(transform.forward, direction);
+
+        return angle <= viewAngle * 0.5f;
+    }
+
     private IEnumerator StartTerrifying()
     {
         while(isNearMonster)
@@ -587,7 +745,7 @@ public class ActivityNpc : MonoBehaviour
 
             yield return new WaitForSeconds(10f);
 
-            Transform monster = FindNearestNpc(transform.position, monsterDistnace, "Monster");
+            Transform monster = GetNearestMonster(transform, monsterDetectRange);
             if (monster == null) isNearMonster = false;
         }
 
@@ -595,24 +753,134 @@ public class ActivityNpc : MonoBehaviour
         StartCoroutine(DoAction());
     }
 
-    private IEnumerator DelayBeforeNextAction(float addDelayTime = 0)
+    private float ClipLength()
     {
         float clipLength = animator.GetCurrentAnimatorClipInfo(0).Length;
 
-        yield return new WaitForSeconds(clipLength + addDelayTime);
+        return clipLength;
     }
 
-    private float GetCurrentAnimationClipLength()
+    public string GetCurrentClip()
     {
-        if (animator == null) return 0f;
+        string currentClip = animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
 
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        return stateInfo.length;
+        return currentClip;
     }
+    
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawWireSphere(transform.position, monsterDetectRange);
+    //}
 
-    private void OnDrawGizmos()
+    #region WanderNpc
+    private void SetNextDestination()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, monsterDistnace);
+        if (isSitting) return;
+
+        Vector3 randomPosition;
+        int safetyCounter = 0;
+
+        if (isJustStoodUp)
+        {
+            Vector3 forwardDirection = transform.forward.normalized; //NPC가 바라보는 방향
+            float forwardDistance = Random.Range(5f, walkingRange);
+            randomPosition = transform.position + (forwardDirection * forwardDistance);
+
+            StartCoroutine(JustStoodUp());
+        }
+        else
+        {
+            do
+            {
+                randomPosition = originalPosition + new Vector3(Random.Range(-walkingRange, walkingRange), 0f, Random.Range(-walkingRange, walkingRange));
+                safetyCounter++;
+            }
+            while (Vector3.Distance(transform.position, randomPosition) < arrivedDistance * 2f && safetyCounter < 10);
+        }
+
+        targetPosition = randomPosition;
+        isStart = true;
+        StartCoroutine(ChangeStartState());
+        moveSpeed = Random.Range(minSpeed, maxSpeed);
+        IsMoving = true;
+        animator.SetBool(WalkingState, true);
     }
+
+    private IEnumerator JustStoodUp()
+    {
+        yield return new WaitForSeconds(5f);
+
+        isJustStoodUp = false;
+    }
+
+    private IEnumerator ChangeStartState()
+    {
+        yield return new WaitForSeconds(1f);
+
+        isStart = false;
+
+    }
+
+    private IEnumerator IdleAfterWalking()
+    {
+        animator.SetBool(WalkingState, false);
+        IsMoving = false;
+
+        yield return new WaitForSeconds(idleTime);
+        SetNextDestination();
+
+        currentCoroutine = null;
+    }
+
+    private IEnumerator SittingDuration(Bench bench)
+    {
+        float sittingTime = Random.Range(15f, 30f);
+        
+        yield return new WaitForSeconds(sittingTime);
+
+        if (!isSittingTalking)
+            StopSitting(bench);
+    }
+
+    private void StopSitting(Bench bench)
+    {
+        isSitting = false;
+        animator.SetBool(SittingState, false);
+        rb.isKinematic = false;
+        currentBench = null;
+
+        if (transform.position == bench.leftPosition.position) bench.left = false;
+        if (transform.position == bench.rightPosition.position) bench.right = false;
+
+        //lastSittingTime = Time.time;
+
+        isJustStoodUp = true;
+        SetNextDestination();
+    }
+
+    private IEnumerator SittingTalking(Bench bench)
+    {
+        int minConversations = Random.Range(3, 6);
+        int conversationCount = 0;
+
+        while (isSitting)
+        {
+            yield return new WaitForSeconds(Random.Range(5f, 10f));
+
+            if (conversationCount < minConversations)
+            {
+                PlayRandomTrigger(sittingTriggers);
+                conversationCount++;
+            }
+            else
+            {
+                isSitting = false;
+            }
+        }
+
+        isSittingTalking = false;
+        StopSitting(bench);
+    }
+    #endregion
 }
