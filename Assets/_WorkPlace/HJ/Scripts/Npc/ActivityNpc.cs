@@ -59,6 +59,8 @@ public class ActivityNpc : MonoBehaviour
         }
     }
     public Transform currentTalking = null;
+    private float conversationCoolTime = 5f;
+    private float lastConversationTime = 0f;
 
     [Header("Detection Monster")]
     private float fleeDistance = 10f;
@@ -201,6 +203,8 @@ public class ActivityNpc : MonoBehaviour
             }            
             else if(!IsTalking && !activityNpc.IsNearMonster && !IsNearMonster)
             {
+                if (Time.time - lastConversationTime < conversationCoolTime) return;
+
                 if (targetNpc) targetNpc = null;
                 isStart = false;
                 IsMoving = false;
@@ -618,6 +622,8 @@ public class ActivityNpc : MonoBehaviour
     {
         IsTalking = false;
         currentTalking = null;
+
+        lastConversationTime = Time.time;
 
         animator.SetTrigger(ExitTrigger);
         animator.SetBool(TalkingState, false);
