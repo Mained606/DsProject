@@ -45,8 +45,21 @@ public class WanderNpc : MonoBehaviour
     private static readonly int AnimationSpeed = Animator.StringToHash("Speed");
     private static readonly int ExitTrigger = Animator.StringToHash("ExitTrigger");
     private static readonly int SittingState = Animator.StringToHash("IsSitting");
+    private static readonly int TerrifyingState = Animator.StringToHash("IsTerrifying");
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
     private float talkingDuration = 2f;
+
+    [Header("Detection Monster")]
+    [SerializeField] private float fleeDistance = 10f;
+    [SerializeField] private float monsterDetectRange = 20f;
+    [SerializeField] private float viewAngle = 90f;
+    private float checkInterval = 3f;
+    [SerializeField] private bool isNearMonster = false;
+    public bool IsNearMonster
+    {
+        get => isNearMonster;
+        private set => isNearMonster = value;
+    }
 
 
     private Rigidbody rb;
@@ -80,7 +93,7 @@ public class WanderNpc : MonoBehaviour
                 //Debug.Log($"{transform.name} 다른 npc와 너무 가까움, 새로운 목적지 설정");
                 SetNextDestination();
                 nextDestinationTime = Time.time + destinationCooldown;
-            }            
+            }
         }
 
         //도착 판정할때 y축 위치는 고려하지 않음
@@ -478,5 +491,75 @@ public class WanderNpc : MonoBehaviour
         yield return new WaitForSeconds(5f);
 
         isJustStoodUp = false;
+    }
+
+    private void DetectMonsters()
+    {
+        if (IsNearMonster) return;
+
+        Transform monster = GetNearestMonster(transform, monsterDetectRange);
+
+        if (monster != null && IsInshight(monster))
+        {
+            IsNearMonster = true;
+            RunAway(monster);
+        }
+    }
+
+    public Transform GetNearestMonster(Transform transform, float detectRange)
+    {
+        Transform closestMonster = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (var character in CharacterManager.Instance.CharacterList)
+        {
+            if (character is MonsterData monster)
+            {
+                float distanceToMonster = Vector3.Distance(transform.position, monster.instance.transform.position);
+
+                if (distanceToMonster < closestDistance && distanceToMonster <= detectRange)
+                {
+                    closestDistance = distanceToMonster;
+                    closestMonster = monster.instance.transform;
+                }
+            }
+        }
+
+        return closestMonster;
+    }
+
+    private bool IsInshight(Transform target)
+    {
+        Vector3 direction = (target.position - transform.position).normalized;
+        float angle = Vector3.Angle(transform.forward, direction);
+
+        return angle <= viewAngle * 0.5f;
+    }
+
+    private void RunAway(Transform monster)
+    {
+        Vector3 fleeDirection = (transform.position - monster.position).normalized;
+        fleeDirection.y = 0f;
+        Vector3 fleeDestination = transform.position + fleeDirection * fleeDistance;
+        targetPosition = fleeDestination;
+        moveSpeed = maxMoveSpeed;
+        animator.SetBool(WalkingState, true);
+    }
+
+    private IEnumerator StartTerrifying()
+    {
+        while (isNearMonster)
+        {
+            if (!animator.GetBool(TerrifyingState))
+                animator.SetBool(TerrifyingState, true);
+
+            yield return new WaitForSeconds(10f);
+
+            Transform monster = GetNearestMonster(transform, monsterDetectRange);
+            if (monster == null) isNearMonster = false;
+        }
+
+        animator.SetBool(TerrifyingState, false);
+        SetNextDestination();
     }
 }
