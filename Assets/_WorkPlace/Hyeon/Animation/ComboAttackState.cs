@@ -108,7 +108,7 @@ public class ComboAttackState : StateMachineBehaviour
         else
         {
             combat?.AttackFinished();
-            Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
+            //Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
             combat.firstAttack = true;
             if (combat.weaponCollider.enabled)
             {

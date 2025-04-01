@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
     public bool isParry;
     //[SerializeField] private bool isHit;
     public bool isStunned;
+    public bool isDeath;
 
     [Header("이동")]
     public Vector2 moveInput;
@@ -248,6 +249,8 @@ public class PlayerController : MonoBehaviour
     // 플레이어 자원 회복 (현재 : 마나, 스태미나 회복)
     private void RecoverStats()
     {
+        if (isDeath) return;
+
         if (!isSprinting && !isGliding)
         {
             playerData.RegenerateStamina();
@@ -425,29 +428,6 @@ public class PlayerController : MonoBehaviour
         behaviour.CanBlock = true;
         playerAnimator.SetBool("Dodge", false);
         isInvincible = false;
-    }
-
-    public void DashAttack()
-    {
-        StartCoroutine(DashAttackRoutine());
-    }
-
-    private IEnumerator DashAttackRoutine()
-    {
-        Vector3 dashDirection = transform.forward;
-        dashDirection.y = verticalVelocity.y;
-        float elapsedTime = 0f;
-
-        while (elapsedTime < dashAttackDuration)
-        {
-            characterController.Move(dashDirection * (dashAttackMoveDistance / dashAttackDuration) * Time.deltaTime);
-            elapsedTime += Time.deltaTime;
-            yield return null; // 다음 프레임까지 대기
-        }
-
-        behaviour.CanDodge = true;
-        playerAnimator.SetBool("Sprint", false);
-        playerAnimator.SetFloat("Speed", 0);
     }
 
     #region ---------------Climb---------------
@@ -771,9 +751,8 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Player Death");
             InputManager.Instance.SetAllInputs(false);
 
-            // anim
             playerAnimator.SetBool("Death", true);
-            SetState(PlayerState.Death);
+            isDeath = true;
         }
     }
 
