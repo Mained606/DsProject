@@ -107,7 +107,7 @@ public class EnhanceManager : BaseManager<EnhanceManager>
         float previewPower = basePower * (1f + previewLevel * 0.2f) * gradeMultiplier;
 
         // 강화 수치 적용 (실제 강화는 아님)
-        item.itemSkill.ApplyItemStat(item, previewPower, 1);
+       // item.itemSkill.ApplyItemStat(item, previewPower, 1);
 
         // 수정된 item을 반환
         return item;
