@@ -100,7 +100,7 @@ public class AttackBehaviour : IBehaviour
         {
             controller.characterController.Move(dashDirection * dashSpeed * Time.deltaTime);
             dashTimer += Time.deltaTime;
-            DashAttackDamageProcess();
+            //DashAttackDamageProcess();
         }
         else
         {
@@ -109,6 +109,7 @@ public class AttackBehaviour : IBehaviour
             PlayerBehaviourManager.Instance.CanDodge = true;
             animator.SetBool("Sprint", false);
             animator.SetFloat("Speed", 0);
+            //damagedTarget.Clear();
         }
     }
 
