@@ -20,11 +20,13 @@ public class NpcController : MonoBehaviour
     [SerializeField] private float voicePitch;
     [SerializeField] LayerMask layer;
     private List<string> speakVoices = new List<string>{ "cartoon voice1", "cartoon voice2", "cartoon voice3", "cartoon voice4" };
-    
+    private const int COMMON_LAYER_INDEX = 1;
+
     private Animator animator;
 
     private void Awake()
     {
+        animator = GetComponent<Animator>();
         gameObject.AddComponent<ActivityNpc>();
 
         if (isFemale)
@@ -39,11 +41,51 @@ public class NpcController : MonoBehaviour
 
     void OnFootStep(AnimationEvent animationEvent)
     {
-        SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+        float distance = Vector3.Distance(GameManager.playerTransform.position, transform.position);
+        if (distance <= 10f)
+        {
+            SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+        }
+            
     }
 
     void OnSpeak(AnimationEvent animationEvent)
     {
-        SoundManager.Instance.RandomPlay(speakVoices, transform, 0.5f, voicePitch);
+        float distance = Vector3.Distance(GameManager.playerTransform.position, transform.position);
+        if (distance <= 10f)
+        {
+            SoundManager.Instance.RandomPlay(speakVoices, transform, 30f, voicePitch);
+        }
+    }
+
+    void OnClapping(AnimationEvent animationEvent)
+    {
+        float distance = Vector3.Distance(GameManager.playerTransform.position, transform.position);
+        if (distance <= 10f)
+        {
+            SoundManager.Instance.PlayClipAtPoint("Clap", transform.position, 0.3f, false);
+        }
+    }
+
+    void OnCrafting(AnimationEvent animationEvent)
+    {
+        if (animator.GetCurrentAnimatorStateInfo(COMMON_LAYER_INDEX).normalizedTime < 1f) return;
+
+        float distance = Vector3.Distance(GameManager.playerTransform.position, transform.position);
+        if (distance <= 10f)
+        {
+            SoundManager.Instance.PlayClipAtPoint("Crafting", transform.position, 0.4f, false);
+        }
+    }
+
+    void OnFarming(AnimationEvent animationEvent)
+    {
+        if (animator.GetCurrentAnimatorStateInfo(COMMON_LAYER_INDEX).normalizedTime < 1f) return;
+
+        float distance = Vector3.Distance(GameManager.playerTransform.position, transform.position);
+        if (distance <= 10f)
+        {
+            SoundManager.Instance.PlayClipAtPoint("Farming", transform.position, 5f, false);
+        }
     }
 }
