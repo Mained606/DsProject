@@ -46,7 +46,7 @@ public class ActivityNpc : MonoBehaviour
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    [SerializeField] private float talkingChance = 0.5f;
+    [SerializeField] private float talkingChance = 0.3f;
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
     public bool IsTalking
@@ -271,7 +271,7 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FarmingState, true);
 
-            yield return new WaitForSeconds(Random.Range(20, 40));
+            yield return new WaitForSeconds(Random.Range(20f, 40f));
 
             yield return StartCoroutine(StartAction());
         }
