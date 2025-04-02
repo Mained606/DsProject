@@ -63,6 +63,7 @@ public class EnhanceManager : BaseManager<EnhanceManager>
         //{
         //    InventoryManager.Instance.ResetSelectedItem();
         //}
+
     }
 
     private void Successed(Item item)
@@ -96,21 +97,18 @@ public class EnhanceManager : BaseManager<EnhanceManager>
     public Item PreviewEnhance(Item item)
     {
         if (item == null || item.itemStat == null || item.itemSkill == null)
-            return null; // 반환할 값 없으면 null 반환
+            return null;
 
-        // 다음 강화 레벨 가정
-        int previewLevel = item.itemSkill.Level + 1;
+        Item preview = item.Clone();
 
-        // 계산에 쓸 값들
-        float basePower = 5f;
-        float gradeMultiplier = item.itemSkill.ApplyGradeMultiplier(item);
-        float previewPower = basePower * (1f + previewLevel * 0.2f) * gradeMultiplier;
 
-        // 강화 수치 적용 (실제 강화는 아님)
-        item.itemSkill.ApplyItemStat(item, previewPower, 1);
+        // ✅ 실제 강화처럼 현재 레벨 기준으로 power 계산
+        float previewPower = preview.itemSkill.ApplyPower(preview);
 
-        // 수정된 item을 반환
-        return item;
+        preview.itemSkill.ApplyItemStat(preview, previewPower, 1);
+        preview.itemSkill.Level++; // 시각적으로만 올라간 레벨 보여주기
+
+        return preview;
     }
 
 
