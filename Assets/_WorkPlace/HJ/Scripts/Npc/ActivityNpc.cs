@@ -121,15 +121,15 @@ public class ActivityNpc : MonoBehaviour
         }
         else if (npcController.npcType == NpcType.Craft)
         {
-            rb.isKinematic = true;
             defaultState = CraftingState;
             defaultRoutineFactory = Crafting;
+            rb.isKinematic = true;
         }
         else if (npcController.npcType == NpcType.Sitting)
         {
-            rb.isKinematic = true;
             defaultState = SittingState;
             defaultRoutineFactory = Sitting;
+            rb.isKinematic = true;
         }
         else if(npcController.npcType == NpcType.Wander)
         {
@@ -655,6 +655,7 @@ public class ActivityNpc : MonoBehaviour
     {
         if (defaultState != 0 && animator.GetBool(defaultState))
         {
+            Debug.Log($"{transform.name} defaultState 정지");
             animator.SetBool(defaultState, false);
         }
 
@@ -720,6 +721,7 @@ public class ActivityNpc : MonoBehaviour
 
         if (monster != null && IsInshight(monster))
         {
+            Debug.Log($"{transform.name}이 {monster.name} 감지함");
             IsNearMonster = true;
             StopCurrentAction();
             RunAway(monster);
@@ -735,12 +737,14 @@ public class ActivityNpc : MonoBehaviour
         {
             if (character is MonsterData monster)
             {
+                if (!monster.instance.transform.gameObject.activeInHierarchy) continue;
+
                 float distanceToMonster = Vector3.Distance(transform.position, monster.instance.transform.position);
 
                 if (distanceToMonster < closestDistance && distanceToMonster <= detectRange)
                 {
                     closestDistance = distanceToMonster;
-                    closestMonster = monster.instance.transform;
+                    closestMonster = monster.instance.transform;                    
                 }
             }
         }
