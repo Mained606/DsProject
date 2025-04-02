@@ -62,6 +62,9 @@ public class SkillManager : BaseManager<SkillManager>
     [System.NonSerialized]
     private Dictionary<Skills, bool> skillBlinkState = new Dictionary<Skills, bool>();
 
+    [System.NonSerialized]
+    private Dictionary<(EntityType, string), float> skillCooldownRemaining = new Dictionary<(EntityType, string), float>();
+
     [SerializeField] private List<Skills> currentUsedSkills = new List<Skills>();
 
     [System.NonSerialized]
@@ -84,6 +87,7 @@ public class SkillManager : BaseManager<SkillManager>
         activeBuffs = new Dictionary<string, BuffInfo>();
         blinkCoroutines = new Dictionary<Skills, Coroutine>();
         skillBlinkState = new Dictionary<Skills, bool>();
+        skillCooldownRemaining = new Dictionary<(EntityType, string), float>();
         
         InitializeSkillDictionary();
     }
@@ -98,6 +102,7 @@ public class SkillManager : BaseManager<SkillManager>
     private void Update()
     {
         CheckSkillCoolTime();
+        UpdateSkillCooldowns();
     }
 
     private void InitializeSkillDictionary()
@@ -695,6 +700,10 @@ public class SkillManager : BaseManager<SkillManager>
             return;
         }
         
+        // 쿨다운 시작 (추가)
+        var key = (entityType, skillName);
+        skillCooldownRemaining[key] = skill.cooldown;
+        
         // 각 스킬의 버프 지속시간은 스킬 정의에 따름
         float buffDuration = skill.buffDuration;
 
@@ -892,6 +901,53 @@ public class SkillManager : BaseManager<SkillManager>
         }
         
         return activeBuffs[skillName].duration;
+    }
+
+    // 스킬 쿨다운 업데이트
+    private void UpdateSkillCooldowns()
+    {
+        // 키 목록을 복사하여 반복 중 수정 문제 방지
+        var keys = new List<(EntityType, string)>(skillCooldownRemaining.Keys);
+        foreach (var key in keys)
+        {
+            if (skillCooldownRemaining[key] > 0)
+            {
+                skillCooldownRemaining[key] -= Time.deltaTime;
+                if (skillCooldownRemaining[key] < 0)
+                {
+                    skillCooldownRemaining[key] = 0;
+                }
+            }
+        }
+    }
+
+    // 드래곤 버프 등록
+    public void RegisterDragonBuff(string buffName)
+    {
+        var key = (EntityType.Dragon, buffName);
+        if (!skillCooldownRemaining.ContainsKey(key))
+        {
+            skillCooldownRemaining[key] = 0f;
+            Debug.Log($"[SkillManager] 드래곤 버프 쿨다운 등록: {buffName}");
+        }
+    }
+
+    // 스킬이 쿨다운 중인지 확인
+    public bool IsSkillOnCooldown(EntityType entityType, string skillName)
+    {
+        var key = (entityType, skillName);
+        return skillCooldownRemaining.ContainsKey(key) && skillCooldownRemaining[key] > 0;
+    }
+
+    // 현재 쿨다운 남은 시간 가져오기
+    public float GetRemainingCooldown(EntityType entityType, string skillName)
+    {
+        var key = (entityType, skillName);
+        if (skillCooldownRemaining.ContainsKey(key))
+        {
+            return skillCooldownRemaining[key];
+        }
+        return 0f;
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
