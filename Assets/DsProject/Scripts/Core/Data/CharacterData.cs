@@ -126,8 +126,43 @@ public class CharacterData : ISheetData
     [Header("장비 효과")]
     public float equipmentPhysicalBonus = 0f; // 장비로 인한 물리 데미지 보너스
     public float equipmentMagicBonus = 0f;    // 장비로 인한 마법 데미지 보너스
+    // 기본 스탯 장비 보너스
+    public int equipmentStrengthBonus = 0;    // 장비로 인한 힘 보너스
+    public int equipmentAgilityBonus = 0;     // 장비로 인한 민첩 보너스 
+    public int equipmentVitalityBonus = 0;    // 장비로 인한 체력 보너스
+    public int equipmentIntelligenceBonus = 0;// 장비로 인한 지능 보너스
+    
+    // 파생 스탯 장비 보너스
+    public float equipmentCriticalChanceBonus = 0f; // 장비로 인한 크리티컬 확률 보너스
+    public float equipmentCriticalDamageBonus = 0f; // 장비로 인한 크리티컬 데미지 보너스
+    public float equipmentDodgeChanceBonus = 0f;    // 장비로 인한 회피 확률 보너스
+    public float equipmentBlockChanceBonus = 0f;    // 장비로 인한 방어 확률 보너스
+    public float equipmentPhysicalDefenseBonus = 0f;// 장비로 인한 물리 방어력 보너스
+    public float equipmentMagicDefenseBonus = 0f;   // 장비로 인한 마법 방어력 보너스
+    public float equipmentAttackSpeedBonus = 0f;    // 장비로 인한 공격 속도 보너스
+    public float equipmentMoveSpeedBonus = 0f;      // 장비로 인한 이동 속도 보너스
+    public int equipmentMaxHpBonus = 0;            // 장비로 인한 최대 HP 보너스
+    public int equipmentMaxMpBonus = 0;            // 장비로 인한 최대 MP 보너스
 
-    public CharacterData() {}
+    public CharacterData() {
+        // 장비 보너스 필드 초기화
+        this.equipmentPhysicalBonus = 0f;
+        this.equipmentMagicBonus = 0f;
+        this.equipmentStrengthBonus = 0;
+        this.equipmentAgilityBonus = 0;
+        this.equipmentVitalityBonus = 0;
+        this.equipmentIntelligenceBonus = 0;
+        this.equipmentCriticalChanceBonus = 0f;
+        this.equipmentCriticalDamageBonus = 0f;
+        this.equipmentDodgeChanceBonus = 0f;
+        this.equipmentBlockChanceBonus = 0f;
+        this.equipmentPhysicalDefenseBonus = 0f;
+        this.equipmentMagicDefenseBonus = 0f;
+        this.equipmentAttackSpeedBonus = 0f;
+        this.equipmentMoveSpeedBonus = 0f;
+        this.equipmentMaxHpBonus = 0;
+        this.equipmentMaxMpBonus = 0;
+    }
 
     // 생성자: 캐릭터 초기화 및 자동 계산
     public CharacterData(
@@ -157,6 +192,24 @@ public class CharacterData : ISheetData
         this.intelligence = intelligence;
 
         this.statModifier = modifier ?? baseStatModifier;
+
+        // 장비 보너스 필드 초기화
+        this.equipmentPhysicalBonus = 0f;
+        this.equipmentMagicBonus = 0f;
+        this.equipmentStrengthBonus = 0;
+        this.equipmentAgilityBonus = 0;
+        this.equipmentVitalityBonus = 0;
+        this.equipmentIntelligenceBonus = 0;
+        this.equipmentCriticalChanceBonus = 0f;
+        this.equipmentCriticalDamageBonus = 0f;
+        this.equipmentDodgeChanceBonus = 0f;
+        this.equipmentBlockChanceBonus = 0f;
+        this.equipmentPhysicalDefenseBonus = 0f;
+        this.equipmentMagicDefenseBonus = 0f;
+        this.equipmentAttackSpeedBonus = 0f;
+        this.equipmentMoveSpeedBonus = 0f;
+        this.equipmentMaxHpBonus = 0;
+        this.equipmentMaxMpBonus = 0;
 
         // 파생 스탯 초기화
         UpdateDerivedStats();
@@ -227,6 +280,10 @@ public class CharacterData : ISheetData
         float oldPhysicalDamage = physicalDamage;
         float oldMagicDamage = magicDamage;
         
+        // 장비 보너스 초기화 (추가된 부분)
+        // 참고: 장비 효과는 나중에 장착된 장비에서 다시 적용됨
+        ResetEquipmentBonuses();
+        
         // 동적 데이터 재계산
         UpdateDerivedStats();
 
@@ -236,33 +293,49 @@ public class CharacterData : ISheetData
     // 파생 스탯 계산
     public virtual void UpdateDerivedStats(bool updateCurrentValues = true)
     {
-        // 기본 체력 및 MP 계산에 버프 보너스를 반영
+        // 장비 효과를 포함한 총 기본 스탯 계산
+        int totalStrength = strength + equipmentStrengthBonus;
+        int totalAgility = agility + equipmentAgilityBonus;
+        int totalVitality = vitality + equipmentVitalityBonus;
+        int totalIntelligence = intelligence + equipmentIntelligenceBonus;
+        
+        // 기본 체력 및 MP 계산에 버프 보너스와 장비 보너스를 반영
         int oldMaxHp = maxHp; // 이전 최대 체력 저장
-        maxHp = Mathf.RoundToInt(vitality * statModifier.vitalityMultiplier) + hpBuffBonus;
-        maxMp = Mathf.RoundToInt((intelligence * statModifier.mpMultiplier) +
-                               (level * statModifier.levelMpBonus)); // MP는 버프 효과가 없다고 가정
+        maxHp = Mathf.RoundToInt(totalVitality * statModifier.vitalityMultiplier) + hpBuffBonus + equipmentMaxHpBonus;
+        maxMp = Mathf.RoundToInt((totalIntelligence * statModifier.mpMultiplier) +
+                               (level * statModifier.levelMpBonus)) + equipmentMaxMpBonus; 
 
         // 물리 데미지 계산 (버프 효과와 장비 보너스 분리)
-        float basePhysicalDamage = strength * statModifier.strengthMultiplier;
+        float basePhysicalDamage = totalStrength * statModifier.strengthMultiplier;
         float buffedPhysicalDamage = basePhysicalDamage * physicalDamageBuffMultiplier;
         physicalDamage = Mathf.RoundToInt(Mathf.Max(buffedPhysicalDamage + equipmentPhysicalBonus, 1f));
 
         // 마법 데미지 계산 (버프 효과와 장비 보너스 분리)
-        float baseMagicDamage = intelligence * statModifier.intelligenceMultiplier;
+        float baseMagicDamage = totalIntelligence * statModifier.intelligenceMultiplier;
         float buffedMagicDamage = baseMagicDamage * magicDamageBuffMultiplier;
         magicDamage = Mathf.RoundToInt(Mathf.Max(buffedMagicDamage + equipmentMagicBonus, 1f));
 
-        // 방어력 계산
-        physicalDefense = Mathf.RoundToInt(Mathf.Max((strength + vitality) * statModifier.physicalResistanceMultiplier, 1f));
-        magicDefense = Mathf.RoundToInt(Mathf.Max(intelligence * statModifier.magicResistanceMultiplier, 1f));
+        // 방어력 계산 (장비 보너스 포함)
+        physicalDefense = Mathf.RoundToInt(Mathf.Max((totalStrength + totalVitality) * statModifier.physicalResistanceMultiplier + equipmentPhysicalDefenseBonus, 1f));
+        magicDefense = Mathf.RoundToInt(Mathf.Max(totalIntelligence * statModifier.magicResistanceMultiplier + equipmentMagicDefenseBonus, 1f));
 
-        // 크리티컬 확률 계산
-        criticalChance = Mathf.Min(agility * statModifier.agilityMultiplier, 1f); // 민첩성에 따른 크리티컬 확률
-        criticalDamage = 1.5f; // 크리티컬 데미지 배율 예시 (게임에 맞게 수정 가능)
+        // 크리티컬 확률 계산 (장비 보너스 포함)
+        criticalChance = Mathf.Min(totalAgility * statModifier.agilityMultiplier + equipmentCriticalChanceBonus, 1f);
+        criticalDamage = 1.5f + equipmentCriticalDamageBonus; // 크리티컬 데미지 배율에 장비 보너스 추가
 
+        // 회피 및 방어 확률 계산 (장비 보너스 포함)
+        dodgeChance = Mathf.Min((totalAgility / 200f) + equipmentDodgeChanceBonus, MaxDodgeChance);
+        
+        // 방패가 있을 경우, 방어 확률 계산 (장비 보너스 포함)
+        blockChance = hasShield ? Mathf.Min((totalStrength / 200f) + equipmentBlockChanceBonus, MaxBlockChance) : 0f;
+        
         // 피해 감소율 계산 (최대 50% 제한)
         physicalDamageReduction = Mathf.Min(physicalDefense / (physicalDefense + 100), 0.5f);
         magicDamageReduction = Mathf.Min(magicDefense / (magicDefense + 100), 0.5f);
+        
+        // 속도 보너스 적용
+        attackSpeed = Mathf.Max(attackSpeed + equipmentAttackSpeedBonus, 0.1f);
+        moveSpeed = Mathf.Max(moveSpeed + equipmentMoveSpeedBonus, 0.1f);
 
         // 현재 값 업데이트 옵션이 true인 경우에만 체력 및 MP 증가 처리
         if (updateCurrentValues)
@@ -517,7 +590,26 @@ public class CharacterData : ISheetData
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
             this.attribute
-        );
+        )
+        {
+            // 장비 보너스 복사
+            equipmentPhysicalBonus = this.equipmentPhysicalBonus,
+            equipmentMagicBonus = this.equipmentMagicBonus,
+            equipmentStrengthBonus = this.equipmentStrengthBonus,
+            equipmentAgilityBonus = this.equipmentAgilityBonus,
+            equipmentVitalityBonus = this.equipmentVitalityBonus,
+            equipmentIntelligenceBonus = this.equipmentIntelligenceBonus,
+            equipmentCriticalChanceBonus = this.equipmentCriticalChanceBonus,
+            equipmentCriticalDamageBonus = this.equipmentCriticalDamageBonus,
+            equipmentDodgeChanceBonus = this.equipmentDodgeChanceBonus,
+            equipmentBlockChanceBonus = this.equipmentBlockChanceBonus,
+            equipmentPhysicalDefenseBonus = this.equipmentPhysicalDefenseBonus,
+            equipmentMagicDefenseBonus = this.equipmentMagicDefenseBonus,
+            equipmentAttackSpeedBonus = this.equipmentAttackSpeedBonus,
+            equipmentMoveSpeedBonus = this.equipmentMoveSpeedBonus,
+            equipmentMaxHpBonus = this.equipmentMaxHpBonus,
+            equipmentMaxMpBonus = this.equipmentMaxMpBonus
+        };
     }
 
     public virtual string ToStringForTMPro()
@@ -525,60 +617,75 @@ public class CharacterData : ISheetData
         string baseInfo = string.Format(
             "<color=red>Name:</color> {0}\n" +
             "<color=red>Level:</color> {1}\n" +
-            "<color=red>Strength:</color> {2}\n" +
-            "<color=blue>Agility:</color> {3}\n" +
-            "<color=green>Vitality:</color> {4}\n" +
-            "<color=yellow>Intelligence:</color> {5}\n" +
-            "<color=lime>Current HP:</color> {6}/{7}\n" +
-            "<color=cyan>Current MP:</color> {8}/{9}\n" +
-            "<color=lime>Stamina:</color> {10}/{11} (Recovery: {12}/s)\n" +
-            "<color=purple>Physical Damage:</color> {13}\n" +
-            "<color=cyan>Magic Damage:</color> {14}\n" +
-            "<color=orange>Physical Defense:</color> {15}\n" +
-            "<color=orange>Magic Defense:</color> {16}\n" +
-            "<color=magenta>Critical Chance:</color> {17}%\n" +
-            "<color=teal>Dodge Chance:</color> {18}%\n" +
-            "<color=teal>Block Chance:</color> {19}%\n" +
-            "<color=yellow>Attack Speed:</color> {20}\n" +
-            "<color=teal>Speed:</color> {21}\n" +
-            "<color=orange>Current Experience:</color> {22}\n" +
-            "<color=orange>Experience To Level Up:</color> {23}\n" +
-            "<color=cyan>Shield Status:</color> {24}\n" +
-            "<color=lime>HP Recovery Rate:</color> {25}\n" +
-            "<color=lime>MP Recovery Rate:</color> {26}\n" +
-            "<color=lime>Stamina Recovery Rate:</color> {27}\n" +
-            "<color=teal>Physical Damage Reduction:</color> {28}%\n" +
-            "<color=teal>Magic Damage Reduction:</color> {29}%",
+            "<color=red>Strength:</color> {2} <color=green>(+{3})</color>\n" +
+            "<color=blue>Agility:</color> {4} <color=green>(+{5})</color>\n" +
+            "<color=green>Vitality:</color> {6} <color=green>(+{7})</color>\n" +
+            "<color=yellow>Intelligence:</color> {8} <color=green>(+{9})</color>\n" +
+            "<color=lime>Current HP:</color> {10}/{11} <color=green>(+{12})</color>\n" +
+            "<color=cyan>Current MP:</color> {13}/{14} <color=green>(+{15})</color>\n" +
+            "<color=lime>Stamina:</color> {16}/{17} (Recovery: {18}/s)\n" +
+            "<color=purple>Physical Damage:</color> {19} <color=green>(+{20})</color>\n" +
+            "<color=cyan>Magic Damage:</color> {21} <color=green>(+{22})</color>\n" +
+            "<color=orange>Physical Defense:</color> {23} <color=green>(+{24})</color>\n" +
+            "<color=orange>Magic Defense:</color> {25} <color=green>(+{26})</color>\n" +
+            "<color=magenta>Critical Chance:</color> {27}% <color=green>(+{28}%)</color>\n" +
+            "<color=teal>Dodge Chance:</color> {29}% <color=green>(+{30}%)</color>\n" +
+            "<color=teal>Block Chance:</color> {31}% <color=green>(+{32}%)</color>\n" +
+            "<color=yellow>Attack Speed:</color> {33} <color=green>(+{34})</color>\n" +
+            "<color=teal>Speed:</color> {35} <color=green>(+{36})</color>\n" +
+            "<color=orange>Current Experience:</color> {37}\n" +
+            "<color=orange>Experience To Level Up:</color> {38}\n" +
+            "<color=cyan>Shield Status:</color> {39}\n" +
+            "<color=lime>HP Recovery Rate:</color> {40}\n" +
+            "<color=lime>MP Recovery Rate:</color> {41}\n" +
+            "<color=lime>Stamina Recovery Rate:</color> {42}\n" +
+            "<color=teal>Physical Damage Reduction:</color> {43}%\n" +
+            "<color=teal>Magic Damage Reduction:</color> {44}%",
             characterName, // 0
             level, // 1
             strength, // 2
-            agility, // 3
-            vitality, // 4
-            intelligence, // 5
-            currentHp, // 6
-            maxHp, // 7
-            currentMp, // 8
-            maxMp, // 9
-            staminaCurrent, // 10
-            stamina, // 11
-            staminaRecoveryRate, // 12
-            physicalDamage, // 13
-            magicDamage, // 14
-            physicalDefense, // 15
-            magicDefense, // 16
-            criticalChance * 100, // 17
-            dodgeChance * 100, // 18
-            blockChance * 100, // 19
-            attackSpeed, // 20
-            moveSpeed, // 21
-            currentExperience, // 22
-            experienceToLevelUp, // 23
-            hasShield ? "<color=green>Equipped</color>" : "<color=red>Not Equipped</color>", // 24
-            hpRecoveryRate, // 25
-            mpRecoveryRate, // 26
-            staminaRecoveryRate, // 27
-            physicalDamageReduction * 100, // 28
-            magicDamageReduction * 100 // 29
+            equipmentStrengthBonus, // 3
+            agility, // 4
+            equipmentAgilityBonus, // 5
+            vitality, // 6
+            equipmentVitalityBonus, // 7
+            intelligence, // 8
+            equipmentIntelligenceBonus, // 9
+            currentHp, // 10
+            maxHp, // 11
+            equipmentMaxHpBonus, // 12
+            currentMp, // 13
+            maxMp, // 14
+            equipmentMaxMpBonus, // 15
+            staminaCurrent, // 16
+            stamina, // 17
+            staminaRecoveryRate, // 18
+            physicalDamage, // 19
+            equipmentPhysicalBonus, // 20
+            magicDamage, // 21
+            equipmentMagicBonus, // 22
+            physicalDefense, // 23
+            equipmentPhysicalDefenseBonus, // 24
+            magicDefense, // 25
+            equipmentMagicDefenseBonus, // 26
+            criticalChance * 100, // 27
+            equipmentCriticalChanceBonus * 100, // 28
+            dodgeChance * 100, // 29
+            equipmentDodgeChanceBonus * 100, // 30
+            blockChance * 100, // 31
+            equipmentBlockChanceBonus * 100, // 32
+            attackSpeed, // 33
+            equipmentAttackSpeedBonus, // 34
+            moveSpeed, // 35
+            equipmentMoveSpeedBonus, // 36
+            currentExperience, // 37
+            experienceToLevelUp, // 38
+            hasShield ? "<color=green>Equipped</color>" : "<color=red>Not Equipped</color>", // 39
+            hpRecoveryRate, // 40
+            mpRecoveryRate, // 41
+            staminaRecoveryRate, // 42
+            physicalDamageReduction * 100, // 43
+            magicDamageReduction * 100 // 44
         );
         return baseInfo;
     }
@@ -630,6 +737,70 @@ public class CharacterData : ISheetData
         UpdateDerivedStats();
         
         Debug.Log($"[SetEquipmentBonuses] 장비 보너스 설정: 물리={physicalBonus}, 마법={magicBonus}, 적용 후 데미지: 물리={physicalDamage}, 마법={magicDamage}");
+    }
+
+    // 모든 장비 보너스를 한번에 설정하는 확장된 메서드
+    public void SetAllEquipmentBonuses(
+        float physicalBonus, float magicBonus,
+        int strengthBonus, int agilityBonus, int vitalityBonus, int intelligenceBonus,
+        float criticalChanceBonus = 0f, float criticalDamageBonus = 0f,
+        float dodgeChanceBonus = 0f, float blockChanceBonus = 0f,
+        float physicalDefenseBonus = 0f, float magicDefenseBonus = 0f,
+        float attackSpeedBonus = 0f, float moveSpeedBonus = 0f,
+        int maxHpBonus = 0, int maxMpBonus = 0)
+    {
+        // 기본 데미지 보너스 설정
+        equipmentPhysicalBonus = physicalBonus;
+        equipmentMagicBonus = magicBonus;
+        
+        // 기본 스탯 보너스 설정
+        equipmentStrengthBonus = strengthBonus;
+        equipmentAgilityBonus = agilityBonus;
+        equipmentVitalityBonus = vitalityBonus;
+        equipmentIntelligenceBonus = intelligenceBonus;
+        
+        // 파생 스탯 보너스 설정
+        equipmentCriticalChanceBonus = criticalChanceBonus;
+        equipmentCriticalDamageBonus = criticalDamageBonus;
+        equipmentDodgeChanceBonus = dodgeChanceBonus;
+        equipmentBlockChanceBonus = blockChanceBonus;
+        equipmentPhysicalDefenseBonus = physicalDefenseBonus;
+        equipmentMagicDefenseBonus = magicDefenseBonus;
+        equipmentAttackSpeedBonus = attackSpeedBonus;
+        equipmentMoveSpeedBonus = moveSpeedBonus;
+        equipmentMaxHpBonus = maxHpBonus;
+        equipmentMaxMpBonus = maxMpBonus;
+        
+        // 장비 변경 후 스탯 재계산
+        UpdateDerivedStats();
+        
+        Debug.Log($"[SetAllEquipmentBonuses] 모든 장비 보너스 설정 완료. 4대 스탯 보너스: 힘={strengthBonus}, 민첩={agilityBonus}, 체력={vitalityBonus}, 지능={intelligenceBonus}");
+    }
+    
+    // 장비 보너스 초기화 메서드
+    public void ResetEquipmentBonuses()
+    {
+        equipmentPhysicalBonus = 0f;
+        equipmentMagicBonus = 0f;
+        equipmentStrengthBonus = 0;
+        equipmentAgilityBonus = 0;
+        equipmentVitalityBonus = 0;
+        equipmentIntelligenceBonus = 0;
+        equipmentCriticalChanceBonus = 0f;
+        equipmentCriticalDamageBonus = 0f;
+        equipmentDodgeChanceBonus = 0f;
+        equipmentBlockChanceBonus = 0f;
+        equipmentPhysicalDefenseBonus = 0f;
+        equipmentMagicDefenseBonus = 0f;
+        equipmentAttackSpeedBonus = 0f;
+        equipmentMoveSpeedBonus = 0f;
+        equipmentMaxHpBonus = 0;
+        equipmentMaxMpBonus = 0;
+        
+        // 장비 보너스 초기화 후 스탯 재계산
+        UpdateDerivedStats();
+        
+        Debug.Log("모든 장비 보너스가 초기화되었습니다.");
     }
 }
 
