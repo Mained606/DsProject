@@ -23,8 +23,8 @@ public class ActivityNpc : MonoBehaviour
     private Bench currentBench;
 
     [Header("Movement Setting")]
-    private Quaternion originalRotation;
-    private Vector3 originalPosition;
+    [SerializeField] private Quaternion originalRotation;
+    [SerializeField] private Vector3 originalPosition;
     [SerializeField] private Vector3 targetPosition;
     [SerializeField] private Transform targetNpc;
     private float npcDistance = 100f;
@@ -99,7 +99,6 @@ public class ActivityNpc : MonoBehaviour
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
         rb = GetComponent<Rigidbody>();
-        rb.isKinematic = true;
 
         if (npcController.npcTool)
         {
@@ -122,11 +121,13 @@ public class ActivityNpc : MonoBehaviour
         }
         else if (npcController.npcType == NpcType.Craft)
         {
+            rb.isKinematic = true;
             defaultState = CraftingState;
             defaultRoutineFactory = Crafting;
         }
         else if (npcController.npcType == NpcType.Sitting)
         {
+            rb.isKinematic = true;
             defaultState = SittingState;
             defaultRoutineFactory = Sitting;
         }
@@ -154,7 +155,7 @@ public class ActivityNpc : MonoBehaviour
             Vector3 horizontalTarget = new Vector3(targetPosition.x, 0, targetPosition.z);
             float distance = Vector3.Distance(horizontalPosition, horizontalTarget);
 
-            if(distance <= 1f && !isStart && !isNearMonster)
+            if(distance <= 0.5f && !isStart && !isNearMonster)
             {
                 IsMoving = false;
                 StopCurrentAction();
@@ -171,6 +172,7 @@ public class ActivityNpc : MonoBehaviour
                 else
                 {
                     StartCoroutine(LookAtTarget(originalPosition));
+                    transform.position = originalPosition;
                     currentCoroutine = StartCoroutine(defaultRoutineFactory());
                 }
             }
@@ -214,7 +216,7 @@ public class ActivityNpc : MonoBehaviour
             
             if(activityNpc != null && activityNpc.IsNearMonster)
             {
-                Debug.Log(transform.name + other.transform.name + "에게서 두려움 전염");
+                //Debug.Log(transform.name + other.transform.name + "에게서 두려움 전염");
                 IsNearMonster = true;
                 StopCurrentAction();
                 StartCoroutine(StartTerrifying());
@@ -469,19 +471,19 @@ public class ActivityNpc : MonoBehaviour
 
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        //if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
-        //{
-        //    nextPosition.y = hit.point.y;
-        //}
-
-        if (Terrain.activeTerrain != null)
+        if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
         {
-            float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
-            if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
-            {
-                nextPosition.y = terrainHeight;
-            }
+            nextPosition.y = hit.point.y;
         }
+
+        //if (Terrain.activeTerrain != null)
+        //{
+        //    float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+        //    if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
+        //    {
+        //        nextPosition.y = terrainHeight;
+        //    }
+        //}
 
         transform.position = nextPosition;
 
@@ -502,19 +504,19 @@ public class ActivityNpc : MonoBehaviour
 
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        //if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
-        //{
-        //    nextPosition.y = hit.point.y;
-        //}
-
-        if (Terrain.activeTerrain != null)
+        if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
         {
-            float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
-            if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
-            {
-                nextPosition.y = terrainHeight;
-            }
+            nextPosition.y = hit.point.y;
         }
+
+        //if (Terrain.activeTerrain != null)
+        //{
+        //    float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+        //    if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
+        //    {
+        //        nextPosition.y = terrainHeight;
+        //    }
+        //}
 
         transform.position = nextPosition;
 
