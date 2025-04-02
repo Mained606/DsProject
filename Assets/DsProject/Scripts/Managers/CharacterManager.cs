@@ -140,9 +140,8 @@ public class CharacterManager : BaseManager<CharacterManager>
         playercharacterData.magicDamageBuffMultiplier = 1.0f;
         playercharacterData.hpBuffBonus = 0;
         
-        // 장비 보너스 명시적으로 0으로 초기화
-        PlayerCharacterData.equipmentPhysicalBonus = 0f;
-        PlayerCharacterData.equipmentMagicBonus = 0f;
+        // 모든 장비 보너스 초기화 (기존의 개별 초기화 대신 ResetEquipmentBonuses 메서드 사용)
+        PlayerCharacterData.ResetEquipmentBonuses();
         
         // 파생 스탯 계산
         PlayerCharacterData.UpdateDerivedStats();
