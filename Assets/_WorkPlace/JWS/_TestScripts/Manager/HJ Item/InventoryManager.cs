@@ -65,8 +65,8 @@ public class InventoryManager : BaseManager<InventoryManager>
         return inventory.Find(i => i.id == itemId);
     }
     /// ///////////////////////////////////////////////
-    
-    
+
+
     /// JWS  /////////////////////////////////////////
     public bool HasItem(string itemId)
     {
@@ -126,7 +126,10 @@ public class InventoryManager : BaseManager<InventoryManager>
         }
 
         inventory.Add(item.Clone());
-        GameStateMachine.Instance.ChangeState(GameSystemState.InventoryChange);
+        if (GameStateMachine.Instance.CurrentState != GameSystemState.Shopping)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.InventoryChange);
+        }
         return true;
     }
 
@@ -199,11 +202,11 @@ public class InventoryManager : BaseManager<InventoryManager>
     {
         var existingItem = FindInventoryItem(itemId);
 
-        if(GetRemainingInventory() > 0)
+        if (GetRemainingInventory() > 0)
         {
             return true;
         }
-        else if(existingItem != null && existingItem.isStackable && (existingItem.quantity + amount <= existingItem.maxStack))
+        else if (existingItem != null && existingItem.isStackable && (existingItem.quantity + amount <= existingItem.maxStack))
         {
             return true;
         }
@@ -231,18 +234,12 @@ public class InventoryManager : BaseManager<InventoryManager>
 
     public static List<Item> GetSlotItem(EquipmentSlot slot)
     {
-        Debug.LogWarning("위치 : " + slot);   
-        return Instance.inventory.FindAll(x=>x.equipmentSlot == slot);
+        Debug.LogWarning("위치 : " + slot);
+        return Instance.inventory.FindAll(x => x.equipmentSlot == slot);
     }
 
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
     {
-        switch (newState)
-        {
-            case GameSystemState.InventoryChange:
 
-                break;
-
-        }
     }
 }
