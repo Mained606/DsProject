@@ -119,6 +119,12 @@ public class EnhanceUI : MonoBehaviour
             return;
         }
 
+        if (selectedItem.isEquired) 
+        {
+            UIManager.SystemMessage("장착 중인 아이템은 강화할 수 없습니다.");
+            return;
+        }
+
         string materialId = EnhanceManager.Instance.enhancementItemIds[0];
         if (string.IsNullOrEmpty(materialId))
         {

@@ -14,6 +14,12 @@ public class EnhanceDropZone : MonoBehaviour, IDropHandler
         Item droppedItem = tooltip.currentItem;
         if (droppedItem == null) return;
 
+        if (droppedItem.isEquired) 
+        {
+            UIManager.SystemMessage("장착 중인 아이템은 강화할 수 없습니다.");
+            return;
+        }
+
         if (droppedItem.type != ItemType.무기 && droppedItem.type != ItemType.방어구)
         {
             UIManager.SystemMessage("무기 또는 방어구만 강화할 수 있습니다.");
@@ -21,7 +27,7 @@ public class EnhanceDropZone : MonoBehaviour, IDropHandler
         }
 
         enhanceUI.SetSelectedItem(droppedItem);
-        draggable.DestroyDragImage(); // ✅ 여기가 정답
+        draggable.DestroyDragImage(); 
         UIManager.SystemMessage($"'{droppedItem.name}' 강화 슬롯에 등록됨.");
     }
 }
