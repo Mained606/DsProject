@@ -162,7 +162,7 @@ public class GenerateData
                 {
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "용", "-",1) }
                 },
-                new List<Reward>{new Reward("스킬(1)", 1, 10,0)}),
+                new List<Reward>{new Reward("스킬(FireStrike)", 1, 10,0)}),
 
             #region 삭제된 메인 퀘스트
             /*new Quest("메인퀘스트", "1_1005", "알에서 나온 친구","옷장을 열자",
@@ -349,7 +349,7 @@ public class GenerateData
                     {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Mushroom", "머쉬룸을 처치하자",10) },
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_02", "수배지를 확인하자",1) }
                 },
-                new List<Reward>{new Reward("", 0, 50,50)}),
+                new List<Reward>{new Reward("글라이딩", 1, 50,50)}),
 
             new Quest("서브퀘스트", "1_2006", "친절한 용사","내 장난감을 찾아줘",
                 new Dictionary<string, QuestCondition>
@@ -365,7 +365,7 @@ public class GenerateData
                     {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Golem", "골렘을 처치하자",10) },
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_03", "수배지를 확인하자",1) }
                 },
-                new List<Reward>{new Reward("", 0, 50,50)}),
+                new List<Reward>{new Reward("스킬(얼음)", 1, 50,50)}),
 
             new Quest("서브   퀘스트", "1_2008", "친절한 용사","협곡의 보물",
                 new Dictionary<string, QuestCondition>
@@ -373,6 +373,23 @@ public class GenerateData
                     {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "보스", "보스를 처치하자",1) },
                     {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "보물id", "상자를 찾자",1) },
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_04", "아저씨에게 가자",1) }
+                },
+                new List<Reward>{new Reward("스킬(돌맹이)", 1, 50,50)}),
+
+            new Quest("서브   퀘스트", "1_2009", "친절한 용사","괴물을 물리쳐줘",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Mophan", "괴물을 처치하자",1) },
+                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Npc1_01", "테오에게 가자",1) }
+                },
+                new List<Reward>{new Reward("스킬(보라색)", 1, 50,50)}),
+
+            new Quest("서브   퀘스트", "1_2010", "친절한 용사","거대한 숲을 구해줘",
+                new Dictionary<string, QuestCondition>
+                {
+                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Totem", "숲 속의 이상한 물건을 파괴하자",1) },
+                    {"location_002_collect", new QuestCondition(QuestConditionType.Kill, "몬스터들 id", "몰려오는 몬스터들을 모두 처치하자",1) },
+                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_10", "세이아에게 가자",1) }
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}),
 
