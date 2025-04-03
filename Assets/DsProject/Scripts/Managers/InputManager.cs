@@ -189,6 +189,7 @@ public class InputManager : BaseManager<InputManager>
             || state == GameSystemState.Skill
               || state == GameSystemState.Enhance
             || state == GameSystemState.PetInteraction
+            || state == GameSystemState.Event
             || state == GameSystemState.DialogueState;
     }
 }
