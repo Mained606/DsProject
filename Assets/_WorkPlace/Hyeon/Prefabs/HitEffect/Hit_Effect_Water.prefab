@@ -86,6 +86,9 @@ VisualEffect:
       - m_Value: 13
         m_Name: FlashSize
         m_Overridden: 1
+      - m_Value: 2
+        m_Name: DecalSize
+        m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
@@ -100,6 +103,9 @@ VisualEffect:
         m_Overridden: 1
       - m_Value: {x: 16.564705, y: 42.83859, z: 95.87451, w: 1}
         m_Name: TrailsColor
+        m_Overridden: 1
+      - m_Value: {x: 0.9622642, y: 0, z: 0, w: 0}
+        m_Name: DecalColor
         m_Overridden: 1
     m_Uint:
       m_Array: []
@@ -116,6 +122,9 @@ VisualEffect:
       - m_Value: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}
         m_Name: FlashTexture
         m_Overridden: 0
+      - m_Value: {fileID: 2800000, guid: 99e42351cdb99c64285ebab6d7c77679, type: 3}
+        m_Name: DecalTexture
+        m_Overridden: 1
     m_Bool:
       m_Array: []
 --- !u!73398921 &1365329664616074869
