@@ -17,8 +17,6 @@ public class NpcController : MonoBehaviour
     public NpcType npcType;
     public Transform npcTool;
     public Vector3 sittingOffset;
-    public GameObject nearWater;
-    public Bounds waterBounds;
     [SerializeField] private float voicePitch;
 
     [HideInInspector][SerializeField] LayerMask layer;
@@ -31,11 +29,6 @@ public class NpcController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         gameObject.AddComponent<ActivityNpc>();
-
-        if(nearWater != null)
-        {
-            waterBounds = nearWater.GetComponent<Renderer>().bounds;
-        }
 
         if (isFemale)
         {

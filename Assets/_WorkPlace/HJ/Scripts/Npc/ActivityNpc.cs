@@ -48,7 +48,7 @@ public class ActivityNpc : MonoBehaviour
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    [SerializeField] private float talkingChance = 1f;  ////////////////////////////
+    [SerializeField] private float talkingChance = 0.5f;
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
     public bool IsTalking
@@ -254,21 +254,20 @@ public class ActivityNpc : MonoBehaviour
         while (true)
         {
             animator.SetBool(FishingState, true);
-
-            yield return new WaitForSeconds(Random.Range(5f, 5f));  //////////////////////
-            //yield return new WaitForSeconds(Random.Range(20f, 40f));
+            
+            yield return new WaitForSeconds(Random.Range(20f, 40f));
 
             animator.SetBool(FishingState, false);
 
             yield return new WaitForSeconds(ClipLength());
 
-            if(Random.value < talkingChance)
+            if (Random.value < talkingChance)
             {
                 FindNpcAndMove();
             }
             else
             {
-                yield return new WaitForSeconds(Random.Range(3f, 5f));
+                yield return new WaitForSeconds(Random.Range(5f, 10f));
             }
         }
     }
@@ -541,7 +540,7 @@ public class ActivityNpc : MonoBehaviour
 
     private bool IsWaterAhead(Vector3 position, float groundHeight)
     {
-        Collider[] hitColliders = Physics.OverlapSphere(position, 0.5f, waterLayer);
+        Collider[] hitColliders = Physics.OverlapSphere(position, 2.0f, waterLayer);
         foreach (Collider col in hitColliders)
         {
             if (col.bounds.center.y >= groundHeight) //물이 땅보다 위에 있으면 감지
@@ -581,7 +580,7 @@ public class ActivityNpc : MonoBehaviour
         }
 
         // 물을 확실히 피하기 위해 NPC를 더 멀리 이동시킴
-        Vector3 adjustedDirection = Vector3.Lerp(forwardDirection, bestDirection, 0.8f).normalized;
+        Vector3 adjustedDirection = Vector3.Lerp(forwardDirection, bestDirection, 0.5f).normalized;
         return currentPosition + adjustedDirection * moveSpeed * 2 * Time.deltaTime;
     }
 
