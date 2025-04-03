@@ -86,10 +86,11 @@ public class SkillUI : MonoBehaviour
     // 스킬 목록 UI 업데이트: 기존 프리팹 제거 후 플레이어 스킬 목록 재생성
     void UpdateSkillUI()
     {
+
         foreach (Transform child in ADPanelParent) Destroy(child.gameObject);
         foreach (Transform child in APPanelParent) Destroy(child.gameObject);
 
-        List<Skills> playerSkills = GetPlayerSkills();
+        List<Skills> playerSkills = GetPlayerSkills().FindAll(skill => skill.unLockSkill);
         foreach (var skill in playerSkills)
         {
             var parent = skill.skillType == SkillType.Physical ? ADPanelParent : APPanelParent;
@@ -100,10 +101,11 @@ public class SkillUI : MonoBehaviour
 
     private void UpdateDragonSkillUI()
     {
+
         foreach (Transform child in ADPanelParent) Destroy(child.gameObject);
         foreach (Transform child in APPanelParent) Destroy(child.gameObject);
 
-        List<Skills> dragonSkills = GetDragonSkills();
+        List<Skills> dragonSkills = GetDragonSkills().FindAll(skill => skill.unLockSkill);
 
         foreach (var skill in dragonSkills)
         {

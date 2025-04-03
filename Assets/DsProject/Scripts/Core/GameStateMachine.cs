@@ -59,16 +59,16 @@ public class GameStateMachine : MonoBehaviour
             }
         }
 
-        // 상태가 InventoryChange일 때는 UI 닫기 로직을 수행하지 않음
-        if (newState != GameSystemState.InventoryChange)
-        {
-            UIManager.Instance.UIClose();
-        }
+       
         #endregion
 
         Debug.Log($"게임 상태 변경: {CurrentState} → {newState}");
         CurrentState = newState;
-
+        // 상태가 InventoryChange일 때는 UI 닫기 로직을 수행하지 않음
+        if (newState != GameSystemState.InventoryChange && newState != GameSystemState.InfoMessage)
+        {
+            UIManager.Instance.UIClose();
+        }
         // 상태 변경 이벤트 발행
         OnGameStateChanged?.Invoke(newState, additionalData);
     }
