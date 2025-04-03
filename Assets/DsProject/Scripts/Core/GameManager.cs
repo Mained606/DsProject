@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -23,9 +24,15 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        memo.SetActive(true);
+        StartCoroutine(DelayChangeStateToInventoryChange());
     }
-
+    private IEnumerator DelayChangeStateToInventoryChange()
+    {
+        yield return new WaitForSeconds(2f);
+        memo.SetActive(true);
+        GameStateMachine.Instance.ChangeState(GameSystemState.Event);
+      
+    }
     private void OnDisable()
     {
         SaveAllAssets();

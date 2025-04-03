@@ -17,8 +17,10 @@ public class StatusUI : MonoBehaviour
     [SerializeField] private GameObject playerPanel;
     [SerializeField] private Transform statValuePosition;
     [SerializeField] private Transform statPreviewPosition;
+    [SerializeField] private Transform equipBonusPosition;
     private TextMeshProUGUI[] playerStatTexts;
     private TextMeshProUGUI[] previewStatTexts;
+    private TextMeshProUGUI[] equipBonusTexts;
 
     [Header("드래곤 패널")]
     [SerializeField] private GameObject dragonPanel;
@@ -45,6 +47,8 @@ public class StatusUI : MonoBehaviour
         DefaultImages = defaultPanel.GetComponentsInChildren<Image>();
         playerStatTexts = statValuePosition.GetComponentsInChildren<TextMeshProUGUI>();
         previewStatTexts = statPreviewPosition.GetComponentsInChildren<TextMeshProUGUI>();
+        equipBonusTexts = equipBonusPosition.GetComponentsInChildren<TextMeshProUGUI>();
+
         DragonStats = dragonPanel.GetComponentsInChildren<TextMeshProUGUI>();
 
         AssignButtonsByIndex();
@@ -232,6 +236,7 @@ public class StatusUI : MonoBehaviour
 
         playerStatTexts[index].text = baseValue.ToString();
 
+        // 1. 프리뷰 텍스트 갱신
         if (delta != 0)
         {
             previewStatTexts[index].text = delta > 0 ? $"+{delta}" : delta.ToString();
@@ -243,7 +248,26 @@ public class StatusUI : MonoBehaviour
             previewStatTexts[index].gameObject.SetActive(false); 
         }
 
+        // 2. 장비 보너스 갱신
+        int equipBonus = stat switch
+        {
+            StatType.Strength => playerData.equipmentStrengthBonus,
+            StatType.Intelligence => playerData.equipmentIntelligenceBonus,
+            StatType.Agility => playerData.equipmentAgilityBonus,
+            StatType.Vitality => playerData.equipmentVitalityBonus,
+            _ => 0
+        };
 
+        if (equipBonus != 0)
+        {
+            equipBonusTexts[index].text = $"+{equipBonus}";
+            equipBonusTexts[index].gameObject.SetActive(true);
+        }
+        else
+        {
+            equipBonusTexts[index].text = "";
+            equipBonusTexts[index].gameObject.SetActive(false);
+        }
     }
 
     private void UpdateDefaultPanel(CharType type)
