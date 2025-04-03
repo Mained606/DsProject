@@ -131,10 +131,10 @@ public class InventoryUI : MonoBehaviour
     private void CreateItemUI(Item item)
     {
         var inventoryItem = Instantiate(itemPrefab, itemsParent);
-        inventoryItem.GetComponent<InventoryTooltip>().currentItem = item;
-        inventoryItem.GetComponent<InventoryTooltip>().InventorytooltipWindow = itemInfoObject;
-        inventoryItem.GetComponent<InventoryTooltip>().textPoint = itemInfoTextField;
-        inventoryItem.GetComponent<InventoryTooltip>().ItemImage = itemInfoImageField;
+        inventoryItem.GetComponent<InventorySlotTooltip>().currentItem = item;
+        inventoryItem.GetComponent<InventorySlotTooltip>().InventorytooltipWindow = itemInfoObject;
+        inventoryItem.GetComponent<InventorySlotTooltip>().textPoint = itemInfoTextField;
+        inventoryItem.GetComponent<InventorySlotTooltip>().ItemImage = itemInfoImageField;
     }
 
     public void AddButtonListeners()
