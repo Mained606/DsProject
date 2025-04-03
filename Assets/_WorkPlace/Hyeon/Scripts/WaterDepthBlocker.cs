@@ -7,7 +7,7 @@ public class WaterDepthBlocker : MonoBehaviour
     [SerializeField] private float maxDepth = 2.3f; // 플레이어가 들어갈 수 있는 최대 수중 깊이
     [SerializeField] private float currentDepth;                 // 현재 깊이
     private float checkDistance = 5f;           // 깊이 검사 거리
-    private float groundCheckRadius = 10f;       // 주변 땅 검사 반경
+    //private float groundCheckRadius = 10f;       // 주변 땅 검사 반경
     private Vector3 lastSafePosition;           // 플레이어가 마지막으로 서있던 안전한 포지션
 
     [SerializeField] private LayerMask playerLayer;
@@ -23,27 +23,28 @@ public class WaterDepthBlocker : MonoBehaviour
     private void Start()
     {
         player = GameManager.playerTransform.GetComponent<PlayerController>();
+        lastSafePosition = player.transform.position;
     }
 
-    private void Update()
-    {
-        if (player.isInWater && timer != 0f)
-        {
-            timer = 0f;
-        }
+    //private void Update()
+    //{
+    //    if (player.isInWater && timer != 0f)
+    //    {
+    //        timer = 0f;
+    //    }
 
-        if(!player.isInWater && timer <= inWaterStateCheckTime)
-        {
-            timer += Time.deltaTime;
-        }
-        else
-        {
-            if(lastSafePosition != Vector3.zero)
-            {
-                //lastSafePosition = Vector3.zero;
-            }
-        }
-    }
+    //    if(!player.isInWater && timer <= inWaterStateCheckTime)
+    //    {
+    //        timer += Time.deltaTime;
+    //    }
+    //    else
+    //    {
+    //        if(lastSafePosition != Vector3.zero)
+    //        {
+    //            //lastSafePosition = Vector3.zero;
+    //        }
+    //    }
+    //}
 
     /*
      * 1. 플레이어가 트리거 엔터, 트리거 스테이 하는 동안 검사.
