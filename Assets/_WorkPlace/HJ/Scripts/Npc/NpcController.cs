@@ -18,6 +18,7 @@ public class NpcController : MonoBehaviour
     public Transform npcTool;
     public Vector3 sittingOffset;
     [SerializeField] private float voicePitch;
+    [SerializeField] private float testDistance;
 
     [HideInInspector][SerializeField] LayerMask layer;
     private List<string> speakVoices = new List<string>{ "cartoon voice1", "cartoon voice2", "cartoon voice3", "cartoon voice4" };
@@ -39,6 +40,12 @@ public class NpcController : MonoBehaviour
             voicePitch = Random.Range(0.55f, 0.65f);
         }
     }
+
+    //private void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.red;
+    //    Gizmos.DrawWireSphere(transform.position, testDistance);
+    //}
 
     void OnFootStep(AnimationEvent animationEvent)
     {

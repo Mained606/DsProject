@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ActivityNpc : MonoBehaviour
@@ -95,15 +96,17 @@ public class ActivityNpc : MonoBehaviour
 
     private void Start()
     {
-        waterLayer = LayerMask.GetMask("Water");
-        groundLayer = LayerMask.GetMask("Ground");
-
         originalRotation = transform.rotation;
         originalPosition = transform.position;
 
         animator = GetComponent<Animator>();
         npcController = GetComponent<NpcController>();
         rb = GetComponent<Rigidbody>();
+
+        waterLayer = LayerMask.GetMask("Water");
+        groundLayer = LayerMask.GetMask("Ground");
+
+        SetTalkingChance();
 
         if (npcController.npcTool)
         {
@@ -454,6 +457,17 @@ public class ActivityNpc : MonoBehaviour
         }
 
         return nearestNpc;
+    }
+
+    private void SetTalkingChance()
+    {
+        Transform nearestNpc = FindNearestNpc(transform.position, npcDistance);
+        float distance = Vector3.Distance(transform.position, nearestNpc.position);
+
+        if (nearestNpc == null) talkingChance = 0f;
+        else if (distance <= 20f) talkingChance = 0.5f;
+        else if (distance <= 50f) talkingChance = 0.3f;
+        else if (distance <= npcDistance) talkingChance = 0.1f;
     }
 
     private void RunAway(Transform monster)
