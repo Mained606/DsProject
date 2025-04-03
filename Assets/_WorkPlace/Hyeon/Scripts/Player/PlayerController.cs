@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
 
     public bool cheatMode;
 
-    [Header("행동 확인 용")]
+    [Header("상태 확인 용")]
     public bool isGrounded;
     public bool isMove;
     public bool isSprinting;
@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
     public bool isParry;
     //[SerializeField] private bool isHit;
     public bool isStunned;
+    public bool isInWater;
     public bool isDeath;
 
     [Header("이동")]
