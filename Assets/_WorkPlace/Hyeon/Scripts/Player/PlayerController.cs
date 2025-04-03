@@ -43,7 +43,6 @@ public class PlayerController : MonoBehaviour
     public Transform cameraTransform;
     public float walkSpeed;
     public float sprintSpeed;
-    private Vector3 direction;
     private Vector3 moveDirection;
     
     [Header("점프 / 중력")]
@@ -71,8 +70,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dodgeDuration = 0.67f;
 
     [Header("공격")]
-    [SerializeField] private float dashAttackDuration = 0.5f;
-    [SerializeField] private float dashAttackMoveDistance = 10f;
     public bool isCombatState;
     public bool isInvincible = false;
 
@@ -113,6 +110,7 @@ public class PlayerController : MonoBehaviour
         //CanWeaponSwitch = true;
         playerData = CharacterManager.PlayerCharacterData;
         RecoveryTimer = new BasicTimer(RecoveryTime);
+        groundLayer = LayerMask.NameToLayer("Ground");
 
         // Hit 이벤트 구독
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
@@ -593,7 +591,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 climbDirection = climbUp + climbSide;
 
-        moveDirection = direction;
+        //moveDirection = direction;
         moveDirection.y = verticalVelocity.y;
 
         if (moveInput == Vector2.zero)
