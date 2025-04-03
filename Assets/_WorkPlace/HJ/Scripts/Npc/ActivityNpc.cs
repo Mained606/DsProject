@@ -599,7 +599,7 @@ public class ActivityNpc : MonoBehaviour
         }
 
         Vector3 adjustedDirection = Vector3.Lerp(forwardDirection, bestDirection, 0.5f).normalized;
-        return currentPosition + adjustedDirection * moveSpeed * 2 * Time.deltaTime;
+        return currentPosition + adjustedDirection * moveSpeed * Time.deltaTime;
     }
 
     //주어진 위치에서 가장 가까운 물까지의 거리 계산
