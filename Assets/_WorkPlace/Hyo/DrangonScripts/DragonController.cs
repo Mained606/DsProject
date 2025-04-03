@@ -62,6 +62,12 @@ public class DragonController : MonoBehaviour
     public float maxDistanceFromPlayer = 15f;
     private bool isCheckingEndCombat = false;
     [SerializeField] private GameObject fireballPrefab;
+    
+    // 성능 최적화를 위한 캐시 변수 추가
+    private Dictionary<Transform, float> targetRadiusCache = new Dictionary<Transform, float>();
+    private float dragonBodyRadius = 0f;
+    private float lastDragonBodyRadiusUpdate = 0f;
+    private float dragonBodyRadiusUpdateInterval = 5f; // 5초마다 업데이트
     #endregion
 
     #region 쿨다운 및 타겟
@@ -82,9 +88,6 @@ public class DragonController : MonoBehaviour
     [Header("스킬 설정")]
     [Tooltip("드래곤이 사용할 버프 스킬 이름 목록")]
     [SerializeField] private string[] buffSkills = new string[] { "PlayerBuffHP", "PlayerBuffPhysical", "PlayerBuffMagic" };
-    // 버프별 쿨다운은 Skills 객체에서 직접 가져오므로 buffCooldowns 배열은 제거
-    // 각 버프의 쿨다운 남은 시간을 추적하는 딕셔너리
-    private Dictionary<string, float> buffCooldownRemaining = new Dictionary<string, float>();
     #endregion
 
     #region 진화 설정
@@ -108,9 +111,6 @@ public class DragonController : MonoBehaviour
         {
             Instance = this;
         }
-
-        // 버프 쿨다운 초기화
-        InitializeBuffCooldowns();
     }
 
     private void OnEnable()
@@ -165,6 +165,12 @@ public class DragonController : MonoBehaviour
             return;
         }
         
+        // Awake에서 초기화하지 못했다면 여기서 다시 시도
+        if (SkillManager.Instance != null)
+        {
+            InitializeBuffCooldowns();
+        }
+        
         // 쿨다운 초기화
         meleeCooldown = new BasicTimer(dragonData.attackSpeed);
         
@@ -195,9 +201,6 @@ public class DragonController : MonoBehaviour
         if (GameStateMachine.Instance.CurrentState == GameSystemState.Combat || 
             GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle)
         {
-            // 버프 쿨다운 감소
-            UpdateBuffCooldowns();
-            
             HandleCombatLogic();
             
             // 전투 종료 확인
@@ -225,10 +228,17 @@ public class DragonController : MonoBehaviour
     #region 초기화 메서드
     private void InitializeBuffCooldowns()
     {
-        // 모든 버프 스킬의 쿨다운 초기화
+        // SkillManager가 초기화되지 않았다면 안전하게 리턴
+        if (SkillManager.Instance == null)
+        {
+            Debug.LogWarning("[DragonController] SkillManager.Instance가 null입니다. 버프 초기화는 Start에서 다시 시도합니다.");
+            return;
+        }
+        
+        // SkillManager에 드래곤 버프 스킬 등록
         foreach (string buffName in buffSkills)
         {
-            buffCooldownRemaining[buffName] = 0f;
+            SkillManager.Instance.RegisterDragonBuff(buffName);
         }
     }
     
@@ -540,69 +550,96 @@ public class DragonController : MonoBehaviour
         // 타겟의 중심점 가져오기
         Vector3 targetCenter = GetTargetCenter(targetTransform);
         
-        // 드래곤 모델 크기를 더 정확하게 계산
-        float dragonBodyRadius = 0f;
-        if (currentModelInstance != null)
+        // 드래곤 모델 크기를 주기적으로 업데이트 (매 프레임 계산하지 않음)
+        if (Time.time - lastDragonBodyRadiusUpdate > dragonBodyRadiusUpdateInterval)
         {
-            // 먼저 캡슐 콜라이더 검색 (더 정확한 결과)
-            CapsuleCollider capsuleCollider = currentModelInstance.GetComponentInChildren<CapsuleCollider>();
-            if (capsuleCollider != null)
+            UpdateDragonBodyRadius();
+            lastDragonBodyRadiusUpdate = Time.time;
+        }
+        
+        // 타겟 반경 캐싱 로직
+        float targetRadius = 0f;
+        if (!targetRadiusCache.TryGetValue(targetTransform, out targetRadius))
+        {
+            // 캐시에 없으면 계산하여 저장
+            targetRadius = CalculateTargetRadius(targetTransform);
+            targetRadiusCache[targetTransform] = targetRadius;
+            
+            // 캐시 크기 제한 (메모리 관리)
+            if (targetRadiusCache.Count > 50)
             {
-                dragonBodyRadius = capsuleCollider.radius * Mathf.Max(
-                    currentModelInstance.transform.localScale.x,
-                    currentModelInstance.transform.localScale.z
-                );
-                
-                // 모델이 회전되어 있을 수 있으므로 local to world 변환
-                dragonBodyRadius *= transform.lossyScale.x;
-            }
-            else
-            {
-                // 캡슐 콜라이더가 없으면 일반 콜라이더 사용
-                Collider[] colliders = currentModelInstance.GetComponentsInChildren<Collider>();
-                if (colliders.Length > 0)
-                {
-                    // 모든 콜라이더 중 가장 큰 것을 선택
-                    float maxRadius = 0f;
-                    foreach (Collider col in colliders)
-                    {
-                        float radius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
-                        if (radius > maxRadius)
-                        {
-                            maxRadius = radius;
-                        }
-                    }
-                    dragonBodyRadius = maxRadius;
-                }
-                else
-                {
-                    // 콜라이더가 없으면 드래곤 모델의 크기에 기반하여 추정
-                    Renderer[] renderers = currentModelInstance.GetComponentsInChildren<Renderer>();
-                    if (renderers.Length > 0)
-                    {
-                        // 모든 렌더러의 바운드를 확인
-                        Bounds combinedBounds = renderers[0].bounds;
-                        foreach (Renderer renderer in renderers)
-                        {
-                            combinedBounds.Encapsulate(renderer.bounds);
-                        }
-                        dragonBodyRadius = Mathf.Max(combinedBounds.extents.x, combinedBounds.extents.z) * 0.8f; // 80%만 사용
-                    }
-                }
+                CleanupTargetRadiusCache();
             }
         }
         
-        // 드래곤과 타겟 중심 사이의 거리
-        float baseDistance = Vector3.Distance(transform.position, targetCenter);
+        // 실질적인 거리 = 기본 거리 - 드래곤 콜라이더 크기 - 타겟 크기 - 추가 여유 범위
+        return Vector3.Distance(transform.position, targetCenter) - dragonBodyRadius - targetRadius - additionalRangeForSize;
+    }
+    
+    // 드래곤 본체 반경 계산 및 업데이트
+    private void UpdateDragonBodyRadius()
+    {
+        if (currentModelInstance == null) return;
         
-        // 타겟의 CharacterController로부터 크기 정보 추출
+        // 먼저 캡슐 콜라이더 검색 (더 정확한 결과)
+        CapsuleCollider capsuleCollider = currentModelInstance.GetComponentInChildren<CapsuleCollider>();
+        if (capsuleCollider != null)
+        {
+            dragonBodyRadius = capsuleCollider.radius * Mathf.Max(
+                currentModelInstance.transform.localScale.x,
+                currentModelInstance.transform.localScale.z
+            );
+            
+            // 모델이 회전되어 있을 수 있으므로 local to world 변환
+            dragonBodyRadius *= transform.lossyScale.x;
+        }
+        else
+        {
+            // 캡슐 콜라이더가 없으면 일반 콜라이더 사용
+            Collider[] colliders = currentModelInstance.GetComponentsInChildren<Collider>();
+            if (colliders.Length > 0)
+            {
+                // 모든 콜라이더 중 가장 큰 것을 선택
+                float maxRadius = 0f;
+                foreach (Collider col in colliders)
+                {
+                    float radius = Mathf.Max(col.bounds.extents.x, col.bounds.extents.z);
+                    if (radius > maxRadius)
+                    {
+                        maxRadius = radius;
+                    }
+                }
+                dragonBodyRadius = maxRadius;
+            }
+            else
+            {
+                // 콜라이더가 없으면 드래곤 모델의 크기에 기반하여 추정
+                Renderer[] renderers = currentModelInstance.GetComponentsInChildren<Renderer>();
+                if (renderers.Length > 0)
+                {
+                    // 모든 렌더러의 바운드를 확인
+                    Bounds combinedBounds = renderers[0].bounds;
+                    foreach (Renderer renderer in renderers)
+                    {
+                        combinedBounds.Encapsulate(renderer.bounds);
+                    }
+                    dragonBodyRadius = Mathf.Max(combinedBounds.extents.x, combinedBounds.extents.z) * 0.8f; // 80%만 사용
+                }
+            }
+        }
+    }
+    
+    // 타겟 반경 계산
+    private float CalculateTargetRadius(Transform targetTransform)
+    {
+        if (targetTransform == null) return 0f;
+        
+        // CharacterController로부터 크기 정보 추출
         CharacterController targetController = targetTransform.GetComponent<CharacterController>();
-        float targetRadius = 0f;
-        
         if (targetController != null)
         {
             // 타겟의 반지름 활용 (x,z 평면 기준)
-            targetRadius = targetController.radius;
+            return targetController.radius;
         }
         else
         {
@@ -611,12 +648,40 @@ public class DragonController : MonoBehaviour
             if (targetCollider != null)
             {
                 // 대략적인 크기 추정 (바운딩 박스의 절반 크기)
-                targetRadius = Mathf.Max(targetCollider.bounds.extents.x, targetCollider.bounds.extents.z);
+                return Mathf.Max(targetCollider.bounds.extents.x, targetCollider.bounds.extents.z);
             }
         }
         
-        // 실질적인 거리 = 기본 거리 - 드래곤 콜라이더 크기 - 타겟 크기 - 추가 여유 범위
-        return baseDistance - dragonBodyRadius - targetRadius - additionalRangeForSize;
+        return 0f; // 기본값
+    }
+    
+    // 타겟 반경 캐시 정리 (오래된 항목 제거)
+    private void CleanupTargetRadiusCache()
+    {
+        // 현재 타겟은 항상 보존
+        List<Transform> keysToRemove = new List<Transform>();
+        
+        // 현재 타겟이 아닌 항목 중에서 절반을 제거
+        int removeCount = targetRadiusCache.Count / 2;
+        int count = 0;
+        
+        foreach (var key in targetRadiusCache.Keys)
+        {
+            if (key != currentTargetTransform)
+            {
+                keysToRemove.Add(key);
+                count++;
+                
+                if (count >= removeCount)
+                    break;
+            }
+        }
+        
+        // 캐시에서 선택된 항목 제거
+        foreach (var key in keysToRemove)
+        {
+            targetRadiusCache.Remove(key);
+        }
     }
 
     private void MoveTowardTarget(Transform targetTransform)
@@ -686,7 +751,7 @@ public class DragonController : MonoBehaviour
             // 2. 쿨다운이 끝난 버프 (이미 적용 중이어도 가능)
             foreach (string buffName in buffSkills)
             {
-                bool isOnCooldown = buffCooldownRemaining.ContainsKey(buffName) && buffCooldownRemaining[buffName] > 0f;
+                bool isOnCooldown = SkillManager.Instance.IsSkillOnCooldown(EntityType.Dragon, buffName);
                 bool isActive = SkillManager.Instance.IsBuffActive(buffName);
                 
                 if (!isOnCooldown)
@@ -725,12 +790,11 @@ public class DragonController : MonoBehaviour
             // 버프 정보 가져오기
             float buffDuration = buffSkill.buffDuration;
             float buffValue = buffSkill.buffValue;
-            float buffCooldown = buffSkill.cooldown;
 
             // 애니메이션 재생
             animator.SetTrigger(IsUseSkill);
             
-            // 버프 적용
+            // 버프 적용 - 쿨다운은 SkillManager 내에서 관리
             SkillManager.Instance.ApplyBuff(EntityType.Dragon, chosenBuff);
             
             // 버프 효과 텍스트 생성
@@ -738,9 +802,6 @@ public class DragonController : MonoBehaviour
             
             // 시스템 메시지로 버프 적용 알림
             UIManager.SystemGameMessage($"드래곤이 {GetBuffKoreanName(chosenBuff)}(을)를 적용했습니다 ({buffEffectText}, {buffDuration}초 지속)", MessageTag.플레이어_버프);
-            
-            // 개별 버프 쿨다운 적용
-            buffCooldownRemaining[chosenBuff] = buffCooldown;
             
             // 드래곤 스킬 전체 쿨다운 시작
             skillCooldown = new BasicTimer(dragonSkillCooldown);
@@ -1080,21 +1141,4 @@ public class DragonController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, meleeRange);
     }
     #endregion
-
-    private void UpdateBuffCooldowns()
-    {
-        // 쿨다운 타이머 감소
-        List<string> cooldownsToUpdate = new List<string>(buffCooldownRemaining.Keys);
-        foreach (string buffName in cooldownsToUpdate)
-        {
-            if (buffCooldownRemaining[buffName] > 0)
-            {
-                buffCooldownRemaining[buffName] -= Time.deltaTime;
-                if (buffCooldownRemaining[buffName] < 0)
-                {
-                    buffCooldownRemaining[buffName] = 0;
-                }
-            }
-        }
-    }
 }

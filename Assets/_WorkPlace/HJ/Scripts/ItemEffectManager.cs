@@ -513,65 +513,351 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     {
         bool isEquipping = multiplier > 0;
 
-        // 1. 기본 스탯 업데이트
-        Player.strength += stat.Strength * multiplier;
-        Player.agility += stat.Dexterity * multiplier;
-        Player.intelligence += stat.Intelligence * multiplier;
-        Player.vitality += stat.Vitality * multiplier;
-
-        // 2. 장비 제거 및 장착 효과 처리
-        if (!isEquipping)
+        if (isEquipping)
         {
-            Player.maxHp -= stat.MaxHealth;
-            Player.maxMp -= stat.MaxMana;
-            Player.equipmentPhysicalBonus -= stat.PhysicalAttack;
-            Player.equipmentMagicBonus -= stat.MagicAttack;
-            Player.physicalDefense -= stat.PhysicalDefense;
-            Player.magicDefense -= stat.MagicDefense;
-            Player.criticalChance -= stat.CriticalChance;
-            Player.attackSpeed -= stat.AttackSpeed;
-            Player.dodgeChance -= stat.Evasion;
+            // 장착 시 장비 보너스 증가 - SetAllEquipmentBonuses 메서드 사용
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus + stat.PhysicalAttack,
+                Player.equipmentMagicBonus + stat.MagicAttack,
+                Player.equipmentStrengthBonus + stat.Strength,
+                Player.equipmentAgilityBonus + stat.Dexterity,
+                Player.equipmentVitalityBonus + stat.Vitality,
+                Player.equipmentIntelligenceBonus + stat.Intelligence,
+                Player.equipmentCriticalChanceBonus + stat.CriticalChance,
+                Player.equipmentCriticalDamageBonus, // 크리티컬 데미지 보너스는 현재 아이템에서 제공하지 않음
+                Player.equipmentDodgeChanceBonus + stat.Evasion,
+                Player.equipmentBlockChanceBonus, // 블록 확률 보너스는 현재 아이템에서 제공하지 않음
+                Player.equipmentPhysicalDefenseBonus + stat.PhysicalDefense,
+                Player.equipmentMagicDefenseBonus + stat.MagicDefense,
+                Player.equipmentAttackSpeedBonus + stat.AttackSpeed,
+                Player.equipmentMoveSpeedBonus, // 이동 속도 보너스는 현재 아이템에서 제공하지 않음
+                Player.equipmentMaxHpBonus + stat.MaxHealth,
+                Player.equipmentMaxMpBonus + stat.MaxMana
+            );
         }
         else
         {
-            Player.maxHp += stat.MaxHealth;
-            Player.maxMp += stat.MaxMana;
-            Player.equipmentPhysicalBonus += stat.PhysicalAttack;
-            Player.equipmentMagicBonus += stat.MagicAttack;
-            Player.physicalDefense += stat.PhysicalDefense;
-            Player.magicDefense += stat.MagicDefense;
-            Player.criticalChance += stat.CriticalChance;
-            Player.attackSpeed += stat.AttackSpeed;
-            Player.dodgeChance += stat.Evasion;
+            // 해제 시 장비 보너스 감소 - SetAllEquipmentBonuses 메서드 사용
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus - stat.PhysicalAttack,
+                Player.equipmentMagicBonus - stat.MagicAttack,
+                Player.equipmentStrengthBonus - stat.Strength,
+                Player.equipmentAgilityBonus - stat.Dexterity,
+                Player.equipmentVitalityBonus - stat.Vitality,
+                Player.equipmentIntelligenceBonus - stat.Intelligence,
+                Player.equipmentCriticalChanceBonus - stat.CriticalChance,
+                Player.equipmentCriticalDamageBonus, // 크리티컬 데미지 보너스는 현재 아이템에서 제공하지 않음
+                Player.equipmentDodgeChanceBonus - stat.Evasion,
+                Player.equipmentBlockChanceBonus, // 블록 확률 보너스는 현재 아이템에서 제공하지 않음
+                Player.equipmentPhysicalDefenseBonus - stat.PhysicalDefense,
+                Player.equipmentMagicDefenseBonus - stat.MagicDefense,
+                Player.equipmentAttackSpeedBonus - stat.AttackSpeed,
+                Player.equipmentMoveSpeedBonus, // 이동 속도 보너스는 현재 아이템에서 제공하지 않음
+                Player.equipmentMaxHpBonus - stat.MaxHealth,
+                Player.equipmentMaxMpBonus - stat.MaxMana
+            );
         }
 
-        // 3. 모든 스탯 수정이 완료된 후에 UpdateDerivedStats 호출
-        Player.UpdateDerivedStats();
+        // UpdateDerivedStats는 SetAllEquipmentBonuses 내부에서 이미 호출됨
     }
 
     //HJ 03.06 추가
     //한 아이템 스탯만 적용
     private void UpdatePlayerStats(string statName, float value, int multiplier)
     {
-        // 1. 모든 스탯 변경을 먼저 처리
-        if (statName == "Strength") Player.strength += Mathf.RoundToInt(value * multiplier);
-        if (statName == "Dexterity") Player.agility += Mathf.RoundToInt(value * multiplier);
-        if (statName == "Intelligence") Player.intelligence += Mathf.RoundToInt(value * multiplier);
-        if (statName == "Vitality") Player.vitality += Mathf.RoundToInt(value * multiplier);
-
-        if (statName == "MaxHealth") Player.maxHp += Mathf.RoundToInt(value * multiplier);
-        if (statName == "MaxMana") Player.maxMp += Mathf.RoundToInt(value * multiplier);
-        if (statName == "PhysicalAttack") Player.equipmentPhysicalBonus += value * multiplier;
-        if (statName == "MagicAttack") Player.equipmentMagicBonus += value * multiplier;
-        if (statName == "PhysicalDefense") Player.physicalDefense += value * multiplier;
-        if (statName == "MagicDefense") Player.magicDefense += value * multiplier;
-
-        if (statName == "CriticalChance") Player.criticalChance += value * multiplier;
-        if (statName == "AttackSpeed") Player.attackSpeed += value * multiplier;
-        if (statName == "Evasion") Player.dodgeChance += value * multiplier;
+        float valueToApply = value * multiplier;
         
-        // 2. 모든 변경이 완료된 후 스탯 업데이트
-        Player.UpdateDerivedStats();
+        // 기본 스탯
+        if (statName == "Strength") 
+        {
+            int newValue = Player.equipmentStrengthBonus + Mathf.RoundToInt(valueToApply);
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                newValue,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "Dexterity") 
+        {
+            int newValue = Player.equipmentAgilityBonus + Mathf.RoundToInt(valueToApply);
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                newValue,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "Intelligence")
+        {
+            int newValue = Player.equipmentIntelligenceBonus + Mathf.RoundToInt(valueToApply);
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                newValue,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "Vitality")
+        {
+            int newValue = Player.equipmentVitalityBonus + Mathf.RoundToInt(valueToApply);
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                newValue,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        
+        // 파생 스탯
+        else if (statName == "MaxHealth")
+        {
+            int newValue = Player.equipmentMaxHpBonus + Mathf.RoundToInt(valueToApply);
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                newValue,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "MaxMana")
+        {
+            int newValue = Player.equipmentMaxMpBonus + Mathf.RoundToInt(valueToApply);
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                newValue
+            );
+        }
+        else if (statName == "PhysicalAttack")
+        {
+            float newValue = Player.equipmentPhysicalBonus + valueToApply;
+            Player.SetAllEquipmentBonuses(
+                newValue,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "MagicAttack")
+        {
+            float newValue = Player.equipmentMagicBonus + valueToApply;
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                newValue,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "PhysicalDefense")
+        {
+            float newValue = Player.equipmentPhysicalDefenseBonus + valueToApply;
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                newValue,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "MagicDefense")
+        {
+            float newValue = Player.equipmentMagicDefenseBonus + valueToApply;
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                newValue,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "CriticalChance")
+        {
+            float newValue = Player.equipmentCriticalChanceBonus + valueToApply;
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                newValue,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "AttackSpeed")
+        {
+            float newValue = Player.equipmentAttackSpeedBonus + valueToApply;
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                Player.equipmentDodgeChanceBonus,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                newValue,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        else if (statName == "Evasion")
+        {
+            float newValue = Player.equipmentDodgeChanceBonus + valueToApply;
+            Player.SetAllEquipmentBonuses(
+                Player.equipmentPhysicalBonus,
+                Player.equipmentMagicBonus,
+                Player.equipmentStrengthBonus,
+                Player.equipmentAgilityBonus,
+                Player.equipmentVitalityBonus,
+                Player.equipmentIntelligenceBonus,
+                Player.equipmentCriticalChanceBonus,
+                Player.equipmentCriticalDamageBonus,
+                newValue,
+                Player.equipmentBlockChanceBonus,
+                Player.equipmentPhysicalDefenseBonus,
+                Player.equipmentMagicDefenseBonus,
+                Player.equipmentAttackSpeedBonus,
+                Player.equipmentMoveSpeedBonus,
+                Player.equipmentMaxHpBonus,
+                Player.equipmentMaxMpBonus
+            );
+        }
+        
+        // 모든 스탯 업데이트는 SetAllEquipmentBonuses 내부에서 이미 호출됨
     }
 
     private IEnumerator RemoveBuffAfterDuration(Item item, float duration, int amount)
