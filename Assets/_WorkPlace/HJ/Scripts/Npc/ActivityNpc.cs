@@ -69,7 +69,7 @@ public class ActivityNpc : MonoBehaviour
     private float fleeDistance = 10f;
     private float monsterDetectRange = 20f;
     private float viewAngle = 90f;
-    private float checkInterval = 3f;
+    private float checkInterval = 1f;
     [SerializeField] private bool isNearMonster = false;
     public bool IsNearMonster
     {
@@ -462,10 +462,16 @@ public class ActivityNpc : MonoBehaviour
     private void SetTalkingChance()
     {
         Transform nearestNpc = FindNearestNpc(transform.position, npcDistance);
+
+        if (nearestNpc == null)
+        {
+            talkingChance = 0f;
+            return;
+        }
+
         float distance = Vector3.Distance(transform.position, nearestNpc.position);
 
-        if (nearestNpc == null) talkingChance = 0f;
-        else if (distance <= 20f) talkingChance = 0.5f;
+        if (distance <= 20f) talkingChance = 0.5f;
         else if (distance <= 50f) talkingChance = 0.3f;
         else if (distance <= npcDistance) talkingChance = 0.1f;
     }
@@ -504,11 +510,10 @@ public class ActivityNpc : MonoBehaviour
         //    }
         //}
 
-        // 물이 앞에 있는지 확인
+        //물이 앞에 있는지 확인
         if (IsWaterAhead(nextPosition, hit.point.y))
         {
             Debug.Log(transform.name + " 물 감지");
-            // 물을 피하도록 방향을 수정
             nextPosition = FindSafePath(transform.position, direction);
         }
 
@@ -536,7 +541,7 @@ public class ActivityNpc : MonoBehaviour
             nextPosition.y = hit.point.y;
         }
 
-        // 물이 앞에 있는지 확인
+        //물이 앞에 있는지 확인
         if (IsWaterAhead(nextPosition, hit.point.y))
         {
             Debug.Log(transform.name + " 물 감지");
@@ -567,8 +572,8 @@ public class ActivityNpc : MonoBehaviour
 
     private Vector3 FindSafePath(Vector3 currentPosition, Vector3 forwardDirection)
     {
-        float checkRadius = 3f; // 탐색 반경 증가
-        int numChecks = 16; // 더 세밀한 방향 탐색
+        float checkRadius = 3f;
+        int numChecks = 16;
         float angleStep = 360f / numChecks;
 
         Vector3 bestPosition = currentPosition;
@@ -593,12 +598,11 @@ public class ActivityNpc : MonoBehaviour
             }
         }
 
-        // 물을 확실히 피하기 위해 NPC를 더 멀리 이동시킴
         Vector3 adjustedDirection = Vector3.Lerp(forwardDirection, bestDirection, 0.5f).normalized;
         return currentPosition + adjustedDirection * moveSpeed * 2 * Time.deltaTime;
     }
 
-    // 주어진 위치에서 가장 가까운 물까지의 거리 계산
+    //주어진 위치에서 가장 가까운 물까지의 거리 계산
     private float GetDistanceToWater(Vector3 position)
     {
         Collider[] hitColliders = Physics.OverlapSphere(position, 5f, waterLayer);
