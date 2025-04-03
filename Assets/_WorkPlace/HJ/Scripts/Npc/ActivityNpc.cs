@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Threading;
 using UnityEngine;
 
 public class ActivityNpc : MonoBehaviour
@@ -32,6 +31,9 @@ public class ActivityNpc : MonoBehaviour
     private float minSpeed = 3f;
     private float maxSpeed = 5f;
     private float turnSpeed = 10f;
+    private int waterLayer;
+    private int groundLayer;
+
     [SerializeField] private bool isMoving = false;
     [SerializeField] private bool isStart = false;
     public bool IsMoving
@@ -46,7 +48,7 @@ public class ActivityNpc : MonoBehaviour
 
     [Header("Talking State")]
     private string[] talkingTriggers = { "Talking01Trigger", "Talking02Trigger", "Talking03Trigger" };
-    [SerializeField] private float talkingChance = 0.5f;
+    [SerializeField] private float talkingChance = 1f;  ////////////////////////////
     private float talkingDuration = 2f;
     [SerializeField] private bool isTalking = false;
     public bool IsTalking
@@ -93,6 +95,9 @@ public class ActivityNpc : MonoBehaviour
 
     private void Start()
     {
+        waterLayer = LayerMask.GetMask("Water");
+        groundLayer = LayerMask.GetMask("Ground");
+
         originalRotation = transform.rotation;
         originalPosition = transform.position;
 
@@ -250,7 +255,8 @@ public class ActivityNpc : MonoBehaviour
         {
             animator.SetBool(FishingState, true);
 
-            yield return new WaitForSeconds(Random.Range(20f, 40f));
+            yield return new WaitForSeconds(Random.Range(5f, 5f));  //////////////////////
+            //yield return new WaitForSeconds(Random.Range(20f, 40f));
 
             animator.SetBool(FishingState, false);
 
@@ -474,7 +480,7 @@ public class ActivityNpc : MonoBehaviour
         if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
         {
             nextPosition.y = hit.point.y;
-        }
+        }        
 
         //if (Terrain.activeTerrain != null)
         //{
@@ -484,6 +490,14 @@ public class ActivityNpc : MonoBehaviour
         //        nextPosition.y = terrainHeight;
         //    }
         //}
+
+        // 물이 앞에 있는지 확인
+        if (IsWaterAhead(nextPosition, hit.point.y))
+        {
+            Debug.Log(transform.name + " 물 감지");
+            // 물을 피하도록 방향을 수정
+            nextPosition = FindSafePath(transform.position, direction);
+        }
 
         transform.position = nextPosition;
 
@@ -509,14 +523,12 @@ public class ActivityNpc : MonoBehaviour
             nextPosition.y = hit.point.y;
         }
 
-        //if (Terrain.activeTerrain != null)
-        //{
-        //    float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
-        //    if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
-        //    {
-        //        nextPosition.y = terrainHeight;
-        //    }
-        //}
+        // 물이 앞에 있는지 확인
+        if (IsWaterAhead(nextPosition, hit.point.y))
+        {
+            Debug.Log(transform.name + " 물 감지");
+            nextPosition = FindSafePath(transform.position, direction);
+        }
 
         transform.position = nextPosition;
 
@@ -525,6 +537,70 @@ public class ActivityNpc : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(direction.normalized);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
         }
+    }
+
+    private bool IsWaterAhead(Vector3 position, float groundHeight)
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(position, 0.5f, waterLayer);
+        foreach (Collider col in hitColliders)
+        {
+            if (col.bounds.center.y >= groundHeight) //물이 땅보다 위에 있으면 감지
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Vector3 FindSafePath(Vector3 currentPosition, Vector3 forwardDirection)
+    {
+        float checkRadius = 3f; // 탐색 반경 증가
+        int numChecks = 16; // 더 세밀한 방향 탐색
+        float angleStep = 360f / numChecks;
+
+        Vector3 bestPosition = currentPosition;
+        float maxWaterDistance = 0f; // 물에서 가장 멀리 떨어지는 위치 선택
+        Vector3 bestDirection = forwardDirection;
+
+        for (int i = 0; i < numChecks; i++)
+        {
+            float angle = angleStep * i;
+            Vector3 checkDirection = Quaternion.Euler(0, angle, 0) * forwardDirection;
+            Vector3 checkPosition = currentPosition + checkDirection * checkRadius;
+
+            if (Physics.Raycast(checkPosition + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 5f, groundLayer))
+            {
+                float waterDistance = GetDistanceToWater(hit.point);
+                if (waterDistance > maxWaterDistance) // 물에서 가장 멀리 떨어진 방향 선택
+                {
+                    maxWaterDistance = waterDistance;
+                    bestPosition = hit.point;
+                    bestDirection = checkDirection;
+                }
+            }
+        }
+
+        // 물을 확실히 피하기 위해 NPC를 더 멀리 이동시킴
+        Vector3 adjustedDirection = Vector3.Lerp(forwardDirection, bestDirection, 0.8f).normalized;
+        return currentPosition + adjustedDirection * moveSpeed * 2 * Time.deltaTime;
+    }
+
+    // 주어진 위치에서 가장 가까운 물까지의 거리 계산
+    private float GetDistanceToWater(Vector3 position)
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(position, 5f, waterLayer);
+        float minDistance = float.MaxValue;
+
+        foreach (Collider col in hitColliders)
+        {
+            float distance = Vector3.Distance(position, col.bounds.center);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+            }
+        }
+
+        return minDistance == float.MaxValue ? 100f : minDistance; // 물이 없으면 큰 값 반환
     }
 
     private IEnumerator LookAtTarget(Vector3 target)
@@ -655,7 +731,6 @@ public class ActivityNpc : MonoBehaviour
     {
         if (defaultState != 0 && animator.GetBool(defaultState))
         {
-            Debug.Log($"{transform.name} defaultState 정지");
             animator.SetBool(defaultState, false);
         }
 
@@ -799,11 +874,11 @@ public class ActivityNpc : MonoBehaviour
 
         return Mathf.Abs(position.y - terrainHeight) < 0.5f;
     }
-    
+
     //private void OnDrawGizmos()
     //{
     //    Gizmos.color = Color.red;
-    //    Gizmos.DrawWireSphere(transform.position, monsterDetectRange);
+    //    Gizmos.DrawWireSphere(transform.position, npcDistance);
     //}
 
     #region WanderNpc

@@ -17,8 +17,11 @@ public class NpcController : MonoBehaviour
     public NpcType npcType;
     public Transform npcTool;
     public Vector3 sittingOffset;
+    public GameObject nearWater;
+    public Bounds waterBounds;
     [SerializeField] private float voicePitch;
-    [SerializeField] LayerMask layer;
+
+    [HideInInspector][SerializeField] LayerMask layer;
     private List<string> speakVoices = new List<string>{ "cartoon voice1", "cartoon voice2", "cartoon voice3", "cartoon voice4" };
     private const int COMMON_LAYER_INDEX = 1;
 
@@ -28,6 +31,11 @@ public class NpcController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         gameObject.AddComponent<ActivityNpc>();
+
+        if(nearWater != null)
+        {
+            waterBounds = nearWater.GetComponent<Renderer>().bounds;
+        }
 
         if (isFemale)
         {
