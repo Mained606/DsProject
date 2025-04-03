@@ -693,6 +693,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: Freefall
     m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: Jump
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -7469282255733588732}
   m_Solo: 0
