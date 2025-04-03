@@ -18,6 +18,7 @@ public enum GameSystemState
     Cook,          // 요리
     Skill,
     Enhance,
+    Event,
     Shopping,         // 쇼핑
     PetInteraction,   // 펫 상호작용
     Training,         // 훈련 모드

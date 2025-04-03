@@ -521,6 +521,11 @@ public class CameraManager : BaseManager<CameraManager>
                 CursorLock();
                 break;
 
+            case GameSystemState.Event:
+                PlayerVisible(true);
+                HandleUIviewState(); // 커서 언락 + 카메라 전환
+                break;
+
             case GameSystemState.Inventory:
             case GameSystemState.DialogueState:
             case GameSystemState.Pause:
@@ -530,7 +535,6 @@ public class CameraManager : BaseManager<CameraManager>
             case GameSystemState.Cook:
             case GameSystemState.Skill:
             case GameSystemState.Enhance:
-            case GameSystemState.InventoryChange:
                 PlayerVisible(true);
                 HandleUIviewState();
                 break;

@@ -325,20 +325,13 @@ public class UIManager : BaseManager<UIManager>
     public void ToggleinfoMessageWindow(string message)
     {
         infoMessageWindow.SetActive(true);
-
         infoMessageWindow.GetComponentInChildren<TextMeshProUGUI>().text = message;
 
-        // 기존에 있던 코루틴 중지 (안 써도 되지만 혹시 몰라 남김)
-        if (infoMessageCoroutine != null)
-        {
-            StopCoroutine(infoMessageCoroutine);
-        }
-
-        // 버튼 리스너만 붙임
         infoMessageCloseButton.onClick.RemoveAllListeners();
         infoMessageCloseButton.onClick.AddListener(() =>
         {
             infoMessageWindow.SetActive(false);
+            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu); // ← 이거 추가
         });
     }
     #endregion
