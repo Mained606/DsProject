@@ -140,7 +140,7 @@ public class GenerateData
                 {
                     {"location_0011", new QuestCondition(QuestConditionType.Explore, "location_0011", "옆집 아저씨에게 대화 걸기", 1) }
                 },
-                new List<Reward> {new Reward("마을 지도", 1, 10, 0)}),
+                new List<Reward> {new Reward("마을 지도", 1, 0, 0)}),
 
             new Quest("메인퀘스트", "1_1002", "엄마의 쪽지", "밭에서 야채를 수확하자",
                 new Dictionary<string, QuestCondition>
@@ -148,12 +148,12 @@ public class GenerateData
                     { "비트", new QuestCondition(QuestConditionType.Collect, "비트", "비트", 3) },
                     { "무", new QuestCondition(QuestConditionType.Collect, "무", "무", 3) },
                 },
-                new List <Reward> {new Reward("",0,0,0) }),
+                new List <Reward> {new Reward("",0,10,0) }),
 
             new Quest("메인퀘스트", "1_1003", "엄마의 쪽지","의문의 소리 찾기",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Collect, "용의알", "-",1) }
+                    {"", new QuestCondition(QuestConditionType.Collect, "용의알", "-",1) }
                 },
                 new List<Reward>{new Reward("", 0, 10,0)}),
 
@@ -162,7 +162,12 @@ public class GenerateData
                 {
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "용", "-",1) }
                 },
-                new List<Reward>{new Reward("스킬(FireStrike)", 1, 10,0)}),
+                new List<Reward>
+                {
+                    new Reward("스킬(FireStrike)", 1, 30, 0),
+                    new Reward("낡은검", 1, 0, 0),
+                    new Reward("완드", 1, 0, 0),
+                }),
 
             #region 삭제된 메인 퀘스트
             /*new Quest("메인퀘스트", "1_1005", "알에서 나온 친구","옷장을 열자",
