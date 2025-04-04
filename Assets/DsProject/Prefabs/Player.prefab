@@ -8949,11 +8949,28 @@ MonoBehaviour:
     isStunned: 0
     equipmentPhysicalBonus: 0
     equipmentMagicBonus: 0
+    equipmentStrengthBonus: 0
+    equipmentAgilityBonus: 0
+    equipmentVitalityBonus: 0
+    equipmentIntelligenceBonus: 0
+    equipmentCriticalChanceBonus: 0
+    equipmentCriticalDamageBonus: 0
+    equipmentDodgeChanceBonus: 0
+    equipmentBlockChanceBonus: 0
+    equipmentPhysicalDefenseBonus: 0
+    equipmentMagicDefenseBonus: 0
+    equipmentAttackSpeedBonus: 0
+    equipmentMoveSpeedBonus: 0
+    equipmentMaxHpBonus: 0
+    equipmentMaxMpBonus: 0
     skills: []
     gold: 0
   playerCombat: {fileID: 0}
   staminaRecoveryRate: 0.1
   currentState: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
   characterController: {fileID: 0}
   playerAnimator: {fileID: 5264475562808799088}
   cheatMode: 0
@@ -8969,6 +8986,7 @@ MonoBehaviour:
   isUseSkill: 0
   isParry: 0
   isStunned: 0
+  isInWater: 0
   isDeath: 0
   moveInput: {x: 0, y: 0}
   cameraTransform: {fileID: 0}
@@ -8985,8 +9003,6 @@ MonoBehaviour:
   wings: {fileID: 2430454198518691932}
   dodgeDist: 6.5
   dodgeDuration: 0.67
-  dashAttackDuration: 0.5
-  dashAttackMoveDistance: 10
   isCombatState: 0
   isInvincible: 0
   staminaUseAmount: 0.1

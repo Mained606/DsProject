@@ -8,7 +8,7 @@ public class GlideBehaviour : IBehaviour
     private GameObject wings;
 
     private bool canGlide;
-    private float glidableHeight = 3.7f;        // 글라이딩 가능 높이
+    private float glidableHeight = 4f;        // 글라이딩 가능 높이
     private float bodyRotationSpeed = 0.05f;    // 공중에서 몸 돌리는 속도 가중치
     private LayerMask groundLayer;              // 그라운드 감지 레이어
     private float glideSpeed;                   // 글라이딩 최종 속도
@@ -26,6 +26,8 @@ public class GlideBehaviour : IBehaviour
     // 사운드 이름 배열
     private string[] glideSound = { "Wing_On", "Glide_hmm" };
 
+    private bool isWingOn;
+    private float timer = 0f;
 
     public GlideBehaviour()
     {
@@ -62,13 +64,18 @@ public class GlideBehaviour : IBehaviour
         }
         else
         {
+            if (!isWingOn)
+            {
+                ReadyToWing();
+            }
             OnGlide();
             GroundedCheck();
             StaminaCheck();
-            if (InputManager.InputActions.actions["Jump"].triggered)
+            if (isWingOn && InputManager.InputActions.actions["Jump"].triggered)
             {
                 EndGlide();
             }
+            
         }
         
     }
@@ -114,8 +121,11 @@ public class GlideBehaviour : IBehaviour
         PlayerBehaviourManager.Instance.CanMove = false;
         PlayerBehaviourManager.Instance.CanJump = false;
     }
+
     private void EndGlide()
     {
+        timer = 0f;
+        isWingOn = false;
         controller.isGliding = false;
         animator.SetBool("Glide", false);
         if (wings.activeSelf)
@@ -225,5 +235,17 @@ public class GlideBehaviour : IBehaviour
         // 애니메이터에 값 적용
         animator.SetFloat("DirX", tiltX);
         animator.SetFloat("DirZ", tiltZ);
+    }
+
+    private void ReadyToWing()
+    {
+        if(timer <= 1f)
+        {
+            timer += Time.deltaTime;
+        }
+        else
+        {
+            isWingOn = true;
+        }
     }
 }
