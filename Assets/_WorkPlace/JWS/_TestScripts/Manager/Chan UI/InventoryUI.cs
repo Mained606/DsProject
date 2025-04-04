@@ -12,6 +12,8 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private GameObject itemInfoObject;
     [SerializeField] private TextMeshProUGUI[] itemInfoTextField;
     [SerializeField] private Image itemInfoImageField;
+    [SerializeField] private Image itemElement;
+    [SerializeField] private TextMeshProUGUI itemLevel;
 
     private Button[] buttons;
     private int currentButtonIndex = 6;
@@ -135,6 +137,9 @@ public class InventoryUI : MonoBehaviour
         inventoryItem.GetComponent<InventorySlotTooltip>().InventorytooltipWindow = itemInfoObject;
         inventoryItem.GetComponent<InventorySlotTooltip>().textPoint = itemInfoTextField;
         inventoryItem.GetComponent<InventorySlotTooltip>().ItemImage = itemInfoImageField;
+        inventoryItem.GetComponent<InventorySlotTooltip>().ElementIcon = itemElement;
+        inventoryItem.GetComponent<InventorySlotTooltip>().ItemLevel = itemLevel;
+
     }
 
     public void AddButtonListeners()

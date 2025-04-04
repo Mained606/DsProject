@@ -3,6 +3,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
@@ -10,6 +12,9 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
     [NonSerialized] public GameObject InventorytooltipWindow;
     [NonSerialized] public TextMeshProUGUI[] textPoint = new TextMeshProUGUI[3];
     [NonSerialized] public Image ItemImage;
+    [NonSerialized] public Image ElementIcon;
+    [NonSerialized] public TextMeshProUGUI ItemLevel;
+    
     [NonSerialized] public TextMeshProUGUI[] amountCount;
     [NonSerialized] public bool isEquireSlot = false;
     private int preAmountCount = 0;
@@ -74,6 +79,7 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
                 gameObject.AddComponent<DraggableItem>();
             }
         }
+
         if (!isEquireSlot)
         {
             InventorytooltipWindow.SetActive(true);
@@ -81,15 +87,11 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
             textPoint[1].text = currentItem.name;
             textPoint[2].text = currentItem.ToStringTMPro();
         }
-        // 요리재료도 추가
-        if (currentItem.type == ItemType.요리재료)
-        {
-            if (!TryGetComponent(out DraggableItem ditem))
-            {
-                gameObject.AddComponent<DraggableItem>();
-            }
-        }
-        if (currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구)
+
+        // 요리재료, 무기, 방어구도 드래그 가능
+        if (currentItem.type == ItemType.요리재료 ||
+            currentItem.type == ItemType.무기 ||
+            currentItem.type == ItemType.방어구)
         {
             if (!TryGetComponent(out DraggableItem ditem))
             {
@@ -97,11 +99,76 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
             }
         }
 
-        // 툴팁 창 활성화 및 정보 업데이트
+        // 아이템 속성 아이콘 처리 (Addressables 방식)
+        if (currentItem.itemSkill != null)
+        {
+            ElementalAttribute attr = currentItem.itemSkill.element;
+
+            if (attr == ElementalAttribute.None)
+            {
+                ElementIcon.gameObject.SetActive(false);
+            }
+            else
+            {
+                ElementIcon.gameObject.SetActive(false); // 기본으로 꺼두고
+                Addressables.LoadAssetAsync<Sprite>(attr.ToString()).Completed += (handle) =>
+                {
+                    if (handle.Status == AsyncOperationStatus.Succeeded)
+                    {
+                        Sprite icon = handle.Result;
+                        ElementIcon.sprite = icon;
+                        ElementIcon.gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[툴팁] '{attr}' 속성 아이콘 로드 실패 (Address: {attr})");
+                    }
+                };
+            }
+        }
+        else
+        {
+            ElementIcon.gameObject.SetActive(false);
+        }
+
+        // 툴팁창 기본 정보
         InventorytooltipWindow.SetActive(true);
         ItemImage.sprite = currentItem.sprite;
         textPoint[1].text = currentItem.id;
         textPoint[2].text = currentItem.ToStringTMPro();
+
+        if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) && currentItem.itemSkill != null && currentItem.itemSkill.Level > 0)
+        {
+            int level = currentItem.itemSkill.Level;
+
+            ItemLevel.gameObject.SetActive(true);
+            ItemLevel.text = $"+{level}";
+
+            Color parsedColor;
+            if (level <= 2)
+            {
+                ItemLevel.color = Color.white;
+            }
+            else if (level <= 5)
+            {
+                if (ColorUtility.TryParseHtmlString("#A6D8F1", out parsedColor))
+                    ItemLevel.color = parsedColor;
+            }
+            else if (level <= 9)
+            {
+                if (ColorUtility.TryParseHtmlString("#D4A6F1", out parsedColor))
+                    ItemLevel.color = parsedColor;
+            }
+            else if (level >= 10)
+            {
+                if (ColorUtility.TryParseHtmlString("#FFD700", out parsedColor))
+                    ItemLevel.color = parsedColor;
+            }
+        }
+        else
+        {
+            ItemLevel.gameObject.SetActive(false);
+        }
     }
 
     #region 아이템 인포 위치 이동 버전
