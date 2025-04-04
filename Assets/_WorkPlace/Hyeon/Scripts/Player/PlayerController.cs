@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float staminaRecoveryRate;
 
     public PlayerState currentState = PlayerState.Idle;
-    private LayerMask groundLayer;
+    [SerializeField] private LayerMask groundLayer;
     private LayerMask enemyLayer;
     public CharacterController characterController;
     [SerializeField] private Animator playerAnimator;
@@ -110,7 +110,7 @@ public class PlayerController : MonoBehaviour
         //CanWeaponSwitch = true;
         playerData = CharacterManager.PlayerCharacterData;
         RecoveryTimer = new BasicTimer(RecoveryTime);
-        groundLayer = LayerMask.NameToLayer("Ground");
+        //groundLayer = LayerMask.NameToLayer("Ground");
 
         // Hit 이벤트 구독
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
@@ -272,14 +272,15 @@ public class PlayerController : MonoBehaviour
         if (!isGrounded && !isJumping)
         {
             RaycastHit hit;
-            if(Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 1f, groundLayer))
+            if(Physics.Raycast(transform.position + Vector3.up * 0.2f, Vector3.down, out hit, 1.2f, groundLayer))
             {
-                //Debug.Log($"Ray맞는 중 : {hit.transform.name}");
-                if(hit.point.y < transform.position.y)
-                {
+                Debug.Log($"hit.point.y : {hit.point.y}, transform.y : {transform.position.y}");
+                //if(hit.point.y > transform.position.y)
+                //{
                     isGrounded = true;
-                    characterController.Move(new Vector3(0, hit.point.y - transform.position.y, 0));
-                }
+                    //characterController.Move(new Vector3(0, transform.position.y - hit.point.y, 0));
+                    Debug.Log("isGrounded true로 전환");
+                //}
             }
         }
         playerAnimator.SetBool("Grounded", isGrounded);
@@ -305,7 +306,7 @@ public class PlayerController : MonoBehaviour
             playerAnimator.SetBool("Freefall", false);
             if (verticalVelocity.y < 0 && !isJumping)
             {
-                verticalVelocity.y = -2f;
+                verticalVelocity.y = -7f;
             }
         }
         else
