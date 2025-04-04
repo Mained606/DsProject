@@ -93,7 +93,7 @@ public class MoveBehaviour : IBehaviour
         controller.characterController.Move(movement);
         controller.UsingStamina();
 
-        if (direction != Vector3.zero)
+        if (direction != Vector3.zero && !TimerManager.Instance.IsGamePaused)
         {
             Vector3 forward = GameManager.playerTransform.forward;
             float angle = Vector3.SignedAngle(forward, direction, Vector3.up);

@@ -156,7 +156,7 @@ public class GlideBehaviour : IBehaviour
         controller.UsingStamina();
 
         // 몸 돌려주기
-        if (direction != Vector3.zero)
+        if (direction != Vector3.zero && !TimerManager.Instance.IsGamePaused)
         {
             Vector3 forward = GameManager.playerTransform.forward;
             float angle = Vector3.SignedAngle(forward, direction, Vector3.up);
