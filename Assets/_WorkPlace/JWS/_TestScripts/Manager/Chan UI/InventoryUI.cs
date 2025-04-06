@@ -139,7 +139,6 @@ public class InventoryUI : MonoBehaviour
         inventoryItem.GetComponent<InventorySlotTooltip>().ItemImage = itemInfoImageField;
         inventoryItem.GetComponent<InventorySlotTooltip>().ElementIcon = itemElement;
         inventoryItem.GetComponent<InventorySlotTooltip>().ItemLevel = itemLevel;
-
     }
 
     public void AddButtonListeners()
@@ -150,13 +149,13 @@ public class InventoryUI : MonoBehaviour
            
             buttons[i].onClick.RemoveAllListeners();
             buttons[i].onClick.AddListener(() => OnButtonClick(index));
-            if (i == currentButtonIndex) continue;
+            /*if (i == currentButtonIndex) continue;
             Animator animator = buttons[i].GetComponent<Animator>();
             if (animator != null)
             {
                 animator.StopPlayback();
                 animator.SetTrigger("Idle");
-            }
+            }*/
         }
     }
 
@@ -166,19 +165,19 @@ public class InventoryUI : MonoBehaviour
         {
             int index = i;
             buttons[i].onClick.RemoveAllListeners();
-            Animator animator = buttons[i].GetComponent<Animator>();
-            if (animator != null) ButtonReset(animator);
+           /* Animator animator = buttons[i].GetComponent<Animator>();
+            if (animator != null) ButtonReset(animator);*/
         }
     }
 
     private void OnButtonClick(int buttonIndex)
     {
-        if (buttons[currentButtonIndex].animator != null) buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);
+     /*   if (buttons[currentButtonIndex].animator != null) buttons[currentButtonIndex].animator.CrossFade("Idle", 0f);*/
         currentButtonIndex = buttonIndex;
         UpdateUI();
     }
 
-    private void ButtonReset(Animator animator)
+  /*  private void ButtonReset(Animator animator)
     {
         Image image1 = animator.transform.GetChild(0).GetComponent<Image>();
         Color color1 = image1.color;
@@ -189,7 +188,7 @@ public class InventoryUI : MonoBehaviour
         Color color2 = image2.color;
         color2.a = 0f;
         image2.color = color2;
-    }
+    }*/
 }
 
 public enum CategotyItemType

@@ -10,7 +10,7 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
 {
     [NonSerialized] public Item currentItem;
     [NonSerialized] public GameObject InventorytooltipWindow;
-    [NonSerialized] public TextMeshProUGUI[] textPoint = new TextMeshProUGUI[3];
+    [NonSerialized] public TextMeshProUGUI[] textPoint = new TextMeshProUGUI[2];
     [NonSerialized] public Image ItemImage;
     [NonSerialized] public Image ElementIcon;
     [NonSerialized] public TextMeshProUGUI ItemLevel;
@@ -40,6 +40,9 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
         {
             amountCount[0].enabled = false;
         }
+
+        string nameColor = currentItem.GetGradeColor(currentItem.grade);
+        amountCount[2].text = $"<color={nameColor}>{currentItem.name}</color>";
     }
 
     private void Update()
@@ -134,15 +137,18 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
         // 툴팁창 기본 정보
         InventorytooltipWindow.SetActive(true);
         ItemImage.sprite = currentItem.sprite;
-        textPoint[1].text = currentItem.id;
+
+        string nameColor = currentItem.GetGradeColor(currentItem.grade);
+        string coloredName = $"<color={nameColor}>{currentItem.name}</color>";
+        textPoint[1].text = coloredName;
         textPoint[2].text = currentItem.ToStringTMPro();
 
-        if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) && currentItem.itemSkill != null && currentItem.itemSkill.Level > 0)
+        if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) && currentItem.itemSkill != null)
         {
             int level = currentItem.itemSkill.Level;
 
             ItemLevel.gameObject.SetActive(true);
-            ItemLevel.text = $"+{level}";
+            ItemLevel.text = $"LV.{level}";
 
             Color parsedColor;
             if (level <= 2)
