@@ -31,7 +31,7 @@ public class UltimateDragon : MonoBehaviour
     private bool playSound = false;
 
     private SkinnedMeshRenderer meshRenderer;
-    [SerializeField] private List<GameObject> additionalEffects = new List<GameObject>();    // 필요에 따라 리스트로 바뀔 수 있음
+    [SerializeField] private List<GameObject> additionalEffects = new List<GameObject>();
 
     void Start()
     {

@@ -17,8 +17,8 @@ public class WaterDepthBlocker : MonoBehaviour
     private PlayerController player;
     private bool playerIsGrounded;
 
-    private float inWaterStateCheckTime = 3f;
-    private float timer = 0f;
+    //private float inWaterStateCheckTime = 3f;
+    //private float timer = 0f;
 
     private void Start()
     {
