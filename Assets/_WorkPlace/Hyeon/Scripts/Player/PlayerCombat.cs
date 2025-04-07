@@ -36,6 +36,7 @@ public class PlayerCombat : MonoBehaviour
         Animator.StringToHash("Base Layer.Skills.GlacierSpear"),
         Animator.StringToHash("Base Layer.Skills.ElectroComet"),
         Animator.StringToHash("Base Layer.Skills.TerraSurge"),
+        Animator.StringToHash("Base Layer.Skills.UltimateDragon_end"),
     };
 
     private void Start()
