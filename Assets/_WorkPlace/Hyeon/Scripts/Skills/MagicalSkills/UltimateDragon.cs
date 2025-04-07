@@ -31,6 +31,7 @@ public class UltimateDragon : MonoBehaviour
     private bool playSound = false;
 
     private SkinnedMeshRenderer meshRenderer;
+    [SerializeField] private List<GameObject> additionalEffects = new List<GameObject>();    // 필요에 따라 리스트로 바뀔 수 있음
 
     void Start()
     {
@@ -142,6 +143,7 @@ public class UltimateDragon : MonoBehaviour
         if (timer >= skills.particleDelay)
         {
             rb.linearVelocity = transform.forward * speed;
+            AdditionalEffectOn();
             if (!playSound)
             {
                 //SoundManager.Instance.PlayClipAtPoint("Water_Splash", transform.position, 0.1f, false);
@@ -155,6 +157,17 @@ public class UltimateDragon : MonoBehaviour
         else
         {
             timer += Time.deltaTime;
+        }
+    }
+
+    private void AdditionalEffectOn()
+    {
+        if(additionalEffects.Count > 0)
+        {
+            foreach(var effect in additionalEffects)
+            {
+                effect.SetActive(true);
+            }
         }
     }
 
