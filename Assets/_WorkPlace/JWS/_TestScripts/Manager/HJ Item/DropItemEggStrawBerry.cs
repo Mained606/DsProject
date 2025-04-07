@@ -10,6 +10,7 @@ public class DropItemEggStrawBerry : MonoBehaviour
 
     private void Start()
     {
+        Destroy(this.gameObject, DsConstValue.DROP_ITEM_DESTROY_INTERVAL);
     }
 
     private void Update()
