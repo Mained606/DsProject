@@ -297,8 +297,8 @@ public class StatusUI : MonoBehaviour
         }
         else if (type == CharType.Dragon)
         {
-            DefaultText[0].text = dragonData.characterName;
-            DefaultText[1].text = $"Lv. {dragonData.bondLevel}";
+            DefaultText[0].text = $"<size=70%>{dragonData.characterName}</size>";
+            DefaultText[1].text = $"<size=70%>Rank.</size>\n<size=120%>{dragonData.bondLevel}</size>";
             DefaultText[2].text = $"유대감 {dragonData.bondExperience} / {dragonData.CalculateExperienceToLevelUp(dragonData.bondLevel)}";
             DefaultImages[2].fillAmount = (float)dragonData.bondExperience / dragonData.CalculateExperienceToLevelUp(dragonData.bondLevel);
 
