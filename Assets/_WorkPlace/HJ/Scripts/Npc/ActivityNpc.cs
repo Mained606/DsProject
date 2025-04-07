@@ -588,7 +588,7 @@ public class ActivityNpc : MonoBehaviour
 
             if (Physics.Raycast(checkPos + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 4f, groundLayer))
             {
-                if (!IsWaterAtPosition(hit.point))
+                if (!IsWaterAhead(hit.point, hit.point.y))
                 {
                     bestDirection = (hit.point - currentPosition).normalized;
                     foundPath = true;
