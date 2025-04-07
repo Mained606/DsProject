@@ -36,8 +36,8 @@ public class ComboAttackState : StateMachineBehaviour
             {
                 Debug.LogError("⚠ PlayerCombat 컴포넌트를 찾을 수 없습니다.");
             }
-            weaponAttack = combat.weapon.weaponAttack;
         }
+        weaponAttack = combat.weapon.weaponAttack;
     }
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -109,7 +109,7 @@ public class ComboAttackState : StateMachineBehaviour
         else
         {
             combat?.AttackFinished();
-            Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
+            //Debug.LogWarning("⚔ 콤보 종료: 외부로 나감");
             combat.firstAttack = true;
             if (combat.weaponCollider.enabled)
             {

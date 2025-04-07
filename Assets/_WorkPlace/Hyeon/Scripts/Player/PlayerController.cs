@@ -274,13 +274,7 @@ public class PlayerController : MonoBehaviour
             RaycastHit hit;
             if(Physics.Raycast(transform.position + Vector3.up * 0.2f, Vector3.down, out hit, 1.2f, groundLayer))
             {
-                Debug.Log($"hit.point.y : {hit.point.y}, transform.y : {transform.position.y}");
-                //if(hit.point.y > transform.position.y)
-                //{
-                    isGrounded = true;
-                    //characterController.Move(new Vector3(0, transform.position.y - hit.point.y, 0));
-                    Debug.Log("isGrounded true로 전환");
-                //}
+                isGrounded = true;
             }
         }
         playerAnimator.SetBool("Grounded", isGrounded);
