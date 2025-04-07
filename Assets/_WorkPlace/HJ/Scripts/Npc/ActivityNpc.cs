@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -32,6 +33,7 @@ public class ActivityNpc : MonoBehaviour
     private float minSpeed = 3f;
     private float maxSpeed = 5f;
     private float turnSpeed = 10f;
+
     private int waterLayer;
     private int groundLayer;
 
@@ -499,22 +501,12 @@ public class ActivityNpc : MonoBehaviour
         if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
         {
             nextPosition.y = hit.point.y;
-        }        
+        }
 
-        //if (Terrain.activeTerrain != null)
-        //{
-        //    float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
-        //    if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
-        //    {
-        //        nextPosition.y = terrainHeight;
-        //    }
-        //}
-
-        //물이 앞에 있는지 확인
         if (IsWaterAhead(nextPosition, hit.point.y))
         {
-            Debug.Log(transform.name + " 물 감지");
-            nextPosition = FindSafePath(transform.position, direction);
+            //Debug.Log(transform.name + " 물 감지 - 우회 중");
+            nextPosition = FindBypassDirection(transform.position, destination);
         }
 
         transform.position = nextPosition;
@@ -541,11 +533,10 @@ public class ActivityNpc : MonoBehaviour
             nextPosition.y = hit.point.y;
         }
 
-        //물이 앞에 있는지 확인
         if (IsWaterAhead(nextPosition, hit.point.y))
         {
-            Debug.Log(transform.name + " 물 감지");
-            nextPosition = FindSafePath(transform.position, direction);
+            //Debug.Log(transform.name + " 물 감지 - 우회 중");
+            nextPosition = FindBypassDirection(transform.position, targetTransform.position);
         }
 
         transform.position = nextPosition;
@@ -562,7 +553,7 @@ public class ActivityNpc : MonoBehaviour
         Collider[] hitColliders = Physics.OverlapSphere(position, 2.0f, waterLayer);
         foreach (Collider col in hitColliders)
         {
-            if (col.bounds.center.y >= groundHeight) //물이 땅보다 위에 있으면 감지
+            if (col.bounds.center.y >= groundHeight)
             {
                 return true;
             }
@@ -570,54 +561,72 @@ public class ActivityNpc : MonoBehaviour
         return false;
     }
 
-    private Vector3 FindSafePath(Vector3 currentPosition, Vector3 forwardDirection)
+    private bool IsWaterAtPosition(Vector3 position)
     {
-        float checkRadius = 3f;
-        int numChecks = 16;
-        float angleStep = 360f / numChecks;
-
-        Vector3 bestPosition = currentPosition;
-        float maxWaterDistance = 0f; // 물에서 가장 멀리 떨어지는 위치 선택
-        Vector3 bestDirection = forwardDirection;
-
-        for (int i = 0; i < numChecks; i++)
-        {
-            float angle = angleStep * i;
-            Vector3 checkDirection = Quaternion.Euler(0, angle, 0) * forwardDirection;
-            Vector3 checkPosition = currentPosition + checkDirection * checkRadius;
-
-            if (Physics.Raycast(checkPosition + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 5f, groundLayer))
-            {
-                float waterDistance = GetDistanceToWater(hit.point);
-                if (waterDistance > maxWaterDistance) // 물에서 가장 멀리 떨어진 방향 선택
-                {
-                    maxWaterDistance = waterDistance;
-                    bestPosition = hit.point;
-                    bestDirection = checkDirection;
-                }
-            }
-        }
-
-        Vector3 adjustedDirection = Vector3.Lerp(forwardDirection, bestDirection, 0.5f).normalized;
-        return currentPosition + adjustedDirection * moveSpeed * 2 * Time.deltaTime;
+        Collider[] hits = Physics.OverlapSphere(position, 0.5f, waterLayer);
+        return hits.Length > 0;
     }
 
-    //주어진 위치에서 가장 가까운 물까지의 거리 계산
-    private float GetDistanceToWater(Vector3 position)
+    private Vector3 FindBypassDirection(Vector3 currentPosition, Vector3 targetPosition)
     {
-        Collider[] hitColliders = Physics.OverlapSphere(position, 5f, waterLayer);
-        float minDistance = float.MaxValue;
+        float checkDistance = 3f;
+        int numChecks = 18;
+        float angleStep = 10f;
 
-        foreach (Collider col in hitColliders)
+        Vector3 forward = (targetPosition - currentPosition).normalized;
+        Vector3 bestDirection = forward;
+        bool foundPath = false;
+
+        //좌우 번갈아가며 체크
+        for (int i = 1; i <= numChecks; i++)
         {
-            float distance = Vector3.Distance(position, col.bounds.center);
-            if (distance < minDistance)
+            //짝수 오른쪽, 홀수 왼쪽
+            bool checkRight = i % 2 == 0;
+            float angle = angleStep * Mathf.Ceil(i / 2f) * (checkRight ? 1 : -1);   //검사 범위가 점점 넓어짐 (Ceil: 올림 함수)
+            Vector3 checkDir = Quaternion.Euler(0, angle, 0) * forward;
+            Vector3 checkPos = currentPosition + checkDir * checkDistance;
+
+            if (Physics.Raycast(checkPos + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 4f, groundLayer))
             {
-                minDistance = distance;
+                if (!IsWaterAtPosition(hit.point))
+                {
+                    bestDirection = (hit.point - currentPosition).normalized;
+                    foundPath = true;
+                    break;
+                }
             }
+
+            checkRight = !checkRight;
         }
 
-        return minDistance == float.MaxValue ? 100f : minDistance; // 물이 없으면 큰 값 반환
+        bool isCurrentInWater = IsWaterAtPosition(currentPosition);
+
+        if (!foundPath)
+        {
+            if (isCurrentInWater)   //물 속에 있을때
+            {
+                //좌우 탈출 시도
+                Vector3[] sideDirs = { transform.right, -transform.right };
+                foreach (var dir in sideDirs)
+                {
+                    Vector3 checkPos = currentPosition + dir * checkDistance;
+
+                    if (Physics.Raycast(checkPos + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 4f, groundLayer))
+                    {
+                        if (!IsWaterAtPosition(hit.point))
+                        {
+                            return currentPosition + dir.normalized * moveSpeed * Time.deltaTime;
+                        }
+                    }
+                }
+            }
+
+            //탈출 실패 → 앞으로 빠르게 돌진
+            return currentPosition + forward * moveSpeed * 2f * Time.deltaTime;
+        }
+
+        Vector3 blendedDirection = Vector3.Slerp(forward, bestDirection, 0.5f).normalized;
+        return currentPosition + blendedDirection * moveSpeed * Time.deltaTime;
     }
 
     private IEnumerator LookAtTarget(Vector3 target)
