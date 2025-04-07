@@ -99,7 +99,6 @@ public class WeaponManager : MonoBehaviour
 
     public void SwitchWeapon(int index = -1)
     {
-        Debug.Log($"Index = {index}");
         if(index == -1)
         {
             if(currentWeaponObject != null)
@@ -110,8 +109,8 @@ public class WeaponManager : MonoBehaviour
         }
         currentWeaponObject = transform.GetChild(index).gameObject;
         currentWeaponObject.SetActive(true);
-        var playerCombat = GameManager.playerTransform.GetComponent<PlayerCombat>();
-        playerCombat.weaponCollider = currentWeaponObject.GetComponent<Collider>();
+        combat.weaponCollider = currentWeaponObject.GetComponent<Collider>();
+        weaponAttack = currentWeaponObject.GetComponent<WeaponAttack>();
     }
 
     private enum WeaponObjectName
