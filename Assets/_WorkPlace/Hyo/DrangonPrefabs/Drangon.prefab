@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3519793645587539127}
   - component: {fileID: 1478377865561093195}
-  - component: {fileID: 8552986895588330425}
+  - component: {fileID: 8450997723151421220}
   m_Layer: 0
   m_Name: Drangon
   m_TagString: Untagged
@@ -55,7 +55,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &8552986895588330425
+--- !u!114 &8450997723151421220
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,7 +69,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dragonData:
     characterName: 
-    characterType: 3
+    characterType: 0
     prefab: {fileID: 0}
     evolutionStage: 0
     evolutionPrefabs: []
@@ -95,15 +95,15 @@ MonoBehaviour:
     dragonAttribute: 0
   firePoint: {fileID: 0}
   isMoving: 0
-  currentState: 0
+  legacyState: 0
   followDistance: 3
   teleportDistance: 20
-  followSpeed: 5
+  followSpeed: 0
   hoverHeight: 2
   rotationSpeed: 5
   groundCheckDistance: 1
   detectRange: 40
-  meleeRange: 1.8
+  meleeRange: 0
   additionalRangeForSize: -0.8
   maxDistanceFromPlayer: 15
   fireballPrefab: {fileID: 1949376083282614, guid: 4f8e896254c444d4e8162e9c534d6b27, type: 3}
@@ -163,6 +163,20 @@ MonoBehaviour:
     isStunned: 0
     equipmentPhysicalBonus: 0
     equipmentMagicBonus: 0
+    equipmentStrengthBonus: 0
+    equipmentAgilityBonus: 0
+    equipmentVitalityBonus: 0
+    equipmentIntelligenceBonus: 0
+    equipmentCriticalChanceBonus: 0
+    equipmentCriticalDamageBonus: 0
+    equipmentDodgeChanceBonus: 0
+    equipmentBlockChanceBonus: 0
+    equipmentPhysicalDefenseBonus: 0
+    equipmentMagicDefenseBonus: 0
+    equipmentAttackSpeedBonus: 0
+    equipmentMoveSpeedBonus: 0
+    equipmentMaxHpBonus: 0
+    equipmentMaxMpBonus: 0
     dropItems: []
     experienceReward: 0
     goldReward: 0
@@ -173,7 +187,7 @@ MonoBehaviour:
   - PlayerBuffMagic
   dragonModelPrefabs:
   - {fileID: 6847506254371132336, guid: d08004c83f77b2a4c8c9ae8c9c2312f5, type: 3}
-  - {fileID: 6240156220318603427, guid: a4b87bcd6fc67a8448caa408bbe0ef7c, type: 3}
+  - {fileID: 6240156220318603427, guid: 5585b840d055f60489bb94c9f4edc41d, type: 3}
   - {fileID: 2763967484036490562, guid: 76858f9d0cdfd264bab8d4742284e1d9, type: 3}
   modelParents:
   - {fileID: 3519793645587539127}
