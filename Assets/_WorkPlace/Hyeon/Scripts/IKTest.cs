@@ -69,7 +69,7 @@ public class IKTest : MonoBehaviour
 
         if(Physics.Raycast(ray, out hit, DistanceToGround + 1.7f, LayerMask))
         {
-            if (hit.transform.CompareTag("Ground"))
+            if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
                 footPosition = hit.point;
                 footPosition.y += DistanceToGround;
