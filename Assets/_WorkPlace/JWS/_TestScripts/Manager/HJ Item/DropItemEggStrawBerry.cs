@@ -1,16 +1,20 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DropItemEggStrawBerry : MonoBehaviour
 {
     public List<string> dropItemIds = new List<string>();
+    public GameObject effect;
+    public string questId;
     [SerializeField] private float detectionDistance = 2f;
     [SerializeField] private string itemName = "용의알";
     [SerializeField] private int itemAmount = 1;
 
     private void Start()
     {
-        Destroy(this.gameObject, DsConstValue.DROP_ITEM_DESTROY_INTERVAL);
+        if(effect != null)
+            effect.SetActive(false);
     }
 
     private void Update()
@@ -19,6 +23,17 @@ public class DropItemEggStrawBerry : MonoBehaviour
         {
             OpenBox(itemName);
         }
+
+        if (effect == null || string.IsNullOrEmpty(questId)) return;
+
+        if (QuestManager.QuestDatabase.Any(q => q.id == questId))
+        {
+            effect.SetActive(true);
+        }
+        else if(effect.activeSelf)
+        {
+            effect.SetActive(false);
+        }
     }
 
     public void OpenBox(string name)
@@ -26,9 +41,8 @@ public class DropItemEggStrawBerry : MonoBehaviour
         if (!IsNearPlayer())
             return;
 
-        Debug.Log("희정님 아이템메니저 이용시");
         ItemManager.Instance.AddItemLogic(name, itemAmount);
-        Destroy(gameObject); //박스 삭제
+        Destroy(gameObject);
     }
 
     private bool IsNearPlayer()
