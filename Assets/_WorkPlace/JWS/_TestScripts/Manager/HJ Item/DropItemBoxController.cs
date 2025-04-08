@@ -27,7 +27,7 @@ public class DropItemBoxController : MonoBehaviour
 
         if (isRandomDrop)
         {
-            Debug.Log("희정님 아이템메니저 이용시");
+            //Debug.Log("희정님 아이템메니저 이용시");
             // //아이템 데이터 리스트에서 드랍 확률 체크 후 인벤토리에 추가
             // items.ForEach(id =>
             // {

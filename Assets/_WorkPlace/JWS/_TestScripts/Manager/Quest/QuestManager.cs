@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 public class QuestManager : BaseManager<QuestManager>
 {
@@ -41,8 +40,8 @@ public class QuestManager : BaseManager<QuestManager>
         GenerateData generater = new GenerateData();
         mainQuestDatabase = generater.GenerateMainQuestLists();
         subQuestDatabase = generater.GenerateQuestLists();
-        
-        generater.GenerateRandomNPCs(200, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
+
+        //generater.GenerateRandomNPCs(200, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
         npcDatabase = npcDataList.npcLists;
         GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
     }
@@ -110,7 +109,7 @@ public class QuestManager : BaseManager<QuestManager>
 
     //TODO
     //모험, 처치, 만남떄 이곳을 호출하는부분 추가해줘야함.
-    public void UpdateQuestProgress(QuestConditionType conditionType, string targetId, int quantity = 1)
+    public void UpdateQuestProgress(QuestConditionType conditionType, string targetId, int quantity = 1, NPCData npcData = null)
     {
         for (int i = questDatabase.Count - 1; i >= 0; i--)
         {
@@ -132,6 +131,7 @@ public class QuestManager : BaseManager<QuestManager>
                     {
                         quest.progress[conditionId] = condition.requiredQuantity;
                         condition.isCompleted = true;
+                        if (npcData != null) npcData.quests[0].isCompleted = true;  //04.08 HJ 추가
                         UIManager.SystemGameMessage($"퀘스트 조건 '{condition.targetName}' 완료!", MessageTag.아이템_획득);
                     }
                 }
@@ -139,6 +139,7 @@ public class QuestManager : BaseManager<QuestManager>
             if (IsQuestCompleted(quest))
             {
                 quest.isCompleted = true;
+                if (npcData != null) npcData.quests[0].isCompleted = true;    //04.08 HJ 추가
                 UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
                 UIManager.Instance.QuestUpdate();
             }
