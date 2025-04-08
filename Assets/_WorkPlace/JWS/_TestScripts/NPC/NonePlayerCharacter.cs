@@ -5,7 +5,7 @@ using UnityEngine;
 public class NonePlayerCharacter : MonoBehaviour
 {
     [SerializeField] private NPCType npcType;
-    [SerializeField] private int questIndex;
+    [SerializeField] private int questIndex;    //04.08 HJ 추가
     [SerializeField] private ItemType shopItemType;
     [SerializeField] private int shopIndex;
     [SerializeField] private NPCData currentNPCData = null;
