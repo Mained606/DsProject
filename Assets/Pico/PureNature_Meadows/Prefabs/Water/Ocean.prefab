@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3058964472994263060}
   - component: {fileID: 3058964472994263061}
   - component: {fileID: 3058964472994263066}
-  - component: {fileID: 1971368039522819733}
+  - component: {fileID: 8139382250644906344}
   m_Layer: 4
   m_Name: Ocean
   m_TagString: Ground
@@ -110,7 +110,7 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1971368039522819733
+--- !u!114 &8139382250644906344
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -119,17 +119,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3058964472994263067}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29f14d4f19794844999a0247791f895e, type: 3}
+  m_Script: {fileID: 11500000, guid: bd6d2ed6486c3ef4faf61221db959c2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxDepth: 2.3
-  currentDepth: 0
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  waterLayer:
-    serializedVersion: 2
-    m_Bits: 16
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 128
