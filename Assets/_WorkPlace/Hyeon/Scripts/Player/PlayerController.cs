@@ -792,7 +792,11 @@ public class PlayerController : MonoBehaviour
 
     public void PlayerRespawn()
     {
+        characterController.enabled = false;
         transform.position = lastSavePosition;
+        characterController.enabled = true;
+        isDeepWater = false;
+        isInWater = false;
     }
 
     private void OnDrawGizmos()

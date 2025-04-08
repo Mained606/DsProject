@@ -101,14 +101,13 @@ public class MoveBehaviour : IBehaviour
             {
                 currentSpeed = 0f;
                 movement = direction * currentSpeed * Time.deltaTime;
-                movement.y = controller.verticalVelocity.y * Time.deltaTime;
             }
         }
         else
         {
             movement = direction * currentSpeed * Time.deltaTime;
-            movement.y = controller.verticalVelocity.y * Time.deltaTime;
         }
+        movement.y = controller.verticalVelocity.y * Time.deltaTime;
 
         controller.characterController.Move(movement);
         controller.UsingStamina();
