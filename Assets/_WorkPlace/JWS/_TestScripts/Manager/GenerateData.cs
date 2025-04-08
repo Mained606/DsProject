@@ -482,8 +482,8 @@ public class GenerateData
             npcDataList.npcLists.Add(npc);
         }
 
-        npcDataList.mainQuestNpcLists = GenerateMainQuestNPCs(mainQuest);
-        npcDataList.shopNpcLists = CreateShopNPC();
+        //npcDataList.mainQuestNpcLists = GenerateMainQuestNPCs(mainQuest);
+        //npcDataList.shopNpcLists = CreateShopNPC();
     }
 
     private List<NPCData> GenerateMainQuestNPCs(List<Quest> baseDatabase)

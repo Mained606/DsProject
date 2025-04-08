@@ -93,16 +93,16 @@ public class NonePlayerCharacter : MonoBehaviour
     {
         List<NPCData> npclist = QuestManager.NpcDatabase.npcLists;
 
-        foreach (NPCData npcData in npclist)
-        {
-            if (npcData.currentNPC == null && npcData.npcType == npcType)
-            {
-                isInitNPC = true;
-                currentNPCData = npcData;
-                currentNPCData.currentNPC = this.gameObject;
-                break;
-            }
-        }
+        //foreach (NPCData npcData in npclist)
+        //{
+        //    if (npcData.currentNPC == null && npcData.npcType == npcType)
+        //    {
+        //        isInitNPC = true;
+        //        currentNPCData = npcData;
+        //        currentNPCData.currentNPC = this.gameObject;
+        //        break;
+        //    }
+        //}
 
         if (npcType == NPCType.상점)
         {
@@ -118,12 +118,12 @@ public class NonePlayerCharacter : MonoBehaviour
             currentNPCData = npclist[npcIndex].Clone(false);
             currentNPCData.currentNPC = this.gameObject;
         }
-        //else //04.08 HJ 추가
-        //{
-        //    isInitNPC = true;
-        //    currentNPCData = npclist[npcIndex].Clone(false);
-        //    currentNPCData.currentNPC = this.gameObject;
-        //}
+        else //04.08 HJ 추가
+        {
+            isInitNPC = true;
+            currentNPCData = npclist[npcIndex].Clone(false);
+            currentNPCData.currentNPC = this.gameObject;
+        }
 
         switch (currentNPCData.npcType)
         {
