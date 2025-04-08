@@ -152,7 +152,6 @@ public class MoveBehaviour : IBehaviour
     {
         if(controller.walkSpeed != walkSpeed)
         {
-            Debug.Log("플레이어 컨트롤러에서 이벤트 발생");
             walkSpeed = controller.walkSpeed;
             sprintSpeed = walkSpeed * 2f;
         }
