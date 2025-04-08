@@ -139,7 +139,7 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     //{"location_0011", new QuestCondition(QuestConditionType.Explore, "location_0011", "옆집 아저씨에게 대화 걸기", 1) }
-                    { "브루노", new QuestCondition(QuestConditionType.Meet, "MainNPC_1", "옆집 아저씨에게 대화 걸기", 1)}
+                    { "에드릭", new QuestCondition(QuestConditionType.Meet, "MainNPC_1", "옆집 아저씨에게 대화 걸기", 1)}
                 },
                 new List<Reward> {new Reward("마을 지도", 1, 0, 0)}),
 
