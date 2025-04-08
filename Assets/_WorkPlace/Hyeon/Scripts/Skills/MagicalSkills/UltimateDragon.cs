@@ -1,28 +1,41 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VFX;
 
-public class UpperAttack : MonoBehaviour
+public class UltimateDragon : MonoBehaviour
 {
+    public bool followGround = true;
     public float speed = 30;
     public float slowDownRate = 0.01f;
-    public float detectingDistance = 0.1f;
-    public float destroyDelay = 5;
-    [SerializeField] private LayerMask layer;
-    private Skills skills;
-    private float timer = 0f;
+    public float detectingDistance = 7f;
+    public float objectsToDetachDelay = 2;
+    public List<GameObject> objectsToDetach = new List<GameObject>();
+    [Space]
+    public float erodeInRate = 0.06f;
+    public float erodeOutRate = 0.03f;
+    public float erodeRefreshRate = 0.01f;
+    public float erodeAwayDelay = 1.25f;
+    public List<SkinnedMeshRenderer> objectsToErode = new List<SkinnedMeshRenderer>();
 
     private Rigidbody rb;
+    [SerializeField] private LayerMask groundLayer;
     private bool stopped;
+
+    private Skills skills;
+    private float timer = 0f;
+    [SerializeField] private float groundHeightOffset = 2.5f;
 
     private Dictionary<Collider, int> enemyDamageCount = new Dictionary<Collider, int>();
     public int maxHits = 3;
     private bool playSound = false;
 
+    private SkinnedMeshRenderer meshRenderer;
+
     void Start()
     {
-        //transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+        //if (followGround)
+        transform.position = new Vector3(transform.position.x, transform.position.y + groundHeightOffset, transform.position.z);
 
         if (GetComponent<Rigidbody>() != null)
         {
@@ -32,8 +45,18 @@ public class UpperAttack : MonoBehaviour
         else
             Debug.Log("No Rigidbody");
 
-        skills = SkillManager.Instance.GetSkill(EntityType.Player, "UpperAttack");
-        SoundManager.Instance.PlayClipAtPoint("Sword_Scratch", transform.position, 0.1f, false);
+        if (objectsToDetach != null)
+            StartCoroutine(DetachObjects());
+
+        if (objectsToErode != null)
+            StartCoroutine(ErodeObjects());
+
+        skills = SkillManager.Instance.GetSkill(EntityType.Player, "UltimateDragon");
+        meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+        if (meshRenderer.enabled)
+        {
+            meshRenderer.enabled = false;
+        }
 
         Destroy(gameObject, skills.effectDuration);
     }
@@ -41,17 +64,17 @@ public class UpperAttack : MonoBehaviour
     private void FixedUpdate()
     {
         Shooting();
-        if (!stopped)
+        if (!stopped && followGround)
         {
             RaycastHit hit;
-            Vector3 distance = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z);
-            if (Physics.Raycast(distance, transform.TransformDirection(-Vector3.up), out hit, 4f))
+            Vector3 distance = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
+            if (Physics.Raycast(distance, transform.TransformDirection(-Vector3.up), out hit, detectingDistance, groundLayer))
             {
-                transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);
+                transform.position = new Vector3(transform.position.x, hit.point.y + groundHeightOffset, transform.position.z);
             }
             else
             {
-                transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+                //transform.position = new Vector3(transform.position.x, 0, transform.position.z);
             }
             Debug.DrawRay(distance, transform.TransformDirection(-Vector3.up * detectingDistance), Color.red);
         }
@@ -70,6 +93,50 @@ public class UpperAttack : MonoBehaviour
         stopped = true;
     }
 
+    IEnumerator DetachObjects()
+    {
+        yield return new WaitForSeconds(objectsToDetachDelay);
+
+        for (int i = 0; i < objectsToDetach.Count; i++)
+        {
+            objectsToDetach[i].transform.parent = null;
+            Destroy(objectsToDetach[i], objectsToDetachDelay);
+        }
+    }
+
+    IEnumerator ErodeObjects()
+    {
+        for (int i = 0; i < objectsToErode.Count; i++)
+        {
+            float t = 1;
+            while (t > 0)
+            {
+                t -= erodeInRate;
+                for (int j = 0; j < objectsToErode[i].materials.Length; j++)
+                {
+                    objectsToErode[i].materials[j].SetFloat("_Erode", t);
+                }
+                yield return new WaitForSeconds(erodeRefreshRate);
+            }
+        }
+
+        yield return new WaitForSeconds(erodeAwayDelay);
+
+        for (int i = 0; i < objectsToErode.Count; i++)
+        {
+            float t = 0;
+            while (t < 1)
+            {
+                t += erodeOutRate;
+                for (int j = 0; j < objectsToErode[i].materials.Length; j++)
+                {
+                    objectsToErode[i].materials[j].SetFloat("_Erode", t);
+                }
+                yield return new WaitForSeconds(erodeRefreshRate);
+            }
+        }
+    }
+
     private void Shooting()
     {
         if (timer >= skills.particleDelay)
@@ -77,15 +144,18 @@ public class UpperAttack : MonoBehaviour
             rb.linearVelocity = transform.forward * speed;
             if (!playSound)
             {
-                SoundManager.Instance.PlayClipAtPoint("Water_Splash", transform.position, 0.1f, false);
+                //SoundManager.Instance.PlayClipAtPoint("Water_Splash", transform.position, 0.1f, false);
                 playSound = true;
+            }
+            if (!meshRenderer.enabled)
+            {
+                meshRenderer.enabled = true;
             }
         }
         else
         {
             timer += Time.deltaTime;
         }
-        
     }
 
     private void OnTriggerStay(Collider other)

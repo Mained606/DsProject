@@ -18,7 +18,7 @@ public class NpcController : MonoBehaviour
     public Transform npcTool;
     public Vector3 sittingOffset;
     [SerializeField] private float voicePitch;
-    [SerializeField] private float testDistance;
+    //[SerializeField] private float testDistance;
 
     [HideInInspector][SerializeField] LayerMask layer;
     private List<string> speakVoices = new List<string>{ "cartoon voice1", "cartoon voice2", "cartoon voice3", "cartoon voice4" };
