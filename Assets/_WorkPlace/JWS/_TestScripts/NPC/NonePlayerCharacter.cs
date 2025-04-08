@@ -5,7 +5,7 @@ using UnityEngine;
 public class NonePlayerCharacter : MonoBehaviour
 {
     [SerializeField] private NPCType npcType;
-    [SerializeField] private int questIndex;    //04.08 HJ 추가
+    [SerializeField] private int npcIndex;
     [SerializeField] private ItemType shopItemType;
     [SerializeField] private int shopIndex;
     [SerializeField] private NPCData currentNPCData = null;
@@ -115,7 +115,13 @@ public class NonePlayerCharacter : MonoBehaviour
         {
             npclist = QuestManager.NpcDatabase.mainQuestNpcLists;
             isInitNPC = true;
-            currentNPCData = npclist[questIndex].Clone(false);
+            currentNPCData = npclist[npcIndex].Clone(false);
+            currentNPCData.currentNPC = this.gameObject;
+        }
+        else //04.08 HJ 추가
+        {
+            isInitNPC = true;
+            currentNPCData = npclist[npcIndex].Clone(false);
             currentNPCData.currentNPC = this.gameObject;
         }
 
@@ -223,7 +229,16 @@ public class NonePlayerCharacter : MonoBehaviour
             return;
         }
 
-        UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, currentNPCData.quests[0]);
+        Quest currentQuest = currentNPCData.quests[0];
+
+        if (QuestManager.CompletedQuests.Any(q => q.id == currentQuest.id))
+        {
+            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, QuestManager.CompletedQuests.Find(q => q.id == currentQuest.id));
+        }
+        else
+        {
+            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, currentQuest);
+        }
 
         // 스토리 진행후 퀘스트를 제공하는 방식의 로직
     }

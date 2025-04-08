@@ -125,6 +125,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropItemIds: []
+  effect: {fileID: 7462736256345530087}
+  questId: 1_1002
   detectionDistance: 1.5
   itemName: "\uBE44\uD2B8"
   itemAmount: 1
@@ -206,5 +208,10 @@ PrefabInstance:
 --- !u!4 &2602079952519065876 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3984351830961920344, guid: 8a0d07466f5bcbc46866fcec34b0f758, type: 3}
+  m_PrefabInstance: {fileID: 1393638751220656204}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7462736256345530087 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8414910047068272299, guid: 8a0d07466f5bcbc46866fcec34b0f758, type: 3}
   m_PrefabInstance: {fileID: 1393638751220656204}
   m_PrefabAsset: {fileID: 0}
