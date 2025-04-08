@@ -11,6 +11,7 @@ public class NPCDataEditor : Editor
 
         // 기본 NPC 설정
         SerializedProperty npcTypeProperty = serializedObject.FindProperty("npcType");
+        SerializedProperty questIndexProperty = serializedObject.FindProperty("questIndex");    //04.08 HJ 추가
         SerializedProperty shopItemTypeProperty = serializedObject.FindProperty("shopItemType");
         SerializedProperty shopIndexProperty = serializedObject.FindProperty("shopIndex");
 
@@ -30,8 +31,12 @@ public class NPCDataEditor : Editor
             //}
             EditorGUILayout.PropertyField(shopIndexProperty, new GUIContent("      Shop Index"));
         }
+        else if(npcTypeProperty.enumValueIndex == (int)NPCType.퀘스트)     //04.08 HJ 추가
+        {
+            EditorGUILayout.PropertyField(questIndexProperty, new GUIContent("      Quest Index"));
+        }
 
-        serializedObject.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties();
 
 
 
