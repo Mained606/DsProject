@@ -144,7 +144,7 @@ public class Item : ISheetData
         // 무기 속성 색상
         string elementColor = itemSkill != null ? GetElementColor(itemSkill.element) : "#FFFFFF";
         string elementInfo = itemSkill != null && itemSkill.element != ElementalAttribute.None
-            ? $"                                <size=120%>속성: <color={elementColor}>{itemSkill.element}</color></size>"
+            ? $"                            <size=120%>속성: <color={elementColor}>{itemSkill.element}</color></size>"
             : "";
 
         // 공통 정보

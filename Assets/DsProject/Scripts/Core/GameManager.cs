@@ -24,11 +24,12 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(DelayChangeStateToInventoryChange());
+      
+          StartCoroutine(DelayChangeStateToInventoryChange());
     }
     private IEnumerator DelayChangeStateToInventoryChange()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.5f);
         memo.SetActive(true);
         GameStateMachine.Instance.ChangeState(GameSystemState.Event);
       

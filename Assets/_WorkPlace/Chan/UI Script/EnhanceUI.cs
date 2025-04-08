@@ -79,7 +79,7 @@ public class EnhanceUI : MonoBehaviour
     private void CreateItemUI(Item item)
     {
         var go = Instantiate(itemPrefab, itemParent);
-        var tooltip = go.GetComponent<InventoryTooltip>();
+        var tooltip = go.GetComponent<InventorySlotTooltip>();
         tooltip.currentItem = item;
         tooltip.InventorytooltipWindow = itemInfoObject;
         tooltip.textPoint = itemInfoTextField;

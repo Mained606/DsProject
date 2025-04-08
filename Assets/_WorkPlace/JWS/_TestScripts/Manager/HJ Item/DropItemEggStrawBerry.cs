@@ -26,7 +26,7 @@ public class DropItemEggStrawBerry : MonoBehaviour
         if (!IsNearPlayer())
             return;
 
-        Debug.Log("희정님 아이템메니저 이용시");
+        //Debug.Log("희정님 아이템메니저 이용시");
         ItemManager.Instance.AddItemLogic(name, itemAmount);
         Destroy(gameObject); //박스 삭제
     }
