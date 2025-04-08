@@ -104790,6 +104790,10 @@ PrefabInstance:
       propertyPath: npcType
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 7013606477293899370, guid: eef95170f67bd4c49bf7db1647b82161, type: 3}
+      propertyPath: npcIndex
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7060643313898432432, guid: eef95170f67bd4c49bf7db1647b82161, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.000000043189733
@@ -105190,7 +105194,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: npcType
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -107376,6 +107380,10 @@ PrefabInstance:
       propertyPath: npcType
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 5837274317837285641, guid: a6961164d6c141b4d8ca44067c2cb76c, type: 3}
+      propertyPath: npcIndex
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5912972664771241991, guid: a6961164d6c141b4d8ca44067c2cb76c, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.00013911302
@@ -109038,6 +109046,10 @@ PrefabInstance:
       propertyPath: npcType
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: npcIndex
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 7030771545273902040, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.9795815e-10
@@ -110695,6 +110707,10 @@ PrefabInstance:
     - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: npcType
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: npcIndex
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7030771545273902040, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_LocalPosition.x
@@ -112439,6 +112455,10 @@ PrefabInstance:
     - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: npcType
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: npcIndex
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7030771545273902040, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_LocalPosition.x
@@ -114277,6 +114297,10 @@ PrefabInstance:
     - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: npcType
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: npcIndex
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7030771545273902040, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: m_LocalPosition.x
