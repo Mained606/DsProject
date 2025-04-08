@@ -124,12 +124,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxDepth: 2.3
   currentDepth: 0
-  playerLayer:
+  inspectionOrigin: {x: 0, y: 0, z: 0}
+  overGroundLayer:
     serializedVersion: 2
-    m_Bits: 8
-  waterLayer:
-    serializedVersion: 2
-    m_Bits: 16
+    m_Bits: 144
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
+  onWater: 0
+  waterHeight: 0
+  groundHeight: 0

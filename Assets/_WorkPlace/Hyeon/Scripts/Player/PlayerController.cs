@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     //[SerializeField] private bool isHit;
     public bool isStunned;
     public bool isInWater;
+    public bool isDeepWater;
     public bool isDeath;
 
     [Header("이동")]

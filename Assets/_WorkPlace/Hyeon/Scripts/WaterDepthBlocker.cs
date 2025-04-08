@@ -7,44 +7,52 @@ public class WaterDepthBlocker : MonoBehaviour
     [SerializeField] private float maxDepth = 2.3f; // 플레이어가 들어갈 수 있는 최대 수중 깊이
     [SerializeField] private float currentDepth;                 // 현재 깊이
     private float checkDistance = 5f;           // 깊이 검사 거리
-    //private float groundCheckRadius = 10f;       // 주변 땅 검사 반경
     private Vector3 lastSafePosition;           // 플레이어가 마지막으로 서있던 안전한 포지션
+    private Vector3 lastSavePosition;
+    [SerializeField] private Vector3 inspectionOrigin;
 
-    [SerializeField] private LayerMask playerLayer;
-    [SerializeField] private LayerMask waterLayer;
+    [SerializeField] private LayerMask overGroundLayer;
     [SerializeField] private LayerMask groundLayer;
 
     private PlayerController player;
     private bool playerIsGrounded;
 
-    //private float inWaterStateCheckTime = 3f;
-    //private float timer = 0f;
+    private float inWaterStateCheckTime = 3f;
+    private float timer = 0f;
+    [SerializeField] private bool onWater;
+
+    [SerializeField] private float waterHeight;
+    [SerializeField] private float groundHeight;
+    private bool isGroundRayHit;
+    private bool isWaterRayHit;
+    private RaycastHit groundHit;
+    private RaycastHit waterHit;
 
     private void Start()
     {
         player = GameManager.playerTransform.GetComponent<PlayerController>();
-        lastSafePosition = player.transform.position;
+        //lastSafePosition = player.transform.position;
+        lastSavePosition = player.transform.position;
+
+        inspectionOrigin = player.transform.position + player.transform.forward * 1f;
+        waterHeight = transform.position.y;
     }
 
-    //private void Update()
-    //{
-    //    if (player.isInWater && timer != 0f)
-    //    {
-    //        timer = 0f;
-    //    }
+    private void Update()
+    {
+        inspectionOrigin = player.transform.position + player.transform.forward * 0.5f + player.transform.up * 1f;
+        if (player.isInWater)
+            return;
 
-    //    if(!player.isInWater && timer <= inWaterStateCheckTime)
-    //    {
-    //        timer += Time.deltaTime;
-    //    }
-    //    else
-    //    {
-    //        if(lastSafePosition != Vector3.zero)
-    //        {
-    //            //lastSafePosition = Vector3.zero;
-    //        }
-    //    }
-    //}
+        
+        UnderTheFeet();
+        if (!player.isGrounded && onWater)
+        {
+            isGroundRayHit = Physics.Raycast(inspectionOrigin, Vector3.down, out groundHit, 10f, groundLayer);
+            DeepWaterCheckOnAir();
+        }
+        //WaterExitCompletely();
+    }
 
     /*
      * 1. 플레이어가 트리거 엔터, 트리거 스테이 하는 동안 검사.
@@ -59,6 +67,11 @@ public class WaterDepthBlocker : MonoBehaviour
         {
             PlayerIsGroundedCheck();
             player.isInWater = true;
+            onWater = true;
+            if (timer != 0f)
+            {
+                timer = 0f;
+            }
         }
         
     }
@@ -66,6 +79,13 @@ public class WaterDepthBlocker : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         if (other.gameObject.layer != 3) return;
+
+        //inspectionOrigin = player.transform.position + player.transform.forward * 0.5f + player.transform.up * 1f;
+        isGroundRayHit = Physics.Raycast(inspectionOrigin, Vector3.down, out groundHit, 10f, groundLayer);
+        if (isGroundRayHit)
+        {
+            groundHeight = groundHit.point.y;
+        }
 
         if (playerIsGrounded)
         {
@@ -97,65 +117,66 @@ public class WaterDepthBlocker : MonoBehaviour
 
     private void DeepWaterCheckOnWalk()
     {
-        if(Physics.Raycast(player.transform.position, Vector3.up, out RaycastHit waterHit, checkDistance, waterLayer))
-        {
-            currentDepth = Vector3.Distance(player.transform.position, waterHit.point);
-            if(currentDepth >= maxDepth)
-            {
-                // 너무 깊은 물
-                Debug.Log("너무 깊은 물입니다. 이동 불가!");
 
-                player.transform.position = lastSafePosition;   // 플레이어를 마지막으로 안전했던 위치에 강제 이동
-            }
-            else
-            {
-                lastSafePosition = player.transform.position;   // 현재 플레이어 위치를 마지막으로 안전한 위치로 저장
-            }
+        currentDepth = waterHeight - groundHeight;
+        if(currentDepth >= maxDepth)
+        {
+            Debug.Log("너무 깊은 물");
+            player.isDeepWater = true;
+        }
+        else
+        {
+            player.isDeepWater = false;
         }
     }
 
     private void DeepWaterCheckOnAir()
     {
-        if(Physics.Raycast(player.transform.position, Vector3.up, out RaycastHit waterHit, checkDistance, waterLayer))
+        if (!player.isInWater && onWater)
         {
-            if(Physics.Raycast(player.transform.position + Vector3.up * 1f, Vector3.down, out RaycastHit groundHit, checkDistance + 1f, groundLayer))
+            if (!isGroundRayHit)
             {
-                currentDepth = Vector3.Distance(waterHit.point, groundHit.point);
-                if(currentDepth >= maxDepth)
-                {
-                    Debug.Log("너무 깊은 물에 뛰어 들었습니다. 이동 불가!");
-                    //PlayerPushBack(waterHit);
-                    player.transform.position = lastSafePosition;
-                }
-                //else
-                //{
-                //    player.transform.position = groundHit.point;
-                //}
+                Debug.Log("너무너무 깊은 물에 뛰어 들었습니다. 집으로 강제 이송");
+                player.transform.position = lastSavePosition;
+                return;
+            }
+        }
+        
+        currentDepth = waterHeight - groundHeight;
+
+        if (currentDepth >= maxDepth)
+        {
+            Debug.Log("너무 깊은 물, 공중에 뜬 상태");
+            player.isDeepWater = true;
+        }
+        else
+        {
+            player.isDeepWater = false;
+        }
+    }
+
+    private void UnderTheFeet()
+    {
+        isWaterRayHit = Physics.Raycast(inspectionOrigin, Vector3.down, out waterHit, 1f, overGroundLayer);
+        if (isWaterRayHit)
+        {
+            if (waterHit.transform.gameObject.layer == 4)
+            {
+                onWater = true;
+                waterHeight = waterHit.transform.position.y;
             }
             else
             {
-                Debug.Log("너무 깊은 물에 뛰어 들었습니다. 이동 불가!");
-                //PlayerPushBack(waterHit);
-                player.transform.position = lastSafePosition;
+                onWater = false;
             }
         }
     }
 
-    private void PlayerPushBack(RaycastHit waterHit)
+    private void WaterExitCompletely()
     {
-        if(Physics.Raycast(player.transform.position + Vector3.up * 1f, Vector3.down, out RaycastHit groundHit, checkDistance + 1f, groundLayer))
-        {
-            float distance = Vector3.Distance(waterHit.point, groundHit.point);
-            if(distance > maxDepth)
-            {
-                player.transform.position -= player.transform.forward * 5f;
-                Debug.Log("플레이어 뒤로 미는 중");
-            }
-        }
+        if (timer >= inWaterStateCheckTime)
+            onWater = false;
         else
-        {
-            player.transform.position -= player.transform.forward * 5f;
-            Debug.Log("플레이어 뒤로 미는 중");
-        }
+            timer += Time.deltaTime;
     }
 }
