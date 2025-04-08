@@ -13,6 +13,8 @@ public class EnhanceUI : MonoBehaviour
     [SerializeField] private GameObject itemInfoObject;
     [SerializeField] private TextMeshProUGUI[] itemInfoTextField;
     [SerializeField] private Image itemInfoImageField;
+    [SerializeField] private Image elementIconField;
+    [SerializeField] private TextMeshProUGUI itemLevel;
 
     [Header("버튼")]
     [SerializeField] private Button enhanceButton;
@@ -79,11 +81,16 @@ public class EnhanceUI : MonoBehaviour
     private void CreateItemUI(Item item)
     {
         var go = Instantiate(itemPrefab, itemParent);
-        var tooltip = go.GetComponent<InventorySlotTooltip>();
+        var tooltip = go.GetComponent<InventorySlotTooltip2>();
+
         tooltip.currentItem = item;
+
+        // 툴팁용 바인딩
         tooltip.InventorytooltipWindow = itemInfoObject;
-        tooltip.textPoint = itemInfoTextField;
+        tooltip.textPoint = itemInfoTextField; // 최소 4개짜리 배열 (1:이름, 2:설명, 3:레벨)
         tooltip.ItemImage = itemInfoImageField;
+        tooltip.ElementIcon = elementIconField;
+        tooltip.ItemLevel = itemLevel;
     }
 
     private void ClearUI()

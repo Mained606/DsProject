@@ -28,7 +28,7 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
         amountCount = transform.GetComponentsInChildren<TextMeshProUGUI>();
         if (currentItem != null && currentItem.sprite != null)
         {
-            this.transform.GetComponentsInChildren<Image>(true)[3].sprite = currentItem.sprite;
+            this.transform.GetComponentsInChildren<Image>(true)[2].sprite = currentItem.sprite;
         }
         if (currentItem.isStackable)
         {
