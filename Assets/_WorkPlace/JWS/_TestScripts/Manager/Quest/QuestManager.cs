@@ -217,7 +217,7 @@ public class QuestManager : BaseManager<QuestManager>
         if (quest.questType == "메인퀘스트" && mainQuestDatabase.Count > currentMainQuestIndex)
         {
             currentMainQuestIndex++;
-            if(quest.questType == "메인퀘스트" && quest.isCompleted)
+            if(quest.questType == "메인퀘스트" && quest.needsDialog)
             {
                 GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
             }
