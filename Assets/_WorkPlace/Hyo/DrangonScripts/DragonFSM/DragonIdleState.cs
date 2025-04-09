@@ -9,9 +9,11 @@ public class DragonIdleState : IDragonState
     private DragonStateMachine stateMachine;
     private Animator animator;
     private float stateTimer;
-    private float movingStateThreshold = 0.3f; // 이동 상태 전환을 위한 시간 임계값
+    private float movingStateThreshold = 0.5f; // 이동 상태 전환을 위한 시간 임계값 (더 길게 설정)
     private float lastPlayerMovingCheck = 0f; // 마지막으로 플레이어 이동 상태를 확인한 시간
     private bool isPlayerMovingConsistent = false; // 플레이어 이동 상태의 일관성 확인
+    private float playerIdleTime = 0f; // 플레이어가 정지한 상태로 유지된 시간
+    private bool wasFollowingMovingPlayer = false; // 이전에 이동 중인 플레이어를 따라가고 있었는지
 
     /// <summary>
     /// 드래곤 대기 상태 진입
@@ -22,13 +24,28 @@ public class DragonIdleState : IDragonState
         this.stateMachine = stateMachine;
         this.animator = animator;
         
-        // 대기 애니메이션 설정
-        animator.SetBool(DragonController.IsMoving, false);
+        // 애니메이터 null 체크 추가
+        if (animator == null)
+        {
+            Debug.LogWarning("[DragonIdleState] 애니메이터가 null입니다. 애니메이션을 적용하지 않습니다.");
+            return;
+        }
+        
+        try
+        {
+            // 대기 애니메이션 설정
+            animator.SetBool(DragonController.IsMoving, false);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[DragonIdleState] 애니메이션 설정 중 오류 발생: {e.Message}");
+        }
         
         // 상태 타이머 초기화
         stateTimer = 0f;
         lastPlayerMovingCheck = 0f;
         isPlayerMovingConsistent = false;
+        playerIdleTime = 0f;
     }
 
     /// <summary>
@@ -88,24 +105,38 @@ public class DragonIdleState : IDragonState
                 bool currentPlayerMoving = dragon.IsPlayerMoving();
                 
                 // 이전 체크와 일관성이 있으면 상태 전환 고려
-                if (currentPlayerMoving && !isPlayerMovingConsistent)
+                if (currentPlayerMoving)
                 {
-                    isPlayerMovingConsistent = true;
-                    lastPlayerMovingCheck = 0f; // 타이머 리셋하고 한 번 더 확인
-                }
-                else if (currentPlayerMoving && isPlayerMovingConsistent)
-                {
-                    // 플레이어가 일정 시간 이상 일관되게 이동 중이면 이동 상태로 전환
-                    stateMachine.SetState<DragonMovingState>();
-                    return;
+                    if (!isPlayerMovingConsistent)
+                    {
+                        isPlayerMovingConsistent = true;
+                        playerIdleTime = 0f;
+                    }
+                    else
+                    {
+                        // 플레이어가 일정 시간 이상 일관되게 이동 중이면 이동 상태로 전환
+                        stateMachine.SetState<DragonMovingState>();
+                        return;
+                    }
                 }
                 else
                 {
                     // 이동이 감지되지 않았으면 일관성 플래그 초기화
                     isPlayerMovingConsistent = false;
-                    lastPlayerMovingCheck = 0f;
                 }
+                
+                lastPlayerMovingCheck = 0f; // 타이머 리셋
             }
+            
+            // 플레이어와의 거리가 너무 멀면 이동 상태로 전환
+            if (dragon.IsPlayerTooFar())
+            {
+                stateMachine.SetState<DragonMovingState>();
+                return;
+            }
+            
+            // 플레이어가 멈춰있을 때도 드래곤이 플레이어를 따라가야 함
+            dragon.FollowPlayer();
         }
     }
 
@@ -119,4 +150,4 @@ public class DragonIdleState : IDragonState
         stateMachine = null;
         animator = null;
     }
-} 
+}

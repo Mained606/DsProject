@@ -9,8 +9,12 @@ public class DragonMovingState : IDragonState
     private DragonStateMachine stateMachine;
     private Animator animator;
     private float stateTimer;
-    private float idleStateThreshold = 0.5f; // 대기 상태 전환을 위한 시간 임계값
+    private float idleStateThreshold = 0.8f; // 대기 상태 전환을 위한 시간 임계값 (더 길게 설정)
     private float lastPlayerMovingCheck = 0f; // 마지막으로 플레이어 이동 상태를 확인한 시간
+    private float idleCheckCountdown = 0f; // 플레이어가 멈춘 후 아이들 상태로 전환하기 전 카운트다운
+    private float followDistance = 0f; // 드래곤이 일정 거리만큼 따라간 후 아이들 상태로 돌아가기 위한 변수
+    private Vector3 lastPlayerPosition; // 플레이어의 마지막 위치
+    private bool isTransitioningToIdle = false; // 아이들 상태로 전환 중인지 여부
 
     /// <summary>
     /// 드래곤 이동 상태 진입
@@ -21,12 +25,35 @@ public class DragonMovingState : IDragonState
         this.stateMachine = stateMachine;
         this.animator = animator;
         
-        // 이동 애니메이션 설정
-        animator.SetBool(DragonController.IsMoving, true);
+        // 애니메이터 null 체크 추가
+        if (animator == null)
+        {
+            Debug.LogWarning("[DragonMovingState] 애니메이터가 null입니다. 애니메이션을 적용하지 않습니다.");
+            return;
+        }
+        
+        try
+        {
+            // 이동 애니메이션 설정
+            animator.SetBool(DragonController.IsMoving, true);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[DragonMovingState] 애니메이션 설정 중 오류 발생: {e.Message}");
+        }
         
         // 상태 타이머 초기화
         stateTimer = 0f;
         lastPlayerMovingCheck = 0f;
+        idleCheckCountdown = 0f;
+        isTransitioningToIdle = false;
+        
+        // 플레이어 위치 저장
+        if (GameManager.playerTransform != null)
+        {
+            lastPlayerPosition = GameManager.playerTransform.position;
+            followDistance = 0f;
+        }
     }
 
     /// <summary>
@@ -85,13 +112,6 @@ public class DragonMovingState : IDragonState
                 if (!dragon.HasTarget)
                 {
                     dragon.FollowPlayer();
-                    
-                    // 플레이어가 멈췄으면 대기 상태로 전환
-                    if (!dragon.IsPlayerMoving())
-                    {
-                        stateMachine.SetState<DragonIdleState>();
-                        return;
-                    }
                 }
             }
         }
@@ -106,11 +126,50 @@ public class DragonMovingState : IDragonState
             {
                 lastPlayerMovingCheck = 0f;
                 
-                // 플레이어가 멈췄으면 대기 상태로 전환
-                if (!dragon.IsPlayerMoving())
+                // 플레이어 이동 상태 확인
+                bool isPlayerMoving = dragon.IsPlayerMoving();
+                
+                // 플레이어가 멈췄을 때
+                if (!isPlayerMoving)
                 {
-                    stateMachine.SetState<DragonIdleState>();
-                    return;
+                    if (!isTransitioningToIdle)
+                    {
+                        // 플레이어가 멈췄지만 아직 전환 중이 아니라면
+                        isTransitioningToIdle = true;
+                        idleCheckCountdown = 2.0f; // 2초 후에 아이들 상태로 전환
+                    }
+                }
+                else
+                {
+                    // 플레이어가 다시 움직이면 전환 취소
+                    isTransitioningToIdle = false;
+                    idleCheckCountdown = 0f;
+                    
+                    // 새로운 위치 저장
+                    if (GameManager.playerTransform != null)
+                    {
+                        lastPlayerPosition = GameManager.playerTransform.position;
+                        followDistance = 0f;
+                    }
+                }
+            }
+            
+            // 아이들 상태로 전환 중이라면
+            if (isTransitioningToIdle)
+            {
+                // 플레이어와 마지막 위치 사이의 거리 계산
+                if (GameManager.playerTransform != null)
+                {
+                    followDistance += Vector3.Distance(lastPlayerPosition, GameManager.playerTransform.position);
+                    lastPlayerPosition = GameManager.playerTransform.position;
+                    
+                    // 일정 거리 이상 따라갔거나 카운트다운이 끝났다면 아이들 상태로 전환
+                    idleCheckCountdown -= Time.deltaTime;
+                    if (idleCheckCountdown <= 0f)
+                    {
+                        stateMachine.SetState<DragonIdleState>();
+                        return;
+                    }
                 }
             }
         }
@@ -126,4 +185,4 @@ public class DragonMovingState : IDragonState
         stateMachine = null;
         animator = null;
     }
-} 
+}

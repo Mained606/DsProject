@@ -784,6 +784,13 @@ public class DragonController : MonoBehaviour
             if (modelAnimator != null)
             {
                 animator = modelAnimator;
+                
+                // StateMachine의 애니메이터 참조도 업데이트
+                if (stateMachine != null)
+                {
+                    stateMachine.UpdateAnimator(animator);
+                    Debug.Log("[DragonController] 애니메이터 참조 업데이트 완료");
+                }
             }
             
             FindAndSetupFirePoint();
@@ -994,14 +1001,21 @@ public class DragonController : MonoBehaviour
     /// </summary>
     public bool IsPlayerMoving()
     {
-        // 플레이어가 이동 중인지 더 안정적으로 감지하기 위한 코드
+        // 플레이어에 PlayerController 컴포넌트가 있는지 확인하고, 있으면 직접 이동 상태 사용
+        PlayerController playerController = player.GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            return playerController.isMove;
+        }
+        
+        // PlayerController를 사용할 수 없는 경우 기존 로직 사용
         float distanceThreshold = 0.05f; // 더 큰 임계값 사용
         Vector3 playerMovementDirection = player.forward;
         float dotProduct = Vector3.Dot((player.position - lastPlayerPosition).normalized, playerMovementDirection);
         
         // 플레이어의 이동 방향과 일치하는 움직임이 있고 거리가 임계값을 넘으면 이동 중으로 판단
         return Vector3.Distance(player.position, lastPlayerPosition) > distanceThreshold || 
-               (dotProduct > 0.7f && Vector3.Distance(player.position, lastPlayerPosition) > 0.01f);
+            (dotProduct > 0.7f && Vector3.Distance(player.position, lastPlayerPosition) > 0.01f);
     }
     
     /// <summary>

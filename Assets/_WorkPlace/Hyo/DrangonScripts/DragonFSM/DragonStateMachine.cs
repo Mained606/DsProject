@@ -37,6 +37,24 @@ public class DragonStateMachine
     public IDragonState CurrentState => currentState;
 
     /// <summary>
+    /// 애니메이터 업데이트
+    /// </summary>
+    /// <param name="newAnimator">새 애니메이터 참조</param>
+    public void UpdateAnimator(Animator newAnimator)
+    {
+        this.animator = newAnimator;
+        
+        // 현재 상태가 있다면 애니메이터 업데이트를 위해 상태 재진입
+        if (currentState != null)
+        {
+            IDragonState currentStateTemp = currentState;
+            currentState.ExitState();
+            currentState = currentStateTemp;
+            currentState.EnterState(dragon, this, animator);
+        }
+    }
+
+    /// <summary>
     /// 특정 상태로 전환
     /// </summary>
     /// <typeparam name="T">전환할 상태 타입</typeparam>
@@ -53,10 +71,24 @@ public class DragonStateMachine
             
             // 새 상태로 전환
             currentState = newState;
-            currentState.EnterState(dragon, this, animator);
             
-            // 디버그 로그
-            Debug.Log($"[DragonFSM] 상태 전환: {typeof(T).Name}");
+            // 애니메이터가 null이면 로그 출력하고 스킵
+            if (animator == null)
+            {
+                Debug.LogWarning("[DragonFSM] 애니메이터가 null입니다. 상태 전환 시 애니메이션이 적용되지 않습니다.");
+                return;
+            }
+            
+            try
+            {
+                currentState.EnterState(dragon, this, animator);
+                // 디버그 로그
+                Debug.Log($"[DragonFSM] 상태 전환: {typeof(T).Name}");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"[DragonFSM] 상태 전환 중 오류 발생: {e.Message}");
+            }
         }
         else
         {
@@ -69,6 +101,20 @@ public class DragonStateMachine
     /// </summary>
     public void UpdateState()
     {
-        currentState?.UpdateState();
+        // 애니메이터가 null이면 로그 출력하고 상태 업데이트 스킵
+        if (animator == null)
+        {
+            Debug.LogWarning("[DragonFSM] 애니메이터가 null입니다. 상태 업데이트를 스킵합니다.");
+            return;
+        }
+        
+        try
+        {
+            currentState?.UpdateState();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[DragonFSM] 상태 업데이트 중 오류 발생: {e.Message}");
+        }
     }
-} 
+}
