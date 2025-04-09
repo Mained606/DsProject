@@ -17,6 +17,11 @@ public class QuestDistanceCheck : MonoBehaviour
 
     public void SetQuest(Quest newQuest)
     {
+        if (quest != null)
+        {
+            CompassIndicater.ClearAllTargets();
+        }
+        
         quest = newQuest;
         quest.CheckQuestCondition();
     }

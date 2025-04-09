@@ -138,7 +138,7 @@ public class GenerateData
             new Quest("메인퀘스트", "1_1001", "엄마의 쪽지","옆집 아저씨에게 대화 걸기",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "옆집 아저씨에게 대화 걸기", 1) },
+                    // {"location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "옆집 아저씨에게 대화 걸기", 1) },
                     { "에드릭", new QuestCondition(QuestConditionType.Meet, "MainNPC_1", "옆집 아저씨에게 대화 걸기", 1)}
                 },
                 new List<Reward> {new Reward("마을 지도", 1, 0, 0)}, true),

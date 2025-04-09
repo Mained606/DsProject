@@ -137,4 +137,20 @@ public class CompassIndicater : MonoBehaviour
             Instance.targets.RemoveAt(index);
         }
     }
+
+    public static void ClearAllTargets()
+    {
+        if (Instance == null) return;
+        
+        foreach (var marker in Instance.activeMarkers)
+        {
+            if (marker != null)
+            {
+                Destroy(marker.gameObject);
+            }
+        }
+        
+        Instance.activeMarkers.Clear();
+        Instance.targets.Clear();
+    }
 }
