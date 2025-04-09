@@ -331,7 +331,7 @@ public class UIManager : BaseManager<UIManager>
         infoMessageCloseButton.onClick.AddListener(() =>
         {
             infoMessageWindow.SetActive(false);
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu); // ← 이거 추가
+            GameStateMachine.Instance.ChangeState(GameSystemState.Exploration); // ← 이거 추가
         });
     }
     #endregion
