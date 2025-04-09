@@ -33,7 +33,7 @@ public class QuestLocation : MonoBehaviour
             Vector3 player = new Vector3(other.transform.position.x, 0, other.transform.position.z);
             float distance = Vector3.Distance(target, player);
 
-            if (distance <= 2f && !isQuestUpdated)
+            if (distance <= 5f && !isQuestUpdated)
             {
                 isQuestUpdated = true;
                 CompassIndicater.RemoveTarget(QuestManager.GetQuestConditionPoint(this.gameObject.name));
