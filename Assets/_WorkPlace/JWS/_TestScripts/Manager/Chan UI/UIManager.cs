@@ -360,6 +360,30 @@ public class UIManager : BaseManager<UIManager>
         }
         QuestUI();
         InventoryUpdate();
+        
+        // 현재 활성화된 퀘스트의 QuestDistanceCheck 컴포넌트 업데이트
+        var activeQuests = QuestManager.QuestDatabase;
+        if (activeQuests.Count > 0)
+        {
+            // 메인 퀘스트를 우선적으로 표시
+            Quest questToDisplay = activeQuests.Find(q => q.questType == "메인퀘스트");
+            
+            // 메인 퀘스트가 없다면 첫 번째 서브 퀘스트 표시
+            if (questToDisplay == null && activeQuests.Count > 0)
+            {
+                questToDisplay = activeQuests[0];
+            }
+            
+            if (questToDisplay != null)
+            {
+                // 현재 활성화된 퀘스트 디스플레이를 찾아 업데이트
+                Transform questDisplayObj = questListParent.Find("MainQuest(Clone)");
+                if (questDisplayObj != null)
+                {
+                    DisplayQuestTextAtPrefab(questDisplayObj.gameObject, questToDisplay);
+                }
+            }
+        }
     }
 
     public void QuestUI()

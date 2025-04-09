@@ -169,6 +169,16 @@ public class QuestManager : BaseManager<QuestManager>
 
         foreach (var condition in quest.requiredConditions)
         {
+            // 퀘스트 완료 시 CompassIndicater에서 해당 타겟 제거
+            if (QuestConditionPoint.ContainsKey(condition.Key))
+            {
+                Transform targetPoint = QuestConditionPoint[condition.Key];
+                if (targetPoint != null)
+                {
+                    CompassIndicater.RemoveTarget(targetPoint);
+                }
+            }
+
             switch (condition.Value.type)
             {
                 case QuestConditionType.Collect:
