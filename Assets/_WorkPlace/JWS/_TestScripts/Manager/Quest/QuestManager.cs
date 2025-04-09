@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 public class QuestManager : BaseManager<QuestManager>
 {
@@ -37,12 +36,12 @@ public class QuestManager : BaseManager<QuestManager>
     protected override void Start()
     {
         base.Start();
-        npcDataList.npcLists.Clear();
+        //npcDataList.npcLists.Clear();
         GenerateData generater = new GenerateData();
         mainQuestDatabase = generater.GenerateMainQuestLists();
         subQuestDatabase = generater.GenerateQuestLists();
-        
-        generater.GenerateRandomNPCs(200, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
+
+        //generater.GenerateRandomNPCs(200, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
         npcDatabase = npcDataList.npcLists;
         GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
     }
@@ -110,7 +109,7 @@ public class QuestManager : BaseManager<QuestManager>
 
     //TODO
     //모험, 처치, 만남떄 이곳을 호출하는부분 추가해줘야함.
-    public void UpdateQuestProgress(QuestConditionType conditionType, string targetId, int quantity = 1)
+    public void UpdateQuestProgress(QuestConditionType conditionType, string targetId, int quantity = 1, NPCData npcData = null)
     {
         for (int i = questDatabase.Count - 1; i >= 0; i--)
         {

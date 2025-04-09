@@ -17,6 +17,7 @@ public class MoveBehaviour : IBehaviour
     private Vector2 moveInput;
     Vector3 direction;
     private bool exiting = false;
+    private bool isDeepWater;
 
     public MoveBehaviour()
     {
@@ -76,6 +77,7 @@ public class MoveBehaviour : IBehaviour
         else
         {
             direction = controller.GetDirection(moveInput);
+            
             currentSpeed = Mathf.MoveTowards(currentSpeed, finalSpeed, acceleration * Time.deltaTime);
             animator.SetFloat("Speed", currentSpeed);
             controller.isMove = true;
@@ -87,7 +89,24 @@ public class MoveBehaviour : IBehaviour
 
         animator.SetBool("Sprint", controller.isSprinting);
 
-        Vector3 movement = direction * currentSpeed * Time.deltaTime;
+        Vector3 movement;
+
+        if (controller.isDeepWater)
+        {
+            if (controller.isGrounded)
+            {
+                movement = Vector3.zero;
+            }
+            else
+            {
+                currentSpeed = 0f;
+                movement = direction * currentSpeed * Time.deltaTime;
+            }
+        }
+        else
+        {
+            movement = direction * currentSpeed * Time.deltaTime;
+        }
         movement.y = controller.verticalVelocity.y * Time.deltaTime;
 
         controller.characterController.Move(movement);
@@ -132,7 +151,6 @@ public class MoveBehaviour : IBehaviour
     {
         if(controller.walkSpeed != walkSpeed)
         {
-            Debug.Log("플레이어 컨트롤러에서 이벤트 발생");
             walkSpeed = controller.walkSpeed;
             sprintSpeed = walkSpeed * 2f;
         }

@@ -11,6 +11,7 @@ public class NPCDataEditor : Editor
 
         // 기본 NPC 설정
         SerializedProperty npcTypeProperty = serializedObject.FindProperty("npcType");
+        SerializedProperty npcIndexProperty = serializedObject.FindProperty("npcIndex");    //04.08 HJ 추가
         SerializedProperty shopItemTypeProperty = serializedObject.FindProperty("shopItemType");
         SerializedProperty shopIndexProperty = serializedObject.FindProperty("shopIndex");
 
@@ -30,6 +31,11 @@ public class NPCDataEditor : Editor
             //}
             EditorGUILayout.PropertyField(shopIndexProperty, new GUIContent("      Shop Index"));
         }
+        else//04.08 HJ 추가
+        {
+            EditorGUILayout.PropertyField(npcIndexProperty, new GUIContent("      NPC Index"));
+        }
+        
 
         serializedObject.ApplyModifiedProperties();
 

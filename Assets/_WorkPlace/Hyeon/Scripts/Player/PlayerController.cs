@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     //[SerializeField] private bool isHit;
     public bool isStunned;
     public bool isInWater;
+    public bool isDeepWater;
     public bool isDeath;
 
     [Header("이동")]
@@ -80,6 +81,8 @@ public class PlayerController : MonoBehaviour
 
     private BasicTimer RecoveryTimer;
     private float RecoveryTime = 1f;
+
+    private Vector3 lastSavePosition;
     #endregion
 
     private void OnEnable()
@@ -125,6 +128,8 @@ public class PlayerController : MonoBehaviour
         behaviour.CanJump = true;
         behaviour.CanDodge = true;
         //behaviour.CanClimb = true;
+
+        lastSavePosition = transform.position;
     }
 
     private void Update()
@@ -783,6 +788,15 @@ public class PlayerController : MonoBehaviour
         {
             obj.gameObject.SetActive(isOnOff);
         }
+    }
+
+    public void PlayerRespawn()
+    {
+        characterController.enabled = false;
+        transform.position = lastSavePosition;
+        characterController.enabled = true;
+        isDeepWater = false;
+        isInWater = false;
     }
 
     private void OnDrawGizmos()

@@ -5,6 +5,7 @@ using UnityEngine;
 public class NonePlayerCharacter : MonoBehaviour
 {
     [SerializeField] private NPCType npcType;
+    [SerializeField] private int npcIndex;
     [SerializeField] private ItemType shopItemType;
     [SerializeField] private int shopIndex;
     [SerializeField] private NPCData currentNPCData = null;
@@ -72,7 +73,7 @@ public class NonePlayerCharacter : MonoBehaviour
                 if (!interActText.gameObject.activeSelf) interActText.gameObject.SetActive(true);
                 if (InputManager.InputActions.actions["Interact"].triggered)
                 {
-                    QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Meet, currentNPCData.id);
+                    QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Meet, currentNPCData.id, 1, currentNPCData);
                     Interact();
                 }
             }
@@ -92,22 +93,35 @@ public class NonePlayerCharacter : MonoBehaviour
     {
         List<NPCData> npclist = QuestManager.NpcDatabase.npcLists;
 
-        foreach (NPCData npcData in npclist)
-        {
-            if (npcData.currentNPC == null && npcData.npcType == npcType)
-            {
-                isInitNPC = true;
-                currentNPCData = npcData;
-                currentNPCData.currentNPC = this.gameObject;
-                break;
-            }
-        }
+        //foreach (NPCData npcData in npclist)
+        //{
+        //    if (npcData.currentNPC == null && npcData.npcType == npcType)
+        //    {
+        //        isInitNPC = true;
+        //        currentNPCData = npcData;
+        //        currentNPCData.currentNPC = this.gameObject;
+        //        break;
+        //    }
+        //}
 
         if (npcType == NPCType.상점)
         {
             npclist = QuestManager.NpcDatabase.shopNpcLists;
             isInitNPC = true;
             currentNPCData = npclist[shopIndex].Clone(false);
+            currentNPCData.currentNPC = this.gameObject;
+        }
+        else if(npcType == NPCType.퀘스트)  //04.08 HJ 추가
+        {
+            npclist = QuestManager.NpcDatabase.mainQuestNpcLists;
+            isInitNPC = true;
+            currentNPCData = npclist[npcIndex].Clone(false);
+            currentNPCData.currentNPC = this.gameObject;
+        }
+        else //04.08 HJ 추가
+        {
+            isInitNPC = true;
+            currentNPCData = npclist[npcIndex].Clone(false);
             currentNPCData.currentNPC = this.gameObject;
         }
 
@@ -138,6 +152,7 @@ public class NonePlayerCharacter : MonoBehaviour
                 interActText.InteractTextSetting(msg, 1, offSetHeight);
                 break;
         }
+
         Canvas.ForceUpdateCanvases();
     }
 
@@ -213,7 +228,18 @@ public class NonePlayerCharacter : MonoBehaviour
             Debug.Log("퀘스트가 없습니다.");
             return;
         }
-        UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, currentNPCData.quests[0]);
+
+        Quest currentQuest = currentNPCData.quests[0];
+
+        if (QuestManager.CompletedQuests.Any(q => q.id == currentQuest.id))
+        {
+            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, QuestManager.CompletedQuests.Find(q => q.id == currentQuest.id));
+        }
+        else
+        {
+            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, currentQuest);
+        }
+
         // 스토리 진행후 퀘스트를 제공하는 방식의 로직
     }
 
