@@ -188,7 +188,7 @@ public class EnhanceUI : MonoBehaviour
 
         // 텍스트, 이미지 바인딩
         var currentTexts = currentPanel.GetComponentsInChildren<TextMeshProUGUI>();
-    var currentImage = currentPanel.GetComponentsInChildren<Image>()[4]; // 3번째 Image로 설정
+    var currentImage = currentPanel.GetComponentsInChildren<Image>()[5]; // 3번째 Image로 설정
     currentTexts[0].text = item.id;
     currentTexts[2].text = item.ToStringTMPro();
     currentImage.sprite = item.sprite;
@@ -197,7 +197,7 @@ public class EnhanceUI : MonoBehaviour
     Item previewItem = EnhanceManager.Instance.PreviewEnhance(item);
 
     var afterTexts = afterPanel.GetComponentsInChildren<TextMeshProUGUI>();
-    var afterImage = afterPanel.GetComponentsInChildren<Image>()[4];
+    var afterImage = afterPanel.GetComponentsInChildren<Image>()[5];
     afterTexts[0].text = previewItem.id;
     afterTexts[2].text = previewItem.ToStringTMPro();
     afterImage.sprite = previewItem.sprite;
