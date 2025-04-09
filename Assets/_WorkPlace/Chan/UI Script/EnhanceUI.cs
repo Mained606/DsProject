@@ -13,6 +13,8 @@ public class EnhanceUI : MonoBehaviour
     [SerializeField] private GameObject itemInfoObject;
     [SerializeField] private TextMeshProUGUI[] itemInfoTextField;
     [SerializeField] private Image itemInfoImageField;
+    [SerializeField] private Image elementIconField;
+    [SerializeField] private TextMeshProUGUI itemLevel;
 
     [Header("버튼")]
     [SerializeField] private Button enhanceButton;
@@ -79,11 +81,16 @@ public class EnhanceUI : MonoBehaviour
     private void CreateItemUI(Item item)
     {
         var go = Instantiate(itemPrefab, itemParent);
-        var tooltip = go.GetComponent<InventorySlotTooltip>();
+        var tooltip = go.GetComponent<InventorySlotTooltip2>();
+
         tooltip.currentItem = item;
+
+        // 툴팁용 바인딩
         tooltip.InventorytooltipWindow = itemInfoObject;
-        tooltip.textPoint = itemInfoTextField;
+        tooltip.textPoint = itemInfoTextField; // 최소 4개짜리 배열 (1:이름, 2:설명, 3:레벨)
         tooltip.ItemImage = itemInfoImageField;
+        tooltip.ElementIcon = elementIconField;
+        tooltip.ItemLevel = itemLevel;
     }
 
     private void ClearUI()
@@ -167,28 +174,32 @@ public class EnhanceUI : MonoBehaviour
     if (currentPanel != null) Destroy(currentPanel);
     if (afterPanel != null) Destroy(afterPanel);
 
-    // Current Panel 생성 (빈 오브젝트 currentPanelParent 위치)
-    currentPanel = Instantiate(infoPanelPrefab, currentPanelParent);
-    currentPanel.transform.localPosition = Vector3.zero; // currentPanelParent의 위치에 맞게 생성
+        // Current Panel 생성 (빈 오브젝트 currentPanelParent 위치)
+        currentPanel = Instantiate(infoPanelPrefab, currentPanelParent);
+        currentPanel.transform.localPosition = Vector3.zero;
+        currentPanel.transform.localScale = Vector3.one;
+        currentPanel.transform.localRotation = Quaternion.identity;
 
-    // After Panel 생성 (빈 오브젝트 afterPanelParent 위치)
-    afterPanel = Instantiate(infoPanelPrefab, afterPanelParent);
-    afterPanel.transform.localPosition = Vector3.zero; // afterPanelParent의 위치에 맞게 생성
+        // After Panel 생성 (빈 오브젝트 afterPanelParent 위치)
+        afterPanel = Instantiate(infoPanelPrefab, afterPanelParent);
+        afterPanel.transform.localPosition = Vector3.zero;
+        afterPanel.transform.localScale = Vector3.one;
+        afterPanel.transform.localRotation = Quaternion.identity;
 
-    // 텍스트, 이미지 바인딩
-    var currentTexts = currentPanel.GetComponentsInChildren<TextMeshProUGUI>();
-    var currentImage = currentPanel.GetComponentsInChildren<Image>()[2]; // 3번째 Image로 설정
+        // 텍스트, 이미지 바인딩
+        var currentTexts = currentPanel.GetComponentsInChildren<TextMeshProUGUI>();
+    var currentImage = currentPanel.GetComponentsInChildren<Image>()[5]; // 3번째 Image로 설정
     currentTexts[0].text = item.id;
-    currentTexts[1].text = item.ToStringTMPro();
+    currentTexts[2].text = item.ToStringTMPro();
     currentImage.sprite = item.sprite;
 
     // 프리뷰 아이템 생성 (강화된 아이템 정보)
     Item previewItem = EnhanceManager.Instance.PreviewEnhance(item);
 
     var afterTexts = afterPanel.GetComponentsInChildren<TextMeshProUGUI>();
-    var afterImage = afterPanel.GetComponentsInChildren<Image>()[2];
+    var afterImage = afterPanel.GetComponentsInChildren<Image>()[5];
     afterTexts[0].text = previewItem.id;
-    afterTexts[1].text = previewItem.ToStringTMPro();
+    afterTexts[2].text = previewItem.ToStringTMPro();
     afterImage.sprite = previewItem.sprite;
 }
 

@@ -19,7 +19,7 @@ public class DropZone : MonoBehaviour, IDropHandler
             RectTransform rect = droppedObject.GetComponent<RectTransform>();
             if (rect != null)
             {
-                string dropItem = droppedObject.GetComponent<InventoryTooltip>().currentItem.id;
+                string dropItem = droppedObject.GetComponent<InventorySlotTooltip>().currentItem.id;
                 if (dropItem != string.Empty && dropItem != "")
                 {
                     switch ( dropItem )

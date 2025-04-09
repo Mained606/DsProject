@@ -7,7 +7,7 @@ public class EnhanceDropZone : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
-        var tooltip = eventData.pointerDrag?.GetComponent<InventoryTooltip>();
+        var tooltip = eventData.pointerDrag?.GetComponent<InventorySlotTooltip2>();
         var draggable = eventData.pointerDrag?.GetComponent<DraggableItem>();
         if (tooltip == null || draggable == null) return;
 

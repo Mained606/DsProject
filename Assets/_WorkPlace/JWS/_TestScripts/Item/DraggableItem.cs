@@ -48,7 +48,7 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         dragImageObject = new GameObject("Drag Image", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
         dragImageObject.transform.SetParent(mainCanvas.transform, false);
         dragImage = dragImageObject.GetComponent<Image>();
-        dragImage.sprite = transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite;
+        dragImage.sprite = transform.GetChild(0).GetChild(1).GetComponent<Image>().sprite;
         dragImage.color = new Color(1, 1, 1, 0.6f);
         CanvasGroup dragCanvasGroup = dragImageObject.GetComponent<CanvasGroup>();
         dragCanvasGroup.blocksRaycasts = false;
