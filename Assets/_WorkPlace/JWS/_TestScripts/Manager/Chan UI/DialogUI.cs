@@ -99,10 +99,12 @@ public class DialogUI : MonoBehaviour
             }
             else
             {
-                QuestManager.Instance.CompleteQuest(quest);
+                // 퀘스트 완료 처리 진행
+                // QuestManager.Instance.CompleteQuest(quest);
             }
         }
         UIManager.Instance.ToggleDialog();
+        GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
     }
 
     private void HandleDialog(DialogType dType)
