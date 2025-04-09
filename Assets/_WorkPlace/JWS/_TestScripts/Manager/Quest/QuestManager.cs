@@ -217,7 +217,14 @@ public class QuestManager : BaseManager<QuestManager>
         if (quest.questType == "메인퀘스트" && mainQuestDatabase.Count > currentMainQuestIndex)
         {
             currentMainQuestIndex++;
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
+            if(quest.questType == "메인퀘스트" && quest.needsDialog)
+            {
+                GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+            }
+            else
+            {
+                GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
+            }
         }
         if (quest.questType != "메인퀘스트")
         {
@@ -255,6 +262,10 @@ public class QuestManager : BaseManager<QuestManager>
         {
             case GameSystemState.MainQuestPlay:
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+                MainQuestSequenceStart(currentMainQuestIndex);
+                break;
+            case GameSystemState.DialogueState:
+                // Dialogue창이 닫히면 다음 퀘스트 진행
                 MainQuestSequenceStart(currentMainQuestIndex);
                 break;
         }

@@ -6,6 +6,8 @@ using System.Linq;
 
 public enum DragonState
 {
+    // 이 enum은 레거시 호환성을 위해 유지됩니다. 
+    // 실제 상태 관리는 DragonStateMachine을 통해 이루어집니다.
     Idle,
     Moving,
     MeleeAttack,
@@ -20,12 +22,12 @@ public class DragonController : MonoBehaviour
     public static DragonController Instance { get; private set; }
     
     #region 애니메이터 해시
-    private static readonly int TurnDirection = Animator.StringToHash("turnDirection");
-    private static readonly int IsMoving = Animator.StringToHash("isMoving");
-    private static readonly int IsRangedAttack = Animator.StringToHash("isRangedAttack");
-    private static readonly int IsMeleeAttack = Animator.StringToHash("isMeleeAttack");
-    private static readonly int IsUseSkill = Animator.StringToHash("isSkillAttack");
-    private static readonly int IsUltimate = Animator.StringToHash("isUltimate");
+    public static readonly int TurnDirection = Animator.StringToHash("turnDirection");
+    public static readonly int IsMoving = Animator.StringToHash("isMoving");
+    public static readonly int IsRangedAttack = Animator.StringToHash("isRangedAttack");
+    public static readonly int IsMeleeAttack = Animator.StringToHash("isMeleeAttack");
+    public static readonly int IsUseSkill = Animator.StringToHash("isSkillAttack");
+    public static readonly int IsUltimate = Animator.StringToHash("isUltimate");
     #endregion
 
     #region 기본 필드
@@ -35,7 +37,12 @@ public class DragonController : MonoBehaviour
     [SerializeField] private Transform firePoint;
     private Vector3 lastPlayerPosition;
     [SerializeField] private bool isMoving;
-    [SerializeField] private DragonState currentState = DragonState.Idle;
+    
+    // FSM 관련 필드
+    private DragonStateMachine stateMachine;
+    
+    // 이 변수는 FSM으로 전환 후 사용하지 않지만, 인스펙터 표시를 위해 남겨둡니다
+    [HideInInspector] [SerializeField] private DragonState legacyState = DragonState.Idle;
     #endregion
 
     #region 이동 설정
@@ -98,6 +105,22 @@ public class DragonController : MonoBehaviour
     private GameObject currentModelInstance;
     [SerializeField] private Material evolutionMaterial;
     private Material[] originalMaterials;
+    #endregion
+
+    #region 공개 프로퍼티 (FSM용)
+    // FSM에 필요한 정보를 접근할 수 있는 프로퍼티들
+    public float DetectRange => detectRange;
+    public bool IsAttacking => isAttacking;
+    public bool HasTarget => currentTarget != null && currentTargetTransform != null;
+    public bool IsMeleeCooldown => meleeCooldown.IsRunning;
+    public bool IsRangedCooldown => rangedCooldown.IsRunning;
+    public bool IsSkillCooldown => skillCooldown.IsRunning;
+    public bool IsUltimateCooldown => ultimateCooldown.IsRunning;
+    
+    // 추가 퍼블릭 프로퍼티
+    public DragonData DragonData => dragonData;
+    public MonsterData CurrentTarget => currentTarget;
+    public Transform CurrentTargetTransform => currentTargetTransform;
     #endregion
 
     #region Unity 라이프사이클
@@ -188,6 +211,10 @@ public class DragonController : MonoBehaviour
         
         // 드래곤 데이터 프리팹 설정
         SetupDragonDataPrefabs();
+        
+        // FSM 초기화 - 마지막에 실행하여 모든 필요한 컴포넌트와 변수가 초기화된 후 상태 설정
+        stateMachine = new DragonStateMachine(this, animator);
+        stateMachine.SetState<DragonIdleState>();
     }
 
     private void Update()
@@ -198,30 +225,28 @@ public class DragonController : MonoBehaviour
             teleportCooldown -= Time.deltaTime;
         }
         
-        if (GameStateMachine.Instance.CurrentState == GameSystemState.Combat || 
-            GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle)
-        {
-            HandleCombatLogic();
-            
-            // 전투 종료 확인
-            if (!IsEnemyInRange(detectRange) && !isCheckingEndCombat)
-            {
-                StartCoroutine(CheckEndCombatCoroutine(1f));
-            }
-        }
-        else
-        {
-            // 탐색 모드에서는 플레이어 따라다니기
-            currentTarget = null;
-            currentTargetTransform = null;
-            FollowPlayerLogic();
-        }
+        // FSM 상태 업데이트
+        stateMachine.UpdateState();
+        
+        // 현재 FSM 상태에 따라 legacyState 업데이트 (디버깅용)
+        UpdateLegacyStateForDebug();
         
         // 궁극기 입력 감지 (예: Z키)
         if (Input.GetKeyDown(KeyCode.Z) && !ultimateCooldown.IsRunning)
         {
-            TriggerUltimateAttack();
+            stateMachine.SetState<DragonUltimateAttackState>();
         }
+    }
+
+    // 디버깅을 위해 현재 FSM 상태에 따라 legacyState 업데이트
+    private void UpdateLegacyStateForDebug()
+    {
+        if (stateMachine.CurrentState is DragonIdleState) legacyState = DragonState.Idle;
+        else if (stateMachine.CurrentState is DragonMovingState) legacyState = DragonState.Moving;
+        else if (stateMachine.CurrentState is DragonMeleeAttackState) legacyState = DragonState.MeleeAttack;
+        else if (stateMachine.CurrentState is DragonRangedAttackState) legacyState = DragonState.RangedAttack;
+        else if (stateMachine.CurrentState is DragonSkillAttackState) legacyState = DragonState.SkillAttack;
+        else if (stateMachine.CurrentState is DragonUltimateAttackState) legacyState = DragonState.UltimateAttack;
     }
     #endregion
 
@@ -287,54 +312,7 @@ public class DragonController : MonoBehaviour
     #region 이동 로직
     private void FollowPlayerLogic()
     {
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        // 순간이동 조건 - 일정 거리 이상이고 쿨다운이 끝났을 때
-        if (distanceToPlayer > teleportDistance && teleportCooldown <= 0)
-        {
-            Vector3 teleportPosition = player.position + offset;
-            teleportPosition.y = GetGroundHeight(teleportPosition);
-            transform.position = teleportPosition;
-            
-            // 순간이동 직후 애니메이션 상태 명시적 설정
-            isMoving = false;
-            animator.SetBool(IsMoving, false);
-            currentState = DragonState.Idle;
-            isTeleporting = true;
-            
-            // 텔레포트 쿨다운 설정 (3초)
-            teleportCooldown = 3.0f;
-            
-            // 애니메이션 전환 딜레이를 위해 UpdateMovementState 호출 스킵
-            UpdateTurnDirection();
-            
-            // 마지막 플레이어 위치 저장 (순간이동 이후 플레이어 움직임을 정확히 계산하기 위함)
-            lastPlayerPosition = player.position;
-            
-            // 약간의 지연 후 이동 가능하도록 Coroutine 시작
-            StartCoroutine(ResetTeleportState(0.5f));
-            
-            return;
-        }
-        else
-        {
-            // 텔레포트 중이 아닐 때만 플레이어를 따라다니는 동작 수행
-            if (!isTeleporting)
-            {
-                // 플레이어를 따라다니는 동작
-                Vector3 targetPosition = player.position + offset;
-                targetPosition.y = GetGroundHeight(targetPosition);
-                
-                float currentSpeed = distanceToPlayer > teleportDistance/2 ? followSpeed * 2f : followSpeed;
-                transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * currentSpeed);
-
-                // 회전
-                RotateTowardsPlayer();
-                
-                UpdateMovementState();
-                UpdateTurnDirection();
-            }
-        }
+        FollowPlayer();
     }
 
     private float GetGroundHeight(Vector3 position)
@@ -380,7 +358,6 @@ public class DragonController : MonoBehaviour
         {
             isMoving = playerIsMoving;
             animator.SetBool(IsMoving, isMoving);
-            currentState = isMoving ? DragonState.Moving : DragonState.Idle;
         }
 
         lastPlayerPosition = player.position;
@@ -426,7 +403,8 @@ public class DragonController : MonoBehaviour
         return false;
     }
 
-    private IEnumerator CheckEndCombatCoroutine(float delay)
+    // 전투 종료 확인 코루틴
+    public IEnumerator CheckEndCombatCoroutine(float delay)
     {
         isCheckingEndCombat = true;
         yield return new WaitForSeconds(delay);
@@ -436,75 +414,42 @@ public class DragonController : MonoBehaviour
             GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle))
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
+            
+            // 전투 종료 시 상태를 Idle로 설정
+            stateMachine.SetState<DragonIdleState>();
         }
 
         isCheckingEndCombat = false;
     }
 
-    private void HandleCombatLogic()
+    // 전투 모드 시작 시 호출될 수 있는 메서드
+    public void StartCombatMode()
     {
-        if (isAttacking) return;
+        // 이미 전투 체크 중이면 무시
+        if (isCheckingEndCombat) return;
         
-        // 플레이어와 너무 멀어졌으면 쫓아감
-        float distanceFromPlayer = Vector3.Distance(transform.position, player.position);
-        if (distanceFromPlayer > maxDistanceFromPlayer)
+        // 타겟 찾기 시도
+        FindNearestTarget();
+        
+        // 상태에 따라 적절한 FSM 상태로 전환
+        if (HasTarget)
         {
-            currentTarget = null;
-            currentTargetTransform = null;
-            currentState = DragonState.Idle;
-            FollowPlayerLogic();
-            return;
-        }
-
-        // 타겟 확인 및 업데이트
-        if (currentTarget == null || currentTarget.currentHp <= 0)
-        {
-            currentTarget = null;
-            currentTargetTransform = null;
-            FindNearestTarget();
-
-            if (currentTarget == null)
+            // 거리에 따라 상태 결정
+            if (IsTargetInMeleeRange() && !IsMeleeCooldown)
             {
-                currentState = DragonState.Idle;
-                FollowPlayerLogic();
-                return;
+                stateMachine.SetState<DragonMeleeAttackState>();
             }
-        }
-
-        // 타겟과의 실질적인 거리 계산 (타겟 크기를 고려함)
-        float effectiveDistanceFromTarget = currentTargetTransform != null ? 
-            GetEffectiveDistanceToTarget(currentTargetTransform) : 0f;
-
-        // 공격 우선순위: 스킬 > 원거리 > 근접
-        if (!skillCooldown.IsRunning && currentState != DragonState.SkillAttack)
-        {
-            currentState = DragonState.SkillAttack;
-            UseSkillAttack();
-        }
-        else if (!rangedCooldown.IsRunning && effectiveDistanceFromTarget < detectRange && 
-                 currentState != DragonState.RangedAttack)
-        {
-            currentState = DragonState.RangedAttack;
-            StartCoroutine(UseRangedAttack());
-        }
-        else if (!meleeCooldown.IsRunning && currentState != DragonState.MeleeAttack)
-        {
-            currentState = DragonState.MeleeAttack;
-            MoveTowardTarget(currentTargetTransform);
-        }
-        else if (currentState != DragonState.Moving && currentState != DragonState.Idle)
-        {
-            // 기본 상태로 돌아감
-            currentState = effectiveDistanceFromTarget > meleeRange ? DragonState.Moving : DragonState.Idle;
-            
-            if (currentState == DragonState.Moving)
+            else
             {
-                MoveTowardTarget(currentTargetTransform);
+                stateMachine.SetState<DragonMovingState>();
             }
         }
     }
 
-    private void FindNearestTarget()
+    /// <summary>
+    /// 가장 가까운 타겟 찾기
+    /// </summary>
+    public void FindNearestTarget()
     {
         float closestDistance = float.MaxValue;
         MonsterData closestMonster = null;
@@ -684,19 +629,20 @@ public class DragonController : MonoBehaviour
         }
     }
 
-    private void MoveTowardTarget(Transform targetTransform)
+    /// <summary>
+    /// 타겟을 향해 이동
+    /// </summary>
+    public void MoveTowardTarget()
     {
-        if (!targetTransform) return;
+        if (!currentTargetTransform) return;
 
         // 타겟과의 실질적인 거리 계산 (타겟 크기를 고려함)
-        float effectiveDistanceToTarget = GetEffectiveDistanceToTarget(targetTransform);
+        float effectiveDistanceToTarget = GetEffectiveDistanceToTarget(currentTargetTransform);
         
         if (effectiveDistanceToTarget > meleeRange)
         {
-            currentState = DragonState.Moving;
-            
             // 타겟의 중심으로 방향 설정
-            Vector3 targetCenter = GetTargetCenter(targetTransform);
+            Vector3 targetCenter = GetTargetCenter(currentTargetTransform);
             Vector3 dir = (targetCenter - transform.position).normalized;
             
             // 진화 단계에 따른 이동 속도 사용 (이미 UpdateDragonSettingsByEvolutionStage에서 설정됨)
@@ -710,6 +656,7 @@ public class DragonController : MonoBehaviour
             Quaternion lookRot = Quaternion.LookRotation(dir, Vector3.up);
             transform.rotation = Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f);
             
+            // 애니메이션 업데이트만 담당
             animator.SetBool(IsMoving, true);
         }
         else
@@ -717,101 +664,16 @@ public class DragonController : MonoBehaviour
             animator.SetBool(IsMoving, false);
             
             // 전투 시 적을 정면으로 바라보도록 설정
-            Vector3 targetDir = (targetTransform.position - transform.position).normalized;
+            Vector3 targetDir = (currentTargetTransform.position - transform.position).normalized;
             Quaternion lookRot = Quaternion.LookRotation(targetDir, Vector3.up);
             transform.rotation = Quaternion.Lerp(transform.rotation, 
-                                               Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f), 
-                                               Time.deltaTime * rotationSpeed * 2f); // 빠른 회전
-            
-            if (!meleeCooldown.IsRunning)
-            {
-                currentState = DragonState.MeleeAttack;
-                UseMeleeAttack();
-            }
-            else
-            {
-                currentState = DragonState.Idle;
-            }
+                                              Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f), 
+                                              Time.deltaTime * rotationSpeed * 2f); // 빠른 회전
         }
     }
     #endregion
 
     #region 공격 메서드
-    private void UseSkillAttack()
-    {
-        if (!skillCooldown.IsRunning)
-        {
-            isAttacking = true;
-            
-            // 쿨다운이 끝난 버프 스킬 목록 가져오기
-            List<string> availableBuffs = new List<string>();
-            
-            // 버프 선택 우선순위:
-            // 1. 쿨다운이 끝났고 현재 적용되지 않은 버프
-            // 2. 쿨다운이 끝난 버프 (이미 적용 중이어도 가능)
-            foreach (string buffName in buffSkills)
-            {
-                bool isOnCooldown = SkillManager.Instance.IsSkillOnCooldown(EntityType.Dragon, buffName);
-                bool isActive = SkillManager.Instance.IsBuffActive(buffName);
-                
-                if (!isOnCooldown)
-                {
-                    // 비활성 버프를 우선 추가
-                    if (!isActive)
-                    {
-                        availableBuffs.Add(buffName);
-                    }
-                    // 모든 비활성 버프를 찾은 후에도 없다면, 활성 버프도 추가
-                    else if (availableBuffs.Count == 0)
-                    {
-                        availableBuffs.Add(buffName);
-                    }
-                }
-            }
-            
-            if (availableBuffs.Count == 0)
-            {
-                isAttacking = false;
-                return;
-            }
-
-            // 랜덤으로 버프 선택
-            string chosenBuff = availableBuffs[UnityEngine.Random.Range(0, availableBuffs.Count)];
-            
-            // Skills 객체 가져오기
-            Skills buffSkill = SkillManager.Instance.GetSkill(EntityType.Dragon, chosenBuff);
-            if (buffSkill == null)
-            {
-                Debug.LogError($"[드래곤] {chosenBuff} 스킬을 찾을 수 없습니다.");
-                isAttacking = false;
-                return;
-            }
-
-            // 버프 정보 가져오기
-            float buffDuration = buffSkill.buffDuration;
-            float buffValue = buffSkill.buffValue;
-
-            // 애니메이션 재생
-            animator.SetTrigger(IsUseSkill);
-            
-            // 버프 적용 - 쿨다운은 SkillManager 내에서 관리
-            SkillManager.Instance.ApplyBuff(EntityType.Dragon, chosenBuff);
-            
-            // 버프 효과 텍스트 생성
-            string buffEffectText = chosenBuff.Contains("HP") ? $"+{buffValue} HP" : $"+{buffValue}%";
-            
-            // 시스템 메시지로 버프 적용 알림
-            UIManager.SystemGameMessage($"드래곤이 {GetBuffKoreanName(chosenBuff)}(을)를 적용했습니다 ({buffEffectText}, {buffDuration}초 지속)", MessageTag.플레이어_버프);
-            
-            // 드래곤 스킬 전체 쿨다운 시작
-            skillCooldown = new BasicTimer(dragonSkillCooldown);
-            TimerManager.Instance.StartTimer(skillCooldown);
-
-            isAttacking = false;
-            currentState = DragonState.Idle;
-        }
-    }
-
     private IEnumerator UseRangedAttack()
     {
         if (fireballPrefab != null && currentTarget != null && !rangedCooldown.IsRunning)
@@ -850,25 +712,9 @@ public class DragonController : MonoBehaviour
             yield return new WaitForSeconds(rangedDelayTime);
             
             isAttacking = false;
-            currentState = DragonState.Idle;
         }
     }
 
-    private void UseMeleeAttack()
-    {
-        if (!meleeCooldown.IsRunning)
-        {
-            isAttacking = true;
-            
-            animator.SetTrigger(IsMeleeAttack);
-            CombatManager.Instance.ProcessDragonAttack(dragonData, currentTarget, currentTargetTransform, false);
-            TimerManager.Instance.StartTimer(meleeCooldown);
-            
-            isAttacking = false;
-            currentState = DragonState.Idle;
-        }
-    }
-    
     private void TriggerUltimateAttack()
     {
         if (!ultimateCooldown.IsRunning)
@@ -938,6 +784,13 @@ public class DragonController : MonoBehaviour
             if (modelAnimator != null)
             {
                 animator = modelAnimator;
+                
+                // StateMachine의 애니메이터 참조도 업데이트
+                if (stateMachine != null)
+                {
+                    stateMachine.UpdateAnimator(animator);
+                    Debug.Log("[DragonController] 애니메이터 참조 업데이트 완료");
+                }
             }
             
             FindAndSetupFirePoint();
@@ -1139,6 +992,323 @@ public class DragonController : MonoBehaviour
         // 근접 공격 범위
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, meleeRange);
+    }
+    #endregion
+
+    #region FSM 관련 메서드
+    /// <summary>
+    /// 플레이어가 이동 중인지 확인
+    /// </summary>
+    public bool IsPlayerMoving()
+    {
+        // 플레이어에 PlayerController 컴포넌트가 있는지 확인하고, 있으면 직접 이동 상태 사용
+        PlayerController playerController = player.GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            return playerController.isMove;
+        }
+        
+        // PlayerController를 사용할 수 없는 경우 기존 로직 사용
+        float distanceThreshold = 0.05f; // 더 큰 임계값 사용
+        Vector3 playerMovementDirection = player.forward;
+        float dotProduct = Vector3.Dot((player.position - lastPlayerPosition).normalized, playerMovementDirection);
+        
+        // 플레이어의 이동 방향과 일치하는 움직임이 있고 거리가 임계값을 넘으면 이동 중으로 판단
+        return Vector3.Distance(player.position, lastPlayerPosition) > distanceThreshold || 
+            (dotProduct > 0.7f && Vector3.Distance(player.position, lastPlayerPosition) > 0.01f);
+    }
+    
+    /// <summary>
+    /// 플레이어와의 거리가 너무 먼지 확인
+    /// </summary>
+    public bool IsPlayerTooFar()
+    {
+        return Vector3.Distance(transform.position, player.position) > maxDistanceFromPlayer;
+    }
+    
+    /// <summary>
+    /// 타겟이 근접 공격 범위 내에 있는지 확인
+    /// </summary>
+    public bool IsTargetInMeleeRange()
+    {
+        if (!HasTarget) return false;
+        return GetEffectiveDistanceToTarget(currentTargetTransform) <= meleeRange;
+    }
+    
+    /// <summary>
+    /// 타겟이 지정된 범위 내에 있는지 확인
+    /// </summary>
+    public bool IsTargetInRange(float range)
+    {
+        if (!HasTarget) return false;
+        return GetEffectiveDistanceToTarget(currentTargetTransform) <= range;
+    }
+    
+    /// <summary>
+    /// 타겟을 탐색할 필요가 있는지 확인
+    /// </summary>
+    public bool ShouldFindTarget()
+    {
+        return currentTarget == null || currentTarget.currentHp <= 0;
+    }
+    
+    /// <summary>
+    /// 타겟을 초기화
+    /// </summary>
+    public void ResetTarget()
+    {
+        currentTarget = null;
+        currentTargetTransform = null;
+    }
+    
+    /// <summary>
+    /// 공격 상태 설정
+    /// </summary>
+    public void SetAttacking(bool attacking)
+    {
+        isAttacking = attacking;
+    }
+    
+    /// <summary>
+    /// 전투 종료 체크 시작
+    /// </summary>
+    public void StartEndCombatCheck()
+    {
+        if (!isCheckingEndCombat)
+        {
+            StartCoroutine(CheckEndCombatCoroutine(1f));
+        }
+    }
+    
+    /// <summary>
+    /// 전투 상태인지 확인
+    /// </summary>
+    public bool IsInCombat()
+    {
+        return GameStateMachine.Instance.CurrentState == GameSystemState.Combat || 
+               GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle;
+    }
+    
+    /// <summary>
+    /// 플레이어를 따라다니는 로직
+    /// </summary>
+    public void FollowPlayer()
+    {
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        // 순간이동 조건 - 일정 거리 이상이고 쿨다운이 끝났을 때
+        if (distanceToPlayer > teleportDistance && teleportCooldown <= 0)
+        {
+            Vector3 teleportPosition = player.position + offset;
+            teleportPosition.y = GetGroundHeight(teleportPosition);
+            transform.position = teleportPosition;
+            
+            // 순간이동 직후 애니메이션 상태 명시적 설정
+            isMoving = false;
+            animator.SetBool(IsMoving, false);
+            isTeleporting = true;
+            
+            // 텔레포트 쿨다운 설정 (3초)
+            teleportCooldown = 3.0f;
+            
+            // 회전 업데이트
+            UpdateTurnDirection();
+            
+            // 마지막 플레이어 위치 저장 (텔레포트 후 즉시 업데이트)
+            lastPlayerPosition = player.position;
+            
+            // 약간의 지연 후 이동 가능하도록 Coroutine 시작
+            StartCoroutine(ResetTeleportState(0.5f));
+            
+            return;
+        }
+        else
+        {
+            // 텔레포트 중이 아닐 때만 플레이어를 따라다니는 동작 수행
+            if (!isTeleporting)
+            {
+                // 플레이어를 따라다니는 동작
+                Vector3 targetPosition = player.position + offset;
+                targetPosition.y = GetGroundHeight(targetPosition);
+                
+                float currentSpeed = distanceToPlayer > teleportDistance/2 ? followSpeed * 2f : followSpeed;
+                transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * currentSpeed);
+
+                // 회전
+                RotateTowardsPlayer();
+                
+                // 이동 상태 업데이트
+                isMoving = IsPlayerMoving();
+                animator.SetBool(IsMoving, isMoving);
+                UpdateTurnDirection();
+                
+                // 플레이어와의 거리가 멀거나, 0.5초마다 마지막 위치 갱신 (과도한 상태 전환 방지)
+                if (distanceToPlayer > followDistance * 0.8f || Time.frameCount % 30 == 0)
+                {
+                    lastPlayerPosition = player.position;
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 타겟을 향해 회전
+    /// </summary>
+    public void RotateToTarget()
+    {
+        if (!HasTarget) return;
+        
+        Vector3 targetDir = (currentTargetTransform.position - transform.position).normalized;
+        Quaternion lookRot = Quaternion.LookRotation(targetDir, Vector3.up);
+        transform.rotation = Quaternion.Lerp(transform.rotation, 
+                                         Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f), 
+                                         Time.deltaTime * rotationSpeed * 3f);
+    }
+    
+    /// <summary>
+    /// 근접 공격 수행
+    /// </summary>
+    public void PerformMeleeAttack()
+    {
+        if (HasTarget)
+        {
+            CombatManager.Instance.ProcessDragonAttack(dragonData, currentTarget, currentTargetTransform, false);
+        }
+    }
+    
+    /// <summary>
+    /// 원거리 공격용 발사체 발사
+    /// </summary>
+    public void LaunchProjectile()
+    {
+        if (HasTarget && fireballPrefab != null && firePoint != null)
+        {
+            Vector3 targetCenter = GetTargetCenter(currentTargetTransform);
+            GameObject fireball = Instantiate(fireballPrefab, firePoint.position, Quaternion.identity);
+            FireballController fireballController = fireball.GetComponent<FireballController>();
+            fireballController.Initialize(targetCenter, dragonData, transform.position, currentTarget, currentTargetTransform);
+        }
+    }
+    
+    /// <summary>
+    /// 버프 스킬 사용
+    /// </summary>
+    public void UseBuffSkill()
+    {
+        // 쿨다운이 끝난 버프 스킬 목록 가져오기
+        List<string> availableBuffs = new List<string>();
+        
+        // 버프 선택 우선순위
+        foreach (string buffName in buffSkills)
+        {
+            bool isOnCooldown = SkillManager.Instance.IsSkillOnCooldown(EntityType.Dragon, buffName);
+            bool isActive = SkillManager.Instance.IsBuffActive(buffName);
+            
+            if (!isOnCooldown)
+            {
+                // 비활성 버프를 우선 추가
+                if (!isActive)
+                {
+                    availableBuffs.Add(buffName);
+                }
+                // 모든 비활성 버프를 찾은 후에도 없다면, 활성 버프도 추가
+                else if (availableBuffs.Count == 0)
+                {
+                    availableBuffs.Add(buffName);
+                }
+            }
+        }
+        
+        if (availableBuffs.Count == 0)
+        {
+            return;
+        }
+
+        // 랜덤으로 버프 선택
+        string chosenBuff = availableBuffs[UnityEngine.Random.Range(0, availableBuffs.Count)];
+        
+        // Skills 객체 가져오기
+        Skills buffSkill = SkillManager.Instance.GetSkill(EntityType.Dragon, chosenBuff);
+        if (buffSkill == null)
+        {
+            Debug.LogError($"[드래곤] {chosenBuff} 스킬을 찾을 수 없습니다.");
+            return;
+        }
+
+        // 버프 정보 가져오기
+        float buffDuration = buffSkill.buffDuration;
+        float buffValue = buffSkill.buffValue;
+
+        // 애니메이션 재생
+        animator.SetTrigger(IsUseSkill);
+        
+        // 버프 적용 - 쿨다운은 SkillManager 내에서 관리
+        SkillManager.Instance.ApplyBuff(EntityType.Dragon, chosenBuff);
+        
+        // 버프 효과 텍스트 생성
+        string buffEffectText = chosenBuff.Contains("HP") ? $"+{buffValue} HP" : $"+{buffValue}%";
+        
+        // 시스템 메시지로 버프 적용 알림
+        UIManager.SystemGameMessage($"드래곤이 {GetBuffKoreanName(chosenBuff)}(을)를 적용했습니다 ({buffEffectText}, {buffDuration}초 지속)", MessageTag.플레이어_버프);
+        
+        // 드래곤 스킬 전체 쿨다운 시작
+        skillCooldown = new BasicTimer(dragonSkillCooldown);
+        TimerManager.Instance.StartTimer(skillCooldown);
+    }
+    
+    /// <summary>
+    /// 궁극기 공격 수행
+    /// </summary>
+    public void PerformUltimateAttack()
+    {
+        // 주변 모든 적에게 광역 공격
+        foreach (var character in CharacterManager.Instance.CharacterList)
+        {
+            if (character is MonsterData monster && monster.currentHp > 0)
+            {
+                float dist = Vector3.Distance(transform.position, monster.instance.transform.position);
+                if (dist <= detectRange * 0.7f) // 광역 공격 범위는 탐지 범위의 70%
+                {
+                    // 궁극기 데미지는 일반 공격의 2배
+                    CombatManager.Instance.ProcessDragonAttack(dragonData, monster, monster.instance.transform, true, 2.0f);
+                }
+            }
+        }
+        
+        // 궁극기 이펙트 표시 (이후 구현)
+        Debug.Log("[드래곤] 궁극기 발동!");
+    }
+    
+    /// <summary>
+    /// 근접 공격 쿨다운 시작
+    /// </summary>
+    public void StartMeleeCooldown()
+    {
+        TimerManager.Instance.StartTimer(meleeCooldown);
+    }
+    
+    /// <summary>
+    /// 원거리 공격 쿨다운 시작
+    /// </summary>
+    public void StartRangedCooldown()
+    {
+        TimerManager.Instance.StartTimer(rangedCooldown);
+    }
+    
+    /// <summary>
+    /// 스킬 쿨다운 시작
+    /// </summary>
+    public void StartSkillCooldown()
+    {
+        TimerManager.Instance.StartTimer(skillCooldown);
+    }
+    
+    /// <summary>
+    /// 궁극기 쿨다운 시작
+    /// </summary>
+    public void StartUltimateCooldown()
+    {
+        TimerManager.Instance.StartTimer(ultimateCooldown);
     }
     #endregion
 }
