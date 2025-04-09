@@ -19,6 +19,8 @@ public class Quest :ISheetData
     public Transform questNpcTransform;
     [Header("퀘스트 상태정보")]
     public bool isCompleted;
+    public bool needsDialog; // 퀘스트 완료 시 대화가 필요한지 여부
+
     public Dictionary<string, QuestCondition> requiredConditions; // 퀘스트 조건
     public Dictionary<string, int> progress; // 진행 상태
     [Header("퀘스트 보상정보")]
@@ -26,7 +28,7 @@ public class Quest :ISheetData
 
     public Quest() { }
 
-    public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards)
+    public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards, bool needsDialog = false)
     {
         this.id = id;
         this.questType = type;
@@ -42,6 +44,7 @@ public class Quest :ISheetData
             this.progress.Add(condition, 0);
         }
         questNpcTransform = null;
+        this.needsDialog = needsDialog;
     }
 
     public void CheckQuestCondition()
