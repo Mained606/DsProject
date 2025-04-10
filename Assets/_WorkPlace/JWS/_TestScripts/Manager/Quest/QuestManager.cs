@@ -306,10 +306,7 @@ public class QuestManager : BaseManager<QuestManager>
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
             }
         }
-        if (quest.questType != "메인퀘스트")
-        {
-            quest.isCompleted = false;
-        }
+        // 서브퀘스트도 완료 상태를 유지하도록 수정
         UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 보상이 지급되었습니다.", MessageTag.퀘스트);
         
         // 퀘스트 보상 처리 (스킬 언락, 오브젝트 활성화 등)

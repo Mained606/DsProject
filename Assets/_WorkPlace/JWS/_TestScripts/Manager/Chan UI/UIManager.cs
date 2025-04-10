@@ -418,10 +418,8 @@ public class UIManager : BaseManager<UIManager>
 
             foreach (var quest in completQuest)
             {
-                if (quest.questType == "메인퀘스트")
-                {
-                    QuestManager.Instance.CompleteQuest(quest);
-                }
+                // 메인퀘스트와 서브퀘스트 모두 완료 처리
+                QuestManager.Instance.CompleteQuest(quest);
             }
         }
     }
