@@ -450,21 +450,21 @@ public class UIManager : BaseManager<UIManager>
     public void DisplayDialogText(List<string> commentList, DialogType type)
     {
         if (dialogWindow == null) return;
-        ToggleDialog();
+        ToggleDialog(true);
         dialogUI.DisplayDialogText(commentList, type);
     }
 
     public void DisplayDialogWindow(NPCData nPCData)
     {
         if (dialogWindow == null) return;
-        ToggleDialog();
+        ToggleDialog(true);
         dialogUI.DisplayDialogWindow(nPCData);
     }
 
     public void DisplayQuestDialogWindow(string title, Quest quest)
     {
         if (dialogWindow == null) return;
-        ToggleDialog();
+        ToggleDialog(true);
         dialogUI.DisplayQuestDialogWindow(title, quest);
     }
 
@@ -472,7 +472,12 @@ public class UIManager : BaseManager<UIManager>
     public void OpenQuestDialogUI(NPCData npcData, Quest quest, bool isMainQuest)
     {
         if (dialogWindow == null) return;
-        ToggleDialog();
+        
+        // 게임 상태를 다이얼로그 상태로 먼저 전환
+        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+        
+        // 다이얼로그 창을 항상 켜지도록 설정
+        ToggleDialog(true);
         
         // 기존 DisplayQuestDialogWindow 메서드의 동작을 확장
         if (isMainQuest)
@@ -486,9 +491,6 @@ public class UIManager : BaseManager<UIManager>
             // 현재는 기존 메서드로 처리
             dialogUI.DisplayQuestDialogWindow(npcData.name, quest);
         }
-        
-        // 게임 상태를 다이얼로그 상태로 전환
-        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
     }
 
     public void BossHudDisplay(bool isOnOff, BossData bossData = null)

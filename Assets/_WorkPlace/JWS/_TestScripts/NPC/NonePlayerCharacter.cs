@@ -516,8 +516,10 @@ public class NonePlayerCharacter : MonoBehaviour
 
     private void ShowDialogue()
     {
-        // 게임 상태를 다이얼로그 상태로 전환
+        // 게임 상태를 다이얼로그 상태로 먼저 전환
         GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+        
+        // 다이얼로그 창을 표시
         UIManager.Instance.DisplayDialogWindow(currentNPCData);
     }
 
