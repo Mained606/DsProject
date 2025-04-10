@@ -42,7 +42,7 @@ public class BlockBehaviour : IBehaviour
         }
         else
         {
-            if (controller.playerCombat.isBlocking)
+            if (controller.playerCombat.isBlocking && !controller.isParry)
             {
                 BlockFinished();
             }

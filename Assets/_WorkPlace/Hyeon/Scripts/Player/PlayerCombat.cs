@@ -104,7 +104,8 @@ public class PlayerCombat : MonoBehaviour
     {
         if (controller.isParry)
         {
-            if (controller.AnimFinishCheck())
+            AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+            if (stateInfo.IsName("Parry") && stateInfo.normalizedTime >= 0.95)
             {
                 controller.isParry = false;
                 onParry = false;
