@@ -429,6 +429,7 @@ MonoBehaviour:
   mainQuestDatabase: []
   subQuestDatabase: []
   completedQuests: []
+  dragon: {fileID: 0}
 --- !u!1 &3107391844861314812
 GameObject:
   m_ObjectHideFlags: 0
@@ -529,6 +530,20 @@ MonoBehaviour:
     isStunned: 0
     equipmentPhysicalBonus: 0
     equipmentMagicBonus: 0
+    equipmentStrengthBonus: 0
+    equipmentAgilityBonus: 0
+    equipmentVitalityBonus: 0
+    equipmentIntelligenceBonus: 0
+    equipmentCriticalChanceBonus: 0
+    equipmentCriticalDamageBonus: 0
+    equipmentDodgeChanceBonus: 0
+    equipmentBlockChanceBonus: 0
+    equipmentPhysicalDefenseBonus: 0
+    equipmentMagicDefenseBonus: 0
+    equipmentAttackSpeedBonus: 0
+    equipmentMoveSpeedBonus: 0
+    equipmentMaxHpBonus: 0
+    equipmentMaxMpBonus: 0
     skills: []
     gold: 0
   dragonData:
@@ -957,6 +972,7 @@ MonoBehaviour:
   historyLog: {fileID: 0}
   historyWindow: {fileID: 0}
   infoMessageWindow: {fileID: 0}
+  infoMessageCloseButton: {fileID: 0}
   InventorytooltipWindow: {fileID: 0}
   characterStaus: {fileID: 0}
   quickSlot: {fileID: 0}
@@ -1027,6 +1043,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   totalManagers: 1
+  memo: {fileID: 0}
 --- !u!114 &4132014792383948691
 MonoBehaviour:
   m_ObjectHideFlags: 0
