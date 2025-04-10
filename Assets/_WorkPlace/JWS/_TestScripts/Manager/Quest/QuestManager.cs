@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Rendering;
 
 public class QuestManager : BaseManager<QuestManager>
 {
@@ -27,6 +28,8 @@ public class QuestManager : BaseManager<QuestManager>
 
     private int currentMainQuestIndex = 0;
     public static int CurrentMainQuestIndex => Instance.currentMainQuestIndex;
+
+    [SerializeField] private GameObject dragon;
 
 
     protected override void OnEnable()
@@ -273,6 +276,7 @@ public class QuestManager : BaseManager<QuestManager>
                 UIManager.SystemGameMessage($"골드 {reward.gold} 지급됨.", MessageTag.금화_획득);
             }
         }
+
         if (quest.questType == "메인퀘스트" && mainQuestDatabase.Count > currentMainQuestIndex)
         {
             currentMainQuestIndex++;
@@ -290,7 +294,78 @@ public class QuestManager : BaseManager<QuestManager>
             quest.isCompleted = false;
         }
         UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 보상이 지급되었습니다.", MessageTag.퀘스트);
+        
+        // 퀘스트 보상 처리 (스킬 언락, 오브젝트 활성화 등)
+        ProcessQuestRewards(quest.id);
+        
         UIManager.Instance.QuestUpdate();
+    }
+
+    // 퀘스트 보상 처리 메서드 (스킬 언락 및 오브젝트 활성화)
+    private void ProcessQuestRewards(string questId)
+    {
+        Debug.Log($"[QuestManager] 퀘스트 {questId} 보상 처리 중...");
+        
+        // 특정 퀘스트 ID에 따른 보상 처리
+        if (questId == "1_1004")
+        {
+            // 1. FireStrike 스킬 언락
+            UnlockSkill("FireStrike");
+            
+            // 2. 용 오브젝트 활성화
+            ActivateDragon();
+            
+            ActivateGameObject("용", false);
+        }
+        
+        // 필요에 따라 다른 퀘스트 ID 케이스 추가
+    }
+    
+    // 스킬 언락 메서드
+    private void UnlockSkill(string skillName)
+    {
+        // SkillList에서 스킬 찾기
+        if (SkillManager.Instance != null && SkillManager.SkillDatabase != null)
+        {
+            foreach (var skill in SkillManager.SkillDatabase.playerSkills)
+            {
+                if (skill.skillName == skillName)
+                {
+                    skill.unLockSkill = true;
+                    Debug.Log($"[QuestManager] 스킬 {skillName}을(를) 언락했습니다.");
+                    return;
+                }
+            }
+            
+            Debug.LogWarning($"[QuestManager] 스킬 {skillName}을(를) 플레이어 스킬 목록에서 찾을 수 없습니다.");
+        }
+        else
+        {
+            Debug.LogError("[QuestManager] SkillManager 또는 SkillDatabase가 null입니다.");
+        }
+    }
+    
+    // 게임 오브젝트 활성화/비활성화 메서드
+    private void ActivateGameObject(string objectName, bool activate)
+    {
+        GameObject obj = GameObject.Find(objectName);
+        if (obj != null)
+        {
+            obj.SetActive(activate);
+            Debug.Log($"[QuestManager] 게임 오브젝트 {objectName}을(를) {(activate ? "활성화" : "비활성화")}했습니다.");
+        }
+        else
+        {
+            Debug.LogWarning($"[QuestManager] 게임 오브젝트 {objectName}을(를) 찾을 수 없습니다.");
+        }
+    }
+
+    private void ActivateDragon()
+    {
+        if(dragon != null)
+        {
+            dragon.SetActive(true);
+        }
     }
 
     public Quest GenerateQuests()
