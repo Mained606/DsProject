@@ -143,59 +143,63 @@ public class NonePlayerCharacter : MonoBehaviour
                     QuestManager.NpcDatabase.subQuestNpcLists = new List<NPCData>();
                 }
                 
-                // 서브 퀘스트 ID가 지정된 경우 해당 퀘스트를 할당
-                if (!string.IsNullOrEmpty(subQuestId))
+                // 서브 퀘스트 NPC 리스트에서 먼저 같은 ID를 가진 NPC를 찾음
+                NPCData existingNpcData = null;
+                List<NPCData> subQuestNpcs = QuestManager.NpcDatabase.subQuestNpcLists;
+                
+                if (subQuestNpcs != null && subQuestNpcs.Count > 0)
                 {
-                    // 서브 퀘스트 NPC 리스트에서 먼저 같은 ID를 가진 NPC를 찾음
-                    NPCData existingNpcData = null;
-                    List<NPCData> subQuestNpcs = QuestManager.NpcDatabase.subQuestNpcLists;
+                    // 이미 같은 NPC 인덱스로 등록된 서브 퀘스트 NPC가 있는지 확인
+                    existingNpcData = subQuestNpcs.Find(npc => npc.id == $"SubNPC_{npcIndex}");
+                }
+                
+                if (existingNpcData != null)
+                {
+                    // 기존 서브 퀘스트 NPC 데이터 사용
+                    isInitNPC = true;
+                    currentNPCData = existingNpcData.Clone(false);
+                    Debug.Log($"기존 서브 퀘스트 NPC 데이터 사용: {currentNPCData.name}");
+                }
+                else
+                {
+                    // 일반 NPC 리스트에서 기본 데이터를 가져와 서브 퀘스트 NPC 데이터 생성
+                    isInitNPC = true;
                     
-                    if (subQuestNpcs != null && subQuestNpcs.Count > 0)
+                    // 일반 NPC 리스트에 있는 NPC를 기반으로 데이터 복제
+                    if (npcIndex >= 0 && npcIndex < npclist.Count)
                     {
-                        // 이미 같은 NPC 인덱스로 등록된 서브 퀘스트 NPC가 있는지 확인
-                        existingNpcData = subQuestNpcs.Find(npc => npc.id == $"SubNPC_{npcIndex}");
-                    }
-                    
-                    if (existingNpcData != null)
-                    {
-                        // 기존 서브 퀘스트 NPC 데이터 사용
-                        isInitNPC = true;
-                        currentNPCData = existingNpcData.Clone(false);
-                        Debug.Log($"기존 서브 퀘스트 NPC 데이터 사용: {currentNPCData.name}");
+                        currentNPCData = npclist[npcIndex].Clone(false);
+                        
+                        // 서브 퀘스트 NPC 속성 업데이트
+                        currentNPCData.id = $"SubNPC_{npcIndex}";
+                        currentNPCData.npcType = NPCType.퀘스트;
+                        currentNPCData.isInteractable = true;
+                        
+                        // [수정] 서브 퀘스트 ID가 지정된 경우 퀘스트 지급자로 설정
+                        // 활성자는 항상 true로 설정하여 NPC가 두 역할을 동시에 수행할 수 있도록 함
+                        currentNPCData.isQuestGiver = !string.IsNullOrEmpty(subQuestId);
+                        currentNPCData.isQuestActivator = true;
+                        
+                        // 서브 퀘스트 NPC 리스트에 추가 (원본 데이터 보존)
+                        NPCData originalData = currentNPCData.Clone(true);
+                        originalData.currentNPC = null;
+                        QuestManager.NpcDatabase.subQuestNpcLists.Add(originalData);
+                        
+                        Debug.Log($"새 서브 퀘스트 NPC 생성 및 등록: {currentNPCData.name}, 지급자: {currentNPCData.isQuestGiver}, 활성자: {currentNPCData.isQuestActivator}");
                     }
                     else
                     {
-                        // 일반 NPC 리스트에서 기본 데이터를 가져와 서브 퀘스트 NPC 데이터 생성
-                        isInitNPC = true;
-                        
-                        // 일반 NPC 리스트에 있는 NPC를 기반으로 데이터 복제
-                        if (npcIndex >= 0 && npcIndex < npclist.Count)
-                        {
-                            currentNPCData = npclist[npcIndex].Clone(false);
-                            
-                            // 서브 퀘스트 NPC 속성 업데이트
-                            currentNPCData.id = $"SubNPC_{npcIndex}";
-                            currentNPCData.npcType = NPCType.퀘스트;
-                            currentNPCData.isQuestGiver = true;
-                            currentNPCData.isInteractable = true;
-                            
-                            // 서브 퀘스트 NPC 리스트에 추가 (원본 데이터 보존)
-                            NPCData originalData = currentNPCData.Clone(true);
-                            originalData.currentNPC = null;
-                            QuestManager.NpcDatabase.subQuestNpcLists.Add(originalData);
-                            
-                            Debug.Log($"새 서브 퀘스트 NPC 생성 및 등록: {currentNPCData.name}");
-                        }
-                        else
-                        {
-                            Debug.LogError($"NPC 인덱스 {npcIndex}가 범위를 벗어났습니다.");
-                            return;
-                        }
+                        Debug.LogError($"NPC 인덱스 {npcIndex}가 범위를 벗어났습니다.");
+                        return;
                     }
-                    
-                    // NPC 게임 오브젝트 연결
-                    currentNPCData.currentNPC = this.gameObject;
-                    
+                }
+                
+                // NPC 게임 오브젝트 연결
+                currentNPCData.currentNPC = this.gameObject;
+                
+                // ID가 지정된 경우만 서브 퀘스트 할당
+                if (!string.IsNullOrEmpty(subQuestId))
+                {
                     // 서브 퀘스트 할당
                     Quest subQuest = QuestManager.Instance.GetQuestById(subQuestId);
                     if (subQuest != null)
@@ -236,11 +240,7 @@ public class NonePlayerCharacter : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("서브 퀘스트 NPC로 설정되었으나 서브 퀘스트 ID가 지정되지 않았습니다.");
-                    isInitNPC = true;
-                    currentNPCData = npclist[npcIndex].Clone(false);
-                    currentNPCData.currentNPC = this.gameObject;
-                    currentNPCData.isInteractable = true;
+                    Debug.Log($"서브 퀘스트 NPC {currentNPCData.name}이(가) 퀘스트 활성자로만 설정되었습니다.");
                 }
             }
             else
@@ -386,39 +386,48 @@ public class NonePlayerCharacter : MonoBehaviour
                 // 먼저 퀘스트 상태를 동기화
                 SynchronizeQuestStatus(currentNPCData.quests);
                 
-                // 현재 진행 가능한 퀘스트가 있는지 확인
-                bool hasActiveQuest = false;
-                Quest activeQuest = null;
-                
-                if (currentNPCData.quests != null && currentNPCData.quests.Length > 0)
-                {
-                    // 완료되지 않은 첫 번째 퀘스트 찾기
-                    foreach (Quest quest in currentNPCData.quests)
-                    {
-                        if (!quest.isCompleted)
-                        {
-                            hasActiveQuest = true;
-                            activeQuest = quest;
-                            Debug.Log($"활성화된 퀘스트 발견: {quest.id}");
-                            break;
-                        }
-                    }
-                }
-
                 // [기능] 서브퀘스트 클리어 조건 체크 (Meet 타입)
                 CheckQuestMeetCondition();
                 
-                if (hasActiveQuest)
+                // [수정] 퀘스트 지급자인 경우에만 퀘스트 다이얼로그 표시
+                if (currentNPCData.isQuestGiver)
                 {
-                    // [추가] 서브 퀘스트도 DialogUI 통해 받을 수 있도록 구조 확장
-                    bool isMainQuest = activeQuest.questType.Equals("메인퀘스트", System.StringComparison.OrdinalIgnoreCase);
+                    // 현재 진행 가능한 퀘스트가 있는지 확인
+                    bool hasActiveQuest = false;
+                    Quest activeQuest = null;
                     
-                    // 메인 퀘스트인 경우 또는 서브 퀘스트인 경우 모두 DialogUI를 표시
-                    UIManager.Instance.OpenQuestDialogUI(currentNPCData, activeQuest, isMainQuest);
+                    if (currentNPCData.quests != null && currentNPCData.quests.Length > 0)
+                    {
+                        // 완료되지 않은 첫 번째 퀘스트 찾기
+                        foreach (Quest quest in currentNPCData.quests)
+                        {
+                            if (!quest.isCompleted)
+                            {
+                                hasActiveQuest = true;
+                                activeQuest = quest;
+                                Debug.Log($"활성화된 퀘스트 발견: {quest.id}");
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (hasActiveQuest)
+                    {
+                        // [추가] 서브 퀘스트도 DialogUI 통해 받을 수 있도록 구조 확장
+                        bool isMainQuest = activeQuest.questType.Equals("메인퀘스트", System.StringComparison.OrdinalIgnoreCase);
+                        
+                        // 메인 퀘스트인 경우 또는 서브 퀘스트인 경우 모두 DialogUI를 표시
+                        UIManager.Instance.OpenQuestDialogUI(currentNPCData, activeQuest, isMainQuest);
+                    }
+                    else
+                    {
+                        // 완료된 퀘스트만 있거나 퀘스트가 없는 경우
+                        ShowDialogue();
+                    }
                 }
                 else
                 {
-                    // 완료된 퀘스트만 있거나 퀘스트가 없는 경우
+                    // 퀘스트 지급자가 아닌 경우 (활성화자나 일반 NPC) 일반 대화 표시
                     ShowDialogue();
                 }
                 break;
@@ -486,6 +495,14 @@ public class NonePlayerCharacter : MonoBehaviour
 
     private void GiveQuest()
     {
+        // [수정] 퀘스트 지급자가 아닌 경우 퀘스트를 지급하지 않음
+        if (!currentNPCData.isQuestGiver)
+        {
+            Debug.Log($"{currentNPCData.name}은(는) 퀘스트 지급자가 아니라 활성화자입니다.");
+            ShowDialogue();
+            return;
+        }
+        
         if (currentNPCData.quests == null || currentNPCData.quests.Length == 0)
         {
             Debug.Log("퀘스트가 없습니다.");

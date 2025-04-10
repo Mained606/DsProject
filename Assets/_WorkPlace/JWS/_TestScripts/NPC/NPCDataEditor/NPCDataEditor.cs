@@ -75,7 +75,16 @@ public class NPCDataEditor : Editor
             // 서브 퀘스트 NPC인 경우 서브 퀘스트 ID 필드 표시
             if (isSubQuestNpcProperty.boolValue)
             {
+                // [추가] 서브퀘스트 ID 입력 필드
                 EditorGUILayout.PropertyField(subQuestIdProperty, new GUIContent("      서브 퀘스트 ID"));
+                
+                // [추가] 서브퀘스트 NPC 역할 설명
+                bool hasQuestId = !string.IsNullOrEmpty(subQuestIdProperty.stringValue);
+                string npcRoleInfo = hasQuestId ? 
+                    "이 NPC는 퀘스트 지급자와 활성자 역할을 모두 수행합니다." : 
+                    "이 NPC는 퀘스트 활성자(만남 조건)만 수행합니다.";
+                
+                EditorGUILayout.HelpBox(npcRoleInfo, MessageType.Info);
             }
             else
             {
@@ -162,6 +171,11 @@ public class NPCDataEditor : Editor
             EditorGUILayout.LabelField("▣ Quest Settings");
             SerializedProperty isQuestGiverProperty = npcDataProperty.FindPropertyRelative("isQuestGiver");
             EditorGUILayout.PropertyField(isQuestGiverProperty, new GUIContent("      Is Quest Giver"));
+            
+            // [추가] 퀘스트 활성화자 설정 추가
+            SerializedProperty isQuestActivatorProperty = npcDataProperty.FindPropertyRelative("isQuestActivator");
+            EditorGUILayout.PropertyField(isQuestActivatorProperty, new GUIContent("      Is Quest Activator"));
+            
             EditorGUILayout.PropertyField(questsProperty, new GUIContent("      Quests"), true);
         }
 
