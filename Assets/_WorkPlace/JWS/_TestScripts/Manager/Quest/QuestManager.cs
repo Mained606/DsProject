@@ -124,11 +124,26 @@ public class QuestManager : BaseManager<QuestManager>
 
     public Quest GetQuestById(string questId)
     {
-        Quest quest = questDatabase.Find(q => q.id == questId);
+        // 먼저 메인 퀘스트 데이터베이스에서 찾기
+        Quest quest = mainQuestDatabase.Find(q => q.id == questId);
+        
+        // 없으면 서브 퀘스트 데이터베이스에서 찾기
+        if (quest == null)
+        {
+            quest = subQuestDatabase.Find(q => q.id == questId);
+        }
+        
+        // 없으면 전체 퀘스트 데이터베이스에서 찾기
+        if (quest == null)
+        {
+            quest = questDatabase.Find(q => q.id == questId);
+        }
+        
         if (quest == null)
         {
             Debug.LogWarning($"[QuestManager] ID: {questId} 퀘스트를 찾을 수 없습니다.");
         }
+        
         return quest;
     }
 

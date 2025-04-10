@@ -324,9 +324,9 @@ public class GenerateData
             new Quest("서브퀘스트", "1_2001", "모험가의 길","대장장이가 하는 일이 궁금한가?",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "Quest1_05", "-",1) }
+                    {"대장장이", new QuestCondition(QuestConditionType.Meet, "SubNPC_1", "대장장이를 찾아라", 1) }
                 },
-                new List<Reward>{new Reward("강화석 조각", 5, 0, 50)}),
+                new List<Reward>{new Reward("강화석 조각", 5, 0, 50)}, true),
 
             new Quest("서브퀘스트", "1_2002", "모험가의 길","대장장이가 하는 일이 궁금한가?",
                 new Dictionary<string, QuestCondition>

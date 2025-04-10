@@ -468,6 +468,29 @@ public class UIManager : BaseManager<UIManager>
         dialogUI.DisplayQuestDialogWindow(title, quest);
     }
 
+    // [추가] 서브 퀘스트도 DialogUI를 통해 받을 수 있도록 메서드 추가
+    public void OpenQuestDialogUI(NPCData npcData, Quest quest, bool isMainQuest)
+    {
+        if (dialogWindow == null) return;
+        ToggleDialog();
+        
+        // 기존 DisplayQuestDialogWindow 메서드의 동작을 확장
+        if (isMainQuest)
+        {
+            // 메인 퀘스트는 기존 방식 유지
+            dialogUI.DisplayQuestDialogWindow(npcData.name, quest);
+        }
+        else
+        {
+            // 서브 퀘스트는 DialogUI에 새 메서드를 추가하여 처리할 수도 있음
+            // 현재는 기존 메서드로 처리
+            dialogUI.DisplayQuestDialogWindow(npcData.name, quest);
+        }
+        
+        // 게임 상태를 다이얼로그 상태로 전환
+        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+    }
+
     public void BossHudDisplay(bool isOnOff, BossData bossData = null)
     {
         if (isOnOff)
