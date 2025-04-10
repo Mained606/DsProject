@@ -10,7 +10,7 @@ public class DropItemEggStrawBerry : MonoBehaviour
     [SerializeField] private float detectionDistance = 2f;
     [SerializeField] private string itemName = "용의알";
     [SerializeField] private int itemAmount = 1;
-
+    [SerializeField] private GameObject questObject;
     private void Start()
     {
         if(effect != null)
@@ -42,6 +42,10 @@ public class DropItemEggStrawBerry : MonoBehaviour
             return;
 
         ItemManager.Instance.AddItemLogic(name, itemAmount);
+        if(itemName == "용의알")
+        {
+            questObject.SetActive(true);
+        }
         Destroy(gameObject);
     }
 
