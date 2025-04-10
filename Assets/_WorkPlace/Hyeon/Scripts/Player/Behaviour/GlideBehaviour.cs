@@ -56,7 +56,7 @@ public class GlideBehaviour : IBehaviour
             GroundedCheck();
             if (canGlide)
             {
-                if (InputManager.InputActions.actions["Jump"].triggered)
+                if (InputManager.InputActions.actions["Jump"].triggered && controller.unlockGlide)
                 {
                     StartGilde();
                 }
@@ -155,7 +155,15 @@ public class GlideBehaviour : IBehaviour
         animator.SetFloat("Speed", currentSpeed);
 
         // 이동
-        movement = direction * currentSpeed * Time.deltaTime;
+        if (direction != Vector3.zero)
+        {
+            movement = direction * currentSpeed * Time.deltaTime;
+        }
+        else
+        {
+            movement = Vector3.down * currentSpeed * Time.deltaTime;
+        }
+
         movement.y = controller.verticalVelocity.y * Time.deltaTime;
         controller.characterController.Move(movement);
 
@@ -210,7 +218,7 @@ public class GlideBehaviour : IBehaviour
 
     private void UpdateGlideTilt(Vector2 moveInput)
     {
-        if (direction != Vector3.zero)
+        if (moveInput != Vector2.zero)
         {
             Vector3 localDirection = controller.transform.InverseTransformDirection(direction);
 

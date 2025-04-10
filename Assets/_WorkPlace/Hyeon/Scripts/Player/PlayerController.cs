@@ -62,6 +62,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float climbEndCheckOffset = 0.2f; // 절벽 끝 검사 오프셋
 
     [Header("글라이딩")]
+    public bool unlockGlide = false;
     public float glideSpeed = 10f;
     private float glideGravity = -15f;
     public GameObject wings;

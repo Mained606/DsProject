@@ -9000,6 +9000,7 @@ MonoBehaviour:
   detectionRange: 2
   climbRange: 1
   climbEndCheckOffset: 0.7
+  unlockGlide: 1
   glideSpeed: 12
   wings: {fileID: 2430454198518691932}
   dodgeDist: 6.5
