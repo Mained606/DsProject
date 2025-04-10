@@ -6350,8 +6350,7 @@ MonoBehaviour:
     m_Bits: 128
   groundHeightOffset: 2.5
   maxHits: 3
-  additionalEffects:
-  - {fileID: 180913328453442532}
+  additionalEffects: []
 --- !u!65 &7396640262858191583
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -16245,11 +16244,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8c91d169b410e5f47991a219ac29c9bb, type: 3}
---- !u!1 &180913328453442532 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 108051464122979097, guid: 8c91d169b410e5f47991a219ac29c9bb, type: 3}
-  m_PrefabInstance: {fileID: 287486613529495805}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6006275090704621602 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5811834648709490911, guid: 8c91d169b410e5f47991a219ac29c9bb, type: 3}
