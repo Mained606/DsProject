@@ -32,7 +32,6 @@ public class DodgeBehaviour : IBehaviour
     {
         if (InputManager.InputActions.actions["Dodge"].triggered && !controller.isDodging)
         {
-            animator.SetBool("Dodge", true);
             controller.Dodge();
         }
     }

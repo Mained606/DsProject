@@ -69,6 +69,7 @@ public class PlayerController : MonoBehaviour
     [Header("닷지")]
     [SerializeField] private float dodgeDist = 6.5f;
     [SerializeField] private float dodgeDuration = 0.67f;
+    [SerializeField] private float dodgeStaminaAmount = 10f;
 
     [Header("공격")]
     public bool isCombatState;
@@ -76,6 +77,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("디버그용")]
     public float staminaUseAmount;
+    
     public bool isRecovery;
     private Coroutine stunCoroutine;
 
@@ -240,6 +242,12 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetBool("Combat", isCombatState);
     }
 
+    // 스태미너 검사
+    public bool CheckEnoughStamina(float requiredAmount)
+    {
+        return playerData.staminaCurrent > requiredAmount;
+    }
+
     // 실제 플레이어 스태미나 소모 함수
     public void UsingStamina()
     {
@@ -250,12 +258,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void UsingStaminaOnce(float useAmount)
+    {
+        if (cheatMode) return;  // 치트
+
+        playerData.UseStamina(useAmount);  
+    }
+
     // 플레이어 자원 회복 (현재 : 마나, 스태미나 회복)
     private void RecoverStats()
     {
         if (isDeath) return;
 
-        if (!isSprinting && !isGliding)
+        if (!isSprinting && !isGliding && !isDodging)
         {
             playerData.RegenerateStamina();
             isRecovery = true;
@@ -392,7 +407,15 @@ public class PlayerController : MonoBehaviour
     // 캐릭터 구르기
     public void Dodge()
     {
-        StartCoroutine(DodgeRoutine());
+        if(CheckEnoughStamina(dodgeStaminaAmount))
+        {
+            UsingStaminaOnce(dodgeStaminaAmount);
+            StartCoroutine(DodgeRoutine());
+        }
+        else
+        {
+            Debug.LogWarning($"행동에 필요한 스태미너가 부족합니다. 필요한 스태미너 : {dodgeStaminaAmount}");
+        }
     }
 
     // 굴리기(무적)
@@ -405,12 +428,12 @@ public class PlayerController : MonoBehaviour
         behaviour.CanUseSkill = false;
         behaviour.CanBlock = false;
         isInvincible = true;
+        isRecovery = false;
+        playerAnimator.SetBool("Dodge", true);
 
         Vector3 dodgeDirection = transform.forward;
         dodgeDirection.y = verticalVelocity.y;
         float elapsedTime = 0f;
-
-        
 
         while (elapsedTime < dodgeDuration)
         {
@@ -427,6 +450,7 @@ public class PlayerController : MonoBehaviour
         behaviour.CanBlock = true;
         playerAnimator.SetBool("Dodge", false);
         isInvincible = false;
+        isRecovery = true;
     }
 
     #region ---------------Climb---------------

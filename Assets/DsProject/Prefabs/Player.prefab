@@ -8987,6 +8987,7 @@ MonoBehaviour:
   isParry: 0
   isStunned: 0
   isInWater: 0
+  isDeepWater: 0
   isDeath: 0
   moveInput: {x: 0, y: 0}
   cameraTransform: {fileID: 0}
@@ -9003,9 +9004,10 @@ MonoBehaviour:
   wings: {fileID: 2430454198518691932}
   dodgeDist: 6.5
   dodgeDuration: 0.67
+  dodgeStaminaAmount: 10
   isCombatState: 0
   isInvincible: 0
-  staminaUseAmount: 0.1
+  staminaUseAmount: 0.05
   isRecovery: 0
 --- !u!143 &1098804586676782611
 CharacterController:
