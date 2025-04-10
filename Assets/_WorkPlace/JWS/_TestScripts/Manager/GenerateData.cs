@@ -155,7 +155,7 @@ public class GenerateData
             new Quest("메인퀘스트", "1_1003", "엄마의 쪽지","의문의 소리 찾기",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "용의 알 찾기", 1) },
+                    {"location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "이상한 기운 찾기", 1) },
                     {"용의알", new QuestCondition(QuestConditionType.Collect, "용의알", "용의알",1) }
                 },
                 new List<Reward>{new Reward("", 0, 10,0)}),
