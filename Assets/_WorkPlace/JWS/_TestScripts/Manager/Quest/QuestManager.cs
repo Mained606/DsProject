@@ -30,6 +30,7 @@ public class QuestManager : BaseManager<QuestManager>
     public static int CurrentMainQuestIndex => Instance.currentMainQuestIndex;
 
     [SerializeField] private GameObject dragon;
+    private PlayerController player;
 
 
     protected override void OnEnable()
@@ -47,6 +48,7 @@ public class QuestManager : BaseManager<QuestManager>
 
         //generater.GenerateRandomNPCs(200, subQuestDatabase, ItemManager.ItemDatabase, subQuestDatabase, npcDataList);
         npcDatabase = npcDataList.npcLists;
+        player = GameManager.playerTransform.GetComponent<PlayerController>();
         GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
     }
 
@@ -316,6 +318,8 @@ public class QuestManager : BaseManager<QuestManager>
             ActivateDragon();
             
             ActivateGameObject("용", false);
+
+            player.unlockGlide = true;
         }
         
         // 필요에 따라 다른 퀘스트 ID 케이스 추가
