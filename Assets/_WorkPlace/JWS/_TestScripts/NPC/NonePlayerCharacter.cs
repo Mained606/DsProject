@@ -48,17 +48,25 @@ public class NonePlayerCharacter : MonoBehaviour
         {
             Debug.LogError("이 게임 오브젝트에는 CapsuleCollider가 없습니다.");
         }
+        
+        // 시작 시 NPC 데이터가 없으면 초기화
+        if (currentNPCData == null)
+        {
+            Debug.Log("Start에서 NPC 데이터 초기화 필요");
+            isInitNPC = false;
+            // 다음 Update에서 GetMainNpcData 호출됨
+        }
     }
 
 
     private void Update()
     {
-        if (!isInitNPC)
+        // 초기화되지 않았거나 강제 리프레시가 필요한 경우
+        if (!isInitNPC || (currentNPCData != null && currentNPCData.quests != null && currentNPCData.quests.Length > 0 && 
+            currentNPCData.quests[0].isCompleted != QuestManager.CompletedQuests.Any(q => q.id == currentNPCData.quests[0].id)))
         {
-            if (currentNPCData.currentNPC != this.gameObject && QuestManager.NpcDatabase.mainQuestNpcLists.Count > 0)
-            {
-                GetMainNpcData();
-            }
+            Debug.Log("NPC 상태 업데이트 필요: " + (isInitNPC ? "퀘스트 상태 동기화 필요" : "초기화 필요"));
+            GetMainNpcData();
         }
 
         if (isPlayerInRange)
@@ -70,10 +78,15 @@ public class NonePlayerCharacter : MonoBehaviour
             }
             else
             {
-                if (!interActText.gameObject.activeSelf) interActText.gameObject.SetActive(true);
+                if (!interActText.gameObject.activeSelf) 
+                {
+                    interActText.gameObject.SetActive(true);
+                    // UI 텍스트가 활성화될 때 GetMainNpcData에서 설정한 값을 사용합니다.
+                    // 이렇게 하면 퀘스트 상태에 따라 UI가 자동으로 업데이트됩니다.
+                }
+                
                 if (InputManager.InputActions.actions["Interact"].triggered)
                 {
-                    QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Meet, currentNPCData.id, 1, currentNPCData);
                     Interact();
                 }
             }
@@ -93,17 +106,6 @@ public class NonePlayerCharacter : MonoBehaviour
     {
         List<NPCData> npclist = QuestManager.NpcDatabase.npcLists;
 
-        //foreach (NPCData npcData in npclist)
-        //{
-        //    if (npcData.currentNPC == null && npcData.npcType == npcType)
-        //    {
-        //        isInitNPC = true;
-        //        currentNPCData = npcData;
-        //        currentNPCData.currentNPC = this.gameObject;
-        //        break;
-        //    }
-        //}
-
         if (npcType == NPCType.상점)
         {
             npclist = QuestManager.NpcDatabase.shopNpcLists;
@@ -117,6 +119,11 @@ public class NonePlayerCharacter : MonoBehaviour
             isInitNPC = true;
             currentNPCData = npclist[npcIndex].Clone(false);
             currentNPCData.currentNPC = this.gameObject;
+            
+            Debug.Log($"NPC 초기화: {currentNPCData.name}, CompletedQuests 수: {QuestManager.CompletedQuests.Count}");
+            
+            // NPC 퀘스트 상태 동기화 - asset 파일의 isCompleted가 CompletedQuests 목록과 일치하도록 설정
+            SynchronizeQuestStatus(currentNPCData.quests);
         }
         else //04.08 HJ 추가
         {
@@ -125,15 +132,68 @@ public class NonePlayerCharacter : MonoBehaviour
             currentNPCData.currentNPC = this.gameObject;
         }
 
+        UpdateNpcUI();
+        Canvas.ForceUpdateCanvases();
+    }
+    
+    // 퀘스트 완료 상태를 CompletedQuests와 동기화하는 메서드
+    private void SynchronizeQuestStatus(Quest[] quests)
+    {
+        if (quests == null || quests.Length == 0) return;
+        
+        Debug.Log($"퀘스트 목록 동기화: {quests.Length}개");
+        foreach (Quest quest in quests)
+        {
+            // CompletedQuests에 있는지 확인
+            bool isCompleted = QuestManager.CompletedQuests.Any(q => q.id == quest.id);
+            
+            // 상태가 다르면 업데이트
+            if (quest.isCompleted != isCompleted)
+            {
+                Debug.Log($"퀘스트 {quest.id} 상태 업데이트: {quest.isCompleted} -> {isCompleted}");
+                quest.isCompleted = isCompleted;
+            }
+        }
+    }
+    
+    // NPC 유형에 따라 UI 업데이트
+    private void UpdateNpcUI()
+    {
         switch (currentNPCData.npcType)
         {
             case NPCType.퀘스트:
-                bool isHasQuestNew = !currentNPCData.quests.Any(quest => quest.isCompleted);
-                interActText.InteractTextSetting("대화하기", 0, offSetHeight, isHasQuestNew);
+                // 활성화된 퀘스트가 있는지 확인
+                bool hasActiveQuest = false;
+                
+                if (currentNPCData.quests != null && currentNPCData.quests.Length > 0)
+                {
+                    foreach (Quest quest in currentNPCData.quests)
+                    {
+                        if (!quest.isCompleted)
+                        {
+                            hasActiveQuest = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // UI 텍스트 설정
+                if (hasActiveQuest)
+                {
+                    // Debug.Log($"NPC {currentNPCData.name}의 UI를 '대화하기'로 설정");
+                    interActText.InteractTextSetting("대화하기", 0, offSetHeight, true);
+                }
+                else
+                {
+                    // Debug.Log($"NPC {currentNPCData.name}의 UI를 '정보 듣기'로 설정");
+                    interActText.InteractTextSetting("대화하기", 0, offSetHeight, false);
+                }
                 break;
+                
             case NPCType.상점:
                 interActText.InteractTextSetting("상점열기", 0, offSetHeight);
                 break;
+                
             default:
                 capsuleCollider[0].radius = interactionRadius;
                 string msg = string.Empty;
@@ -152,8 +212,6 @@ public class NonePlayerCharacter : MonoBehaviour
                 interActText.InteractTextSetting(msg, 1, offSetHeight);
                 break;
         }
-
-        Canvas.ForceUpdateCanvases();
     }
 
 
@@ -164,16 +222,60 @@ public class NonePlayerCharacter : MonoBehaviour
             Debug.Log($"{currentNPCData.name}은(는) 상호작용이 불가능합니다.");
             return;
         }
+        
+        Debug.Log($"NPC {currentNPCData.name}와 상호작용 시작, NPC 타입: {currentNPCData.npcType}");
+        
         switch (currentNPCData.npcType)
         {
             case NPCType.상점:
                 OpenShop();
                 break;
             case NPCType.퀘스트:
-                GiveQuest();
+                // 먼저 퀘스트 상태를 동기화
+                SynchronizeQuestStatus(currentNPCData.quests);
+                
+                // 현재 진행 가능한 퀘스트가 있는지 확인
+                bool hasActiveQuest = false;
+                Quest activeQuest = null;
+                
+                if (currentNPCData.quests != null && currentNPCData.quests.Length > 0)
+                {
+                    // 완료되지 않은 첫 번째 퀘스트 찾기
+                    foreach (Quest quest in currentNPCData.quests)
+                    {
+                        if (!quest.isCompleted)
+                        {
+                            hasActiveQuest = true;
+                            activeQuest = quest;
+                            Debug.Log($"활성화된 퀘스트 발견: {quest.id}");
+                            break;
+                        }
+                    }
+                }
+                
+                // 게임 상태를 다이얼로그 상태로 전환
+                Debug.Log($"게임 상태를 DialogueState로 변경");
+                GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+                
+                if (hasActiveQuest && activeQuest != null)
+                {
+                    // 활성화된 퀘스트가 있으면 퀘스트 대화 표시
+                    // 퀘스트 업데이트는 DialogUI.HandleQuest에서 수락 후 처리
+                    Debug.Log($"활성화된 퀘스트가 있어 퀘스트 대화창 표시: {activeQuest.id}");
+                    UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, activeQuest);
+                }
+                else
+                {
+                    // 모든 퀘스트가 완료되었거나 퀘스트가 없으면 일반 대화 표시
+                    Debug.Log($"모든 퀘스트가 완료되었거나 없어서 일반 대화창 표시");
+                    ShowDialogue();
+                }
                 break;
             default:
-                //HandleState();
+                // 게임 상태를 다이얼로그 상태로 전환
+                Debug.Log($"게임 상태를 DialogueState로 변경 (기본 대화)");
+                GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+                ShowDialogue();
                 break;
         }
 
@@ -223,24 +325,32 @@ public class NonePlayerCharacter : MonoBehaviour
 
     private void GiveQuest()
     {
-        if (currentNPCData.quests == null)
+        if (currentNPCData.quests == null || currentNPCData.quests.Length == 0)
         {
             Debug.Log("퀘스트가 없습니다.");
             return;
         }
 
+        // 퀘스트 상태 동기화
+        SynchronizeQuestStatus(currentNPCData.quests);
+        
         Quest currentQuest = currentNPCData.quests[0];
+        Debug.Log($"GiveQuest 호출: 퀘스트 ID {currentQuest.id}, 완료 상태: {currentQuest.isCompleted}");
 
-        if (QuestManager.CompletedQuests.Any(q => q.id == currentQuest.id))
+        // 이미 완료된 퀘스트인지 확인
+        if (currentQuest.isCompleted)
         {
-            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, QuestManager.CompletedQuests.Find(q => q.id == currentQuest.id));
+            // 이미 완료된 퀘스트인 경우, 일반 대화 다이얼로그를 표시합니다.
+            Debug.Log($"퀘스트가 완료되어 일반 대화창 표시");
+            ShowDialogue();
         }
         else
         {
+            // 아직 완료되지 않은 퀘스트는 퀘스트 다이얼로그 표시
+            // 퀘스트 진행 업데이트는 DialogUI.HandleQuest에서 수락 후 처리됨
+            Debug.Log($"완료되지 않은 퀘스트, 퀘스트 대화창 표시: {currentQuest.id}");
             UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, currentQuest);
         }
-
-        // 스토리 진행후 퀘스트를 제공하는 방식의 로직
     }
 
     private void ShowDialogue()
