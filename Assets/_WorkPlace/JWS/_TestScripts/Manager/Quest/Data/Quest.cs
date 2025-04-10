@@ -61,6 +61,8 @@ public class Quest :ISheetData
                 case QuestConditionType.Collect:
                     int currentQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
                     progress[keyWord] = currentQuantity;
+                    
+                    // 중요: 인벤토리의 실제 수량이 요구 수량 이상일 경우에만 완료로 표시
                     if (currentQuantity >= questCondition.requiredQuantity)
                     {
                         questCondition.isCompleted = true;

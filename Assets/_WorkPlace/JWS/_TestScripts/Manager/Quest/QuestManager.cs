@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class QuestManager : BaseManager<QuestManager>
 {
@@ -64,23 +65,42 @@ public class QuestManager : BaseManager<QuestManager>
 
     public void AddQuest(Quest quest)
     {
-        if (questDatabase.Exists(q => q.questType == "메인퀘스트"))
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"이미 진행 중인 메인 퀘스트가 있습니다.");
-            return;
-        }
+        // 로깅용 접두사 생성
+        string logPrefix = $"[AddQuest] '{quest.id}'";
+        
+        // 첫 번째 메인 퀘스트이거나 DialogueState에서 호출된 경우는 별도 처리
+        bool isFromDialogueState = GameStateMachine.Instance.CurrentState == GameSystemState.DialogueState;
+        bool isFirstQuest = quest.id == "1_1001"; // 첫 번째 퀘스트 ID 확인
+        
+        // 중복 퀘스트 체크
         if (questDatabase.Exists(q => q.id == quest.id))
         {
+            Debug.Log($"{logPrefix}: 이미 등록된 퀘스트입니다.");
             GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"퀘스트 '{quest.id}'는 이미 등록되어 있습니다.");
             return;
         }
+        
+        // 완료된 메인 퀘스트 체크
         if (completedQuests.Exists(q => q.id == quest.id) && quest.questType == "메인퀘스트")
         {
+            Debug.Log($"{logPrefix}: 이미 완료된 메인 퀘스트입니다.");
             GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"완료된 메인 퀘스트 '{quest.id}'는 추가할 수 없습니다.");
             return;
         }
+        
+        // 메인 퀘스트 진행중 체크 (첫 번째 퀘스트나 대화 상태에서는 예외)
+        if (!isFirstQuest && !isFromDialogueState && quest.questType == "메인퀘스트" && 
+            questDatabase.Exists(q => q.questType == "메인퀘스트"))
+        {
+            Debug.Log($"{logPrefix}: 이미 진행 중인 메인 퀘스트가 있습니다.");
+            GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"이미 진행 중인 메인 퀘스트가 있습니다.");
+            return;
+        }
+        
+        // 퀘스트 추가 및 UI 업데이트
         questDatabase.Add(quest);
         UIManager.Instance.QuestUpdate();
+        Debug.Log($"{logPrefix}: 퀘스트가 성공적으로 추가되었습니다.");
     }
 
     public void RemoveQuest(string questId)
@@ -116,6 +136,25 @@ public class QuestManager : BaseManager<QuestManager>
             if (i < 0 || i >= questDatabase.Count) continue;
             Quest quest = questDatabase[i];
             if (quest.isCompleted) continue;
+            
+            // Collect 타입 조건이면 CheckQuestCondition 호출하여 인벤토리 수량 기준으로 업데이트
+            if (conditionType == QuestConditionType.Collect)
+            {
+                quest.CheckQuestCondition();
+                
+                // CheckQuestCondition 이후 퀘스트 완료 여부 재확인
+                if (IsQuestCompleted(quest))
+                {
+                    quest.isCompleted = true;
+                    UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
+                    UIManager.Instance.QuestUpdate();
+                }
+                
+                // Collect 타입 조건은 CheckQuestCondition에서 처리되었으므로 여기서는 처리하지 않음
+                // 이후 다른 조건 타입(Explore, Kill, Meet 등)을 처리
+                continue;
+            }
+            
             foreach (var conditionKeyValue in quest.requiredConditions)
             {
                 var conditionId = conditionKeyValue.Key;
@@ -151,7 +190,17 @@ public class QuestManager : BaseManager<QuestManager>
             string conditionId = condition.Key;
             QuestCondition questCondition = condition.Value;
 
-            if (!quest.progress.ContainsKey(conditionId) || quest.progress[conditionId] < questCondition.requiredQuantity)
+            // Collect 타입인 경우, 인벤토리의 실제 아이템 수량을 확인하여 검증
+            if (questCondition.type == QuestConditionType.Collect)
+            {
+                int actualItemQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
+                if (actualItemQuantity < questCondition.requiredQuantity)
+                {
+                    return false;
+                }
+            }
+            // 기타 타입의 경우 progress 값으로 확인
+            else if (!quest.progress.ContainsKey(conditionId) || quest.progress[conditionId] < questCondition.requiredQuantity)
             {
                 return false;
             }
@@ -251,11 +300,43 @@ public class QuestManager : BaseManager<QuestManager>
 
     private void MainQuestSequenceStart(int index)
     {
-        if (index == 0 || (index > 0 && mainQuestDatabase[index-1].isCompleted))
+        string logPrefix = $"[MainQuestSequenceStart] 인덱스: {index}";
+        Debug.Log($"{logPrefix}, 메인 퀘스트 DB 크기: {mainQuestDatabase.Count}");
+        
+        // 인덱스 범위 체크
+        if (index >= mainQuestDatabase.Count)
         {
-            mainQuestDatabase[index].questGiver = "메인퀘스터";
-            AddQuest(mainQuestDatabase[index]);
-            currentMainQuestIndex = index;
+            Debug.LogWarning($"{logPrefix}: 인덱스가 범위를 벗어났습니다. 사용 가능한 퀘스트 수: {mainQuestDatabase.Count}");
+            return;
+        }
+        
+        // 첫 번째 퀘스트이거나, 이전 퀘스트가 완료된 경우에만 다음 퀘스트 진행
+        bool isFirstQuest = index == 0;
+        bool isPreviousQuestCompleted = index > 0 && mainQuestDatabase[index-1].isCompleted;
+        
+        if (isFirstQuest || isPreviousQuestCompleted)
+        {
+            // 현재 진행할 퀘스트
+            Quest questToAdd = mainQuestDatabase[index];
+            
+            // 이미 진행 중인 같은 ID의 퀘스트가 있는지 확인
+            bool alreadyHasQuest = questDatabase.Any(q => q.id == questToAdd.id);
+            
+            if (!alreadyHasQuest)
+            {
+                questToAdd.questGiver = "메인퀘스터";
+                AddQuest(questToAdd);
+                currentMainQuestIndex = index;
+                Debug.Log($"{logPrefix}: 퀘스트 '{questToAdd.id}' 진행 시작");
+            }
+            else
+            {
+                Debug.Log($"{logPrefix}: 퀘스트 '{questToAdd.id}'가 이미 진행 중입니다.");
+            }
+        }
+        else
+        {
+            Debug.Log($"{logPrefix}: 이전 퀘스트가 완료되지 않아 다음 퀘스트를 진행할 수 없습니다.");
         }
     }
 
