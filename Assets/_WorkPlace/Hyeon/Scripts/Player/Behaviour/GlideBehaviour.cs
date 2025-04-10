@@ -155,12 +155,9 @@ public class GlideBehaviour : IBehaviour
         animator.SetFloat("Speed", currentSpeed);
 
         // 이동
-        if(direction != Vector3.zero)
-        {
-            movement = direction * currentSpeed * Time.deltaTime;
-            movement.y = controller.verticalVelocity.y * Time.deltaTime;
-            controller.characterController.Move(movement);
-        }
+        movement = direction * currentSpeed * Time.deltaTime;
+        movement.y = controller.verticalVelocity.y * Time.deltaTime;
+        controller.characterController.Move(movement);
 
         // 스태미너 소모
         controller.UsingStamina();
@@ -182,7 +179,7 @@ public class GlideBehaviour : IBehaviour
 
     private void StaminaCheck()
     {
-        if(controller.playerData.staminaCurrent <= 0)
+        if(!controller.CheckEnoughStamina(controller.staminaUseAmount))
         {
             EndGlide();
         }
