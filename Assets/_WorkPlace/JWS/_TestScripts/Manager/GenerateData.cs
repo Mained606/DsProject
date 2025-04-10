@@ -155,21 +155,21 @@ public class GenerateData
             new Quest("메인퀘스트", "1_1003", "엄마의 쪽지","의문의 소리 찾기",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"", new QuestCondition(QuestConditionType.Collect, "용의알", "-",1) }
+                    {"용의알", new QuestCondition(QuestConditionType.Collect, "용의알", "용의알",1) }
                 },
                 new List<Reward>{new Reward("", 0, 10,0)}),
 
             new Quest("메인퀘스트", "1_1004", "엄마의 쪽지","용에게 말을 걸자",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "용", "-",1) }
+                    {"용", new QuestCondition(QuestConditionType.Meet, "용", "용",1) }
                 },
                 new List<Reward>
                 {
                     new Reward("스킬(FireStrike)", 1, 30, 0),
                     new Reward("낡은검", 1, 0, 0),
                     new Reward("완드", 1, 0, 0),
-                }),
+                }, true),
 
             #region 삭제된 메인 퀘스트
             /*new Quest("메인퀘스트", "1_1005", "알에서 나온 친구","옷장을 열자",
