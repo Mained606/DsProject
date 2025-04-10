@@ -34,6 +34,12 @@ public class ItemDatabaseEditor : Editor
             itemList.InitializeAllEffects();
         }
 
+        //if (GUILayout.Button("InitializeGrade"))
+        //{
+        //    ItemList itemList = (ItemList)target;
+        //    itemList.InitGrade();
+        //}
+
 
         //아이템 리스트를 박스 안에 표시
         EditorGUILayout.BeginVertical("box"); //박스 시작

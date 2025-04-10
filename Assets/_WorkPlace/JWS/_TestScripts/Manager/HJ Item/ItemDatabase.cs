@@ -12,6 +12,17 @@ public class ItemList : ScriptableObject
 {
     public List<Item> itemList = new List<Item>();
 
+    //public void InitGrade()
+    //{
+    //    foreach (var item in itemList)
+    //    {
+    //        if (item.type == ItemType.무기 || item.type == ItemType.장신구)
+    //            continue;
+
+    //        item.grade = ItemGrade.일반;
+    //    }
+    //}
+
     //아이템 초기화 함수
     public void InitializeItem(int index)
     {
