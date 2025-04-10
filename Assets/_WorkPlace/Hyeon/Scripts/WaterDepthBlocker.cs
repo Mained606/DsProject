@@ -134,7 +134,7 @@ public class WaterDepthBlocker : MonoBehaviour
             return;
         }
         else
-        {
+        { 
             groundHeight = groundHit.point.y;
             forwardDepth = waterHeight - groundHeight;
             if (forwardDepth >= maxDepth)
