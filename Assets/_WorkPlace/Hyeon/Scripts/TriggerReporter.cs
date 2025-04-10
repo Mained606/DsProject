@@ -11,16 +11,26 @@ public class TriggerReporter : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        waterBlocker?.TriggerEnter(this.gameObject, other);
+        if (other.gameObject.layer == 3)
+        {
+            waterBlocker?.TriggerEnter();
+        }
     }
+            
 
     private void OnTriggerStay(Collider other)
     {
-        waterBlocker?.TriggerStay(this.gameObject, other);
+        if (other.gameObject.layer == 3)
+        {
+            waterBlocker?.TriggerStay();
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        waterBlocker?.TriggerExit(this.gameObject, other);
+        if(other.gameObject.layer == 3)
+        {
+            waterBlocker?.TriggerExit();
+        }
     }
 }

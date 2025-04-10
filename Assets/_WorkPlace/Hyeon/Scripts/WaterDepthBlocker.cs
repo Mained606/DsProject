@@ -24,6 +24,7 @@ public class WaterDepthBlocker : MonoBehaviour
     private RaycastHit groundHit;
     private RaycastHit waterHit;
 
+    [SerializeField] private bool isDrowning = false;
     private float drowningCheckTime = 1f;
     private float timer = 0f;
 
@@ -43,32 +44,30 @@ public class WaterDepthBlocker : MonoBehaviour
         {
             RealDepthCheck();
             DrowningCheck();
-            return;
+            //return;
         }
-
-        UnderTheFeet();
-        if (!player.isGrounded && onWater)
+        else
         {
-            isGroundRayHit = Physics.Raycast(inspectionOrigin, Vector3.down, out groundHit, checkDistance, groundLayer);
-            DiveInToDeep();
+            if (!player.isDeepWater && !isDrowning)
+            {
+                UnderTheFeet();
+                if (!player.isGrounded && onWater)
+                {
+                    isGroundRayHit = Physics.Raycast(inspectionOrigin, Vector3.down, out groundHit, checkDistance, groundLayer);
+                    DiveInToDeep();
+                }
+            }
         }
-        
     }
 
-    public void TriggerEnter(GameObject water, Collider other)
+    public void TriggerEnter()
     {
-        if(other.gameObject.layer == 3)
-        {
-            player.isInWater = true;
-            onWater = true;
-        }
-        
+        player.isInWater = true;
+        onWater = true;
     }
 
-    public void TriggerStay(GameObject water, Collider other)
+    public void TriggerStay()
     {
-        if (other.gameObject.layer != 3) return;
-
         isGroundRayHit = Physics.Raycast(inspectionOrigin, Vector3.down, out groundHit, checkDistance, groundLayer);
         if (isGroundRayHit)
         {
@@ -87,12 +86,10 @@ public class WaterDepthBlocker : MonoBehaviour
         }
     }
 
-    public void TriggerExit(GameObject water, Collider other)
+    public void TriggerExit()
     {
-        if(other.gameObject.layer == 3)
-        {
-            player.isInWater = false;
-        }
+        player.isInWater = false;
+        isDrowning = false;
     }
 
     private void DeepWaterCheckOnWalk()
@@ -128,9 +125,11 @@ public class WaterDepthBlocker : MonoBehaviour
         if (!isGroundRayHit)
         {
             Debug.LogWarning("깊은 물에 다이빙 했습니다. 집으로 강제 이송");
-            player.PlayerRespawn();
+            isDrowning = true;
             forwardDepth = 0f;
             currentDepth = 0f;
+            player.isDeepWater = false;
+            player.PlayerRespawn();
             return;
         }
         else
@@ -176,9 +175,11 @@ public class WaterDepthBlocker : MonoBehaviour
             if (timer >= drowningCheckTime)
             {
                 Debug.LogWarning("물에 빠졌습니다. 강제 구출!");
+                isDrowning = true;
                 player.PlayerRespawn();
                 forwardDepth = 0f;
                 currentDepth = 0f;
+                player.isDeepWater = false;
                 timer = 0f;
                 return;
             }
