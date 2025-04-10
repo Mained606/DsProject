@@ -695,6 +695,7 @@ public class PlayerController : MonoBehaviour
             behaviour.CanJump = false;
             behaviour.CanUseSkill = false;
             behaviour.CanDodge = false;
+            behaviour.CanBlock = false;
             StartCoroutine(Hit());
         }
     }
@@ -755,7 +756,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator Hit()
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.2f);
         //isHit = false;
         if (!playerData.isStunned)
         {
@@ -763,6 +764,7 @@ public class PlayerController : MonoBehaviour
             behaviour.CanAttack = true;
             behaviour.CanJump = true;
             behaviour.CanUseSkill = true;
+            behaviour.CanBlock = true;
             behaviour.CanDodge = true;
         }
     }
@@ -779,41 +781,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    #region ====================글라이딩====================
-    // 글라이딩
-    //private void CanGlidingCheck()
-    //{
-    //    if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, glidableHeight))
-    //    {
-    //        //CanGliding = false;
-    //        Debug.DrawLine(transform.position, hit.point, Color.magenta);
-    //    }
-    //    else
-    //    {
-    //        if (!isGrounded && isFreefall)
-    //        {
-    //            //CanGliding = true;
-    //        }
-    //    }
-    //}
-
-    //private void OnGliding()
-    //{
-    //    if (InputManager.InputActions.actions["Jump"].triggered && CanGliding)
-    //    {
-    //        isGliding = true;
-    //    }
-    //}
-    #endregion
-
-    public void SetVisible(bool isOnOff)
-    {
-        foreach (Transform obj in transform)
-        {
-            obj.gameObject.SetActive(isOnOff);
-        }
-    }
-
     public void PlayerRespawn()
     {
         characterController.enabled = false;
@@ -821,12 +788,6 @@ public class PlayerController : MonoBehaviour
         characterController.enabled = true;
         isDeepWater = false;
         isInWater = false;
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.forward + transform.position);
     }
 }
 

@@ -9003,7 +9003,7 @@ MonoBehaviour:
   glideSpeed: 12
   wings: {fileID: 2430454198518691932}
   dodgeDist: 6.5
-  dodgeDuration: 0.67
+  dodgeDuration: 0.7
   dodgeStaminaAmount: 10
   isCombatState: 0
   isInvincible: 0
