@@ -217,10 +217,6 @@ public class EnhanceUI : MonoBehaviour
         afterTexts[2].text = previewItem.ToStringTMPro();
         afterImage[4].sprite = null;
         afterImage[5].sprite = previewItem.sprite;
-
-        afterTexts[4].text = item.itemSkill.element.ToString();
-        afterPanel.GetComponentInChildren<TextMeshProUGUI>().text = $"Lv. {item.itemSkill.Level}";
-
     }
 
     private bool AreListsEqual(List<Item> a, List<Item> b)
