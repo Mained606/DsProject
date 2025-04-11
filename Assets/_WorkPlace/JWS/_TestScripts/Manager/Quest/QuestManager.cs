@@ -116,10 +116,89 @@ public class QuestManager : BaseManager<QuestManager>
             Debug.Log($"{logPrefix}: 선행 퀘스트 '{quest.prerequisiteQuestId}' 완료 확인됨, 퀘스트 추가 진행.");
         }
         
+        // Meet, Explore 타입 퀘스트 조건에 대한 Transform 등록 시도
+        foreach (var condition in quest.requiredConditions)
+        {
+            string conditionId = condition.Key;
+            QuestCondition questCondition = condition.Value;
+            
+            // Meet 또는 Explore 조건이고 아직 등록되지 않은 경우
+            if ((questCondition.type == QuestConditionType.Meet || 
+                 questCondition.type == QuestConditionType.Explore) &&
+                !questConditionPoint.ContainsKey(conditionId))
+            {
+                // 조건의 targetId를 기반으로 Transform 찾기 시도
+                Transform targetTransform = FindTransformForCondition(questCondition);
+                if (targetTransform != null)
+                {
+                    questConditionPoint[conditionId] = targetTransform;
+                    Debug.Log($"[QuestManager] 퀘스트 '{quest.id}'의 조건 '{conditionId}'에 대한 Transform을 등록했습니다.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[QuestManager] 퀘스트 '{quest.id}'의 조건 '{conditionId}'에 대한 Transform을 찾을 수 없습니다.");
+                }
+            }
+            
+            // 진행 상황 초기화
+            if (!quest.progress.ContainsKey(conditionId))
+            {
+                quest.progress[conditionId] = 0;
+            }
+        }
+        
         // 퀘스트 추가 및 UI 업데이트
         questDatabase.Add(quest);
         UIManager.Instance.QuestUpdate();
         Debug.Log($"{logPrefix}: 퀘스트가 성공적으로 추가되었습니다.");
+    }
+
+    private Transform FindTransformForCondition(QuestCondition condition)
+    {
+        // 조건에 맞는 Transform 찾기
+        switch (condition.type)
+        {
+            case QuestConditionType.Meet:
+                // 1. NPC Database에서 찾기
+                NPCData npcData = npcDatabase.Find(n => n.id == condition.targetId);
+                if (npcData != null && npcData.currentNPC != null)
+                {
+                    return npcData.currentNPC.transform;
+                }
+                
+                // 2. Scene에서 이름으로 찾기
+                GameObject npcObj = GameObject.Find(condition.targetId);
+                if (npcObj != null) return npcObj.transform;
+                
+                // 3. Tag로 찾기
+                GameObject[] npcs = GameObject.FindGameObjectsWithTag("NPC");
+                foreach (var npc in npcs)
+                {
+                    if (npc.name.Contains(condition.targetId))
+                    {
+                        return npc.transform;
+                    }
+                }
+                break;
+                
+            case QuestConditionType.Explore:
+                // 1. 위치 마커로 찾기
+                GameObject locationObj = GameObject.Find(condition.targetId);
+                if (locationObj != null) return locationObj.transform;
+                
+                // 2. 위치 태그로 찾기
+                GameObject[] locations = GameObject.FindGameObjectsWithTag("QuestLocation");
+                foreach (var loc in locations)
+                {
+                    if (loc.name.Contains(condition.targetId))
+                    {
+                        return loc.transform;
+                    }
+                }
+                break;
+        }
+        
+        return null;
     }
 
     public void RemoveQuest(string questId)
@@ -189,25 +268,71 @@ public class QuestManager : BaseManager<QuestManager>
                 continue;
             }
             
-            foreach (var conditionKeyValue in quest.requiredConditions)
+            // Meet 타입의 경우 NPC 데이터 확인 및 Transform 등록
+            if (conditionType == QuestConditionType.Meet && npcData != null)
             {
-                var conditionId = conditionKeyValue.Key;
-                var condition = conditionKeyValue.Value;
-                if (condition.type == conditionType && condition.targetId == targetId)
+                foreach (var conditionKeyValue in quest.requiredConditions)
                 {
-                    if (!quest.progress.ContainsKey(conditionId))
+                    var conditionId = conditionKeyValue.Key;
+                    var condition = conditionKeyValue.Value;
+                    
+                    // NPC ID가 일치하는지 확인
+                    if (condition.type == QuestConditionType.Meet && condition.targetId == targetId)
                     {
-                        quest.progress[conditionId] = 0;
-                    }
-                    quest.progress[conditionId] += quantity;
-                    if (quest.progress[conditionId] >= condition.requiredQuantity)
-                    {
-                        quest.progress[conditionId] = condition.requiredQuantity;
-                        condition.isCompleted = true;
-                        UIManager.SystemGameMessage($"퀘스트 조건 '{condition.targetName}' 완료!", MessageTag.아이템_획득);
+                        // QuestConditionPoint에 NPC 등록 (아직 없는 경우에만)
+                        if (!questConditionPoint.ContainsKey(conditionId))
+                        {
+                            // Transform을 찾을 수 있는 로직 추가 필요
+                            Transform npcTransform = FindNPCTransform(npcData.id);
+                            if (npcTransform != null)
+                            {
+                                questConditionPoint[conditionId] = npcTransform;
+                                Debug.Log($"[QuestManager] NPC '{npcData.name}' (ID: {npcData.id})의 Transform을 퀘스트 조건 '{conditionId}'에 등록했습니다.");
+                            }
+                        }
+                        
+                        // 진행 상황 업데이트
+                        if (!quest.progress.ContainsKey(conditionId))
+                        {
+                            quest.progress[conditionId] = 0;
+                        }
+                        quest.progress[conditionId] += quantity;
+                        
+                        // 완료 조건 체크
+                        if (quest.progress[conditionId] >= condition.requiredQuantity)
+                        {
+                            quest.progress[conditionId] = condition.requiredQuantity;
+                            condition.isCompleted = true;
+                            UIManager.SystemGameMessage($"퀘스트 조건 '{condition.targetName}' 완료!", MessageTag.아이템_획득);
+                        }
                     }
                 }
             }
+            else
+            {
+                // 일반적인 다른 타입 처리 (Kill, Explore 등)
+                foreach (var conditionKeyValue in quest.requiredConditions)
+                {
+                    var conditionId = conditionKeyValue.Key;
+                    var condition = conditionKeyValue.Value;
+                    if (condition.type == conditionType && condition.targetId == targetId)
+                    {
+                        if (!quest.progress.ContainsKey(conditionId))
+                        {
+                            quest.progress[conditionId] = 0;
+                        }
+                        quest.progress[conditionId] += quantity;
+                        if (quest.progress[conditionId] >= condition.requiredQuantity)
+                        {
+                            quest.progress[conditionId] = condition.requiredQuantity;
+                            condition.isCompleted = true;
+                            UIManager.SystemGameMessage($"퀘스트 조건 '{condition.targetName}' 완료!", MessageTag.아이템_획득);
+                        }
+                    }
+                }
+            }
+            
+            // 퀘스트 완료 여부 체크
             if (IsQuestCompleted(quest))
             {
                 quest.isCompleted = true;
@@ -490,5 +615,40 @@ public class QuestManager : BaseManager<QuestManager>
                 MainQuestSequenceStart(currentMainQuestIndex);
                 break;
         }
+    }
+
+    private Transform FindNPCTransform(string npcId)
+    {
+        // NPC Database에서 해당 ID의 NPC 찾기
+        NPCData npcData = npcDatabase.Find(n => n.id == npcId);
+        
+        // NPC 데이터가 있고 GameObject가 활성화되어 있으면 Transform 반환
+        if (npcData != null && npcData.currentNPC != null)
+        {
+            return npcData.currentNPC.transform;
+        }
+        
+        // Scene에서 NPC GameObject 찾기 (ID로 이름이 지정된 경우)
+        GameObject npcObject = GameObject.Find(npcId);
+        if (npcObject != null)
+        {
+            return npcObject.transform;
+        }
+        
+        // 태그로 모든 NPC 찾기 및 일치하는지 확인
+        GameObject[] npcObjects = GameObject.FindGameObjectsWithTag("NPC");
+        foreach (var obj in npcObjects)
+        {
+            // 오브젝트의 이름이나 ID 비교 (스크립트 구현에 따라 수정 필요)
+            if (obj.name.Contains(npcId))
+            {
+                return obj.transform;
+            }
+            
+            // 직접적인 ID 비교 방법이 없기 때문에 간단히 이름으로 비교
+        }
+        
+        Debug.LogWarning($"[QuestManager] NPC ID: {npcId}에 해당하는 Transform을 찾을 수 없습니다.");
+        return null;
     }
 }

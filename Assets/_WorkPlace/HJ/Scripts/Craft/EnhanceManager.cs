@@ -71,6 +71,9 @@ public class EnhanceManager : BaseManager<EnhanceManager>
         item.itemSkill.ApplyItemStat(item, item.itemSkill.ApplyPower(item), 1);
         item.itemSkill.Level++;
 
+        // 아이템 강화 성공 시 퀘스트 진행 상태 업데이트
+        QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Collect, item.id, 0);
+
         Debug.Log($"강화 성공\n아이템 레벨: {item.itemSkill.Level}");
     }
 
@@ -78,6 +81,9 @@ public class EnhanceManager : BaseManager<EnhanceManager>
     {
         item.itemSkill.Level--;
         item.itemSkill.ApplyItemStat(item, item.itemSkill.ApplyPower(item), -1);
+
+        // 아이템 다운그레이드 시 퀘스트 진행 상태 업데이트
+        QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Collect, item.id, 0);
 
         Debug.Log($"강화 실패, 다운그레이드\n아이템 레벨: {item.itemSkill.Level}");
     }
@@ -89,7 +95,12 @@ public class EnhanceManager : BaseManager<EnhanceManager>
             ItemEffectManager.Instance.UnequipmentEffect(item);
         }
 
+        string itemId = item.id; // 아이템 ID 저장 (제거 전)
+
         ItemManager.Instance.RemoveItemLogic(item.id);
+
+        // 아이템 파괴 시 퀘스트 진행 상태 업데이트
+        QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Collect, itemId, 0);
 
         Debug.Log("강화 실패, 아이템 파괴");
     }

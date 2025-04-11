@@ -168,7 +168,7 @@ public class GenerateData
                 new List<Reward>
                 {
                     // new Reward("스킬(FireStrike)", 1, 30, 0),
-                    new Reward("낡은검", 1, 0, 0),
+                    new Reward("수련용검_일반", 1, 0, 0),
                     new Reward("완드", 1, 0, 0),
                 }, true),
 
@@ -328,13 +328,13 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("강화석 조각", 5, 0, 50)}, true),
 
-            new Quest("서브퀘스트", "1_2002", "모험가의 길","대장장이가 하는 일이 궁금한가?",
+            new Quest("서브퀘스트", "1_2002", "모험가의 길","무기 강화 성공하기!",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"대장장이_002_collect", new QuestCondition(QuestConditionType.Collect, "양손검_불", "무기 강화 성공!", 1, 3) },
+                    {"대장장이_002_collect", new QuestCondition(QuestConditionType.Collect, "수련용검_일반", "수련용검 무기를 강화하여 수련용검+3", 1, 3) },
                     {"대장장이_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_1", "대장장이에게 말을 걸자",1) }
                 },
-                new List<Reward>{new Reward("강화석", 1, 50, 50)}, false, "1_2001"),
+                new List<Reward>{new Reward("강화석", 1, 50, 50)}, true, "1_2001"),
 
             new Quest("서브퀘스트", "1_2003", "모험가의 길","요리 방법이 궁금하다고?",
                 new Dictionary<string, QuestCondition>

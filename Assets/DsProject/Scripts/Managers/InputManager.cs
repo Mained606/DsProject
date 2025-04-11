@@ -32,7 +32,7 @@ public class InputManager : BaseManager<InputManager>
     {
         if (Input.GetKeyDown(KeyCode.F8))
         {
-            var itemsToAdd = new[] {"양손검_물","양손검_불", "야채스프" };
+            var itemsToAdd = new[] {"수련용검_일반","수련용검_물","한손검_불", "야채스프" };
             foreach (var item in itemsToAdd) ItemManager.Instance.AddItemLogic(item);
 
             ItemManager.Instance.AddItemLogic("버섯",10);
