@@ -217,6 +217,16 @@ public class EnhanceUI : MonoBehaviour
         afterTexts[2].text = previewItem.ToStringTMPro();
         afterImage[4].sprite = null;
         afterImage[5].sprite = previewItem.sprite;
+
+        ElementalAttribute previewAttr = previewItem.itemSkill.element;
+        Addressables.LoadAssetAsync<Sprite>(previewAttr.ToString()).Completed += (handle) =>
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                afterImage[4].sprite = handle.Result;
+                afterImage[4].gameObject.SetActive(true);
+            }
+        };
     }
 
     private bool AreListsEqual(List<Item> a, List<Item> b)
