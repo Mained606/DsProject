@@ -331,7 +331,7 @@ public class GenerateData
             new Quest("서브퀘스트", "1_2002", "모험가의 길","대장장이가 하는 일이 궁금한가?",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"대장장이_002_collect", new QuestCondition(QuestConditionType.Collect, "낡은검", "무기 강화 성공!",1) },
+                    {"대장장이_002_collect", new QuestCondition(QuestConditionType.Collect, "양손검_불", "무기 강화 성공!", 1, 3) },
                     {"대장장이_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_1", "대장장이에게 말을 걸자",1) }
                 },
                 new List<Reward>{new Reward("강화석", 1, 50, 50)}, false, "1_2001"),

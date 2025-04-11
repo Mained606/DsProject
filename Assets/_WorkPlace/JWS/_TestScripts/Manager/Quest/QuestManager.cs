@@ -216,7 +216,6 @@ public class QuestManager : BaseManager<QuestManager>
             }
         }
     }
-
     public bool IsQuestCompleted(Quest quest)
     {
         foreach (var condition in quest.requiredConditions)
@@ -227,7 +226,18 @@ public class QuestManager : BaseManager<QuestManager>
             // Collect 타입인 경우, 인벤토리의 실제 아이템 수량을 확인하여 검증
             if (questCondition.type == QuestConditionType.Collect)
             {
-                int actualItemQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
+                int actualItemQuantity;
+                
+                // 강화 레벨 체크가 필요한 경우
+                if (questCondition.requiredLevel > 0)
+                {
+                    actualItemQuantity = InventoryManager.Instance.GetItemQuantityWithLevel(questCondition.targetId, questCondition.requiredLevel);
+                }
+                else
+                {
+                    actualItemQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
+                }
+                
                 if (actualItemQuantity < questCondition.requiredQuantity)
                 {
                     return false;
