@@ -453,11 +453,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 976838497736577817, guid: 315e7df41126be948b9e607d89d92283, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2791321704575390372, guid: 315e7df41126be948b9e607d89d92283, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3295275959336066301, guid: 315e7df41126be948b9e607d89d92283, type: 3}
       propertyPath: m_Name
@@ -526,6 +526,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 9046420063600569267}
     m_Modifications:
+    - target: {fileID: 1370701341718876317, guid: f6fb936e86a069149bbf1be80b76083d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2903649481278200852, guid: f6fb936e86a069149bbf1be80b76083d, type: 3}
       propertyPath: m_Name
       value: "==================== \uAC70\uB300\uD55C \uC232 \uC874"

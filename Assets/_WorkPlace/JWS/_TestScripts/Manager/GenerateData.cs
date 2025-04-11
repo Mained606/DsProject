@@ -371,7 +371,7 @@ public class GenerateData
                     {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "벨라의 그림책", "그림책을 찾자",1) },
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_5", "벨라에게 그림책을 가져다주자.",1) }
                 },
-                new List<Reward>{new Reward("버섯스프", 1, 50,0)}, true),
+                new List<Reward>{new Reward("야채스프", 1, 50,0)}, true),
 
             new Quest("서브퀘스트", "1_2007", "친절한 용사","골렘을 잡아줘!",
                 new Dictionary<string, QuestCondition>
