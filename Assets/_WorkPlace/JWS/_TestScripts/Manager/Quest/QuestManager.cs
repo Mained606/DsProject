@@ -124,11 +124,26 @@ public class QuestManager : BaseManager<QuestManager>
 
     public Quest GetQuestById(string questId)
     {
-        Quest quest = questDatabase.Find(q => q.id == questId);
+        // 먼저 메인 퀘스트 데이터베이스에서 찾기
+        Quest quest = mainQuestDatabase.Find(q => q.id == questId);
+        
+        // 없으면 서브 퀘스트 데이터베이스에서 찾기
+        if (quest == null)
+        {
+            quest = subQuestDatabase.Find(q => q.id == questId);
+        }
+        
+        // 없으면 전체 퀘스트 데이터베이스에서 찾기
+        if (quest == null)
+        {
+            quest = questDatabase.Find(q => q.id == questId);
+        }
+        
         if (quest == null)
         {
             Debug.LogWarning($"[QuestManager] ID: {questId} 퀘스트를 찾을 수 없습니다.");
         }
+        
         return quest;
     }
 
@@ -291,10 +306,7 @@ public class QuestManager : BaseManager<QuestManager>
                 GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);
             }
         }
-        if (quest.questType != "메인퀘스트")
-        {
-            quest.isCompleted = false;
-        }
+        // 서브퀘스트도 완료 상태를 유지하도록 수정
         UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 보상이 지급되었습니다.", MessageTag.퀘스트);
         
         // 퀘스트 보상 처리 (스킬 언락, 오브젝트 활성화 등)

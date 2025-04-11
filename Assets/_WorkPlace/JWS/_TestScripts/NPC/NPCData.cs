@@ -34,6 +34,7 @@ public class NPCData : ISheetData
 
     public bool isShop;
     public bool isQuestGiver;
+    public bool isQuestActivator;
     public int reputationRequirement;
 
     public NPCData Clone(bool deep)
@@ -54,6 +55,7 @@ public class NPCData : ISheetData
         clone.activeTime = activeTime;
         clone.isShop = isShop;
         clone.isQuestGiver = isQuestGiver;
+        clone.isQuestActivator = isQuestActivator;
         clone.reputationRequirement = reputationRequirement;
         clone.shopData = shopData;
 
@@ -123,14 +125,15 @@ public class NPCData : ISheetData
         // 상점 여부, 퀘스트 제공 여부
         isShop = bool.TryParse(row[12].ToString(), out bool shop) ? shop : false;
         isQuestGiver = bool.TryParse(row[13].ToString(), out bool questGiver) ? questGiver : false;
-        reputationRequirement = int.TryParse(row[14].ToString(), out int rep) ? rep : 0;
+        isQuestActivator = bool.TryParse(row[14].ToString(), out bool questActivator) ? questActivator : false;
+        reputationRequirement = int.TryParse(row[15].ToString(), out int rep) ? rep : 0;
 
         // 대화 내용 (쉼표로 구분된 배열)
-        dialogue = row[15].ToString().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-        conditionalDialogue = row[16].ToString().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+        dialogue = row[16].ToString().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+        conditionalDialogue = row[17].ToString().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
         // 퀘스트 목록 (쉼표로 구분된 ID 리스트)
-        string[] questIds = row[17].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] questIds = row[18].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         quests = new Quest[questIds.Length];
         for (int i = 0; i < questIds.Length; i++)
         {
@@ -138,7 +141,7 @@ public class NPCData : ISheetData
         }
 
         // 아이템 목록 (쉼표로 구분된 ID 리스트)
-        string[] itemIds = row[18].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] itemIds = row[19].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         items = new Item[itemIds.Length];
         for (int i = 0; i < itemIds.Length; i++)
         {
@@ -149,7 +152,7 @@ public class NPCData : ISheetData
         shopData = new ShopData();
 
         // 오디오 (쉼표로 구분된 파일 이름 -> Resources 폴더에서 로드)
-        string[] voiceFiles = row[19].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] voiceFiles = row[20].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         voiceLines = new AudioClip[voiceFiles.Length];
         for (int i = 0; i < voiceFiles.Length; i++)
         {
@@ -157,7 +160,7 @@ public class NPCData : ISheetData
         }
 
         // 이펙트 (Resources에서 로드)
-        string effectName = row[20].ToString();
+        string effectName = row[21].ToString();
         if (!string.IsNullOrEmpty(effectName))
         {
             interactionEffect = Resources.Load<ParticleSystem>($"Effects/NPC/{effectName}");
