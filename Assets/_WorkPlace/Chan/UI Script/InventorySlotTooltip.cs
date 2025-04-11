@@ -87,7 +87,7 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
         {
             InventorytooltipWindow.SetActive(true);
             ItemImage.sprite = currentItem.sprite;
-            textPoint[1].text = currentItem.name;
+            textPoint[1].text = currentItem.id;
             textPoint[2].text = currentItem.ToStringTMPro();
         }
 
