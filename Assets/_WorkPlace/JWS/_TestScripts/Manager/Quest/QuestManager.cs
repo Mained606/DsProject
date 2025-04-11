@@ -30,6 +30,7 @@ public class QuestManager : BaseManager<QuestManager>
     public static int CurrentMainQuestIndex => Instance.currentMainQuestIndex;
 
     [SerializeField] private GameObject dragon;
+    [SerializeField] private GameObject dragonEgg;
     private PlayerController player;
 
 
@@ -216,7 +217,7 @@ public class QuestManager : BaseManager<QuestManager>
         }
     }
 
-    private bool IsQuestCompleted(Quest quest)
+    public bool IsQuestCompleted(Quest quest)
     {
         foreach (var condition in quest.requiredConditions)
         {
@@ -334,6 +335,11 @@ public class QuestManager : BaseManager<QuestManager>
         Debug.Log($"[QuestManager] 퀘스트 {questId} 보상 처리 중...");
         
         // 특정 퀘스트 ID에 따른 보상 처리
+        if(questId == "1_1002")
+        {
+            ActivateDragonEgg();
+        }
+
         if (questId == "1_1004")
         {
             // 1. FireStrike 스킬 언락
@@ -389,6 +395,14 @@ public class QuestManager : BaseManager<QuestManager>
         }
     }
 
+    private void ActivateDragonEgg()
+    {
+        if(dragonEgg != null)
+        {
+            dragonEgg.SetActive(true);
+        }
+    }
+
     private void ActivateDragon()
     {
         if(dragon != null)
@@ -396,6 +410,8 @@ public class QuestManager : BaseManager<QuestManager>
             dragon.SetActive(true);
         }
     }
+
+
 
     public Quest GenerateQuests()
     {
