@@ -269,6 +269,13 @@ public class DialogUI : MonoBehaviour
         // 한 글자씩 텍스트 표시
         foreach (char c in message)
         {
+            // 250411 SH 추가 ====================
+            if (InputManager.InputActions.actions["Attack"].IsPressed())    // 현재 대화 빠르게 넘기기
+            {
+                subDisplay[1].text = message;
+                break;
+            }
+            // 250411 SH 추가 ====================
             subDisplay[1].text += c;
             yield return new WaitForSeconds(delay);
         }
