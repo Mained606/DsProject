@@ -242,4 +242,30 @@ public class InventoryManager : BaseManager<InventoryManager>
     {
 
     }
+
+    /// <summary>
+    /// 특정 ID와 강화 레벨을 가진 아이템의 수량을 반환합니다.
+    /// </summary>
+    /// <param name="itemId">확인할 아이템 ID</param>
+    /// <param name="requiredLevel">필요한 강화 레벨</param>
+    /// <returns>해당 ID와 강화 레벨을 가진 아이템의 수량</returns>
+    public int GetItemQuantityWithLevel(string itemId, int requiredLevel)
+    {
+        int count = 0;
+        
+        // 인벤토리 내에서 해당 ID를 가진 아이템을 찾아 강화 레벨을 확인
+        foreach (var item in inventory)
+        {
+            if (item != null && item.id == itemId)
+            {
+                // 아이템의 강화 레벨 확인
+                if (item.itemSkill != null && item.itemSkill.Level >= requiredLevel)
+                {
+                    count += item.quantity;
+                }
+            }
+        }
+        
+        return count;
+    }
 }

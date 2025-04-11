@@ -103,6 +103,19 @@ public class QuestManager : BaseManager<QuestManager>
             return;
         }
         
+        // 서브 퀘스트 선행 조건 체크
+        if (quest.questType == "서브퀘스트" && !string.IsNullOrEmpty(quest.prerequisiteQuestId))
+        {
+            bool prerequisiteCompleted = completedQuests.Exists(q => q.id == quest.prerequisiteQuestId);
+            if (!prerequisiteCompleted)
+            {
+                Debug.Log($"{logPrefix}: 선행 퀘스트 '{quest.prerequisiteQuestId}'를 완료해야 합니다.");
+                GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"퀘스트 '{quest.id}'를 수락하려면 먼저 퀘스트 '{quest.prerequisiteQuestId}'를 완료해야 합니다.");
+                return;
+            }
+            Debug.Log($"{logPrefix}: 선행 퀘스트 '{quest.prerequisiteQuestId}' 완료 확인됨, 퀘스트 추가 진행.");
+        }
+        
         // 퀘스트 추가 및 UI 업데이트
         questDatabase.Add(quest);
         UIManager.Instance.QuestUpdate();
@@ -203,7 +216,6 @@ public class QuestManager : BaseManager<QuestManager>
             }
         }
     }
-
     public bool IsQuestCompleted(Quest quest)
     {
         foreach (var condition in quest.requiredConditions)
@@ -214,7 +226,18 @@ public class QuestManager : BaseManager<QuestManager>
             // Collect 타입인 경우, 인벤토리의 실제 아이템 수량을 확인하여 검증
             if (questCondition.type == QuestConditionType.Collect)
             {
-                int actualItemQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
+                int actualItemQuantity;
+                
+                // 강화 레벨 체크가 필요한 경우
+                if (questCondition.requiredLevel > 0)
+                {
+                    actualItemQuantity = InventoryManager.Instance.GetItemQuantityWithLevel(questCondition.targetId, questCondition.requiredLevel);
+                }
+                else
+                {
+                    actualItemQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
+                }
+                
                 if (actualItemQuantity < questCondition.requiredQuantity)
                 {
                     return false;
