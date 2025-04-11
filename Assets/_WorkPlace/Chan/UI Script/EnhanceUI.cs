@@ -192,7 +192,7 @@ public class EnhanceUI : MonoBehaviour
         var currentTexts = currentPanel.GetComponentsInChildren<TextMeshProUGUI>();
         var currentImage = currentPanel.GetComponentsInChildren<Image>();
         currentTexts[0].text = item.id;
-        currentTexts[1].text = $"Lv. {item.itemSkill.Level}";
+        currentTexts[1].text = $"+{item.itemSkill.Level}";
         currentTexts[2].text = item.ToStringTMPro();
         currentImage[4].sprite = null;
         currentImage[5].sprite = item.sprite;
@@ -207,29 +207,20 @@ public class EnhanceUI : MonoBehaviour
                 currentImage[4].gameObject.SetActive(true);
             }
         };
-
         // 프리뷰 아이템 생성 (강화된 아이템 정보)
         Item previewItem = EnhanceManager.Instance.PreviewEnhance(item);
 
         var afterTexts = afterPanel.GetComponentsInChildren<TextMeshProUGUI>();
         var afterImage = afterPanel.GetComponentsInChildren<Image>();
         afterTexts[0].text = previewItem.id;
-        afterTexts[1].text = $"Lv. {item.itemSkill.Level}";
+        afterTexts[1].text = $"+{previewItem.itemSkill.Level}";
         afterTexts[2].text = previewItem.ToStringTMPro();
         afterImage[4].sprite = null;
         afterImage[5].sprite = previewItem.sprite;
 
+        afterTexts[4].text = item.itemSkill.element.ToString();
+        afterPanel.GetComponentInChildren<TextMeshProUGUI>().text = $"Lv. {item.itemSkill.Level}";
 
-        // 속성 아이콘 - After Panel
-        ElementalAttribute previewAttr = previewItem.itemSkill.element;
-        Addressables.LoadAssetAsync<Sprite>(previewAttr.ToString()).Completed += (handle) =>
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                afterImage[4].sprite = handle.Result;
-                afterImage[4].gameObject.SetActive(true);
-            }
-        };
     }
 
     private bool AreListsEqual(List<Item> a, List<Item> b)
