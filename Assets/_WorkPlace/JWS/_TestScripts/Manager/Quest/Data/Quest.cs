@@ -20,6 +20,9 @@ public class Quest :ISheetData
     [Header("퀘스트 상태정보")]
     public bool isCompleted;
     public bool needsDialog; // 퀘스트 완료 시 대화가 필요한지 여부
+    
+    [Header("선행 조건")]
+    public string prerequisiteQuestId; // 이 퀘스트를 수락하기 위해 먼저 완료해야 하는 퀘스트 ID
 
     public Dictionary<string, QuestCondition> requiredConditions; // 퀘스트 조건
     public Dictionary<string, int> progress; // 진행 상태
@@ -28,7 +31,7 @@ public class Quest :ISheetData
 
     public Quest() { }
 
-    public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards, bool needsDialog = false)
+    public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards, bool needsDialog = false, string prerequisiteQuestId = "")
     {
         this.id = id;
         this.questType = type;
@@ -45,6 +48,7 @@ public class Quest :ISheetData
         }
         questNpcTransform = null;
         this.needsDialog = needsDialog;
+        this.prerequisiteQuestId = prerequisiteQuestId;
     }
 
     public void CheckQuestCondition()
@@ -59,18 +63,38 @@ public class Quest :ISheetData
             switch (questCondition.type)
             {
                 case QuestConditionType.Collect:
-                    int currentQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
-                    progress[keyWord] = currentQuantity;
-                    
-                    // 중요: 인벤토리의 실제 수량이 요구 수량 이상일 경우에만 완료로 표시
-                    if (currentQuantity >= questCondition.requiredQuantity)
+                    // 강화 레벨 체크가 필요한 경우
+                    if (questCondition.requiredLevel > 0)
                     {
-                        questCondition.isCompleted = true;
+                        // 해당 아이템의 강화 레벨을 확인하는 메서드 호출
+                        int currentQuantity = InventoryManager.Instance.GetItemQuantityWithLevel(questCondition.targetId, questCondition.requiredLevel);
+                        progress[keyWord] = currentQuantity;
+                        
+                        if (currentQuantity >= questCondition.requiredQuantity)
+                        {
+                            questCondition.isCompleted = true;
+                        }
+                        else
+                        {
+                            questCondition.isCompleted = false;
+                        }
                     }
                     else
                     {
-                        questCondition.isCompleted = false;
-                        //allConditionsMet = false;
+                        // 기존 로직: 아이템 수량만 체크
+                        int currentQuantity = InventoryManager.Instance.GetItemQuantity(questCondition.targetId);
+                        progress[keyWord] = currentQuantity;
+                        
+                        // 중요: 인벤토리의 실제 수량이 요구 수량 이상일 경우에만 완료로 표시
+                        if (currentQuantity >= questCondition.requiredQuantity)
+                        {
+                            questCondition.isCompleted = true;
+                        }
+                        else
+                        {
+                            questCondition.isCompleted = false;
+                            //allConditionsMet = false;
+                        }
                     }
                     break;
             }
@@ -89,7 +113,8 @@ public class Quest :ISheetData
         foreach (var condition in requiredConditions)
         {
             int currentProgress = progress.ContainsKey(condition.Key) ? progress[condition.Key] : 0;
-            detailedText.AppendLine($"  <color=#00FF00>{condition.Key}</color>: {currentProgress}/{condition.Value.requiredQuantity}");
+            string levelInfo = condition.Value.requiredLevel > 0 ? $" (레벨 {condition.Value.requiredLevel}+)" : "";
+            detailedText.AppendLine($"  <color=#00FF00>{condition.Value.targetName}{levelInfo}</color>: {currentProgress}/{condition.Value.requiredQuantity}");
         }
         detailedText.AppendLine($"");
         detailedText.AppendLine("<color=green>보 상:</color>");
@@ -123,7 +148,8 @@ public class Quest :ISheetData
         {
             var firstCondition = requiredConditions.First();
             int currentProgress = progress.ContainsKey(firstCondition.Key) ? progress[firstCondition.Key] : 0;
-            listText.AppendLine($"<i><color=#FFFFFF>{truncatedDescription}</color></i> <color=#FFFF00>({currentProgress}/{firstCondition.Value.requiredQuantity})</color>");
+            string levelInfo = firstCondition.Value.requiredLevel > 0 ? $" (레벨 {firstCondition.Value.requiredLevel}+)" : "";
+            listText.AppendLine($"<i><color=#FFFFFF>{truncatedDescription}</color></i> <color=#FFFF00>({currentProgress}/{firstCondition.Value.requiredQuantity}){levelInfo}</color>");
         }
         else
         {
@@ -221,16 +247,18 @@ public class QuestCondition
     public string targetId;         // 목표 ID (예: 몬스터 ID, 지역 ID, NPC ID)
     public string targetName;       // 목표 이름 (예: 몬스터 이름, 지역 이름, NPC 이름)
     public int requiredQuantity;    // 요구 수량 (예: 처치 수, 수집 수)
+    public int requiredLevel;       // 요구 강화 레벨 (아이템 강화 레벨)
     public bool isCompleted;        // 해당 조건 완료 여부
 
     public QuestCondition() { }
 
-    public QuestCondition(QuestConditionType type, string targetId, string targetName, int requiredQuantity)
+    public QuestCondition(QuestConditionType type, string targetId, string targetName, int requiredQuantity, int requiredLevel = 0)
     {
         this.type = type;
         this.targetId = targetId;
         this.targetName = targetName;
         this.requiredQuantity = requiredQuantity;
+        this.requiredLevel = requiredLevel;
         this.isCompleted = false;
     }
 
@@ -244,6 +272,10 @@ public class QuestCondition
         targetId = data[1];
         targetName = data[2];
         requiredQuantity = int.TryParse(data[3], out int qty) ? qty : 1;
+        
+        // 강화 레벨 데이터가 있으면 파싱
+        requiredLevel = data.Length > 4 && int.TryParse(data[4], out int level) ? level : 0;
+        
         isCompleted = false;
     }
 }
