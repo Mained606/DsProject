@@ -198,6 +198,12 @@ public class QuestUI : MonoBehaviour
         commentText[5].text = $"의뢰인 : {giver}";
         commentText[6].text = quest.description;
 
+        // 기존 조건 텍스트 비활성화
+        foreach (TextMeshProUGUI condText in conditionDisplayText)
+        {
+            if (condText != null) condText.gameObject.SetActive(false);
+        }
+
         int conditionCount = 0;
         foreach (var condition in quest.requiredConditions)
         {
@@ -215,20 +221,56 @@ public class QuestUI : MonoBehaviour
             switch (condition.Value.type)
             {
                 case QuestConditionType.Collect:
+                    // 진행 상황이 있는지 확인
+                    if (!quest.progress.ContainsKey(keyWord))
+                    {
+                        quest.progress[keyWord] = 0;
+                    }
                     conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 <color=green>{condition.Value.requiredQuantity}</color>개 모으기   ({quest.progress[keyWord]} / {condition.Value.requiredQuantity})";
                     break;
                 case QuestConditionType.Meet:
-                    distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord).position);
-                    conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 찾아가기   {distance}";
+                    // Transform이 없는 경우 처리
+                    Transform meetTransform = QuestManager.GetQuestConditionPoint(keyWord);
+                    if (meetTransform != null)
+                    {
+                        distance = Vector3.Distance(GameManager.playerTransform.position, meetTransform.position);
+                        conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 찾아가기   {distance:F1}m";
+                    }
+                    else
+                    {
+                        conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 찾아가기";
+                    }
                     break;
                 case QuestConditionType.Kill:
+                    // 진행 상황이 없는 경우 초기화
+                    if (!quest.progress.ContainsKey(keyWord))
+                    {
+                        quest.progress[keyWord] = 0;
+                    }
                     conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 <color=green>{condition.Value.requiredQuantity}</color> 마리 처치하세요   ({quest.progress[keyWord]} / {condition.Value.requiredQuantity})";
+                    
+                    // Transform이 있는 경우에만 거리 표시
+                    Transform killTransform = QuestManager.GetQuestConditionPoint(keyWord);
+                    if (killTransform != null)
+                    {
+                        float killDistance = Vector3.Distance(GameManager.playerTransform.position, killTransform.position);
+                        string killColor = QuestManager.GetDistanceColor(killDistance);
+                        conditionDisplayText[conditionCount].text += $"  <color={killColor}>{killDistance:F1}m</color>";
+                    }
                     break;
                 case QuestConditionType.Explore:
-                    distance = Vector3.Distance(GameManager.playerTransform.position, QuestManager.GetQuestConditionPoint(keyWord).position);
-                    string color = QuestManager.GetDistanceColor(distance);
-                    string distanceColor = $" <color={color}>{distance:F1}m</color>";
-                    conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 찾아가기     {distanceColor}";
+                    Transform exploreTransform = QuestManager.GetQuestConditionPoint(keyWord);
+                    if (exploreTransform != null)
+                    {
+                        distance = Vector3.Distance(GameManager.playerTransform.position, exploreTransform.position);
+                        string color = QuestManager.GetDistanceColor(distance);
+                        string distanceColor = $" <color={color}>{distance:F1}m</color>";
+                        conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 찾아가기     {distanceColor}";
+                    }
+                    else
+                    {
+                        conditionDisplayText[conditionCount].text = $" {status}   {condition.Value.targetName}를 찾아가기";
+                    }
                     break;
             }
             conditionCount++;
