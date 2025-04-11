@@ -102,6 +102,19 @@ public class QuestManager : BaseManager<QuestManager>
             return;
         }
         
+        // 서브 퀘스트 선행 조건 체크
+        if (quest.questType == "서브퀘스트" && !string.IsNullOrEmpty(quest.prerequisiteQuestId))
+        {
+            bool prerequisiteCompleted = completedQuests.Exists(q => q.id == quest.prerequisiteQuestId);
+            if (!prerequisiteCompleted)
+            {
+                Debug.Log($"{logPrefix}: 선행 퀘스트 '{quest.prerequisiteQuestId}'를 완료해야 합니다.");
+                GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, $"퀘스트 '{quest.id}'를 수락하려면 먼저 퀘스트 '{quest.prerequisiteQuestId}'를 완료해야 합니다.");
+                return;
+            }
+            Debug.Log($"{logPrefix}: 선행 퀘스트 '{quest.prerequisiteQuestId}' 완료 확인됨, 퀘스트 추가 진행.");
+        }
+        
         // 퀘스트 추가 및 UI 업데이트
         questDatabase.Add(quest);
         UIManager.Instance.QuestUpdate();

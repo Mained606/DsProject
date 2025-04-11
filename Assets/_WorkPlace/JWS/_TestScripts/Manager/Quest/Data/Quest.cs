@@ -20,6 +20,9 @@ public class Quest :ISheetData
     [Header("퀘스트 상태정보")]
     public bool isCompleted;
     public bool needsDialog; // 퀘스트 완료 시 대화가 필요한지 여부
+    
+    [Header("선행 조건")]
+    public string prerequisiteQuestId; // 이 퀘스트를 수락하기 위해 먼저 완료해야 하는 퀘스트 ID
 
     public Dictionary<string, QuestCondition> requiredConditions; // 퀘스트 조건
     public Dictionary<string, int> progress; // 진행 상태
@@ -28,7 +31,7 @@ public class Quest :ISheetData
 
     public Quest() { }
 
-    public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards, bool needsDialog = false)
+    public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards, bool needsDialog = false, string prerequisiteQuestId = "")
     {
         this.id = id;
         this.questType = type;
@@ -45,6 +48,7 @@ public class Quest :ISheetData
         }
         questNpcTransform = null;
         this.needsDialog = needsDialog;
+        this.prerequisiteQuestId = prerequisiteQuestId;
     }
 
     public void CheckQuestCondition()
