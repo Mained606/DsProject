@@ -110769,6 +110769,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
+      propertyPath: subQuestId
+      value: 1_2002
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994229426578870265, guid: 4f3f54ca0e9108f40851aab481c76c33, type: 3}
       propertyPath: isSubQuestNpc
       value: 1
       objectReference: {fileID: 0}
