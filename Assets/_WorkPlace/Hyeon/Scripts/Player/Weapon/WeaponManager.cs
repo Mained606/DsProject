@@ -120,7 +120,11 @@ public class WeaponManager : MonoBehaviour
         Wand_Basic,
         Simple_Axe_Variant,
         Sword1_1_3,
-        MoonSword_6b
+        MoonSword_6b,
+        Sword_Fire,
+        Sword_Water,
+        Sword_Electric,
+        Sword_Earth
     }
 
     private enum WeaponName
@@ -130,7 +134,11 @@ public class WeaponManager : MonoBehaviour
         나무완드,
         도끼,
         낡은검,
-        양손검
+        양손검,
+        양손검_불,
+        양손검_물,
+        양손검_전기,
+        양손검_땅
     }
 }
 
