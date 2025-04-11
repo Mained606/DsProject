@@ -32,15 +32,15 @@ public class InputManager : BaseManager<InputManager>
     {
         if (Input.GetKeyDown(KeyCode.F8))
         {
-            var itemsToAdd = new[] { "완드", "나뭇가지", "나무완드", "도끼", "낡은검", "양손검" };
+            var itemsToAdd = new[] {"양손검_물","양손검_불" };
             foreach (var item in itemsToAdd) ItemManager.Instance.AddItemLogic(item);
 
             ItemManager.Instance.AddItemLogic("버섯",10);
             ItemManager.Instance.AddItemLogic("비트", 10);
             ItemManager.Instance.AddItemLogic("무", 10);
             ItemManager.Instance.AddItemLogic("강화석", 10);
-            ItemManager.Instance.AddItemLogic("소형 체력포션", 5);
-            ItemManager.Instance.AddItemLogic("소형 마나포션", 5);
+            ItemManager.Instance.AddItemLogic("체력물약(소)", 5);
+            ItemManager.Instance.AddItemLogic("마나물약(소)", 5);
         }
     }
 
