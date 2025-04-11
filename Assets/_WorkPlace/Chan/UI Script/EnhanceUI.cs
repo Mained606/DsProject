@@ -45,6 +45,7 @@ public class EnhanceUI : MonoBehaviour
     {
         AddButtonListeners();
         LoadTargetItems();
+        ClearEnhanceSlot();
         UpdateEnhanceStoneUI();
     }
 
@@ -161,6 +162,9 @@ public class EnhanceUI : MonoBehaviour
         selectedItem = null;
         enhanceSlotImage.sprite = null;
         enhanceSlotImage.enabled = false;
+        Color color = enhanceSlotImage.color;
+        color.a = 0f;
+        enhanceSlotImage.color = color;
 
         if (currentPanel != null) Destroy(currentPanel);
         if (afterPanel != null) Destroy(afterPanel);
@@ -171,9 +175,13 @@ public class EnhanceUI : MonoBehaviour
     selectedItem = item;
     enhanceSlotImage.sprite = item.sprite;
     enhanceSlotImage.enabled = true;
+    Color color = enhanceSlotImage.color;
+    color.a = 1f;
+    enhanceSlotImage.color = color;
 
-    // 기존 패널 삭제
-    if (currentPanel != null) Destroy(currentPanel);
+
+        // 기존 패널 삭제
+        if (currentPanel != null) Destroy(currentPanel);
     if (afterPanel != null) Destroy(afterPanel);
 
         // Current Panel 생성 (빈 오브젝트 currentPanelParent 위치)
@@ -197,16 +205,24 @@ public class EnhanceUI : MonoBehaviour
         currentImage[4].sprite = null;
         currentImage[5].sprite = item.sprite;
 
-        // 속성 아이콘 - Current Panel
+        // 속성 아이콘
         ElementalAttribute attr = item.itemSkill.element;
-        Addressables.LoadAssetAsync<Sprite>(attr.ToString()).Completed += (handle) =>
+        if (attr == ElementalAttribute.None)
         {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
+            currentImage[4].gameObject.SetActive(false);
+        }
+        else
+        {
+            Addressables.LoadAssetAsync<Sprite>(attr.ToString()).Completed += (handle) =>
             {
-                currentImage[4].sprite = handle.Result;
-                currentImage[4].gameObject.SetActive(true);
-            }
-        };
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    currentImage[4].sprite = handle.Result;
+                    currentImage[4].gameObject.SetActive(true);
+                }
+            };
+        }
+
         // 프리뷰 아이템 생성 (강화된 아이템 정보)
         Item previewItem = EnhanceManager.Instance.PreviewEnhance(item);
 
@@ -219,14 +235,21 @@ public class EnhanceUI : MonoBehaviour
         afterImage[5].sprite = previewItem.sprite;
 
         ElementalAttribute previewAttr = previewItem.itemSkill.element;
-        Addressables.LoadAssetAsync<Sprite>(previewAttr.ToString()).Completed += (handle) =>
+        if (attr == ElementalAttribute.None)
         {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
+            afterImage[4].gameObject.SetActive(false);
+        }
+        else
+        {
+            Addressables.LoadAssetAsync<Sprite>(attr.ToString()).Completed += (handle) =>
             {
-                afterImage[4].sprite = handle.Result;
-                afterImage[4].gameObject.SetActive(true);
-            }
-        };
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    afterImage[4].sprite = handle.Result;
+                    afterImage[4].gameObject.SetActive(true);
+                }
+            };
+        }
     }
 
     private bool AreListsEqual(List<Item> a, List<Item> b)
