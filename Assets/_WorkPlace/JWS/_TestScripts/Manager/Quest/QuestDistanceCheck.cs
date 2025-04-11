@@ -48,32 +48,52 @@ public class QuestDistanceCheck : MonoBehaviour
             switch (questCondition.type)
             {
                 case QuestConditionType.Kill:
-                    // if (targetTransform == null) continue;
-                    float killDistance;
-                    string killColor;
-                    int currentProgress = quest.progress.ContainsKey(keyWord) ? quest.progress[keyWord] : 0;
+                    if (!quest.progress.ContainsKey(keyWord))
+                    {
+                        quest.progress[keyWord] = 0;
+                    }
+                    int currentProgress = quest.progress[keyWord];
+                    
                     distanceColor += $" {subMainColor}{questCondition.targetName} 처치하기</color>";
                     distanceColor += !questCondition.isCompleted ? $" <color=green>{currentProgress} / {questCondition.requiredQuantity}</color>" : "";
+                    
                     if (targetTransform != null)
                     {
-                        killColor = CheckDistance(targetTransform, questCondition.isCompleted, out killDistance);
-                        distanceColor += targetTransform != null ? $"  <color={killColor}>{killDistance:F1}m</color>\n" : "\n";
+                        float killDistance;
+                        string killColor = CheckDistance(targetTransform, questCondition.isCompleted, out killDistance);
+                        distanceColor += $"  <color={killColor}>{killDistance:F1}m</color>\n";
+                    }
+                    else
+                    {
+                        distanceColor += "\n";
                     }
                     break;
 
                 case QuestConditionType.Collect:
-                    int collectProgress = quest.progress.ContainsKey(keyWord) ? quest.progress[keyWord] : 0;
+                    if (!quest.progress.ContainsKey(keyWord))
+                    {
+                        quest.progress[keyWord] = 0;
+                    }
+                    int collectProgress = quest.progress[keyWord];
+                    
                     distanceColor += $" {subMainColor}{questCondition.targetName} 수집하기</color>";
                     distanceColor += !questCondition.isCompleted ? $" <color=green>{collectProgress} / {questCondition.requiredQuantity}</color>\n" : "\n";
                     break;
 
                 case QuestConditionType.Explore:
                 case QuestConditionType.Meet:
-                    if (targetTransform == null) continue;
-                    float exploreDistance;
-                    string exploreColor = CheckDistance(targetTransform, questCondition.isCompleted, out exploreDistance);
                     distanceColor += $" {subMainColor}{questCondition.targetName}</color>";
-                    distanceColor += !questCondition.isCompleted ? $"  <color={exploreColor}>{exploreDistance:F1}m</color>\n" : "\n";
+                    
+                    if (targetTransform != null)
+                    {
+                        float exploreDistance;
+                        string exploreColor = CheckDistance(targetTransform, questCondition.isCompleted, out exploreDistance);
+                        distanceColor += !questCondition.isCompleted ? $"  <color={exploreColor}>{exploreDistance:F1}m</color>\n" : "\n";
+                    }
+                    else
+                    {
+                        distanceColor += !questCondition.isCompleted ? "\n" : "\n";
+                    }
                     break;
             }
         }
