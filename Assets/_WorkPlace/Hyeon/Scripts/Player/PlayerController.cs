@@ -133,6 +133,11 @@ public class PlayerController : MonoBehaviour
         //behaviour.CanClimb = true;
 
         lastSavePosition = transform.position;
+
+        if (wings.activeSelf)
+        {
+            wings.SetActive(false);
+        }
     }
 
     private void Update()
