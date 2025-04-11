@@ -328,7 +328,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("강화석", 3, 0, 50)}, true),
 
-            new Quest("서브퀘스트", "1_2002", "모험가의 길","무기 강화 성공하기!",
+            new Quest("서브퀘스트", "1_2002", "모험가의 길","무기를 강화하자",
                 new Dictionary<string, QuestCondition>
                 {
                     {"대장장이_002_collect", new QuestCondition(QuestConditionType.Collect, "수련용검_일반", "수련용검 무기를 강화하여 수련용검+3", 1, 3) },
@@ -347,7 +347,7 @@ public class GenerateData
                     new Reward("무", 1, 0, 0)
                 }, true),
 
-            new Quest("서브퀘스트", "1_2004", "모험가의 길","요리 방법이 궁금하다고?",
+            new Quest("서브퀘스트", "1_2004", "모험가의 길","야채 스프를 만들자",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "야채스프", "야채 스프 만들기",1) },
@@ -364,12 +364,12 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("", 1, 50,50)},true),
 
-            new Quest("서브퀘스트", "1_2006", "친절한 용사","내 장난감을 찾아줘",
+            new Quest("서브퀘스트", "1_2006", "친절한 용사","내 그림책을 찾아줘",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "난폭한 베어 찾기", 1) },
-                    {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "벨라의 그림책", "장난감을 찾자",1) },
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_5", "소녀에게 장난감을 가져다주자.",1) }
+                    {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "벨라의 그림책", "그림책을 찾자",1) },
+                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_5", "벨라에게 그림책을 가져다주자.",1) }
                 },
                 new List<Reward>{new Reward("버섯스프", 1, 50,0)}, true),
 
@@ -378,7 +378,7 @@ public class GenerateData
                 {
                     {"location_005", new QuestCondition(QuestConditionType.Explore, "location_005", "골렘 찾기", 1) },
                     {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Golem", "골렘을 처치하자",10) },
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_6", "수배지를 확인하자",1) }
+                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_6", "아일린에게 돌아가자",1) }
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),
 
