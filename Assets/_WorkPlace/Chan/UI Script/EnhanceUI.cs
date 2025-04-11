@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class EnhanceUI : MonoBehaviour
 {
@@ -188,20 +190,34 @@ public class EnhanceUI : MonoBehaviour
 
         // 텍스트, 이미지 바인딩
         var currentTexts = currentPanel.GetComponentsInChildren<TextMeshProUGUI>();
-    var currentImage = currentPanel.GetComponentsInChildren<Image>()[5]; // 3번째 Image로 설정
-    currentTexts[0].text = item.id;
-    currentTexts[2].text = item.ToStringTMPro();
-    currentImage.sprite = item.sprite;
+        var currentImage = currentPanel.GetComponentsInChildren<Image>();
+        currentTexts[0].text = item.id;
+        currentTexts[1].text = $"+{item.itemSkill.Level}";
+        currentTexts[2].text = item.ToStringTMPro();
+        currentImage[4].sprite = null;
+        currentImage[5].sprite = item.sprite;
 
-    // 프리뷰 아이템 생성 (강화된 아이템 정보)
-    Item previewItem = EnhanceManager.Instance.PreviewEnhance(item);
+        // 속성 아이콘 - Current Panel
+        ElementalAttribute attr = item.itemSkill.element;
+        Addressables.LoadAssetAsync<Sprite>(attr.ToString()).Completed += (handle) =>
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                currentImage[4].sprite = handle.Result;
+                currentImage[4].gameObject.SetActive(true);
+            }
+        };
+        // 프리뷰 아이템 생성 (강화된 아이템 정보)
+        Item previewItem = EnhanceManager.Instance.PreviewEnhance(item);
 
-    var afterTexts = afterPanel.GetComponentsInChildren<TextMeshProUGUI>();
-    var afterImage = afterPanel.GetComponentsInChildren<Image>()[5];
-    afterTexts[0].text = previewItem.id;
-    afterTexts[2].text = previewItem.ToStringTMPro();
-    afterImage.sprite = previewItem.sprite;
-}
+        var afterTexts = afterPanel.GetComponentsInChildren<TextMeshProUGUI>();
+        var afterImage = afterPanel.GetComponentsInChildren<Image>();
+        afterTexts[0].text = previewItem.id;
+        afterTexts[1].text = $"+{previewItem.itemSkill.Level}";
+        afterTexts[2].text = previewItem.ToStringTMPro();
+        afterImage[4].sprite = null;
+        afterImage[5].sprite = previewItem.sprite;
+    }
 
     private bool AreListsEqual(List<Item> a, List<Item> b)
     {
