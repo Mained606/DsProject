@@ -40,14 +40,18 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
     private void Update()
     {
-        if (preAmountCount !=0 && preAmountCount != currentItem.quantity)
+        if (preAmountCount != 0 && preAmountCount != currentItem.quantity)
         {
             preAmountCount = currentItem.quantity;
             amountCount[0].text = $"{currentItem.quantity}";
         }
 
-        if ((currentItem.id == condition[0] && InventoryManager.QuickSlotsUI.GetQuicSlot(0)) || 
-            ( currentItem.id == condition[1] && InventoryManager.QuickSlotsUI.GetQuicSlot(1)))
+        bool isInQuickSlot = System.Array.Exists(
+            InventoryManager.QuickSlotsUI.GetSlots(),
+            slot => slot.GetItem() == currentItem
+        );
+
+        if (isInQuickSlot)
         {
             amountCount[1].enabled = true;
             amountCount[1].text = "S";

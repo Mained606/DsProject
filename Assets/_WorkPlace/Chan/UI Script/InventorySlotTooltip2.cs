@@ -14,11 +14,11 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
     [NonSerialized] public Image ItemImage;
     [NonSerialized] public Image ElementIcon;
     [NonSerialized] public TextMeshProUGUI ItemLevel;
+    [NonSerialized] public TextMeshProUGUI ItemLevelPreview;
 
     [NonSerialized] public TextMeshProUGUI[] amountCount;
     [NonSerialized] public bool isEquireSlot = false;
     private int preAmountCount = 0;
-    private string[] condition = { "소형 체력포션", "소형 마나포션" };
     private float lastClickTime = 0f;
     private const float doubleClickThreshold = 0.3f;
 
@@ -26,10 +26,12 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
     {
         if (!isEquireSlot) InventorytooltipWindow.SetActive(false);
         amountCount = transform.GetComponentsInChildren<TextMeshProUGUI>();
+
         if (currentItem != null && currentItem.sprite != null)
         {
             this.transform.GetComponentsInChildren<Image>(true)[2].sprite = currentItem.sprite;
         }
+
         if (currentItem.isStackable)
         {
             preAmountCount = currentItem.quantity;
@@ -42,7 +44,9 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
         }
 
         string nameColor = currentItem.GetGradeColor(currentItem.grade);
-        amountCount[2].text = $"<color={nameColor}>{currentItem.name}</color>";
+        amountCount[2].text = $"<color={nameColor}>{currentItem.id}</color>";
+
+        UpdateSlotLevel();
     }
 
     private void Update()
@@ -53,13 +57,29 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
             amountCount[0].text = $"{currentItem.quantity}";
         }
 
-        if ((currentItem.id == condition[0] && InventoryManager.QuickSlotsUI.GetQuicSlot(0)) ||
-            (currentItem.id == condition[1] && InventoryManager.QuickSlotsUI.GetQuicSlot(1)))
+        bool isInQuickSlot = false;
+
+        var quickSlots = InventoryManager.QuickSlotsUI?.GetSlots();
+        if (quickSlots != null)
+        {
+            foreach (var slot in quickSlots)
+            {
+                if (slot.GetItem() == currentItem)
+                {
+                    isInQuickSlot = true;
+                    break;
+                }
+            }
+        }
+
+        bool isEquipped = currentItem.isEquired;
+
+        if (isInQuickSlot)
         {
             amountCount[1].enabled = true;
             amountCount[1].text = "S";
         }
-        else if (currentItem.isEquired)
+        else if (isEquipped)
         {
             amountCount[1].enabled = true;
             amountCount[1].text = "E";
@@ -69,15 +89,24 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
             amountCount[1].enabled = false;
         }
     }
-
-
-    // 기존 인포판넬 로직
+    private void UpdateSlotLevel()
+    {
+        if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) && currentItem.itemSkill != null)
+        {
+            amountCount[3].enabled = true;
+            amountCount[3].text = $"+{currentItem.itemSkill.Level}";
+        }
+        else
+        {
+            amountCount[3].enabled = false;
+        }
+    }
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (!isEquireSlot && !InventorytooltipWindow.activeSelf)
         {
-            // 드래그 가능 아이템 처리
-            if ((currentItem.type == ItemType.소모품 && (currentItem.id == condition[0] || currentItem.id == condition[1])) ||
+            // 드래그 가능 판단
+            if (currentItem.type == ItemType.소모품 ||
                 currentItem.type == ItemType.요리재료 ||
                 currentItem.type == ItemType.무기 ||
                 currentItem.type == ItemType.방어구)
@@ -86,11 +115,10 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
                     gameObject.AddComponent<DraggableItem>();
             }
 
+            // 기본 인포 표시
             InventorytooltipWindow.SetActive(true);
-
             ItemImage.sprite = currentItem.sprite;
 
-            // 이름 색상 처리
             string nameColor = currentItem.GetGradeColor(currentItem.grade);
             string coloredName = $"<color={nameColor}>{currentItem.name}</color>";
             textPoint[1].text = coloredName;
@@ -127,12 +155,12 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
                 ElementIcon.gameObject.SetActive(false);
             }
 
-            // 강화 레벨 표시
+            // 강화 레벨 처리
             if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) && currentItem.itemSkill != null)
             {
                 int level = currentItem.itemSkill.Level;
                 ItemLevel.gameObject.SetActive(true);
-                ItemLevel.text = $"LV.{level}";
+                ItemLevel.text = $"+{level}";
 
                 Color parsedColor;
                 if (level <= 2)
@@ -149,7 +177,7 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
                 ItemLevel.gameObject.SetActive(false);
             }
 
-            // 위치 조정
+            // ✅ 툴팁 위치 이동 로직 (기존 복원)
             RectTransform itemRect = GetComponent<RectTransform>();
             RectTransform tooltipRect = InventorytooltipWindow.GetComponent<RectTransform>();
             RectTransform canvasRect = tooltipRect.GetComponentInParent<Canvas>().GetComponent<RectTransform>();
@@ -182,20 +210,17 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
 
     public void OnPointerClick(PointerEventData eventData)
     {
-       
-        float currentTime = Time.time; // 현재 시간
+        float currentTime = Time.time;
         if (currentTime - lastClickTime <= doubleClickThreshold)
         {
-            // 더블 클릭 처리
             HandleDoubleClick(eventData);
         }
         else
         {
-            // 싱글 클릭 처리
             HandleSingleClick(eventData);
         }
 
-        lastClickTime = currentTime; // 클릭 시간 갱신
+        lastClickTime = currentTime;
     }
 
     private void HandleSingleClick(PointerEventData eventData)
@@ -204,7 +229,6 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
         {
             Debug.Log($"'{currentItem.name}' 아이템을 클릭했습니다.");
         }
-
     }
 
     private void HandleDoubleClick(PointerEventData eventData)
