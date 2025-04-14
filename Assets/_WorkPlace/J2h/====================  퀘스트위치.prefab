@@ -288,8 +288,8 @@ Transform:
   m_Children:
   - {fileID: 7955201338729252960}
   - {fileID: 8674406655216034614}
-  - {fileID: 7100379307645706589}
   - {fileID: 153974995139869256}
+  - {fileID: 7100379307645706589}
   - {fileID: 3598652097407886480}
   - {fileID: 5739733137188485972}
   - {fileID: 6965698308233317718}
@@ -5534,7 +5534,7 @@ GameObject:
   - component: {fileID: 7314483048832808792}
   - component: {fileID: 8000259153050349220}
   m_Layer: 0
-  m_Name: location_003
+  m_Name: location_004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5978,7 +5978,7 @@ GameObject:
   - component: {fileID: 3791501586187908469}
   - component: {fileID: 2345801232287351657}
   m_Layer: 0
-  m_Name: location_004
+  m_Name: location_003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
