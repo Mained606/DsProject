@@ -101,6 +101,7 @@ public class NonePlayerCharacter : MonoBehaviour
                     if (isNearest)
                     {
                         Interact();
+                        isNearest = false;
                     }
                 }
             }
@@ -610,7 +611,6 @@ public class NonePlayerCharacter : MonoBehaviour
             isPlayerInRange = true;
             targetlook = other.transform;
             InteractArrangementer.Instance.conversationable.Add(transform);
-            Debug.Log($"conversationable : {InteractArrangementer.Instance.conversationable.Count}");
         }
     }
 
@@ -623,7 +623,6 @@ public class NonePlayerCharacter : MonoBehaviour
             if (interActText.gameObject.activeSelf) interActText.gameObject.SetActive(false);
             UIManager.Instance.UIClose();
             InteractArrangementer.Instance.conversationable.Remove(transform);
-            Debug.Log($"conversationable : {InteractArrangementer.Instance.conversationable.Count}");
         }
     }
 }

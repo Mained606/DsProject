@@ -7,8 +7,6 @@ public class InteractArrangementer : MonoBehaviour
 
     public List<Transform> conversationable = new List<Transform>();
 
-    private NonePlayerCharacter npc;
-
     private void Awake()
     {
         if(Instance != null && Instance != this)
@@ -19,33 +17,6 @@ public class InteractArrangementer : MonoBehaviour
 
         Instance = this;
     }
-    private void Start()
-    {
-        //InitDictionary();
-    }
-
-    //private void InitDictionary()
-    //{
-    //    interactableNPC.Clear();
-
-    //    NonePlayerCharacter[] npcs = GetComponentsInChildren<NonePlayerCharacter>(true); // true: 비활성화 포함
-
-    //    foreach(NonePlayerCharacter npc in npcs)
-    //    {
-    //        Transform key = npc.transform;
-
-    //        if (!interactableNPC.ContainsKey(key))
-    //        {
-    //            interactableNPC.Add(key, false);
-    //        }
-    //        else
-    //        {
-    //            Debug.Log($"이미 딕셔너리에 등록된 NPC 입니다.");
-    //        }
-    //    }
-
-    //    Debug.Log($"총 {interactableNPC.Count} 명의 npc 딕셔너리에 등록 완료");
-    //}
 
     public void IsNearestNPC()
     {
@@ -62,7 +33,6 @@ public class InteractArrangementer : MonoBehaviour
             }
         }
 
-        Debug.Log($"closetNpc : {closestNpc.name}");
         closestNpc.GetComponent<NonePlayerCharacter>().isNearest = true;
     }
 }
