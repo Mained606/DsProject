@@ -120,7 +120,7 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
             ItemImage.sprite = currentItem.sprite;
 
             string nameColor = currentItem.GetGradeColor(currentItem.grade);
-            string coloredName = $"<color={nameColor}>{currentItem.name}</color>";
+            string coloredName = $"<color={nameColor}>{currentItem.id}</color>";
             textPoint[1].text = coloredName;
             textPoint[2].text = currentItem.ToStringTMPro();
 
