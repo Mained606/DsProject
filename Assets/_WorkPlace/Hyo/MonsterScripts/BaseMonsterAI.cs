@@ -283,11 +283,26 @@ public class BaseMonsterAI : MonoBehaviour
             StopCoroutine(hitCoroutine);
         }
 
-        // 새로운 코루틴 실행 및 저장
-        hitCoroutine = StartCoroutine(RecoverFromHit());
-        
-        // 피격 상태에서도 플레이어 추적 가능하도록 즉시 처리
-        StartCoroutine(AllowMovementWhileHit());
+        // 게임오브젝트가 활성화된 상태인지 확인 후 코루틴 실행
+        if (gameObject.activeInHierarchy)
+        {
+            // 새로운 코루틴 실행 및 저장
+            hitCoroutine = StartCoroutine(RecoverFromHit());
+            
+            // 피격 상태에서도 플레이어 추적 가능하도록 즉시 처리
+            StartCoroutine(AllowMovementWhileHit());
+        }
+        else
+        {
+            // 게임오브젝트가 비활성화된 상태라면 코루틴을 시작하지 않고 다른 처리
+            Debug.LogWarning($"{gameObject.name} 비활성화 상태에서 피격 처리 시도됨");
+            
+            // 스턴 상태가 아니면 적절한 상태로 전환
+            if (!isStunned)
+            {
+                currentState = playerTarget ? AIState.Chasing : AIState.Patrolling;
+            }
+        }
     }
     
     protected IEnumerator AllowMovementWhileHit()

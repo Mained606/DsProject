@@ -466,6 +466,14 @@ public class UIManager : BaseManager<UIManager>
         dialogUI.DisplayQuestDialogWindow(title, quest);
     }
 
+    // 완료 가능한 퀘스트 다이얼로그를 표시하는 메서드 추가
+    public void DisplayCompletableQuestDialog(NPCData npcData, Quest quest)
+    {
+        if (dialogWindow == null) return;
+        ToggleDialog(true);
+        dialogUI.DisplayCompletableQuestDialog(npcData, quest);
+    }
+
     // [추가] 서브 퀘스트도 DialogUI를 통해 받을 수 있도록 메서드 추가
     public void OpenQuestDialogUI(NPCData npcData, Quest quest, bool isMainQuest)
     {
