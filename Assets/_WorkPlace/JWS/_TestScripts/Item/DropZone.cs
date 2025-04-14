@@ -43,10 +43,19 @@ public class DropZone : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
+        // 슬롯툴팁1 또는 2 중 하나라도 있으면 통과
         var tooltip = eventData.pointerDrag?.GetComponent<InventorySlotTooltip>();
-        if (tooltip == null) return;
+        var tooltip2 = eventData.pointerDrag?.GetComponent<InventorySlotTooltip2>();
 
-        var item = tooltip.GetItem();
+        Item item = null;
+
+        if (tooltip != null)
+            item = tooltip.GetItem();
+        else if (tooltip2 != null)
+            item = tooltip2.currentItem;
+        else
+            return;
+
         if (item == null || (item.type != ItemType.소모품 && item.type != ItemType.요리)) return;
 
         // 중복 제거

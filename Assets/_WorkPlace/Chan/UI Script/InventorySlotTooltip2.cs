@@ -109,6 +109,7 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
             if (currentItem.type == ItemType.소모품 ||
                 currentItem.type == ItemType.요리재료 ||
                 currentItem.type == ItemType.무기 ||
+                currentItem.type == ItemType.요리||
                 currentItem.type == ItemType.방어구)
             {
                 if (!TryGetComponent(out DraggableItem ditem))
