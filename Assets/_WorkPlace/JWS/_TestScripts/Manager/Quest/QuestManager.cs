@@ -489,28 +489,36 @@ public class QuestManager : BaseManager<QuestManager>
             //player.unlockGlide = true;
         }
 
+        if(questId == "1_2001")
+        {
+        }
+
         if(questId == "1_2005")
         {
             //돌맹이 스킬
             UnlockSkill("TerraSurge");
+            CharacterManager.DragonData.AddBondExperience(5);
         }
 
         if (questId == "1_2006")
         {
             //글라이딩 언락
             player.unlockGlide = true;
+            CharacterManager.DragonData.AddBondExperience(5);
         }
 
         if (questId == "1_2007")
         {
             //올려치기
             UnlockSkill("UpperAttack");
+            CharacterManager.DragonData.AddBondExperience(5);
         }
 
         if (questId == "1_2008")
         {
             //얼음 스킬
             UnlockSkill("GlacierSpear");
+            CharacterManager.DragonData.AddBondExperience(5);
         }
 
         if (questId == "1_2009")
@@ -518,6 +526,9 @@ public class QuestManager : BaseManager<QuestManager>
             //전기 스킬, 드래곤 스킬
             UnlockSkill("ElectroComet");
             UnlockSkill("UltimateDragon");
+
+            //드래곤 진화
+            CharacterManager.DragonData.Evolve();
         }
 
         // 필요에 따라 다른 퀘스트 ID 케이스 추가
