@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ActivityNpc : MonoBehaviour
@@ -503,6 +501,15 @@ public class ActivityNpc : MonoBehaviour
             nextPosition.y = hit.point.y;
         }
 
+        if (Terrain.activeTerrain != null && npcController.npcType == NpcType.Wander)
+        {
+            float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+            if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
+            {
+                nextPosition.y = terrainHeight;
+            }
+        }
+
         if (IsWaterAhead(nextPosition, hit.point.y))
         {
             //Debug.Log(transform.name + " 물 감지 - 우회 중");
@@ -531,6 +538,15 @@ public class ActivityNpc : MonoBehaviour
         if (Physics.Raycast(nextPosition + Vector3.up * 1f, Vector3.down, out RaycastHit hit, 2f))
         {
             nextPosition.y = hit.point.y;
+        }
+
+        if (Terrain.activeTerrain != null && npcController.npcType == NpcType.Wander)
+        {
+            float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+            if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
+            {
+                nextPosition.y = terrainHeight;
+            }
         }
 
         if (IsWaterAhead(nextPosition, hit.point.y))
