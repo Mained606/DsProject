@@ -477,17 +477,49 @@ public class QuestManager : BaseManager<QuestManager>
 
         if (questId == "1_1004")
         {
-            // 1. FireStrike 스킬 언락
+            // 1. 스킬 언락
             UnlockSkill("FireStrike");
-            
+            UnlockSkill("DownCut");
+
             // 2. 용 오브젝트 활성화
             ActivateDragon();
             
             ActivateGameObject("용", false);
 
+            //player.unlockGlide = true;
+        }
+
+        if(questId == "1_2005")
+        {
+            //돌맹이 스킬
+            UnlockSkill("TerraSurge");
+        }
+
+        if (questId == "1_2006")
+        {
+            //글라이딩 언락
             player.unlockGlide = true;
         }
-        
+
+        if (questId == "1_2007")
+        {
+            //올려치기
+            UnlockSkill("UpperAttack");
+        }
+
+        if (questId == "1_2008")
+        {
+            //얼음 스킬
+            UnlockSkill("GlacierSpear");
+        }
+
+        if (questId == "1_2009")
+        {
+            //전기 스킬, 드래곤 스킬
+            UnlockSkill("ElectroComet");
+            UnlockSkill("UltimateDragon");
+        }
+
         // 필요에 따라 다른 퀘스트 ID 케이스 추가
     }
     

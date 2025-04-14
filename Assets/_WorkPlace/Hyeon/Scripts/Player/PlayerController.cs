@@ -117,6 +117,7 @@ public class PlayerController : MonoBehaviour
         playerData = CharacterManager.PlayerCharacterData;
         RecoveryTimer = new BasicTimer(RecoveryTime);
         //groundLayer = LayerMask.NameToLayer("Ground");
+        verticalVelocity.y = -7f;
 
         // Hit 이벤트 구독
         if (playerData != null) playerData.OnTakeDamage += HitCheck;
