@@ -238,22 +238,22 @@ public class Skills : ISheetData
                    (skillType == SkillType.Magic) ? "#FFD700" :
                    "#7CFC00"; // Support
 
-        string info = $"<b><color={color}>{skillName}</color></b>\n" +
-                      $"유형: {skillType}\n" +
-                      $"레벨: {skillLevel}\n";
+        string info = $"<size=130%><b><color={color}>{skillName}</color></b></size>\n\n" +
+                      $"유형: {skillType}\n\n" +
+                      $"레벨: {skillLevel}\n\n";
 
         if (skillType == SkillType.Support)
         {
             info += $"버프 지속시간: {currentBuffDuration:F1}초\n" +
-                    $"버프 수치: {currentBuffValue}%\n" +
-                    $"소모 MP: {currentEnergyCost}\n" +
-                    $"쿨타임: {currentCooldown}초\n";
+                    $"버프 수치: {currentBuffValue}%\n\n" +
+                    $"소모 MP: {currentEnergyCost}\n\n" +
+                    $"쿨타임: {currentCooldown}초\n\n";
         }
         else
         {
-            info += $"데미지: {currentDamage}\n" +
-                    $"소모 MP: {currentEnergyCost}\n" +
-                    $"쿨타임: {currentCooldown}초\n";
+            info += $"데미지: {currentDamage}\n\n" +
+                    $"소모 MP: {currentEnergyCost}\n\n" +
+                    $"쿨타임: {currentCooldown}초\n\n";
         }
 
         return info;
