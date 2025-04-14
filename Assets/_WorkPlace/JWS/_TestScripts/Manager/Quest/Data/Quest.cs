@@ -19,6 +19,7 @@ public class Quest :ISheetData
     public Transform questNpcTransform;
     [Header("퀘스트 상태정보")]
     public bool isCompleted;
+    public bool isCompletable;
     public bool needsDialog; // 퀘스트 완료 시 대화가 필요한지 여부
     
     [Header("선행 조건")]

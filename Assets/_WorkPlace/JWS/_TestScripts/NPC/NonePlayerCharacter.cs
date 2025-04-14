@@ -367,7 +367,7 @@ public class NonePlayerCharacter : MonoBehaviour
     }
 
 
-    public void Interact()
+    private void Interact()
     {
         if (!currentNPCData.isInteractable)
         {
@@ -376,7 +376,7 @@ public class NonePlayerCharacter : MonoBehaviour
         }
         
         Debug.Log($"NPC {currentNPCData.name}와 상호작용 시작, NPC 타입: {currentNPCData.npcType}");
-        
+
         switch (currentNPCData.npcType)
         {
             case NPCType.상점:
@@ -396,22 +396,50 @@ public class NonePlayerCharacter : MonoBehaviour
                     bool hasActiveQuest = false;
                     Quest activeQuest = null;
                     
+                    // 완료 가능한 퀘스트가 있는지 확인
+                    bool hasCompletableQuest = false;
+                    Quest completableQuest = null;
+                    
                     if (currentNPCData.quests != null && currentNPCData.quests.Length > 0)
                     {
-                        // 완료되지 않은 첫 번째 퀘스트 찾기
+                        // 먼저 완료 가능한 퀘스트가 있는지 확인
                         foreach (Quest quest in currentNPCData.quests)
                         {
-                            if (!quest.isCompleted)
+                            // 이 NPC가 제공한 퀘스트 중에서 완료 가능한 퀘스트를 찾음
+                            if (quest.isCompletable && !quest.isCompleted && QuestManager.CompletableQuests.Contains(quest))
                             {
-                                hasActiveQuest = true;
-                                activeQuest = quest;
-                                Debug.Log($"활성화된 퀘스트 발견: {quest.id}");
+                                hasCompletableQuest = true;
+                                completableQuest = quest;
+                                Debug.Log($"완료 가능한 퀘스트 발견: {quest.id}");
                                 break;
+                            }
+                        }
+                        
+                        // 완료 가능한 퀘스트가 없다면 활성화된 퀘스트를 찾음
+                        if (!hasCompletableQuest)
+                        {
+                            // 완료되지 않은 첫 번째 퀘스트 찾기
+                            foreach (Quest quest in currentNPCData.quests)
+                            {
+                                if (!quest.isCompleted)
+                                {
+                                    hasActiveQuest = true;
+                                    activeQuest = quest;
+                                    Debug.Log($"활성화된 퀘스트 발견: {quest.id}");
+                                    break;
+                                }
                             }
                         }
                     }
                     
-                    if (hasActiveQuest)
+                    if (hasCompletableQuest)
+                    {
+                        // 완료 가능한 퀘스트가 있으면 완료 다이얼로그 표시
+                        Debug.Log($"완료 가능한 퀘스트 다이얼로그 표시: {completableQuest.id}");
+                        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+                        UIManager.Instance.DisplayCompletableQuestDialog(currentNPCData, completableQuest);
+                    }
+                    else if (hasActiveQuest)
                     {
                         // [추가] 서브 퀘스트도 DialogUI 통해 받을 수 있도록 구조 확장
                         bool isMainQuest = activeQuest.questType.Equals("메인퀘스트", System.StringComparison.OrdinalIgnoreCase);
