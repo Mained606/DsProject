@@ -406,7 +406,7 @@ public class GenerateData
                 {
                     {"location_008", new QuestCondition(QuestConditionType.Explore, "location_008", "거대한 숲으로 가자", 1) },
                     {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Totem", "숲 속의 이상한 물건을 파괴하자",1) },
-                    {"location_002_collect", new QuestCondition(QuestConditionType.Kill, "몬스터들 id", "몰려오는 몬스터들을 모두 처치하자",1) },
+                    //{"location_002_collect", new QuestCondition(QuestConditionType.Kill, "몬스터들 id", "몰려오는 몬스터들을 모두 처치하자",1) },
                     {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_9", "세이아에게 가자",1) }
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),

@@ -54,7 +54,7 @@ public class QuestDistanceCheck : MonoBehaviour
                     }
                     int currentProgress = quest.progress[keyWord];
                     
-                    distanceColor += $" {subMainColor}{questCondition.targetName} 처치하기</color>";
+                    distanceColor += $" {subMainColor}{questCondition.targetName} </color>";
                     distanceColor += !questCondition.isCompleted ? $" <color=green>{currentProgress} / {questCondition.requiredQuantity}</color>" : "";
                     
                     if (targetTransform != null)
@@ -76,7 +76,7 @@ public class QuestDistanceCheck : MonoBehaviour
                     }
                     int collectProgress = quest.progress[keyWord];
                     
-                    distanceColor += $" {subMainColor}{questCondition.targetName} 수집하기</color>";
+                    distanceColor += $" {subMainColor}{questCondition.targetName} </color>";
                     distanceColor += !questCondition.isCompleted ? $" <color=green>{collectProgress} / {questCondition.requiredQuantity}</color>\n" : "\n";
                     break;
 
