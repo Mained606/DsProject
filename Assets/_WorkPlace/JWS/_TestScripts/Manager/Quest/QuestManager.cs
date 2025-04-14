@@ -13,10 +13,12 @@ public class QuestManager : BaseManager<QuestManager>
     [SerializeField] private List<Quest> subQuestDatabase = new List<Quest>();
     [SerializeField] private List<Quest> completedQuests = new List<Quest>();
     [SerializeField] private Dictionary<string, Transform> questConditionPoint = new Dictionary<string, Transform>();
+    [SerializeField] private List<Quest> completableQuests = new List<Quest>();
 
     public static List<Quest> QuestDatabase => Instance.questDatabase;
     public static List<Quest> CompletedQuests => Instance.completedQuests;
     public static Dictionary<string, Transform> QuestConditionPoint => Instance.questConditionPoint;
+    public static List<Quest> CompletableQuests => Instance.completableQuests;
 
     public static Transform GetQuestConditionPoint(string point)
     {
@@ -258,9 +260,17 @@ public class QuestManager : BaseManager<QuestManager>
                 // CheckQuestCondition 이후 퀘스트 완료 여부 재확인
                 if (IsQuestCompleted(quest))
                 {
-                    quest.isCompleted = true;
-                    UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
-                    UIManager.Instance.QuestUpdate();
+                    // 완료 조건이 충족되면 isCompleted 대신 isCompletable 설정
+                    if (!quest.isCompletable)
+                    {
+                        quest.isCompletable = true;
+                        if (!completableQuests.Contains(quest))
+                        {
+                            completableQuests.Add(quest);
+                        }
+                        UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 완료 가능!", MessageTag.아이템_획득);
+                        UIManager.Instance.QuestUpdate();
+                    }
                 }
                 
                 // Collect 타입 조건은 CheckQuestCondition에서 처리되었으므로 여기서는 처리하지 않음
@@ -335,9 +345,17 @@ public class QuestManager : BaseManager<QuestManager>
             // 퀘스트 완료 여부 체크
             if (IsQuestCompleted(quest))
             {
-                quest.isCompleted = true;
-                UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 완료!", MessageTag.아이템_획득);
-                UIManager.Instance.QuestUpdate();
+                // 완료 조건이 충족되면 isCompleted 대신 isCompletable 설정
+                if (!quest.isCompletable)
+                {
+                    quest.isCompletable = true;
+                    if (!completableQuests.Contains(quest))
+                    {
+                        completableQuests.Add(quest);
+                    }
+                    UIManager.SystemGameMessage($"퀘스트 '{quest.name}' 완료 가능!", MessageTag.아이템_획득);
+                    UIManager.Instance.QuestUpdate();
+                }
             }
         }
     }
@@ -383,6 +401,13 @@ public class QuestManager : BaseManager<QuestManager>
         {
             questDatabase.Remove(quest);
         }
+        
+        // 완료 가능 퀘스트 목록에서도 제거
+        if (completableQuests.Contains(quest))
+        {
+            completableQuests.Remove(quest);
+        }
+        
         completedQuests.Add(quest);
 
         foreach (var condition in quest.requiredConditions)
@@ -489,28 +514,36 @@ public class QuestManager : BaseManager<QuestManager>
             //player.unlockGlide = true;
         }
 
+        if(questId == "1_2001")
+        {
+        }
+
         if(questId == "1_2005")
         {
             //돌맹이 스킬
             UnlockSkill("TerraSurge");
+            CharacterManager.DragonData.AddBondExperience(5);
         }
 
         if (questId == "1_2006")
         {
             //글라이딩 언락
             player.unlockGlide = true;
+            CharacterManager.DragonData.AddBondExperience(5);
         }
 
         if (questId == "1_2007")
         {
             //올려치기
             UnlockSkill("UpperAttack");
+            CharacterManager.DragonData.AddBondExperience(5);
         }
 
         if (questId == "1_2008")
         {
             //얼음 스킬
             UnlockSkill("GlacierSpear");
+            CharacterManager.DragonData.AddBondExperience(5);
         }
 
         if (questId == "1_2009")
@@ -518,6 +551,9 @@ public class QuestManager : BaseManager<QuestManager>
             //전기 스킬, 드래곤 스킬
             UnlockSkill("ElectroComet");
             UnlockSkill("UltimateDragon");
+
+            //드래곤 진화
+            CharacterManager.DragonData.Evolve();
         }
 
         // 필요에 따라 다른 퀘스트 ID 케이스 추가

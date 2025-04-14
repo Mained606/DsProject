@@ -124,7 +124,15 @@ public class QuestUI : MonoBehaviour
     private void CreateItemUI(Quest quest)
     {
         var questItem = Instantiate(questPrefab, questParent);
-        questItem.GetComponentsInChildren<TextMeshProUGUI>()[0].text = quest.ToStringTMProforList();
+        
+        // 완료 가능한 퀘스트에 특별한 텍스트 추가
+        string questTitle = quest.ToStringTMProforList();
+        if (quest.isCompletable)
+        {
+            questTitle = $"<color=green>[완료 가능]</color> {questTitle}";
+        }
+        
+        questItem.GetComponentsInChildren<TextMeshProUGUI>()[0].text = questTitle;
         questItem.GetComponentsInChildren<TextMeshProUGUI>()[1].text = $"의뢰인 : {quest.questGiver}";
         questItem.GetComponentsInChildren<TextMeshProUGUI>()[2].text = $"{quest.progress.Count} / {quest.requiredConditions.Count}";
         Button button = questItem.GetComponent<Button>();
@@ -197,6 +205,13 @@ public class QuestUI : MonoBehaviour
         string giver = quest.questType == "메인퀘스트" ? "메인퀘스트" : quest.targetID.ToString();
         commentText[5].text = $"의뢰인 : {giver}";
         commentText[6].text = quest.description;
+
+        // 퀘스트가 완료 가능하면 추가 정보 표시
+        if (quest.isCompletable)
+        {
+            commentText[4].text = $"<color=green>[완료 가능]</color> {quest.name}";
+            commentText[6].text = $"{quest.description}\n\n<color=green>퀘스트 조건을 모두 충족했습니다. 퀘스트 제공자에게 돌아가 보상을 받으세요.</color>";
+        }
 
         // 기존 조건 텍스트 비활성화
         foreach (TextMeshProUGUI condText in conditionDisplayText)
