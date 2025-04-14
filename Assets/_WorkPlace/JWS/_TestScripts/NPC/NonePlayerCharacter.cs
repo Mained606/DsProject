@@ -27,6 +27,8 @@ public class NonePlayerCharacter : MonoBehaviour
     private bool isPlayerInRange = false;
     private bool isInitNPC = false;
 
+    public bool isNearest = false;
+
     private void Start()
     {
         capsuleCollider = GetComponents<CapsuleCollider>();
@@ -95,7 +97,12 @@ public class NonePlayerCharacter : MonoBehaviour
                 
                 if (InputManager.InputActions.actions["Interact"].triggered)
                 {
-                    Interact();
+                    InteractArrangementer.Instance.IsNearestNPC();
+                    if (isNearest)
+                    {
+                        Interact();
+                        isNearest = false;
+                    }
                 }
             }
         }
@@ -603,6 +610,7 @@ public class NonePlayerCharacter : MonoBehaviour
         {
             isPlayerInRange = true;
             targetlook = other.transform;
+            InteractArrangementer.Instance.conversationable.Add(transform);
         }
     }
 
@@ -614,6 +622,7 @@ public class NonePlayerCharacter : MonoBehaviour
             targetlook = null;
             if (interActText.gameObject.activeSelf) interActText.gameObject.SetActive(false);
             UIManager.Instance.UIClose();
+            InteractArrangementer.Instance.conversationable.Remove(transform);
         }
     }
 }
