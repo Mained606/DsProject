@@ -382,7 +382,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),
 
-            new Quest("서브   퀘스트", "1_2008", "친절한 용사","협곡의 보물",
+            new Quest("서브퀘스트", "1_2008", "친절한 용사","협곡의 보물",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_007", new QuestCondition(QuestConditionType.Explore, "location_007", "협곡의 입구를 찾자", 1) },
@@ -392,7 +392,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("", 10, 50,50)}, true),
 
-            new Quest("서브   퀘스트", "1_2009", "친절한 용사","괴물을 물리쳐줘",
+            new Quest("서브퀘스트", "1_2009", "친절한 용사","괴물을 물리쳐줘",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_008", new QuestCondition(QuestConditionType.Explore, "location_008", "모파안 찾기", 1) },
@@ -401,7 +401,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),
 
-            new Quest("서브   퀘스트", "1_2010", "친절한 용사","거대한 숲을 구해줘",
+            new Quest("서브퀘스트", "1_2010", "친절한 용사","거대한 숲을 구해줘",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_009", new QuestCondition(QuestConditionType.Explore, "location_009", "거대한 숲으로 가자", 1) },
