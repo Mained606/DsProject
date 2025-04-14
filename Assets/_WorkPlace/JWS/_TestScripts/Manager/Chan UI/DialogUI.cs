@@ -192,6 +192,37 @@ public class DialogUI : MonoBehaviour
         }
     }
 
+    // 완료 가능한 퀘스트 다이얼로그를 표시하는 메서드 추가
+    public void DisplayCompletableQuestDialog(NPCData npcData, Quest quest)
+    {
+        if (subDisplay.Length < 2)
+        {
+            Debug.LogError("텍스트 박스가 없습니다.");
+            return;
+        }
+
+        // 상태 초기화
+        currentNpcData = npcData;
+        currentDialogueIndex = 0;
+        currentQuest = quest;
+        isDialogueInProgress = true;
+        currentDialogType = DialogType.MainQuestDialog;
+
+        acceptButton.onClick.RemoveAllListeners();
+        subDisplay[0].text = npcData.name;
+        
+        string npcId = npcData != null ? npcData.id : "";
+        Debug.Log($"완료 가능한 퀘스트 다이얼로그 표시: NPC ID = {npcId}, 이름 = {npcData.name}, 퀘스트 ID = {quest.id}");
+
+        // 완료 가능한 퀘스트에 대한 대화 메시지 설정
+        currentDialogues = new string[] { 
+            $"'{quest.name}' 퀘스트의 모든 조건을 충족하셨습니다! 보상을 받으시겠습니까?" 
+        };
+        
+        // 완료 다이얼로그 표시 및 퀘스트 완료 처리
+        DisplayNextDialogue(true, () => HandleCompletableQuest(quest, true, npcId));
+    }
+
     // 다음 다이얼로그를 표시하는 메서드
     private void DisplayNextDialogue(bool isLastDialogue = false, UnityEngine.Events.UnityAction finalAction = null)
     {
@@ -311,12 +342,28 @@ public class DialogUI : MonoBehaviour
                     QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Meet, npcId, 1, null);
                 }
             }
-            else
-            {
-                // 퀘스트 완료 처리 진행
-                // QuestManager.Instance.CompleteQuest(quest);
-            }
         }
+        UIManager.Instance.ToggleDialog();
+        GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
+    }
+
+    // 완료 가능한 퀘스트 처리 메서드 추가
+    private void HandleCompletableQuest(Quest quest, bool state, string npcId = "")
+    {
+        // 코루틴 정리
+        if (currentAnimationCoroutine != null)
+        {
+            StopCoroutine(currentAnimationCoroutine);
+            currentAnimationCoroutine = null;
+        }
+        
+        if (state)
+        {
+            // 퀘스트 완료 처리
+            Debug.Log($"퀘스트 '{quest.id}' 완료 처리 및 보상 지급");
+            QuestManager.Instance.CompleteQuest(quest);
+        }
+        
         UIManager.Instance.ToggleDialog();
         GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
     }
