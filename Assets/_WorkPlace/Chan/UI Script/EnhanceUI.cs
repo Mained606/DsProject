@@ -52,6 +52,7 @@ public class EnhanceUI : MonoBehaviour
     private void OnDisable()
     {
         RemoveButtonListeners();
+        itemInfoObject.SetActive(false);
     }
 
     private void LoadTargetItems()
@@ -153,6 +154,7 @@ public class EnhanceUI : MonoBehaviour
         EnhanceManager.Instance.Enhance(selectedItem, mat);
 
         ClearEnhanceSlot();
+        previousItems.Clear();
         LoadTargetItems();
         UpdateEnhanceStoneUI();
     }

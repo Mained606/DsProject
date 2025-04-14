@@ -10,10 +10,12 @@ public class CookingUI : MonoBehaviour
     [SerializeField] private GameObject itemInfoObject; // 인포판넬
     [SerializeField] private TextMeshProUGUI[] itemInfoTextField; // 텍스트바인딩
     [SerializeField] private Image itemInfoImageField; // 아이템 이미지 바인딩 
+    [SerializeField] private Image elementIconField;
+    [SerializeField] private TextMeshProUGUI itemLevel;
 
     //==========================================================================
 
-  //  [SerializeField] private CookingManager cookingManager; // CookingManager 참조
+    //  [SerializeField] private CookingManager cookingManager; // CookingManager 참조
     [SerializeField] private Button cancelButton; // 취소 버튼
     [SerializeField] private Button cookButton; // 요리 시작 버튼
 
@@ -38,6 +40,7 @@ public class CookingUI : MonoBehaviour
     private void OnDisable()
     {
         RemoveButtonListeners();
+        itemInfoObject.SetActive(false);
     }
    
     // 인벤토리에서 제작재료(ItemType.제작재료)만 필터링해서 불러오기
@@ -81,10 +84,12 @@ public class CookingUI : MonoBehaviour
     private void CreateItemUI(Item item)
     {
         var inventoryItem = Instantiate(itemPrefab, itemParent);
-        inventoryItem.GetComponent<InventoryTooltip>().currentItem = item;
-        inventoryItem.GetComponent<InventoryTooltip>().InventorytooltipWindow = itemInfoObject;
-        inventoryItem.GetComponent<InventoryTooltip>().textPoint = itemInfoTextField;
-        inventoryItem.GetComponent<InventoryTooltip>().ItemImage = itemInfoImageField;
+        inventoryItem.GetComponent<InventorySlotTooltip2>().currentItem = item;
+        inventoryItem.GetComponent<InventorySlotTooltip2>().InventorytooltipWindow = itemInfoObject;
+        inventoryItem.GetComponent<InventorySlotTooltip2>().textPoint = itemInfoTextField;
+        inventoryItem.GetComponent<InventorySlotTooltip2>().ItemImage = itemInfoImageField;
+        inventoryItem.GetComponent<InventorySlotTooltip2>().ElementIcon = elementIconField;
+        inventoryItem.GetComponent<InventorySlotTooltip2>().ItemLevel = itemLevel;
     }
 
     // 기존 UI 초기화 (제작재료 슬롯 제거)

@@ -28,7 +28,12 @@ public class DropZone : MonoBehaviour, IDropHandler
         {
             cooldownOverlay.fillAmount = cooldown.RemainingPercent;
         }
-
+        if (iconImage != null)
+        {
+            iconImage.color = cooldown?.IsRunning == true
+                ? new Color(0.5f, 0.5f, 0.5f, 1f) // 어두운 회색
+                : new Color(1f, 1f, 1f, 1f);      // 원래 색
+        }
         // 단축키 입력
         if (Input.GetKeyDown(useKey))
         {
