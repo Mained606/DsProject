@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EnhanceManager : BaseManager<EnhanceManager>
@@ -7,6 +8,8 @@ public class EnhanceManager : BaseManager<EnhanceManager>
     [SerializeField] private List<string> EnhancementItemIds = new List<string>();
     public List<string> enhancementItemIds => EnhancementItemIds;
     private Dictionary<int, (int success, int downgrade, int destroy)> levelEnhanceChance;
+
+    public int MaxEnhanceLevel => levelEnhanceChance.Keys.Max();
 
     protected override void Start()
     {
@@ -121,7 +124,10 @@ public class EnhanceManager : BaseManager<EnhanceManager>
 
         return preview;
     }
-
+    public bool CanEnhance(Item item)
+    {
+        return levelEnhanceChance.ContainsKey(item.itemSkill.Level);
+    }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
