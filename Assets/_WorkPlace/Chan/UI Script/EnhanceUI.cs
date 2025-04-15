@@ -168,7 +168,7 @@ public class EnhanceUI : MonoBehaviour
 
         if (!InventoryManager.Instance.HasItem(deletedItemId))
         {
-            ShowWarning("장비가 파괴되었습니다!");
+            ShowWarning("장비가 파괴되었습니다");
             ClearEnhanceSlot();
             if (currentPanel != null) Destroy(currentPanel);
             if (afterPanel != null) Destroy(afterPanel);
@@ -188,7 +188,7 @@ public class EnhanceUI : MonoBehaviour
         }
         if (!EnhanceManager.Instance.CanEnhance(selectedItem))
         {
-            ShowWarning("이미 최대 레벨입니다!");
+            ShowWarning("최대 레벨입니다");
             return;
         }
     }
@@ -286,6 +286,9 @@ public class EnhanceUI : MonoBehaviour
                 }
             };
         }
+
+        if (!EnhanceManager.Instance.CanEnhance(item))
+        afterPanel.SetActive(false);
     }
 
     private bool AreListsEqual(List<Item> a, List<Item> b)

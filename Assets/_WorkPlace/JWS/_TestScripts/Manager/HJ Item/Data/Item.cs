@@ -266,7 +266,7 @@ public class Item : ISheetData
               (type == ItemType.무기 ? $"    무기 타입: <color=#FFD700>{weaponType}</color>" : "")
             : "";
 
-        // 스탯 라인 비교 후 색상 입히는 헬퍼
+        // 스탯 라인 비교 후 색상 입히기
         string StatLine(string name, float oldVal, float newVal)
         {
             string text = $"{name} : {newVal}";

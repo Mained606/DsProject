@@ -208,8 +208,8 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
             Color parsedColor;
             if (level <= 2) ItemLevel.color = Color.white;
             else if (level <= 5 && ColorUtility.TryParseHtmlString("#A6D8F1", out parsedColor)) ItemLevel.color = parsedColor;
-            else if (level <= 9 && ColorUtility.TryParseHtmlString("#D4A6F1", out parsedColor)) ItemLevel.color = parsedColor;
-            else if (level >= 10 && ColorUtility.TryParseHtmlString("#FFD700", out parsedColor)) ItemLevel.color = parsedColor;
+            else if (level <= 8 && ColorUtility.TryParseHtmlString("#D4A6F1", out parsedColor)) ItemLevel.color = parsedColor;
+            else if (level >= 9 && ColorUtility.TryParseHtmlString("#FFD700", out parsedColor)) ItemLevel.color = parsedColor;
         }
         else
         {
