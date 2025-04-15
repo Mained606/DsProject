@@ -296,7 +296,7 @@ public class UIManager : BaseManager<UIManager>
     {
         ToggleUIWindow(GameSystemState.Skill);
         skillQuickSlot.SetActive(true);
-        quickSlot.SetActive(false);
+        quickSlot.SetActive(true);
     }
 
     #region 04.01 기존 메서드
