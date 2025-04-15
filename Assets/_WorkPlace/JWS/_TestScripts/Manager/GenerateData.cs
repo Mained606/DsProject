@@ -141,7 +141,7 @@ public class GenerateData
                     // {"location_001", new QuestCondition(QuestConditionType.Explore, "location_001", "옆집 아저씨에게 대화 걸기", 1) },
                     { "에드릭", new QuestCondition(QuestConditionType.Meet, "MainNPC_1", "옆집 아저씨에게 대화 걸기", 1)}
                 },
-                new List<Reward> {new Reward("마을 지도", 1, 0, 0)}, true),
+                new List<Reward> {new Reward("마을 지도", 1, 0, 0)}, true, "", true, true, "1_1002"),
 
             new Quest("메인퀘스트", "1_1002", "엄마의 쪽지", "밭에서 야채를 수확하자",
                 new Dictionary<string, QuestCondition>
@@ -150,7 +150,7 @@ public class GenerateData
                     { "비트", new QuestCondition(QuestConditionType.Collect, "비트", "비트", 3) },
                     { "무", new QuestCondition(QuestConditionType.Collect, "무", "무", 3) },
                 },
-                new List <Reward> {new Reward("",0,10,0) }),
+                new List <Reward> {new Reward("",0,10,0) }, false, "", true, true, "1_1003"),
 
             new Quest("메인퀘스트", "1_1003", "엄마의 쪽지","의문의 소리 찾기",
                 new Dictionary<string, QuestCondition>
@@ -158,7 +158,7 @@ public class GenerateData
                     {"location_003", new QuestCondition(QuestConditionType.Explore, "location_003", "이상한 기운 찾기", 1) },
                     {"용의알", new QuestCondition(QuestConditionType.Collect, "용의알", "용의알",1) }
                 },
-                new List<Reward>{new Reward("", 0, 10,0)}),
+                new List<Reward>{new Reward("", 0, 10,0)}, false, "", true, true, "1_1004"),
 
             new Quest("메인퀘스트", "1_1004", "엄마의 쪽지","용에게 말을 걸자",
                 new Dictionary<string, QuestCondition>
@@ -170,7 +170,7 @@ public class GenerateData
                     // new Reward("스킬(FireStrike)", 1, 30, 0),
                     new Reward("수련용검_일반", 1, 0, 0),
                     new Reward("완드", 1, 0, 0),
-                }, true),
+                }, true, "", true),
 
             #region 삭제된 메인 퀘스트
             /*new Quest("메인퀘스트", "1_1005", "알에서 나온 친구","옷장을 열자",
@@ -303,6 +303,28 @@ public class GenerateData
                 })*/
 #endregion
         };
+
+        // 퀘스트 리스트에 생성된 메인 퀘스트 추가
+        //이게 오히려 나을수도 있겠네 일일이 로직 쓸 필요가 없음
+        // 특정 메인 퀘스트에 자동 완료 및 다음 퀘스트 자동 시작 설정 추가
+        // 예: 1_1001 퀘스트는 NPC 대화 후 자동 완료 및 1_1002 자동 시작
+        foreach (var quest in questList)
+        {
+            if (quest.id == "1_1001")
+            {
+                quest.autoComplete = true;
+                quest.autoStartNextQuest = true;
+                quest.nextQuestId = "1_1002";
+            }
+            else if (quest.id == "1_1003")
+            {
+                quest.autoComplete = true;
+                quest.autoStartNextQuest = true;
+                quest.nextQuestId = "1_1004";
+            }
+            // 다른 필요한 퀘스트도 여기에 추가
+        }
+
         return questList;
     }
 
@@ -382,7 +404,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),
 
-            new Quest("서브   퀘스트", "1_2008", "친절한 용사","협곡의 보물",
+            new Quest("서브퀘스트", "1_2008", "친절한 용사","협곡의 보물",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_007", new QuestCondition(QuestConditionType.Explore, "location_007", "협곡의 입구를 찾자", 1) },
@@ -392,7 +414,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("", 10, 50,50)}, true),
 
-            new Quest("서브   퀘스트", "1_2009", "친절한 용사","괴물을 물리쳐줘",
+            new Quest("서브퀘스트", "1_2009", "친절한 용사","괴물을 물리쳐줘",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_008", new QuestCondition(QuestConditionType.Explore, "location_008", "모파안 찾기", 1) },
@@ -401,7 +423,7 @@ public class GenerateData
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),
 
-            new Quest("서브   퀘스트", "1_2010", "친절한 용사","거대한 숲을 구해줘",
+            new Quest("서브퀘스트", "1_2010", "친절한 용사","거대한 숲을 구해줘",
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_009", new QuestCondition(QuestConditionType.Explore, "location_009", "거대한 숲으로 가자", 1) },
@@ -669,7 +691,7 @@ public class GenerateData
         return CreateQuest(type);
     }
 
-    private static Quest CreateQuest(QuestConditionType type)
+    private static Quest CreateQuest(QuestConditionType type, bool autoComplete = false, bool autoStartNextQuest = false, string nextQuestId = "")
     {
         return new Quest(
             questString[0],
@@ -683,7 +705,12 @@ public class GenerateData
             new List<Reward>
             {
                 new Reward(GetRewardItem(type), GetRewardQuantity(type), GetRewardExp(type), GetRewardGold(type))
-            }
+            },
+            false,
+            "",
+            autoComplete,
+            autoStartNextQuest,
+            nextQuestId
         );
     }
 
