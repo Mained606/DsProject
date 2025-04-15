@@ -65,7 +65,7 @@ public class FishMovement : MonoBehaviour
                 Vector3.Distance(transform.position, candidate) > arrivedDistance * 2f)
             {
                 randomPosition = candidate;
-                randomPosition.y = waterSurfaceY - Random.Range(1.0f, 2.0f);
+                randomPosition.y = waterSurfaceY - Random.Range(1.5f, 2.0f);
                 break;
             }
         }
@@ -84,7 +84,31 @@ public class FishMovement : MonoBehaviour
             return true;
         }
         return false;
-    }    
+    }
+
+    //private bool IsOnWater(Vector3 position, out float surfaceY)
+    //{
+    //    surfaceY = 0f;
+    //    Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
+
+    //    if (Physics.Raycast(ray, out RaycastHit hit, 20f))
+    //    {
+    //        if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Water"))
+    //        {
+    //            Debug.Log($"{transform.name} 물 인식");
+    //            surfaceY = hit.point.y;
+    //            return true;
+    //        }
+    //        else
+    //        {
+    //            Debug.Log($"{transform.name} 인식 레이어 {hit.collider.gameObject.layer}");
+    //            surfaceY = hit.point.y;
+    //            return false;
+    //        }
+    //    }
+
+    //    return false;
+    //}
 
     private void Swim()
     {
