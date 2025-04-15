@@ -31,6 +31,11 @@ public class EnhanceUI : MonoBehaviour
     [SerializeField] private Transform currentPanelParent;
     [SerializeField] private Transform afterPanelParent;
 
+    [Header("경고창")]
+    [SerializeField] private GameObject warningPopup;             // 전체 팝업 오브젝트
+    [SerializeField] private TextMeshProUGUI warningText;         // 메시지 출력용
+    [SerializeField] private Button warningButton;
+
     private GameObject currentPanel;
     private GameObject afterPanel;
 
@@ -44,6 +49,7 @@ public class EnhanceUI : MonoBehaviour
     private void OnEnable()
     {
         AddButtonListeners();
+        warningButton.onClick.AddListener(() => warningPopup.SetActive(false));
         LoadTargetItems();
         ClearEnhanceSlot();
         UpdateEnhanceStoneUI();
@@ -52,6 +58,7 @@ public class EnhanceUI : MonoBehaviour
     private void OnDisable()
     {
         RemoveButtonListeners();
+        itemInfoObject.SetActive(false);
     }
 
     private void LoadTargetItems()
@@ -125,36 +132,60 @@ public class EnhanceUI : MonoBehaviour
     {
         if (selectedItem == null)
         {
-            UIManager.SystemMessage("강화할 아이템이 없습니다.");
+            ShowWarning("강화할 아이템이 없습니다.");
             return;
         }
 
-        if (selectedItem.isEquired) 
+        if (selectedItem.isEquired)
         {
-            UIManager.SystemMessage("장착 중인 아이템은 강화할 수 없습니다.");
+            ShowWarning("장착 중인 아이템은 강화할 수 없습니다.");
             return;
         }
 
         string materialId = EnhanceManager.Instance.enhancementItemIds[0];
         if (string.IsNullOrEmpty(materialId))
         {
-            UIManager.SystemMessage("강화 재료가 설정되어 있지 않습니다.");
+            ShowWarning("강화 재료가 설정되어 있지 않습니다.");
             return;
         }
 
         int qty = InventoryManager.Instance.GetItemQuantity(materialId);
         if (qty <= 0)
         {
-            UIManager.SystemMessage("강화 재료가 부족합니다.");
+            ShowWarning("강화 재료가 부족합니다.");
             return;
         }
 
         var mat = ItemManager.Instance.GetItemById(materialId);
+        int previousLevel = selectedItem.itemSkill.Level; 
+        string deletedItemId = selectedItem.id;
         EnhanceManager.Instance.Enhance(selectedItem, mat);
 
-        ClearEnhanceSlot();
+        // 인벤토리 갱신
+        previousItems.Clear();
         LoadTargetItems();
         UpdateEnhanceStoneUI();
+
+        if (!InventoryManager.Instance.HasItem(deletedItemId))
+        {
+            ShowWarning("장비가 파괴되었습니다!");
+            ClearEnhanceSlot();
+            if (currentPanel != null) Destroy(currentPanel);
+            if (afterPanel != null) Destroy(afterPanel);
+        }
+        else
+        {
+            int newLevel = selectedItem.itemSkill.Level;
+
+            if (newLevel > previousLevel)
+                ShowWarning("장비 강화 성공!");
+            else if (newLevel < previousLevel)
+                ShowWarning("장비 강화 실패!\n레벨이 하락했습니다.");
+            else
+                ShowWarning("장비 강화 실패!");
+
+            SetSelectedItem(selectedItem);
+        }
     }
 
     private void ClearEnhanceSlot()
@@ -283,4 +314,11 @@ public class EnhanceUI : MonoBehaviour
             enhanceStoneQuantityText.text = "0";
         }
     }
+
+     public void ShowWarning(string message)
+    {
+        warningText.text = message;
+        warningPopup.SetActive(true);
+    }
+
 }

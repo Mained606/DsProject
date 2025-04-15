@@ -74,6 +74,8 @@ public class SkillUI : MonoBehaviour
     }
     private void OnButtonClick(Type type)
     {
+        InfoPanel.SetActive(false);
+
         currentType = type;
 
         if (type == Type.Player)

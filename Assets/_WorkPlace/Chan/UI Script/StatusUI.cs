@@ -24,7 +24,8 @@ public class StatusUI : MonoBehaviour
 
     [Header("드래곤 패널")]
     [SerializeField] private GameObject dragonPanel;
-    private TextMeshProUGUI[] DragonStats;
+    [SerializeField] private Transform dragonStatPosition; // ← 이거 추가
+    private TextMeshProUGUI[] dragonStatTexts; // ← DragonStats → dragonStatTexts로 바꿈
 
     [Header("버튼 영역")]
 
@@ -49,7 +50,7 @@ public class StatusUI : MonoBehaviour
         previewStatTexts = statPreviewPosition.GetComponentsInChildren<TextMeshProUGUI>();
         equipBonusTexts = equipBonusPosition.GetComponentsInChildren<TextMeshProUGUI>();
 
-        DragonStats = dragonPanel.GetComponentsInChildren<TextMeshProUGUI>();
+        dragonStatTexts = dragonStatPosition.GetComponentsInChildren<TextMeshProUGUI>();
 
         AssignButtonsByIndex();
     }
@@ -216,16 +217,15 @@ public class StatusUI : MonoBehaviour
         dragonPanel.SetActive(true);
 
         // 값 텍스트 설정
-        DragonStats[0].text = dragonData.evolutionStage.ToString();
-        DragonStats[1].text = dragonData.strength.ToString();
-        DragonStats[2].text = dragonData.intelligence.ToString();
-        DragonStats[3].text = dragonData.agility.ToString();
-        DragonStats[4].text = dragonData.vitality.ToString();
-
-        DragonStats[5].text = dragonData.physicalDamage.ToString();
-        DragonStats[6].text = dragonData.magicDamage.ToString();
-        DragonStats[7].text = dragonData.attackSpeed.ToString();
-        DragonStats[8].text = (dragonData.criticalChance * 100f).ToString("F1") + "%";
+        dragonStatTexts[0].text = dragonData.evolutionStage.ToString();
+        dragonStatTexts[1].text = dragonData.strength.ToString();
+        dragonStatTexts[2].text = dragonData.intelligence.ToString();
+        dragonStatTexts[3].text = dragonData.agility.ToString();
+        dragonStatTexts[4].text = dragonData.vitality.ToString();
+        dragonStatTexts[5].text = dragonData.physicalDamage.ToString();
+        dragonStatTexts[6].text = dragonData.magicDamage.ToString();
+        dragonStatTexts[7].text = dragonData.attackSpeed.ToString();
+        dragonStatTexts[8].text = (dragonData.criticalChance * 100f).ToString("F1") + "%";
     }
 
     private void UpdatePlayerStatUI(StatType stat, int index)

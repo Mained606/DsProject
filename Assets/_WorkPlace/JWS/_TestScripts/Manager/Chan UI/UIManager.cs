@@ -281,22 +281,22 @@ public class UIManager : BaseManager<UIManager>
     public void ToggleCookingUIWindow()
     {
         ToggleUIWindow(GameSystemState.Cook);
-        skillQuickSlot.SetActive(true);
+        skillQuickSlot.SetActive(false);
         quickSlot.SetActive(true);
     }
 
     public void ToggleEnhanceUIWindow()
     {
         ToggleUIWindow(GameSystemState.Enhance);
-        skillQuickSlot.SetActive(true);
-        quickSlot.SetActive(true);
+        skillQuickSlot.SetActive(false);
+        quickSlot.SetActive(false);
     }
 
     public void ToggleSkillUIWindow()
     {
         ToggleUIWindow(GameSystemState.Skill);
         skillQuickSlot.SetActive(true);
-        quickSlot.SetActive(true);
+        quickSlot.SetActive(false);
     }
 
     #region 04.01 기존 메서드
