@@ -15,6 +15,7 @@ public class TotemSpawn : MonoBehaviour
     {
         if (other.CompareTag("PlayerWeapon"))
         {
+            QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Kill, "Totem", 1);
             npcSpawner.enabled = true;
             Destroy(this.gameObject, 0.1f);
         }
