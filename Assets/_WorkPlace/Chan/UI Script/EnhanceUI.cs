@@ -186,6 +186,11 @@ public class EnhanceUI : MonoBehaviour
 
             SetSelectedItem(selectedItem);
         }
+        if (!EnhanceManager.Instance.CanEnhance(selectedItem))
+        {
+            ShowWarning("이미 최대 레벨입니다!");
+            return;
+        }
     }
 
     private void ClearEnhanceSlot()
@@ -261,7 +266,7 @@ public class EnhanceUI : MonoBehaviour
         var afterImage = afterPanel.GetComponentsInChildren<Image>();
         afterTexts[0].text = previewItem.id;
         afterTexts[1].text = $"+{previewItem.itemSkill.Level}";
-        afterTexts[2].text = previewItem.ToStringTMPro();
+        afterTexts[2].text = previewItem.ToStringTMProComparedTo(item);
         afterImage[4].sprite = null;
         afterImage[5].sprite = previewItem.sprite;
 
