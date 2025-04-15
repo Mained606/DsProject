@@ -144,11 +144,11 @@ public class Item : ISheetData
         // 무기 속성 색상
         string elementColor = itemSkill != null ? GetElementColor(itemSkill.element) : "#FFFFFF";
         string elementInfo = itemSkill != null && itemSkill.element != ElementalAttribute.None
-            ? $"                            <size=120%>속성: <color={elementColor}>{itemSkill.element}</color></size>"
+            ? $"                      <size=120%>속성: <color={elementColor}>{itemSkill.element}</color></size>"
             : "";
 
         // 공통 정보
-        string itemType = $"종류: <i><color=#87CEEB>{type}</color></i>    등급: <i><color={gradeColor}>{grade}</color></i>{elementInfo}\n";
+        string itemType = $"종류: <i><color=#87CEEB>{type}</color></i>    등급: <i><color={gradeColor}>{grade}</color></i>{elementInfo}\n\n";
         string itemDescription = $"<color=#FFFFFF>{description}</color>\n";
         string itemQuantity = isStackable
             ? $"수량: <color=#00FF00>{quantity}/{maxStack}</color>"
@@ -167,7 +167,7 @@ public class Item : ISheetData
         if (type == ItemType.무기 || type == ItemType.방어구 || type == ItemType.장신구)
         {
             statInfo = itemStat != null
-                ? $"\n<b><color=#FFD700>[스탯 정보]</color></b>\n\n" +  // ⬅ 공백 추가됨
+                ? $"\n\n<b><color=#FFD700>[스탯 정보]</color></b>\n\n" +  // ⬅ 공백 추가됨
                   (itemStat.Strength > 0 ? $"힘 : {itemStat.Strength}    " : "") +
                   (itemStat.Dexterity > 0 ? $"민첩 : {itemStat.Dexterity}    " : "") +
                   (itemStat.Intelligence > 0 ? $"지능 : {itemStat.Intelligence}    " : "") +
@@ -235,6 +235,69 @@ public class Item : ISheetData
         }
     }
     #endregion
+
+    public string ToStringTMProComparedTo(Item oldItem)
+    {
+        if (oldItem == null || oldItem.itemStat == null || this.itemStat == null)
+            return ToStringTMPro(); // 예외처리
+
+        ItemStat prev = oldItem.itemStat;
+        ItemStat now = this.itemStat;
+
+        // 등급 색상
+        string gradeColor = GetGradeColor(grade);
+
+        // 무기 속성 색상
+        string elementColor = itemSkill != null ? GetElementColor(itemSkill.element) : "#FFFFFF";
+        string elementInfo = itemSkill != null && itemSkill.element != ElementalAttribute.None
+            ? $"                      <size=120%>속성: <color={elementColor}>{itemSkill.element}</color></size>"
+            : "";
+
+        // 공통 정보
+        string itemType = $"종류: <i><color=#87CEEB>{type}</color></i>    등급: <i><color={gradeColor}>{grade}</color></i>{elementInfo}\n\n";
+        string itemDescription = $"<color=#FFFFFF>{description}</color>\n";
+        string itemQuantity = isStackable
+            ? $"수량: <color=#00FF00>{quantity}/{maxStack}</color>"
+            : "수량: <color=#FF0000>중첩 불가</color>";
+
+        // 장비 전용
+        string equipmentInfo = type == ItemType.무기 || type == ItemType.방어구 || type == ItemType.장신구
+            ? $"\n장착 위치: <color=#FFD700>{equipmentSlot}</color>" +
+              (type == ItemType.무기 ? $"    무기 타입: <color=#FFD700>{weaponType}</color>" : "")
+            : "";
+
+        // 스탯 라인 비교 후 색상 입히기
+        string StatLine(string name, float oldVal, float newVal)
+        {
+            string text = $"{name} : {newVal}";
+            return newVal > oldVal ? $"<color=yellow>{text}</color>" : text;
+        }
+
+        // 1. 장비 비교
+        string statInfo = "";
+        if (type == ItemType.무기 || type == ItemType.방어구 || type == ItemType.장신구)
+        {
+            statInfo = itemStat != null
+                ? $"\n\n<b><color=#FFD700>[스탯 정보]</color></b>\n\n" +
+                  (now.Strength > 0 ? StatLine("힘", prev.Strength, now.Strength) + "    " : "") +
+                  (now.Dexterity > 0 ? StatLine("민첩", prev.Dexterity, now.Dexterity) + "    " : "") +
+                  (now.Intelligence > 0 ? StatLine("지능", prev.Intelligence, now.Intelligence) + "    " : "") +
+                  (now.Vitality > 0 ? StatLine("활력", prev.Vitality, now.Vitality) + "    " : "") +
+
+                  (now.PhysicalAttack > 0 ? $"\n{StatLine("물리 공격력", prev.PhysicalAttack, now.PhysicalAttack)}    " : "") +
+                  (now.MagicAttack > 0 ? StatLine("마법 공격력", prev.MagicAttack, now.MagicAttack) + "    " : "") +
+                  (now.PhysicalDefense > 0 ? StatLine("물리 방어력", prev.PhysicalDefense, now.PhysicalDefense) + "    " : "") +
+
+                  (now.MagicDefense > 0 ? $"\n{StatLine("마법 방어력", prev.MagicDefense, now.MagicDefense)}    " : "") +
+                  (now.CriticalChance > 0 ? StatLine("치명타 확률", prev.CriticalChance, now.CriticalChance) + "%    " : "") +
+                  (now.AttackSpeed > 0 ? StatLine("공격 속도", prev.AttackSpeed, now.AttackSpeed) + "    " : "") +
+                  (now.Evasion > 0 ? $"\n{StatLine("회피율", prev.Evasion, now.Evasion)}%" : "")
+                : "";
+        }
+
+        // 최종 조합
+        return $"{itemType}{itemDescription}\n{itemQuantity}\n{equipmentInfo}{statInfo}".Trim();
+    }
 
 
     // 등급에 따른 색상 반환 메서드
