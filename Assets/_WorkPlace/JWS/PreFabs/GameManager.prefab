@@ -472,6 +472,92 @@ MonoBehaviour:
     - "\uAC15\uD654\uC5D0 \uC131\uACF5\uD588\uB2C8?"
     completeDialogues:
     - "\uC548\uB155 \uB09C \uB9C8\uC744\uC758 \uB300\uC7A5\uC7A5\uC774\uC57C."
+  - npcId: SubNPC_2
+    questId: 1_2003
+    isQuestProvider: 1
+    giveDialogues:
+    - "\uC694\uB9AC\uC0AC\uC5D0\uAC8C \uAC00\uC11C \uB300\uD654\uB97C \uD574\uBCF4\uACE0
+      \uC624\uB834."
+    progressDialogues:
+    - "\uC694\uB9AC\uC0AC\uB97C \uB9CC\uB098\uACE0 \uC654\uB2C8?"
+    completeDialogues:
+    - "\uBC18\uAC00\uC6CC"
+  - npcId: SubNPC_3
+    questId: 1_2003
+    isQuestProvider: 0
+    giveDialogues: []
+    progressDialogues:
+    - "\uC544\uC8FC\uBA38\uB2C8\uAC00 \uBCF4\uB0B4\uC11C \uC654\uAD6C\uB098 \uBC18\uAC00\uC6CC
+      \uB09C \uC694\uB9AC\uC0AC\uC57C \uC798 \uBD80\uD0C1\uD574."
+    completeDialogues: []
+  - npcId: SubNPC_3
+    questId: 1_2004
+    isQuestProvider: 1
+    giveDialogues:
+    - "\uC694\uB9AC\uB97C \uD55C \uBC88 \uB9CC\uB4E4\uC5B4 \uBCFC\uAE4C?"
+    progressDialogues:
+    - "\uC694\uB9AC\uB97C \uB9CC\uB4E4\uC5B4 \uBD24\uB2C8?"
+    completeDialogues:
+    - "\uC55E\uC73C\uB85C \uC798 \uBD80\uD0C1\uD574"
+  - npcId: SubNPC_4
+    questId: 1_2005
+    isQuestProvider: 1
+    giveDialogues:
+    - "\uBC2D\uC744 \uB9DD\uCE58\uB294 \uBA38\uC26C\uB8F8\uC744 \uC7A1\uC544\uC8FC\uBA74
+      \uC88B\uACA0\uC5B4!"
+    progressDialogues:
+    - "\uBA38\uC26C\uB8F8\uB4E4\uC744 \uC7A1\uACE0 \uC654\uC5B4?"
+    completeDialogues:
+    - "\uC55E\uC73C\uB85C \uC798 \uBD80\uD0C1\uD574"
+  - npcId: SubNPC_5
+    questId: 1_2006
+    isQuestProvider: 1
+    giveDialogues:
+    - "\uACF0\uB4E4\uC774 \uB0B4 \uCC45\uC744 \uD6D4\uCCD0\uAC14\uC5B4 \uCC3E\uC544\uB2E4
+      \uC904 \uC218 \uC788\uC744\uAE4C?"
+    progressDialogues:
+    - "\uB0B4 \uCC45\uC740 \uCC3E\uC558\uC5B4?"
+    completeDialogues:
+    - "\uC55E\uC73C\uB85C \uC798 \uBD80\uD0C1\uD574"
+  - npcId: SubNPC_6
+    questId: 1_2007
+    isQuestProvider: 1
+    giveDialogues:
+    - "\uACE8\uB818\uB4E4\uC774 \uC790\uAFB8 \uC6B0\uB9AC\uB97C \uC704\uD611\uD558\uACE0
+      \uC788\uC5B4"
+    progressDialogues:
+    - "\uACE8\uB818\uC740 \uC7A1\uACE0 \uC654\uC5B4?"
+    completeDialogues:
+    - "\uC55E\uC73C\uB85C \uC798 \uBD80\uD0C1\uD574"
+  - npcId: SubNPC_7
+    questId: 1_2008
+    isQuestProvider: 1
+    giveDialogues:
+    - "\uD611\uACE1 \uC5B4\uB518\uAC00\uC5D0 \uBCF4\uBB3C\uC774 \uC788\uB2E4\uB358\uB370
+      \uCC3E\uC544\uBCFC\uB798?"
+    progressDialogues:
+    - "\uBCF4\uBB3C\uC740 \uBC1C\uACAC\uD588\uC5B4?"
+    completeDialogues:
+    - "\uC55E\uC73C\uB85C \uC798 \uBD80\uD0C1\uD574"
+  - npcId: SubNPC_8
+    questId: 1_2009
+    isQuestProvider: 1
+    giveDialogues:
+    - "\uAD34\uBB3C \uBAA8\uD30C\uC548\uC774 \uB9C8\uC744\uC744 \uC704\uD611\uD558\uACE0
+      \uC788\uC5B4 \uBAA8\uD30C\uC548\uC744 \uCC98\uCE58\uD574\uC918!"
+    progressDialogues:
+    - "\uBAA8\uD30C\uC548\uC744 \uCC98\uCE58\uD558\uACE0 \uC654\uC5B4?"
+    completeDialogues:
+    - "\uC55E\uC73C\uB85C \uC798 \uBD80\uD0C1\uD574"
+  - npcId: SubNPC_9
+    questId: 1_2010
+    isQuestProvider: 1
+    giveDialogues:
+    - "\uC232 \uC18D\uC5D0 \uC774\uC0C1\uD55C \uBB3C\uAC74\uC774 \uC788\uC5B4 \uD655\uC778\uD574\uC918"
+    progressDialogues:
+    - "\uC232 \uC18D\uC758 \uC774\uC0C1\uD55C \uBB3C\uAC74\uC740 \uD655\uC778\uD574\uBD24\uC5B4?"
+    completeDialogues:
+    - "\uC55E\uC73C\uB85C \uC798 \uBD80\uD0C1\uD574"
 --- !u!1 &3107391844861314812
 GameObject:
   m_ObjectHideFlags: 0
