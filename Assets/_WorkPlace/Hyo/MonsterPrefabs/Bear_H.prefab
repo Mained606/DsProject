@@ -679,6 +679,7 @@ GameObject:
   - component: {fileID: 8869962818903947907}
   - component: {fileID: 8751356391053983087}
   - component: {fileID: 2081737841792769105}
+  - component: {fileID: 337769925733887039}
   m_Layer: 10
   m_Name: Bear_H
   m_TagString: Monster
@@ -773,6 +774,21 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.93, z: 0}
+--- !u!114 &337769925733887039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2788726836488354371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8e033a7640e526498d699d0d04b9fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footstep: {fileID: 0}
+  attack: {fileID: 8300000, guid: fe0d520155b549f4796ed7f727c65613, type: 3}
+  hit: {fileID: 0}
 --- !u!1 &2901057818819817089
 GameObject:
   m_ObjectHideFlags: 0
