@@ -4,17 +4,41 @@ using UnityEngine;
 public class BlazeScatter : MonoBehaviour
 {
     private Skills skills;
-
+    private Collider col;
     [SerializeField] private LayerMask layer;
     private Dictionary<Collider, int> enemyDamageCount = new Dictionary<Collider, int>();
     public int maxHits = 3;
     private bool playSound = false;
 
+    private float timer = 0f;
+
     private void Start()
     {
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "BlazeScatter");
+        col = GetComponent<Collider>();
+        if (col.enabled)
+        {
+            col.enabled = false;
+        }
 
         Destroy(gameObject, skills.effectDuration);
+    }
+
+    private void Update()
+    {
+        ColliderDelay();
+    }
+
+    private void ColliderDelay()
+    {
+        if (timer >= skills.particleDelay)
+        {
+            col.enabled = true;
+        }
+        else
+        {
+            timer += Time.deltaTime;
+        }
     }
 
     private void OnTriggerStay(Collider other)
