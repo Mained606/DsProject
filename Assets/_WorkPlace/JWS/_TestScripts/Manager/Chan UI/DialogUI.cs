@@ -103,17 +103,11 @@ public class DialogUI : MonoBehaviour
         }
         
         // 다이얼로그 설정
-        if (hasCompletedQuest && nPCData.questCompletedDialogue != null && nPCData.questCompletedDialogue.Length > 0)
+        if (hasCompletedQuest)
         {
-            // 퀘스트 완료 후 NPC가 특별한 대사를 가지고 있는 경우
-            currentDialogues = nPCData.questCompletedDialogue;
-            Debug.Log($"NPC {nPCData.name}이(가) 퀘스트 완료 후 대화 표시, 총 {currentDialogues.Length}개");
-        }
-        else if (hasCompletedQuest)
-        {
-            // 퀘스트 완료 후 특별한 대사가 없는 경우 기본 감사 메시지
+            // 퀘스트를 완료한 NPC에게는 감사 메시지
             currentDialogues = new string[] { "이미 도와주셔서 정말 감사합니다. 다른 일이 있으면 다시 찾아뵙겠습니다." };
-            Debug.Log($"NPC {nPCData.name}이(가) 기본 완료 메시지 표시");
+            Debug.Log($"NPC {nPCData.name}이(가) 완료 메시지 표시");
         }
         else if (nPCData.dialogue != null && nPCData.dialogue.Length > 0)
         {
@@ -152,8 +146,6 @@ public class DialogUI : MonoBehaviour
 
         // NPC 정보 찾기
         NPCData npcData = null;
-        
-        // 메인 퀘스트 NPC 목록에서 찾기
         foreach (var npc in QuestManager.NpcDatabase.mainQuestNpcLists)
         {
             if (npc.name == title)
@@ -163,48 +155,12 @@ public class DialogUI : MonoBehaviour
             }
         }
         
-        // 메인 퀘스트 NPC에서 찾지 못한 경우 서브 퀘스트 NPC 목록에서 찾기
-        if (npcData == null && QuestManager.NpcDatabase.subQuestNpcLists != null)
-        {
-            foreach (var npc in QuestManager.NpcDatabase.subQuestNpcLists)
-            {
-                if (npc.name == title)
-                {
-                    npcData = npc;
-                    break;
-                }
-            }
-        }
-        
-        // 일반 NPC 목록에서 찾기
-        if (npcData == null)
-        {
-            foreach (var npc in QuestManager.NpcDatabase.npcLists)
-            {
-                if (npc.name == title)
-                {
-                    npcData = npc;
-                    break;
-                }
-            }
-        }
-        
         string npcId = npcData != null ? npcData.id : "";
         Debug.Log($"퀘스트 다이얼로그 표시: NPC ID = {npcId}, 이름 = {title}, 퀘스트 ID = {quest.id}");
 
         if (quest.isCompleted)
         {
-            // 이미 완료된 퀘스트인 경우
-            if (npcData != null && npcData.questCompletedDialogue != null && npcData.questCompletedDialogue.Length > 0)
-            {
-                // 완료된 퀘스트에 대한 특별 대화가 있는 경우
-                currentDialogues = npcData.questCompletedDialogue;
-            }
-            else
-            {
-                // 기본 완료 메시지
-                currentDialogues = new string[] { "감사합니다! 퀘스트 완료에 따른 보상을 지급하겠습니다." };
-            }
+            currentDialogues = new string[] { "감사합니다! 퀘스트 완료에 따른 보상을 지급하겠습니다." };
             DisplayNextDialogue(true, () => HandleQuest(quest, true, npcId));
         }
         else
@@ -213,39 +169,17 @@ public class DialogUI : MonoBehaviour
             bool canAccept = !isQuestInProgress && quest.acceptCount < 3;
 
             // 다이얼로그 설정
-            if (canAccept && npcData != null)
+            if (canAccept && npcData != null && npcData.dialogue != null && npcData.dialogue.Length > 0)
             {
-                // 퀘스트 지급용 대화가 있는지 확인
-                if (npcData.questGiveDialogue != null && npcData.questGiveDialogue.Length > 0)
-                {
-                    // 퀘스트 지급용 대화가 있다면 사용
-                    currentDialogues = npcData.questGiveDialogue;
-                    Debug.Log($"NPC {title}의 퀘스트 지급 대화 사용: 총 {currentDialogues.Length}개");
-                }
-                else if (npcData.dialogue != null && npcData.dialogue.Length > 0)
-                {
-                    // 기본 대화가 있다면 사용
-                    currentDialogues = npcData.dialogue;
-                    Debug.Log($"NPC {title}의 기본 대화 사용: 총 {currentDialogues.Length}개");
-                }
-                else
-                {
-                    // 둘 다 없다면 퀘스트 설명만 사용
-                    currentDialogues = new string[] { quest.description };
-                    Debug.Log($"퀘스트 {quest.id} 설명만 사용: {quest.description}");
-                }
+                // NPC의 대화 내용을 모두 사용
+                currentDialogues = npcData.dialogue;
+                Debug.Log($"NPC {title}의 모든 대화 사용: 총 {currentDialogues.Length}개");
             }
-            else if (isQuestInProgress && npcData != null && npcData.questMeetDialogue != null && npcData.questMeetDialogue.Length > 0)
+            else if (canAccept)
             {
-                // 진행 중인 퀘스트에 대한 대화가 있는 경우
-                currentDialogues = npcData.questMeetDialogue;
-                Debug.Log($"NPC {title}의 퀘스트 진행 중 대화 사용: 총 {currentDialogues.Length}개");
-            }
-            else if (isQuestInProgress)
-            {
-                // 진행 중인 퀘스트에 대한 기본 메시지
-                currentDialogues = new string[] { "퀘스트를 진행 중이시군요. 모든 조건을 완료해 주세요." };
-                Debug.Log($"퀘스트 {quest.id} 진행 중 기본 메시지 사용");
+                // 퀘스트 설명
+                currentDialogues = new string[] { quest.description };
+                Debug.Log($"퀘스트 {quest.id} 설명 사용: {quest.description}");
             }
             else
             {
@@ -266,37 +200,27 @@ public class DialogUI : MonoBehaviour
             Debug.LogError("텍스트 박스가 없습니다.");
             return;
         }
-        
+
         // 상태 초기화
         currentNpcData = npcData;
         currentDialogueIndex = 0;
         currentQuest = quest;
         isDialogueInProgress = true;
         currentDialogType = DialogType.MainQuestDialog;
-        
-        // 타이틀과 버튼 설정
+
         acceptButton.onClick.RemoveAllListeners();
         subDisplay[0].text = npcData.name;
         
-        // 퀘스트 완료 메시지 설정
-        if (npcData.questCompleteDialogue != null && npcData.questCompleteDialogue.Length > 0)
-        {
-            // 퀘스트 완료 대화가 있는 경우 이를 사용
-            currentDialogues = npcData.questCompleteDialogue;
-            Debug.Log($"NPC {npcData.name}이(가) 퀘스트 {quest.id} 완료 가능 대화 표시, 총 {currentDialogues.Length}개");
-        }
-        else
-        {
-            // 기본 완료 메시지
-            currentDialogues = new string[] { 
-                "퀘스트를 모두 완료하셨군요! 보상을 드리겠습니다.", 
-                "수고하셨습니다! 약속한 보상입니다."
-            };
-            Debug.Log($"NPC {npcData.name}이(가) 기본 퀘스트 완료 메시지 표시");
-        }
+        string npcId = npcData != null ? npcData.id : "";
+        Debug.Log($"완료 가능한 퀘스트 다이얼로그 표시: NPC ID = {npcId}, 이름 = {npcData.name}, 퀘스트 ID = {quest.id}");
+
+        // 완료 가능한 퀘스트에 대한 대화 메시지 설정
+        currentDialogues = new string[] { 
+            $"'{quest.name}' 퀘스트의 모든 조건을 충족하셨습니다! 보상을 받으시겠습니까?" 
+        };
         
-        // 퀘스트 완료 처리를 위한 메서드 연결
-        DisplayNextDialogue(true, () => HandleCompletableQuest(quest, true, npcData.id));
+        // 완료 다이얼로그 표시 및 퀘스트 완료 처리
+        DisplayNextDialogue(true, () => HandleCompletableQuest(quest, true, npcId));
     }
 
     // 다음 다이얼로그를 표시하는 메서드

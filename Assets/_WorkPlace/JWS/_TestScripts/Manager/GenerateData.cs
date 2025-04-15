@@ -534,30 +534,8 @@ public class GenerateData
                 currentState = NPCState.중립,
                 quests = new[] { baseDatabase[i] },
                 isQuestGiver = true,
-                isQuestActivator = true,
                 isInteractable = true,
-                description = "메인 퀘스트를 제공하는 NPC입니다.",
-                dialogue = new[] { 
-                    "안녕하세요! 무엇을 도와드릴까요?", 
-                    "마을에 새로운 모험가가 오셨군요." 
-                },
-                questGiveDialogue = new[] { 
-                    "중요한 임무가 있습니다.", 
-                    "이 일을 도와주실 수 있을까요?", 
-                    "임무를 수락하시겠습니까?" 
-                },
-                questMeetDialogue = new[] { 
-                    "임무는 어떻게 진행되고 있나요?", 
-                    "아직 완료하지 못하셨군요. 힘내세요!" 
-                },
-                questCompleteDialogue = new[] { 
-                    "잘 하셨습니다! 모든 임무를 완수하셨군요.", 
-                    "보상을 받으시겠습니까?" 
-                },
-                questCompletedDialogue = new[] { 
-                    "이전에 도와주셔서 감사합니다.", 
-                    "다음에 또 도움이 필요하면 연락드리겠습니다." 
-                }
+                description = "메인 퀘스트를 제공하는 NPC입니다."
             };
             mainNpcList.Add(mainnpc);
         }
@@ -619,34 +597,9 @@ public class GenerateData
         {
             case NPCType.퀘스트:
                 npc.isQuestGiver = true;
-                npc.isQuestActivator = true;
                 npc.isInteractable = true;
                 //npc.quests = GenerateRandomQuests(availableQuests, 1, 3); // 1~3개의 랜덤 퀘스트
                 npc.description = "퀘스트를 제공하는 NPC입니다.";
-                
-                // 퀘스트 NPC 기본 대화 설정
-                npc.dialogue = new[] { 
-                    "안녕하세요! 무엇을 도와드릴까요?", 
-                    "마을에 새로운 모험가가 오셨군요." 
-                };
-                
-                // 퀘스트 관련 다이얼로그 설정
-                npc.questGiveDialogue = new[] { 
-                    "도움이 필요합니다.", 
-                    "이 임무를 맡아주시겠습니까?" 
-                };
-                npc.questMeetDialogue = new[] { 
-                    "임무는 어떻게 진행되고 있나요?", 
-                    "아직 완료하지 못하셨군요. 계속 진행해주세요." 
-                };
-                npc.questCompleteDialogue = new[] { 
-                    "모든 임무를 완수하셨군요!", 
-                    "약속한 보상을 드리겠습니다." 
-                };
-                npc.questCompletedDialogue = new[] { 
-                    "이전에 도와주셔서 감사합니다.",
-                    "다른 일이 있으면 다시 찾아뵙겠습니다." 
-                };
                 break;
 
             case NPCType.정보제공:
@@ -659,45 +612,27 @@ public class GenerateData
                 npc.description = "특정 장치를 작동시키는 NPC입니다.";
                 npc.isInteractable = true;
                 npc.interactionCondition = "특정 아이템 필요";
-                npc.isQuestActivator = true;
-                npc.questMeetDialogue = new[] { 
-                    "이 장치를 작동시키려면 특별한 열쇠가 필요합니다.", 
-                    "필요한 아이템을 찾아오세요." 
-                };
                 break;
 
             case NPCType.힐러:
                 npc.isInteractable = true;
                 npc.description = "플레이어를 회복시켜주는 NPC입니다.";
                 npc.dialogue = new[] { "필요한 치료가 있으신가요?", "안전을 기원합니다." };
-                npc.isQuestActivator = true;
-                npc.questMeetDialogue = new[] { 
-                    "치료가 필요하신가요?", 
-                    "다치지 않도록 조심하세요." 
-                };
                 break;
 
             case NPCType.적NPC:
                 npc.currentState = NPCState.적;
                 npc.description = "플레이어를 공격할 수 있는 적대적 NPC입니다.";
-                npc.dialogue = new[] { "날 왜 찾아왔지?", "가까이 오지 마!" };
                 break;
 
             case NPCType.동료:
                 npc.currentState = NPCState.동료;
                 npc.description = "플레이어의 동료가 될 수 있는 NPC입니다.";
-                npc.dialogue = new[] { "함께 가시죠!", "제가 도와드리겠습니다." };
-                npc.isQuestActivator = true;
-                npc.questMeetDialogue = new[] { 
-                    "함께 모험을 떠나시겠습니까?", 
-                    "제가 도움이 되겠습니다." 
-                };
                 break;
 
             default:
                 npc.isInteractable = true;
                 npc.description = "일반 대화만 가능한 NPC입니다.";
-                npc.dialogue = new[] { "안녕하세요!", "오늘 날씨가 좋네요." };
                 break;
         }
     }
