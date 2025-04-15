@@ -734,7 +734,7 @@ public class ActivityNpc : MonoBehaviour
                 if(currentTalking == transform)
                 {
                     currentTalking = target;
-                    animator.SetTrigger("NodTrigger");                    
+                    animator.SetTrigger("NodTrigger");
                 }
                 else
                 {

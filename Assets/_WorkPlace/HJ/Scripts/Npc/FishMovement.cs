@@ -1,8 +1,7 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class Fish : MonoBehaviour
+public class FishMovement : MonoBehaviour
 {
     private float movingRange = 10f;
     private float arrivedDistance = 1f;
@@ -10,6 +9,7 @@ public class Fish : MonoBehaviour
     private bool isWait = false;
     [SerializeField] private float minSpeed = 0.5f;
     [SerializeField] private float maxSpeed = 1.5f;
+    private float validHeight = 1f;
 
     [SerializeField] private Vector3 originalPosition;
     [SerializeField] private Vector3 targetPosition;
@@ -33,10 +33,13 @@ public class Fish : MonoBehaviour
     {
         if (isWait) return;
 
-        if(Vector3.Distance(transform.position, targetPosition) < arrivedDistance)
+        Vector3 horizontalPosition = new Vector3(transform.position.x, 0, transform.position.z);
+        Vector3 horizontalTarget = new Vector3(targetPosition.x, 0, targetPosition.z);
+        float distance = Vector3.Distance(horizontalPosition, horizontalTarget);
+
+        if (distance < arrivedDistance)
         {
             StartCoroutine(WaitAfterSwam());
-            //SetNextDestination();
             return;
         }
 
@@ -62,7 +65,7 @@ public class Fish : MonoBehaviour
                 Vector3.Distance(transform.position, candidate) > arrivedDistance * 2f)
             {
                 randomPosition = candidate;
-                randomPosition.y = waterSurfaceY - Random.Range(0.5f, 2f);
+                randomPosition.y = waterSurfaceY - Random.Range(1.5f, 2.0f);
                 break;
             }
         }
@@ -70,14 +73,38 @@ public class Fish : MonoBehaviour
         targetPosition = randomPosition;
     }
 
+    //private bool IsOnWater(Vector3 position, out float surfaceY)
+    //{
+    //    surfaceY = 0f;
+    //    Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
+
+    //    if (Physics.Raycast(ray, out RaycastHit hit, 20f, LayerMask.GetMask("Water")))
+    //    {
+    //        surfaceY = hit.point.y;
+    //        return true;
+    //    }
+    //    return false;
+    //}
+
     private bool IsOnWater(Vector3 position, out float surfaceY)
     {
         surfaceY = 0f;
         Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
-        if(Physics.Raycast(ray, out RaycastHit hit, 20f, LayerMask.GetMask("Water")))
+
+        if (Physics.Raycast(ray, out RaycastHit waterHit, 20f, LayerMask.GetMask("Water")))
         {
-            surfaceY = hit.point.y;
-            return true;
+            surfaceY = waterHit.point.y;
+
+            Ray groundRay = new Ray(waterHit.point + Vector3.up * 0.5f, Vector3.down);
+            if (Physics.Raycast(groundRay, out RaycastHit groundHit, 5f, LayerMask.GetMask("Ground")))
+            {
+                float distanceBetween = waterHit.point.y - groundHit.point.y;
+
+                if (distanceBetween >= validHeight)
+                {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -87,9 +114,11 @@ public class Fish : MonoBehaviour
         Vector3 direction = (targetPosition - transform.position).normalized;
         float moveSpeed = Random.Range(minSpeed, maxSpeed);
 
-        transform.position += direction * moveSpeed * Time.deltaTime;
+        Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        if(direction != Vector3.zero)
+        transform.position = nextPosition;
+
+        if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);

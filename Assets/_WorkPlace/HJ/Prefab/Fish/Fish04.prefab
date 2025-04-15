@@ -68,6 +68,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b322bc539fd6b447b298d0dc2450cab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minSpeed: 0.5
+  maxSpeed: 1.5
+  heightOffset: 0.5
   originalPosition: {x: 0, y: 0, z: 0}
   targetPosition: {x: 0, y: 0, z: 0}
   minScale: 1
