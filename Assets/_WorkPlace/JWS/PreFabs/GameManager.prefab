@@ -429,7 +429,9 @@ MonoBehaviour:
   mainQuestDatabase: []
   subQuestDatabase: []
   completedQuests: []
+  completableQuests: []
   dragon: {fileID: 0}
+  dragonEgg: {fileID: 0}
 --- !u!1 &3107391844861314812
 GameObject:
   m_ObjectHideFlags: 0

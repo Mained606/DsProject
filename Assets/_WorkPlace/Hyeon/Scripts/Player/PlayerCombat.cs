@@ -31,7 +31,7 @@ public class PlayerCombat : MonoBehaviour
     private static readonly int[] SkillStateHash = {
         Animator.StringToHash("Base Layer.Skills.UpperAttack"),
         Animator.StringToHash("Base Layer.Skills.DownCut"),
-        Animator.StringToHash("Base Layer.Skills.dwaredfsa"),
+        Animator.StringToHash("Base Layer.Skills.BlazeScatter"),
         Animator.StringToHash("Base Layer.Skills.FireStrike"),
         Animator.StringToHash("Base Layer.Skills.GlacierSpear"),
         Animator.StringToHash("Base Layer.Skills.ElectroComet"),
