@@ -14,6 +14,7 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
     [NonSerialized] public Image ItemImage;
     [NonSerialized] public Image ElementIcon;
     [NonSerialized] public TextMeshProUGUI ItemLevel;
+    [NonSerialized] public TextMeshProUGUI ItemSlotLevel;
 
     [NonSerialized] public TextMeshProUGUI[] amountCount;
     [NonSerialized] public bool isEquireSlot = false;
@@ -44,7 +45,9 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
         }
 
         string nameColor = currentItem.GetGradeColor(currentItem.grade);
-        amountCount[2].text = $"<color={nameColor}>{currentItem.name}</color>";
+        amountCount[2].text = $"<color={nameColor}>{currentItem.id}</color>";
+
+        UpdateSlotLevel();
     }
 
     private void Update()
@@ -55,9 +58,15 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
             amountCount[0].text = $"{currentItem.quantity}";
         }
 
-        bool isInQuickSlot =
-            (currentItem.id == condition[0] && InventoryManager.QuickSlotsUI.GetQuicSlot(0)) ||
-            (currentItem.id == condition[1] && InventoryManager.QuickSlotsUI.GetQuicSlot(1));
+        bool isInQuickSlot = false;
+        foreach (var slot in InventoryManager.QuickSlotsUI.GetSlots())
+        {
+            if (slot.GetItem() == currentItem)
+            {
+                isInQuickSlot = true;
+                break;
+            }
+        }
 
         bool isEquipped = currentItem.isEquired;
 
@@ -76,7 +85,18 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
             amountCount[1].enabled = false;
         }
     }
-
+    private void UpdateSlotLevel()
+    {
+        if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) && currentItem.itemSkill != null)
+        {
+            amountCount[3].enabled = true;
+            amountCount[3].text = $"+{currentItem.itemSkill.Level}";
+        }
+        else
+        {
+            amountCount[3].enabled = false;
+        }
+    }
     public void OnPointerClick(PointerEventData eventData)
     {
         if (!IsEquipable(currentItem)) return;
@@ -111,7 +131,7 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (currentItem.type == ItemType.소모품 && (currentItem.id == condition[0] || currentItem.id == condition[1]))
+        if (currentItem.type == ItemType.소모품 || currentItem.type == ItemType.요리)
         {
             if (!TryGetComponent(out DraggableItem ditem))
             {
@@ -172,7 +192,7 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
         ItemImage.sprite = currentItem.sprite;
 
         string nameColor = currentItem.GetGradeColor(currentItem.grade);
-        string coloredName = $"<color={nameColor}>{currentItem.name}</color>";
+        string coloredName = $"<color={nameColor}>{currentItem.id}</color>";
         textPoint[1].text = coloredName;
         textPoint[2].text = currentItem.ToStringTMPro();
 
@@ -181,7 +201,7 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
             int level = currentItem.itemSkill.Level;
 
             ItemLevel.gameObject.SetActive(true);
-            ItemLevel.text = $"LV.{level}";
+            ItemLevel.text = $"+{level}";
 
             Color parsedColor;
             if (level <= 2)

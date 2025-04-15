@@ -10,6 +10,8 @@ public class CookingManager : CraftManager
     [SerializeField] private string failedDishId = "실패한 요리";
     [SerializeField] private float maxDuration = 300f;      //최대 버프 지속시간
 
+    public string LastCraftedItemName { get; private set; }
+
     public List<string> specialIngredients = new List<string>();    //특수 요리 재료
     public IReadOnlyList<Item> SelectedIngredients => selectedIngredients;
 
@@ -180,7 +182,7 @@ public class CookingManager : CraftManager
     protected override void CompleteCrafting(Recipe recipe)
     {
         Item cookedDish = CookedDish(recipe);
-
+        LastCraftedItemName = cookedDish.name;
         InventoryManager.Instance.AddItemLogic(cookedDish);
 
         Debug.Log("제작 성공 인벤토리에 추가: " + cookedDish.id);
@@ -189,7 +191,7 @@ public class CookingManager : CraftManager
     protected override void FailedCrafting()
     {
         Item failedDish = FailedDish();
-
+        LastCraftedItemName = null;
         InventoryManager.Instance.AddItemLogic(failedDish);
 
         Debug.Log("요리 실패");

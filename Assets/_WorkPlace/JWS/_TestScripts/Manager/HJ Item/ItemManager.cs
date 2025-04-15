@@ -165,7 +165,8 @@ public class ItemManager : BaseManager<ItemManager>
             GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, "아이템 수량 부족.", true);
             return;
         }
-        int amount = ((int)(selltem.costValue * valueReductionRate) * quantity);
+        int reducedCost = Mathf.RoundToInt(selltem.costValue * valueReductionRate);
+        int amount = reducedCost * quantity;
         Debug.LogWarning($"판매 : {valueReductionRate}, {quantity}, {amount}");
         CharacterManager.PlayerCharacterData.AddGold(amount);
         InventoryManager.Instance.RemoveItemLogic(selltem.id, quantity);
