@@ -25,6 +25,14 @@ public class Quest :ISheetData
     [Header("선행 조건")]
     public string prerequisiteQuestId; // 이 퀘스트를 수락하기 위해 먼저 완료해야 하는 퀘스트 ID
 
+    [Header("자동 완료 및 다음 퀘스트 설정")]
+    [Tooltip("모든 조건 충족 시 자동으로 퀘스트를 완료합니다")]
+    public bool autoComplete; 
+    [Tooltip("퀘스트 완료 후 다음 퀘스트를 자동으로 시작합니다")]
+    public bool autoStartNextQuest;
+    [Tooltip("자동으로 시작할 다음 퀘스트 ID")]
+    public string nextQuestId;
+
     public Dictionary<string, QuestCondition> requiredConditions; // 퀘스트 조건
     public Dictionary<string, int> progress; // 진행 상태
     [Header("퀘스트 보상정보")]
@@ -32,7 +40,7 @@ public class Quest :ISheetData
 
     public Quest() { }
 
-    public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards, bool needsDialog = false, string prerequisiteQuestId = "")
+    public Quest(string type, string id, string name, string description, Dictionary<string, QuestCondition> requiredConditions, List<Reward> rewards, bool needsDialog = false, string prerequisiteQuestId = "", bool autoComplete = false, bool autoStartNextQuest = false, string nextQuestId = "")
     {
         this.id = id;
         this.questType = type;
@@ -50,6 +58,9 @@ public class Quest :ISheetData
         questNpcTransform = null;
         this.needsDialog = needsDialog;
         this.prerequisiteQuestId = prerequisiteQuestId;
+        this.autoComplete = autoComplete;
+        this.autoStartNextQuest = autoStartNextQuest;
+        this.nextQuestId = nextQuestId;
     }
 
     public void CheckQuestCondition()
@@ -199,6 +210,30 @@ public class Quest :ISheetData
                 reward.ParseData(rewardInfo);
                 rewards.Add(reward);
             }
+        }
+        
+        // 선행 퀘스트 ID 파싱
+        if (row.Count > 9 && !string.IsNullOrEmpty(row[9].ToString()))
+        {
+            prerequisiteQuestId = row[9].ToString();
+        }
+        
+        // 자동 완료 설정 파싱
+        if (row.Count > 10 && !string.IsNullOrEmpty(row[10].ToString()))
+        {
+            autoComplete = bool.TryParse(row[10].ToString(), out bool auto) ? auto : false;
+        }
+        
+        // 자동 시작 설정 파싱
+        if (row.Count > 11 && !string.IsNullOrEmpty(row[11].ToString()))
+        {
+            autoStartNextQuest = bool.TryParse(row[11].ToString(), out bool autoStart) ? autoStart : false;
+        }
+        
+        // 다음 퀘스트 ID 파싱
+        if (row.Count > 12 && !string.IsNullOrEmpty(row[12].ToString()))
+        {
+            nextQuestId = row[12].ToString();
         }
 
         Debug.Log($"[Quest] 퀘스트 {name} 데이터 로드 완료!");
