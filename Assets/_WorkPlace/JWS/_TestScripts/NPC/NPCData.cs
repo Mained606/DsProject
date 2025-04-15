@@ -14,8 +14,12 @@ public class NPCData : ISheetData
     public NPCState currentState = NPCState.중립;
     public GameObject currentNPC;
 
-    public string[] dialogue;
+    public string[] dialogue;            // 일반 상황에서 대화 리스트
     public string[] conditionalDialogue;
+    public string[] questGiveDialogue;   // 퀘스트를 지급할 때 출력할 대사 리스트
+    public string[] questMeetDialogue;   // 퀘스트 완료 조건으로 대화하는 상황에서 출력할 대사 리스트
+    public string[] questCompleteDialogue; // 모든 퀘스트 조건을 완료하고 퀘스트 지급자에게 다시 말걸 때 대사 리스트
+    public string[] questCompletedDialogue; // 이미 완료된 퀘스트에 대한 대사 리스트
     public Quest[] quests;
     public Item[] items;
     public ShopData shopData;
@@ -63,6 +67,10 @@ public class NPCData : ISheetData
         {
             clone.dialogue = (dialogue != null) ? (string[])dialogue.Clone() : null;
             clone.conditionalDialogue = (conditionalDialogue != null) ? (string[])conditionalDialogue.Clone() : null;
+            clone.questGiveDialogue = (questGiveDialogue != null) ? (string[])questGiveDialogue.Clone() : null;
+            clone.questMeetDialogue = (questMeetDialogue != null) ? (string[])questMeetDialogue.Clone() : null;
+            clone.questCompleteDialogue = (questCompleteDialogue != null) ? (string[])questCompleteDialogue.Clone() : null;
+            clone.questCompletedDialogue = (questCompletedDialogue != null) ? (string[])questCompletedDialogue.Clone() : null;
             clone.quests = (quests != null) ? quests : null;
             clone.items = (items != null) ? items : null;
             clone.patrolPoints = (patrolPoints != null) ? (Vector3[])patrolPoints.Clone() : null;
@@ -72,6 +80,10 @@ public class NPCData : ISheetData
         {
             clone.dialogue = dialogue;
             clone.conditionalDialogue = conditionalDialogue;
+            clone.questGiveDialogue = questGiveDialogue;
+            clone.questMeetDialogue = questMeetDialogue;
+            clone.questCompleteDialogue = questCompleteDialogue;
+            clone.questCompletedDialogue = questCompletedDialogue;
             clone.quests = quests;
             clone.items = items;
             clone.patrolPoints = patrolPoints;

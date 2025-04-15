@@ -376,87 +376,103 @@ public class NonePlayerCharacter : MonoBehaviour
 
     private void Interact()
     {
-        if (!currentNPCData.isInteractable)
-        {
-            Debug.Log($"{currentNPCData.name}은(는) 상호작용이 불가능합니다.");
-            return;
-        }
-        
-        Debug.Log($"NPC {currentNPCData.name}와 상호작용 시작, NPC 타입: {currentNPCData.npcType}");
+        // NPC 대화 상호작용 전에 Meet 조건 체크 (퀘스트 진행도 업데이트)
+        CheckQuestMeetCondition();
 
         switch (currentNPCData.npcType)
         {
-            case NPCType.상점:
-                OpenShop();
-                break;
             case NPCType.퀘스트:
-                // 먼저 퀘스트 상태를 동기화
-                SynchronizeQuestStatus(currentNPCData.quests);
-                
-                // [기능] 서브퀘스트 클리어 조건 체크 (Meet 타입)
-                CheckQuestMeetCondition();
-                
-                // [수정] 퀘스트 지급자인 경우에만 퀘스트 다이얼로그 표시
+                // [변경] NPC 유형이 퀘스트인 경우, 퀘스트 관련 로직 수행
                 if (currentNPCData.isQuestGiver)
                 {
-                    // 현재 진행 가능한 퀘스트가 있는지 확인
-                    bool hasActiveQuest = false;
-                    Quest activeQuest = null;
+                    // 이 NPC가 퀘스트 지급자인 경우 (isQuestGiver)
                     
-                    // 완료 가능한 퀘스트가 있는지 확인
-                    bool hasCompletableQuest = false;
+                    // 활성화된 퀘스트와 완료 가능한 퀘스트 확인
+                    Quest activeQuest = null;
                     Quest completableQuest = null;
                     
                     if (currentNPCData.quests != null && currentNPCData.quests.Length > 0)
                     {
-                        // 먼저 완료 가능한 퀘스트가 있는지 확인
-                        foreach (Quest quest in currentNPCData.quests)
-                        {
-                            // 이 NPC가 제공한 퀘스트 중에서 완료 가능한 퀘스트를 찾음
-                            if (quest.isCompletable && !quest.isCompleted && QuestManager.CompletableQuests.Contains(quest))
-                            {
-                                hasCompletableQuest = true;
-                                completableQuest = quest;
-                                Debug.Log($"완료 가능한 퀘스트 발견: {quest.id}");
-                                break;
-                            }
-                        }
+                        // 퀘스트 상태 동기화
+                        SynchronizeQuestStatus(currentNPCData.quests);
                         
-                        // 완료 가능한 퀘스트가 없다면 활성화된 퀘스트를 찾음
-                        if (!hasCompletableQuest)
+                        // 활성화된 퀘스트 찾기
+                        foreach (Quest q in currentNPCData.quests)
                         {
-                            // 완료되지 않은 첫 번째 퀘스트 찾기
-                            foreach (Quest quest in currentNPCData.quests)
+                            if (!q.isCompleted)
                             {
-                                if (!quest.isCompleted)
-                                {
-                                    hasActiveQuest = true;
-                                    activeQuest = quest;
-                                    Debug.Log($"활성화된 퀘스트 발견: {quest.id}");
-                                    break;
-                                }
+                                activeQuest = q;
+                                break;
                             }
                         }
                     }
                     
-                    if (hasCompletableQuest)
+                    // 완료 가능한 퀘스트 찾기
+                    foreach (Quest q in QuestManager.CompletableQuests)
+                    {
+                        // 이 NPC에게 완료해야 하는 퀘스트인지 확인
+                        if (q.targetID == currentNPCData.id || 
+                            (currentNPCData.quests != null && 
+                             currentNPCData.quests.Any(npcQuest => npcQuest.id == q.id)))
+                        {
+                            completableQuest = q;
+                            break;
+                        }
+                    }
+                    
+                    // 완료 가능한 퀘스트가 우선
+                    if (completableQuest != null)
                     {
                         // 완료 가능한 퀘스트가 있으면 완료 다이얼로그 표시
                         Debug.Log($"완료 가능한 퀘스트 다이얼로그 표시: {completableQuest.id}");
-                        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
-                        UIManager.Instance.DisplayCompletableQuestDialog(currentNPCData, completableQuest);
+                        ShowQuestCompleteDialogue(completableQuest);
                     }
-                    else if (hasActiveQuest)
+                    else if (activeQuest != null)
                     {
-                        // [추가] 서브 퀘스트도 DialogUI 통해 받을 수 있도록 구조 확장
+                        // 활성화된 퀘스트가 있으면 진행 중인 퀘스트 다이얼로그 표시
                         bool isMainQuest = activeQuest.questType.Equals("메인퀘스트", System.StringComparison.OrdinalIgnoreCase);
                         
-                        // 메인 퀘스트인 경우 또는 서브 퀘스트인 경우 모두 DialogUI를 표시
-                        UIManager.Instance.OpenQuestDialogUI(currentNPCData, activeQuest, isMainQuest);
+                        // 메인/서브 퀘스트 다이얼로그 표시
+                        Debug.Log($"진행 중인 퀘스트 다이얼로그 표시: {activeQuest.id}");
+                        ShowQuestGiveDialogue(activeQuest);
                     }
                     else
                     {
                         // 완료된 퀘스트만 있거나 퀘스트가 없는 경우
+                        GiveQuest();
+                    }
+                }
+                else if (currentNPCData.isQuestActivator)
+                {
+                    // 이 NPC가 퀘스트 활성화자인 경우 (isQuestActivator) - Meet 조건을 위한 NPC
+                    
+                    // 이 NPC와의 대화로 조건을 충족해야 하는 활성화된 퀘스트 찾기
+                    bool isMeetConditionNPC = false;
+                    foreach (Quest q in QuestManager.QuestDatabase)
+                    {
+                        foreach (var conditionPair in q.requiredConditions)
+                        {
+                            QuestCondition condition = conditionPair.Value;
+                            if (condition.type == QuestConditionType.Meet && 
+                                condition.targetId == currentNPCData.id && 
+                                !condition.isCompleted)
+                            {
+                                isMeetConditionNPC = true;
+                                break;
+                            }
+                        }
+                        
+                        if (isMeetConditionNPC) break;
+                    }
+                    
+                    if (isMeetConditionNPC)
+                    {
+                        // Meet 조건에 해당하는 NPC인 경우 특별한 대화 표시
+                        ShowQuestMeetDialogue();
+                    }
+                    else
+                    {
+                        // 그 외의 경우 일반 대화 표시
                         ShowDialogue();
                     }
                 }
@@ -466,6 +482,16 @@ public class NonePlayerCharacter : MonoBehaviour
                     ShowDialogue();
                 }
                 break;
+                
+            case NPCType.상점:
+                OpenShop();
+                break;
+                
+            case NPCType.정보제공:
+            case NPCType.상호작용:
+            case NPCType.힐러:
+            case NPCType.적NPC:
+            case NPCType.동료:
             default:
                 ShowDialogue();
                 break;
@@ -482,7 +508,7 @@ public class NonePlayerCharacter : MonoBehaviour
             return;
             
         // NPC ID를 사용하여 이 NPC와의 대화를 조건으로 하는 활성화된 퀘스트 찾기
-        QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Meet, currentNPCData.id);
+        QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Meet, currentNPCData.id, 1, currentNPCData);
         
         // 디버그 로그
         Debug.Log($"NPC '{currentNPCData.name}'({currentNPCData.id})와의 Meet 조건 체크 완료");
@@ -553,16 +579,124 @@ public class NonePlayerCharacter : MonoBehaviour
         // 이미 완료된 퀘스트인지 확인
         if (currentQuest.isCompleted)
         {
-            // 이미 완료된 퀘스트인 경우, 일반 대화 다이얼로그를 표시합니다.
-            Debug.Log($"퀘스트가 완료되어 일반 대화창 표시");
-            ShowDialogue();
+            // 이미 완료된 퀘스트인 경우, 퀘스트 완료 후 대화 다이얼로그를 표시합니다.
+            Debug.Log($"퀘스트가 완료되어 완료 후 대화창 표시");
+            ShowQuestCompletedDialogue();
         }
         else
         {
             // 아직 완료되지 않은 퀘스트는 퀘스트 다이얼로그 표시
             // 퀘스트 진행 업데이트는 DialogUI.HandleQuest에서 수락 후 처리됨
             Debug.Log($"완료되지 않은 퀘스트, 퀘스트 대화창 표시: {currentQuest.id}");
-            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, currentQuest);
+            ShowQuestGiveDialogue(currentQuest);
+        }
+    }
+
+    // 퀘스트 지급 시 대화를 표시하는 메서드
+    private void ShowQuestGiveDialogue(Quest quest)
+    {
+        // 게임 상태를 다이얼로그 상태로 전환
+        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+
+        // NPC에 퀘스트 지급용 대화가 있는지 확인하고 있으면 사용
+        if (currentNPCData.questGiveDialogue != null && currentNPCData.questGiveDialogue.Length > 0)
+        {
+            // 퀘스트 지급 대화가 있는 경우, 임시로 원래 대화를 저장하고 교체
+            string[] originalDialogue = currentNPCData.dialogue;
+            currentNPCData.dialogue = currentNPCData.questGiveDialogue;
+            
+            // 대화 UI 표시
+            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, quest);
+            
+            // 대화 복원 (다음번 대화를 위해)
+            currentNPCData.dialogue = originalDialogue;
+        }
+        else
+        {
+            // 퀘스트 지급 대화가 없는 경우 기본 퀘스트 대화창 표시
+            UIManager.Instance.DisplayQuestDialogWindow(currentNPCData.name, quest);
+        }
+    }
+
+    // 퀘스트 Meet 조건 관련 대화를 표시하는 메서드
+    private void ShowQuestMeetDialogue()
+    {
+        // 게임 상태를 다이얼로그 상태로 전환
+        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+        
+        // NPC에 퀘스트 Meet 조건용 대화가 있는지 확인하고 있으면 사용
+        if (currentNPCData.questMeetDialogue != null && currentNPCData.questMeetDialogue.Length > 0)
+        {
+            // 임시로 원래 대화를 저장하고 교체
+            string[] originalDialogue = currentNPCData.dialogue;
+            currentNPCData.dialogue = currentNPCData.questMeetDialogue;
+            
+            // 대화 UI 표시
+            UIManager.Instance.DisplayDialogWindow(currentNPCData);
+            
+            // 대화 복원 (다음번 대화를 위해)
+            currentNPCData.dialogue = originalDialogue;
+        }
+        else
+        {
+            // Meet 조건 대화가 없는 경우 기본 대화 표시
+            UIManager.Instance.DisplayDialogWindow(currentNPCData);
+        }
+    }
+
+    // 퀘스트 완료 조건이 충족된 상태에서 대화를 표시하는 메서드
+    private void ShowQuestCompleteDialogue(Quest completableQuest)
+    {
+        // 게임 상태를 다이얼로그 상태로 전환
+        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+        
+        // NPC에 퀘스트 완료 조건용 대화가 있는지 확인하고 있으면 사용
+        if (currentNPCData.questCompleteDialogue != null && currentNPCData.questCompleteDialogue.Length > 0)
+        {
+            // 임시로 원래 대화를 저장
+            string[] originalDialogue = currentNPCData.dialogue;
+            
+            // 퀘스트 완료 대화로 교체
+            currentNPCData.dialogue = currentNPCData.questCompleteDialogue;
+            
+            // 완료 가능한 퀘스트 대화 UI 표시
+            UIManager.Instance.DisplayCompletableQuestDialog(currentNPCData, completableQuest);
+            
+            // 대화 복원 (다음번 대화를 위해)
+            currentNPCData.dialogue = originalDialogue;
+        }
+        else
+        {
+            // 완료 대화가 없는 경우 기본 퀘스트 완료 다이얼로그 표시
+            UIManager.Instance.DisplayCompletableQuestDialog(currentNPCData, completableQuest);
+        }
+    }
+
+    // 퀘스트가 이미 완료된 상태에서 다시 대화할 때 표시하는 메서드
+    private void ShowQuestCompletedDialogue()
+    {
+        // 게임 상태를 다이얼로그 상태로 전환
+        GameStateMachine.Instance.ChangeState(GameSystemState.DialogueState);
+        
+        // NPC에 퀘스트 완료 후 대화가 있는지 확인하고 있으면 사용
+        if (currentNPCData.questCompletedDialogue != null && currentNPCData.questCompletedDialogue.Length > 0)
+        {
+            // 임시로 원래 대화를 저장
+            string[] originalDialogue = currentNPCData.dialogue;
+            
+            // 퀘스트 완료 후 대화로 교체
+            currentNPCData.dialogue = currentNPCData.questCompletedDialogue;
+            
+            // 대화 UI 표시
+            UIManager.Instance.DisplayDialogWindow(currentNPCData);
+            
+            // 대화 복원 (다음번 대화를 위해)
+            currentNPCData.dialogue = originalDialogue;
+        }
+        else
+        {
+            // 완료 후 대화가 없는 경우 기본 대화 표시
+            UIManager.Instance.DisplayDialogWindow(currentNPCData);
         }
     }
 
