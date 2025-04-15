@@ -121,11 +121,13 @@ public class CookingManager : CraftManager
 
         if (mostIngredient != null)
         {
+            item.name = $"{mostIngredient.name} 듬뿍 {item.name}";
             item.id = $"{mostIngredient.id} 듬뿍 {item.id}";
         }
 
-        if(ingredientsCount.ContainsKey(specialIngredients.FirstOrDefault()))
+        if (specialIngredients.Count != 0 && ingredientsCount.ContainsKey(specialIngredients.FirstOrDefault()))
         {
+            item.name = $"강화 {item.name}";
             item.id = $"강화 {item.id}";
         }
     }
