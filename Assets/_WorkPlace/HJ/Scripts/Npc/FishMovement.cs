@@ -33,7 +33,11 @@ public class FishMovement : MonoBehaviour
     {
         if (isWait) return;
 
-        if(Vector3.Distance(transform.position, targetPosition) < arrivedDistance)
+        Vector3 horizontalPosition = new Vector3(transform.position.x, 0, transform.position.z);
+        Vector3 horizontalTarget = new Vector3(targetPosition.x, 0, targetPosition.z);
+        float distance = Vector3.Distance(horizontalPosition, horizontalTarget);
+
+        if (distance < arrivedDistance)
         {
             StartCoroutine(WaitAfterSwam());
             return;
@@ -61,7 +65,7 @@ public class FishMovement : MonoBehaviour
                 Vector3.Distance(transform.position, candidate) > arrivedDistance * 2f)
             {
                 randomPosition = candidate;
-                randomPosition.y = waterSurfaceY - Random.Range(0.5f, 2f);
+                randomPosition.y = waterSurfaceY - Random.Range(1.0f, 2.0f);
                 break;
             }
         }
@@ -69,35 +73,18 @@ public class FishMovement : MonoBehaviour
         targetPosition = randomPosition;
     }
 
-    //private bool IsOnWater(Vector3 position, out float surfaceY)
-    //{
-    //    surfaceY = 0f;
-    //    Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
-
-    //    if(Physics.Raycast(ray, out RaycastHit hit, 20f, LayerMask.GetMask("Water")))
-    //    {
-    //        surfaceY = hit.point.y;
-    //        return true;
-    //    }
-    //    return false;
-    //}
-
     private bool IsOnWater(Vector3 position, out float surfaceY)
     {
         surfaceY = 0f;
         Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, 20f))
+        if (Physics.Raycast(ray, out RaycastHit hit, 20f, LayerMask.GetMask("Water")))
         {
-            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Water"))
-            {
-                surfaceY = hit.point.y;
-                return true;
-            }
+            surfaceY = hit.point.y;
+            return true;
         }
-
         return false;
-    }
+    }    
 
     private void Swim()
     {
@@ -106,17 +93,18 @@ public class FishMovement : MonoBehaviour
 
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        if (!IsOnWater(transform.position, out nextPosition.y))
-        {
-            SetNextDestination();
-            return;
-        }
-        else if (Terrain.activeTerrain != null)
-        {
-            float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+        //if(!(IsOnWater(transform.position, out nextPosition.y)))
+        //{
+        //    SetNextDestination();
+        //    return;
+        //}
 
-            nextPosition.y = terrainHeight + heightOffset;
-        }
+        //if (Terrain.activeTerrain != null)
+        //{
+        //    float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+
+        //    nextPosition.y = terrainHeight + heightOffset;
+        //}
 
         transform.position = nextPosition;
 
