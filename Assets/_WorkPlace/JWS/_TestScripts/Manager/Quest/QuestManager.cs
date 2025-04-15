@@ -260,8 +260,13 @@ public class QuestManager : BaseManager<QuestManager>
                 // CheckQuestCondition 이후 퀘스트 완료 여부 재확인
                 if (IsQuestCompleted(quest))
                 {
+                    // 자동 완료 설정이 되어 있는 경우 즉시 완료 처리
+                    if (quest.autoComplete)
+                    {
+                        CompleteQuest(quest);
+                    }
                     // 완료 조건이 충족되면 isCompleted 대신 isCompletable 설정
-                    if (!quest.isCompletable)
+                    else if (!quest.isCompletable)
                     {
                         quest.isCompletable = true;
                         if (!completableQuests.Contains(quest))
@@ -345,8 +350,13 @@ public class QuestManager : BaseManager<QuestManager>
             // 퀘스트 완료 여부 체크
             if (IsQuestCompleted(quest))
             {
+                // 자동 완료 설정이 되어 있는 경우 즉시 완료 처리
+                if (quest.autoComplete)
+                {
+                    CompleteQuest(quest);
+                }
                 // 완료 조건이 충족되면 isCompleted 대신 isCompletable 설정
-                if (!quest.isCompletable)
+                else if (!quest.isCompletable)
                 {
                     quest.isCompletable = true;
                     if (!completableQuests.Contains(quest))
@@ -487,6 +497,19 @@ public class QuestManager : BaseManager<QuestManager>
         ProcessQuestRewards(quest.id);
         
         UIManager.Instance.QuestUpdate();
+        
+        // 퀘스트 완료 후 자동으로 다음 퀘스트 시작
+        if (quest.autoStartNextQuest && !string.IsNullOrEmpty(quest.nextQuestId))
+        {
+            Quest nextQuest = mainQuestDatabase.Find(q => q.id == quest.nextQuestId) ?? 
+                             subQuestDatabase.Find(q => q.id == quest.nextQuestId);
+            
+            if (nextQuest != null && !questDatabase.Contains(nextQuest))
+            {
+                AddQuest(nextQuest);
+                UIManager.SystemGameMessage($"새로운 퀘스트 '{nextQuest.name}'가 시작되었습니다.", MessageTag.퀘스트);
+            }
+        }
     }
 
     // 퀘스트 보상 처리 메서드 (스킬 언락 및 오브젝트 활성화)
