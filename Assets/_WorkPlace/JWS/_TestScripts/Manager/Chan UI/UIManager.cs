@@ -281,15 +281,15 @@ public class UIManager : BaseManager<UIManager>
     public void ToggleCookingUIWindow()
     {
         ToggleUIWindow(GameSystemState.Cook);
-        skillQuickSlot.SetActive(true);
+        skillQuickSlot.SetActive(false);
         quickSlot.SetActive(true);
     }
 
     public void ToggleEnhanceUIWindow()
     {
         ToggleUIWindow(GameSystemState.Enhance);
-        skillQuickSlot.SetActive(true);
-        quickSlot.SetActive(true);
+        skillQuickSlot.SetActive(false);
+        quickSlot.SetActive(false);
     }
 
     public void ToggleSkillUIWindow()
