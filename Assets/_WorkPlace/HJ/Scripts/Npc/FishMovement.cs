@@ -1,8 +1,7 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class Fish : MonoBehaviour
+public class FishMovement : MonoBehaviour
 {
     private float movingRange = 10f;
     private float arrivedDistance = 1f;
@@ -10,6 +9,7 @@ public class Fish : MonoBehaviour
     private bool isWait = false;
     [SerializeField] private float minSpeed = 0.5f;
     [SerializeField] private float maxSpeed = 1.5f;
+    [SerializeField] private float heightOffset = 0.7f;
 
     [SerializeField] private Vector3 originalPosition;
     [SerializeField] private Vector3 targetPosition;
@@ -36,7 +36,6 @@ public class Fish : MonoBehaviour
         if(Vector3.Distance(transform.position, targetPosition) < arrivedDistance)
         {
             StartCoroutine(WaitAfterSwam());
-            //SetNextDestination();
             return;
         }
 
@@ -70,15 +69,33 @@ public class Fish : MonoBehaviour
         targetPosition = randomPosition;
     }
 
+    //private bool IsOnWater(Vector3 position, out float surfaceY)
+    //{
+    //    surfaceY = 0f;
+    //    Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
+
+    //    if(Physics.Raycast(ray, out RaycastHit hit, 20f, LayerMask.GetMask("Water")))
+    //    {
+    //        surfaceY = hit.point.y;
+    //        return true;
+    //    }
+    //    return false;
+    //}
+
     private bool IsOnWater(Vector3 position, out float surfaceY)
     {
         surfaceY = 0f;
         Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
-        if(Physics.Raycast(ray, out RaycastHit hit, 20f, LayerMask.GetMask("Water")))
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 20f))
         {
-            surfaceY = hit.point.y;
-            return true;
+            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Water"))
+            {
+                surfaceY = hit.point.y;
+                return true;
+            }
         }
+
         return false;
     }
 
@@ -87,9 +104,23 @@ public class Fish : MonoBehaviour
         Vector3 direction = (targetPosition - transform.position).normalized;
         float moveSpeed = Random.Range(minSpeed, maxSpeed);
 
-        transform.position += direction * moveSpeed * Time.deltaTime;
+        Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
 
-        if(direction != Vector3.zero)
+        if (!IsOnWater(transform.position, out nextPosition.y))
+        {
+            SetNextDestination();
+            return;
+        }
+        else if (Terrain.activeTerrain != null)
+        {
+            float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
+
+            nextPosition.y = terrainHeight + heightOffset;
+        }
+
+        transform.position = nextPosition;
+
+        if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
