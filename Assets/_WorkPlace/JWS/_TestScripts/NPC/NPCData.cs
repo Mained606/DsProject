@@ -16,6 +16,15 @@ public class NPCData : ISheetData
 
     public string[] dialogue;
     public string[] conditionalDialogue;
+    
+    // 퀘스트 관련 대화 데이터 추가
+    [Tooltip("퀘스트 ID에 따른 대화 데이터. key=퀘스트ID, value=대화 목록")]
+    public Dictionary<string, QuestDialogueData> questDialogues = new Dictionary<string, QuestDialogueData>();
+    
+    // 이 NPC가 퀘스트 조건 NPC로 관련된 퀘스트 ID 목록
+    [Tooltip("이 NPC가 퀘스트 조건 NPC로 사용되는 퀘스트 ID 목록")]
+    public List<string> relatedQuestIds = new List<string>();
+    
     public Quest[] quests;
     public Item[] items;
     public ShopData shopData;
@@ -58,7 +67,8 @@ public class NPCData : ISheetData
         clone.isQuestActivator = isQuestActivator;
         clone.reputationRequirement = reputationRequirement;
         clone.shopData = shopData;
-
+        
+        // 퀘스트 대화 데이터 복제
         if (deep)
         {
             clone.dialogue = (dialogue != null) ? (string[])dialogue.Clone() : null;
@@ -67,6 +77,22 @@ public class NPCData : ISheetData
             clone.items = (items != null) ? items : null;
             clone.patrolPoints = (patrolPoints != null) ? (Vector3[])patrolPoints.Clone() : null;
             clone.voiceLines = (voiceLines != null) ? (AudioClip[])voiceLines.Clone() : null;
+            
+            // 퀘스트 대화 데이터 딥 복사
+            if (questDialogues != null && questDialogues.Count > 0)
+            {
+                clone.questDialogues = new Dictionary<string, QuestDialogueData>();
+                foreach (var kvp in questDialogues)
+                {
+                    clone.questDialogues[kvp.Key] = kvp.Value.Clone();
+                }
+            }
+            
+            // 관련 퀘스트 ID 리스트 복사
+            if (relatedQuestIds != null && relatedQuestIds.Count > 0)
+            {
+                clone.relatedQuestIds = new List<string>(relatedQuestIds);
+            }
         }
         else
         {
@@ -76,6 +102,8 @@ public class NPCData : ISheetData
             clone.items = items;
             clone.patrolPoints = patrolPoints;
             clone.voiceLines = voiceLines;
+            clone.questDialogues = questDialogues;
+            clone.relatedQuestIds = relatedQuestIds;
         }
 
         return clone;
@@ -167,6 +195,28 @@ public class NPCData : ISheetData
         }
 
         Debug.Log($"[NPCData] {name} 데이터 로드 완료!");
+    }
+}
+
+[Serializable]
+public class QuestDialogueData
+{
+    [Tooltip("퀘스트 시작 시 대화")]
+    public string[] giveDialogues;
+    
+    [Tooltip("퀘스트 진행 중 대화")]
+    public string[] progressDialogues;
+    
+    [Tooltip("퀘스트 완료 시 대화")]
+    public string[] completeDialogues;
+    
+    public QuestDialogueData Clone()
+    {
+        QuestDialogueData clone = new QuestDialogueData();
+        clone.giveDialogues = (giveDialogues != null) ? (string[])giveDialogues.Clone() : null;
+        clone.progressDialogues = (progressDialogues != null) ? (string[])progressDialogues.Clone() : null;
+        clone.completeDialogues = (completeDialogues != null) ? (string[])completeDialogues.Clone() : null;
+        return clone;
     }
 }
 
