@@ -9,7 +9,7 @@ public class FishMovement : MonoBehaviour
     private bool isWait = false;
     [SerializeField] private float minSpeed = 0.5f;
     [SerializeField] private float maxSpeed = 1.5f;
-    [SerializeField] private float heightOffset = 0.7f;
+    private float validHeight = 1f;
 
     [SerializeField] private Vector3 originalPosition;
     [SerializeField] private Vector3 targetPosition;
@@ -73,42 +73,41 @@ public class FishMovement : MonoBehaviour
         targetPosition = randomPosition;
     }
 
-    private bool IsOnWater(Vector3 position, out float surfaceY)
-    {
-        surfaceY = 0f;
-        Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
-
-        if (Physics.Raycast(ray, out RaycastHit hit, 20f, LayerMask.GetMask("Water")))
-        {
-            surfaceY = hit.point.y;
-            return true;
-        }
-        return false;
-    }
-
     //private bool IsOnWater(Vector3 position, out float surfaceY)
     //{
     //    surfaceY = 0f;
     //    Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
 
-    //    if (Physics.Raycast(ray, out RaycastHit hit, 20f))
+    //    if (Physics.Raycast(ray, out RaycastHit hit, 20f, LayerMask.GetMask("Water")))
     //    {
-    //        if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Water"))
-    //        {
-    //            Debug.Log($"{transform.name} 물 인식");
-    //            surfaceY = hit.point.y;
-    //            return true;
-    //        }
-    //        else
-    //        {
-    //            Debug.Log($"{transform.name} 인식 레이어 {hit.collider.gameObject.layer}");
-    //            surfaceY = hit.point.y;
-    //            return false;
-    //        }
+    //        surfaceY = hit.point.y;
+    //        return true;
     //    }
-
     //    return false;
     //}
+
+    private bool IsOnWater(Vector3 position, out float surfaceY)
+    {
+        surfaceY = 0f;
+        Ray ray = new Ray(position + Vector3.up * 10f, Vector3.down);
+
+        if (Physics.Raycast(ray, out RaycastHit waterHit, 20f, LayerMask.GetMask("Water")))
+        {
+            surfaceY = waterHit.point.y;
+
+            Ray groundRay = new Ray(waterHit.point + Vector3.up * 0.5f, Vector3.down);
+            if (Physics.Raycast(groundRay, out RaycastHit groundHit, 5f, LayerMask.GetMask("Ground")))
+            {
+                float distanceBetween = waterHit.point.y - groundHit.point.y;
+
+                if (distanceBetween >= validHeight)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     private void Swim()
     {
@@ -116,19 +115,6 @@ public class FishMovement : MonoBehaviour
         float moveSpeed = Random.Range(minSpeed, maxSpeed);
 
         Vector3 nextPosition = transform.position + direction * moveSpeed * Time.deltaTime;
-
-        //if(!(IsOnWater(transform.position, out nextPosition.y)))
-        //{
-        //    SetNextDestination();
-        //    return;
-        //}
-
-        //if (Terrain.activeTerrain != null)
-        //{
-        //    float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
-
-        //    nextPosition.y = terrainHeight + heightOffset;
-        //}
 
         transform.position = nextPosition;
 
