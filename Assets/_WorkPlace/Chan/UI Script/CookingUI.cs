@@ -46,6 +46,7 @@ public class CookingUI : MonoBehaviour
     {
         RemoveButtonListeners();
         itemInfoObject.SetActive(false);
+        warningPopup.SetActive(false);
     }
 
     // 인벤토리에서 제작재료(ItemType.제작재료)만 필터링해서 불러오기

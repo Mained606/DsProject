@@ -59,6 +59,7 @@ public class EnhanceUI : MonoBehaviour
     {
         RemoveButtonListeners();
         itemInfoObject.SetActive(false);
+        warningPopup.SetActive(false);
     }
 
     private void LoadTargetItems()
