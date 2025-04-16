@@ -197,13 +197,37 @@ public class ItemManager : BaseManager<ItemManager>
 
     public GameObject SpawnItemBox(Vector3 spawnPosition, MonsterData monsterData, bool isRandom = true)
     {
-        GameObject itemBox = Instantiate(dropItemPrefab, spawnPosition, Quaternion.identity);
-        if (!isRandom)
+        // 드롭될 아이템이 없는 경우 아이템 박스를 생성하지 않음
+        if (monsterData.isRandomDrop && monsterData.randomDropItems.Count == 0)
         {
-            itemBox.transform.GetComponent<DropItemBoxController>().isRandomDrop = false;
-            itemBox.transform.GetComponent<DropItemBoxController>().dropItemIds = monsterData.dropItems;
-            Debug.Log(monsterData.dropItems.Count);
+            Debug.Log("랜덤 드롭 아이템이 없어 아이템 박스를 생성하지 않습니다.");
+            return null;
         }
+        else if (!monsterData.isRandomDrop && monsterData.dropItems.Count == 0)
+        {
+            Debug.Log("고정 드롭 아이템이 없어 아이템 박스를 생성하지 않습니다.");
+            return null;
+        }
+        
+        GameObject itemBox = Instantiate(dropItemPrefab, spawnPosition, Quaternion.identity);
+        var dropController = itemBox.GetComponent<DropItemBoxController>();
+        
+        // 몬스터 데이터의 드롭 설정을 반영
+        dropController.isRandomDrop = monsterData.isRandomDrop;
+        
+        if (monsterData.isRandomDrop)
+        {
+            // 랜덤 드롭 설정
+            dropController.randomDropItems = new List<MonsterData.DropItemChance>(monsterData.randomDropItems);
+            Debug.Log($"랜덤 드롭 아이템 박스 생성: {monsterData.randomDropItems.Count}개 아이템 후보");
+        }
+        else
+        {
+            // 고정 드롭 설정
+            dropController.dropItemIds = new List<string>(monsterData.dropItems);
+            Debug.Log($"고정 드롭 아이템 박스 생성: {monsterData.dropItems.Count}개 아이템");
+        }
+        
         return itemBox;
     }
 
