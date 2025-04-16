@@ -1083,6 +1083,17 @@ public class PlayerData : CharacterData
 public class MonsterData : CharacterData
 {
     public List<string> dropItems = new List<string>(); // 드롭 아이템
+    [Tooltip("아이템을 랜덤으로 드롭할지 여부")]
+    public bool isRandomDrop = true; // 랜덤 드롭 여부
+    [Serializable]
+    public class DropItemChance
+    {
+        public string itemId;
+        [Range(0, 100)]
+        public float dropChance = 50f; // 기본값 50%
+    }
+    [Tooltip("랜덤 드롭 아이템과 확률 설정 (0-100%)")]
+    public List<DropItemChance> randomDropItems = new List<DropItemChance>(); // 랜덤 드롭 아이템과 확률
     public int experienceReward; // 경험치 보상
     public int goldReward;       // 골드 보상
     
@@ -1132,6 +1143,17 @@ public class MonsterData : CharacterData
             this.experienceReward,
             this.goldReward
         );
+        
+        clone.isRandomDrop = this.isRandomDrop;
+        clone.randomDropItems = new List<DropItemChance>();
+        foreach (var item in this.randomDropItems)
+        {
+            clone.randomDropItems.Add(new DropItemChance 
+            { 
+                itemId = item.itemId, 
+                dropChance = item.dropChance 
+            });
+        }
 
         return clone;
     }
@@ -1139,13 +1161,42 @@ public class MonsterData : CharacterData
     public override string ToStringForTMPro()
     {
         string baseInfo = base.ToStringForTMPro();
+        string dropType = isRandomDrop ? "<color=orange>랜덤 드롭</color>" : "<color=green>고정 드롭</color>";
+        
+        string dropItemsInfo;
+        if (isRandomDrop)
+        {
+            // 랜덤 드롭 아이템 정보
+            List<string> itemInfos = new List<string>();
+            foreach (var item in randomDropItems)
+            {
+                Item itemData = ItemManager.Instance.GetItemById(item.itemId);
+                string itemName = itemData != null ? itemData.name : item.itemId;
+                itemInfos.Add($"{itemName} ({item.dropChance}%)");
+            }
+            dropItemsInfo = string.Join(", ", itemInfos);
+        }
+        else
+        {
+            // 고정 드롭 아이템 정보
+            List<string> itemNames = new List<string>();
+            foreach (var itemId in dropItems)
+            {
+                Item itemData = ItemManager.Instance.GetItemById(itemId);
+                itemNames.Add(itemData != null ? itemData.name : itemId);
+            }
+            dropItemsInfo = string.Join(", ", itemNames);
+        }
+        
         string monsterInfo = string.Format(
             "<color=red>Experience Reward:</color> {0}\n" +
             "<color=yellow>Gold Reward:</color> {1}\n" +
-            "<color=lime>Drop Items:</color> {2}\n",
-            experienceReward,                // 0: 경험치 보상
-            goldReward,                      // 1: 골드 보상
-            string.Join(", ", dropItems)     // 2: 드롭 아이템 목록
+            "<color=lime>Drop Type:</color> {2}\n" +
+            "<color=lime>Drop Items:</color> {3}\n",
+            experienceReward,       // 0: 경험치 보상
+            goldReward,             // 1: 골드 보상
+            dropType,               // 2: 드롭 타입
+            dropItemsInfo           // 3: 드롭 아이템 목록
         );
 
         return baseInfo + monsterInfo;
@@ -1160,8 +1211,30 @@ public class MonsterData : CharacterData
         experienceReward = int.TryParse(row[9].ToString(), out int exp) ? exp : 0;
         goldReward = int.TryParse(row[10].ToString(), out int gold) ? gold : 0;
 
+        // 드롭 설정 (랜덤 드롭 여부)
+        isRandomDrop = row.Count > 12 && bool.TryParse(row[12].ToString(), out bool randomDrop) ? randomDrop : true;
+        
         // 드롭 아이템 목록 처리 (쉼표로 구분된 아이템 리스트)
         dropItems = row[11].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        
+        // 랜덤 드롭 아이템과 확률 (형식: itemId:확률,itemId:확률,...)
+        randomDropItems.Clear();
+        if (row.Count > 13 && !string.IsNullOrEmpty(row[13].ToString()))
+        {
+            string[] randomItems = row[13].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var item in randomItems)
+            {
+                string[] parts = item.Split(':');
+                if (parts.Length == 2)
+                {
+                    string itemId = parts[0].Trim();
+                    if (float.TryParse(parts[1].Trim(), out float chance))
+                    {
+                        randomDropItems.Add(new DropItemChance { itemId = itemId, dropChance = chance });
+                    }
+                }
+            }
+        }
     }
 }
 

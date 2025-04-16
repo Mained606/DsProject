@@ -342,31 +342,37 @@ public class CharacterManager : BaseManager<CharacterManager>
         if (monster.instance != null)
         {
             // BaseMonsterAI 검색 및 처리
-            BaseMonsterAI baseAI = monster.instance.GetComponent<BaseMonsterAI>();
-            
+            BaseMonsterAI monsterAI = monster.instance.GetComponent<BaseMonsterAI>();
+                
             if (monster.instance.transform.parent != null) // 부모가 있는지 확인
             {
-                if (baseAI != null)
+                if (monsterAI != null)
                 {
-                    baseAI.SetDeadState(true);
+                    monsterAI.SetDeadState(true);
+                    Debug.Log("몬스터 사망처리");
                 }
             }
             else
             {
-                baseAI.SetDeadState(false); // 부모가 없으면 파괴
+                monsterAI.SetDeadState(false); // 부모가 없으면 파괴
+                Debug.Log("몬스터 사망처리 파괴");
             }
         }
-        
-        // 경험치와 골드 보상 처리
+
+        // 몬스터 처치 시 보상 처리
         if (PlayerCharacterData != null)
         {
             PlayerCharacterData.AddExperience(monster.experienceReward);
             PlayerCharacterData.AddGold(monster.goldReward);
             UIManager.SystemGameMessage($"{monster.characterName} 처치! 경험치 +{monster.experienceReward}, 골드 +{monster.goldReward}", MessageTag.아이템_획득);
         }
-        
-        // 아이템 드롭
-        ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, false);
+
+        // 아이템 드롭 - 아이템 박스를 생성할 수 있는 경우에만 생성됨
+        GameObject itemBox = ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, false);
+        if (itemBox == null)
+        {
+            Debug.Log($"{monster.characterName}에서 드롭할 아이템이 없어 아이템 박스가 생성되지 않았습니다.");
+        }
         
         characterList.Remove(monster);
     }
@@ -402,8 +408,12 @@ public class CharacterManager : BaseManager<CharacterManager>
             UIManager.SystemGameMessage($"{boss.characterName} 처치! 경험치 +{boss.experienceReward}, 골드 +{boss.goldReward}", MessageTag.아이템_획득);
         }
 
-        // 보스 아이템 드롭 (특수 아이템 포함)
-        ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), boss, true);  // `true`를 전달하여 보스 드롭 아이템 처리
+        // 보스 아이템 드롭 (특수 아이템 포함) - 아이템 박스를 생성할 수 있는 경우에만 생성됨
+        GameObject itemBox = ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), boss, true);
+        if (itemBox == null)
+        {
+            Debug.Log($"{boss.characterName}에서 드롭할 아이템이 없어 아이템 박스가 생성되지 않았습니다.");
+        }
         
         // 보스 리스트에서 제거
         characterList.Remove(boss);
