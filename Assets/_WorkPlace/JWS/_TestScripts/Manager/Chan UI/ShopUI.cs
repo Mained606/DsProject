@@ -9,10 +9,19 @@ public class ShopUI : MonoBehaviour
     [SerializeField] private Transform shopItemInfoPosition;
     [SerializeField] private NPCData shopNpcData;
 
+    [Header("알림창")]
+    [SerializeField] private GameObject warningPopup;             // 전체 팝업 오브젝트
+    [SerializeField] private TextMeshProUGUI warningText;         // 메시지 출력용
+    [SerializeField] private Button warningButton;
+    [SerializeField] private Button warningCancelButton;
+    [SerializeField] private Button PlusButton;
+    [SerializeField] private Button MinusButton;
+
     private int currentShopType = 0;
     private TextMeshProUGUI[] uiText;
     private Button[] buttons;
     private Item currentInfoItem;
+    private int sellQuantity = 1;
 
     private void Awake()
     {
@@ -23,7 +32,34 @@ public class ShopUI : MonoBehaviour
 
     private void OnEnable()
     {
+        Debug.Log("[디버그] ShopUI OnEnable 호출됨");
         AddButtonListeners();
+        PlusButton.onClick.AddListener(() =>
+        {
+            Debug.Log($"[디버그] 현재 아이템 수량: {currentInfoItem.quantity}, 현재 선택 수량: {sellQuantity}");
+            if (sellQuantity < currentInfoItem.quantity)
+                sellQuantity++;
+            warningText.text = $"{sellQuantity}";
+        });
+
+        MinusButton.onClick.AddListener(() =>
+        {
+            if (sellQuantity > 1)
+                sellQuantity--;
+            warningText.text = $"{sellQuantity}";
+        });
+
+        warningButton.onClick.AddListener(() =>
+        {
+            warningPopup.SetActive(false);
+            ItemManager.Instance.SellItem(currentInfoItem, shopNpcData.shopData.valueReductionRate, sellQuantity);
+            UpdateUI();
+        });
+        warningCancelButton.onClick.AddListener(() =>
+        {
+            warningPopup.SetActive(false);
+        });
+
     }
 
     private void OnDisable()
@@ -108,7 +144,16 @@ public class ShopUI : MonoBehaviour
                 case 1:
                     if (shopItemInfoPosition.gameObject.activeSelf)
                     {
-                        ItemManager.Instance.SellItem(currentInfoItem, shopNpcData.shopData.valueReductionRate, currentInfoItem.quantity);
+                        if (currentInfoItem.isStackable && currentInfoItem.quantity > 1)
+                        {
+                            warningText.text = $"{sellQuantity}";
+                            warningPopup.SetActive(true);
+                            return;
+                        }
+                        else
+                        {
+                            ItemManager.Instance.SellItem(currentInfoItem, shopNpcData.shopData.valueReductionRate, 1);
+                        }
                     }
                     break;
             }
@@ -149,5 +194,9 @@ public class ShopUI : MonoBehaviour
         uiText[1].text = currentInfoItem.ToStringTMPro();
         buttons[2].gameObject.SetActive(true);
         buttons[2].transform.GetComponentInChildren<TextMeshProUGUI>().text = currentType == 0 ? "구입" : "판매";
+
+        sellQuantity = 1;
+        warningText.text = $"{sellQuantity}";
     }
+
 }
