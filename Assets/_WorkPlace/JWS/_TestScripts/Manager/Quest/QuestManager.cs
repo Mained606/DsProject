@@ -425,6 +425,9 @@ public class QuestManager : BaseManager<QuestManager>
             completableQuests.Remove(quest);
         }
         
+        // 퀘스트 지급자 및 관련 타겟을 콤파스에서 제거
+        RemoveQuestTargetsFromCompass(quest);
+        
         completedQuests.Add(quest);
 
         foreach (var condition in quest.requiredConditions)
@@ -622,6 +625,89 @@ public class QuestManager : BaseManager<QuestManager>
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // 퀘스트와 관련된 모든 타겟을 콤파스에서 제거하는 메서드
+    private void RemoveQuestTargetsFromCompass(Quest quest)
+    {
+        if (quest == null) return;
+        
+        // 1. 퀘스트 지급자 제거
+        if (!string.IsNullOrEmpty(quest.questGiver))
+        {
+            Debug.Log($"[QuestManager] 퀘스트 '{quest.id}' 완료: 퀘스트 지급자 '{quest.questGiver}' 콤파스에서 제거 시도");
+            
+            Transform questGiverTransform = null;
+            
+            // 서브퀘스트 NPC 검색
+            foreach (var npc in npcDataList.subQuestNpcLists)
+            {
+                if (npc.name == quest.questGiver)
+                {
+                    if (questConditionPoint.TryGetValue(npc.id, out questGiverTransform))
+                    {
+                        Debug.Log($"[QuestManager] 콤파스에서 서브퀘스트 NPC '{npc.name}' 제거");
+                        CompassIndicater.RemoveTarget(questGiverTransform);
+                    }
+                    break;
+                }
+            }
+            
+            // 일반 NPC 검색
+            if (questGiverTransform == null)
+            {
+                foreach (var npc in npcDataList.npcLists)
+                {
+                    if (npc.name == quest.questGiver)
+                    {
+                        if (questConditionPoint.TryGetValue(npc.id, out questGiverTransform))
+                        {
+                            Debug.Log($"[QuestManager] 콤파스에서 일반 NPC '{npc.name}' 제거");
+                            CompassIndicater.RemoveTarget(questGiverTransform);
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            // Transform을 찾지 못한 경우 GameObject.Find 시도
+            if (questGiverTransform == null)
+            {
+                // NPC 직접 찾기
+                GameObject npcObj = GameObject.Find(quest.questGiver);
+                if (npcObj != null)
+                {
+                    Debug.Log($"[QuestManager] GameObject.Find로 '{quest.questGiver}' 찾아 콤파스에서 제거");
+                    CompassIndicater.RemoveTarget(npcObj.transform);
+                }
+                else
+                {
+                    // Tag로 찾기 시도
+                    GameObject[] npcs = GameObject.FindGameObjectsWithTag("NPC");
+                    foreach (var npc in npcs)
+                    {
+                        if (npc.name.Contains(quest.questGiver))
+                        {
+                            Debug.Log($"[QuestManager] Tag로 '{quest.questGiver}' 찾아 콤파스에서 제거");
+                            CompassIndicater.RemoveTarget(npc.transform);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 2. 퀘스트 조건 관련 타겟 제거
+        foreach (var condition in quest.requiredConditions)
+        {
+            string keyWord = condition.Key;
+            Transform targetTransform = GetQuestConditionPoint(keyWord);
+            if (targetTransform != null)
+            {
+                Debug.Log($"[QuestManager] 퀘스트 '{quest.id}' 완료: 조건 '{keyWord}' 콤파스에서 제거");
+                CompassIndicater.RemoveTarget(targetTransform);
             }
         }
     }
