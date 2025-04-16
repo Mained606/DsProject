@@ -169,6 +169,8 @@ public class GenerateData
                 {
                     // new Reward("스킬(FireStrike)", 1, 30, 0),
                     new Reward("수련용검_일반", 1, 0, 0),
+                    new Reward("수련용검_물", 1, 0, 0),
+                    new Reward("한손검_불", 1, 0, 0),
                     new Reward("완드", 1, 0, 0),
                 }, true, "", true),
 
