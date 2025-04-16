@@ -197,6 +197,18 @@ public class ItemManager : BaseManager<ItemManager>
 
     public GameObject SpawnItemBox(Vector3 spawnPosition, MonsterData monsterData, bool isRandom = true)
     {
+        // 드롭될 아이템이 없는 경우 아이템 박스를 생성하지 않음
+        if (monsterData.isRandomDrop && monsterData.randomDropItems.Count == 0)
+        {
+            Debug.Log("랜덤 드롭 아이템이 없어 아이템 박스를 생성하지 않습니다.");
+            return null;
+        }
+        else if (!monsterData.isRandomDrop && monsterData.dropItems.Count == 0)
+        {
+            Debug.Log("고정 드롭 아이템이 없어 아이템 박스를 생성하지 않습니다.");
+            return null;
+        }
+        
         GameObject itemBox = Instantiate(dropItemPrefab, spawnPosition, Quaternion.identity);
         var dropController = itemBox.GetComponent<DropItemBoxController>();
         

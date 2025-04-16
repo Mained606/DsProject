@@ -7,9 +7,31 @@ public class DropItemBoxController : MonoBehaviour
     public List<MonsterData.DropItemChance> randomDropItems = new List<MonsterData.DropItemChance>(); // 랜덤 드롭 아이템과 확률
     [SerializeField] private float detectionDistance = 2f;
     public bool isRandomDrop = true;
+    
+    // 실제로 드롭될 아이템들을 저장할 리스트
+    private List<string> actualDropItemIds = new List<string>();
 
     private void Start()
     {
+        // 랜덤 드롭일 경우 확률 계산을 미리 수행
+        if (isRandomDrop)
+        {
+            CalculateRandomDrops();
+            
+            // 드롭될 아이템이 없으면 아이템 박스 삭제
+            if (actualDropItemIds.Count == 0)
+            {
+                Debug.Log("확률 계산 결과 드롭될 아이템이 없어 아이템 박스를 제거합니다.");
+                Destroy(gameObject);
+                return;
+            }
+        }
+        else
+        {
+            // 고정 드롭일 경우 그대로 사용
+            actualDropItemIds.AddRange(dropItemIds);
+        }
+        
         Destroy(this.gameObject, DsConstValue.DROP_ITEM_DESTROY_INTERVAL);
     }
 
@@ -20,39 +42,39 @@ public class DropItemBoxController : MonoBehaviour
             OpenBox();
         }
     }
+    
+    // 랜덤 드롭 아이템 확률 계산
+    private void CalculateRandomDrops()
+    {
+        actualDropItemIds.Clear();
+        
+        foreach (var dropItem in randomDropItems)
+        {
+            // 0-100 범위의 확률로 계산
+            float randomValue = Random.Range(0f, 100f);
+            if (randomValue <= dropItem.dropChance)
+            {
+                // 확률에 성공하면 드롭될 아이템 리스트에 추가
+                actualDropItemIds.Add(dropItem.itemId);
+                Debug.Log($"랜덤 드롭 계산: {dropItem.itemId} 획득 성공! (확률: {dropItem.dropChance}%, 주사위: {randomValue})");
+            }
+            else
+            {
+                Debug.Log($"랜덤 드롭 계산: {dropItem.itemId} 획득 실패 (확률: {dropItem.dropChance}%, 주사위: {randomValue})");
+            }
+        }
+    }
 
     public void OpenBox()
     {
         if (!IsNearPlayer())
             return;
 
-        if (isRandomDrop)
+        // 실제 드롭될 아이템 리스트를 기반으로 아이템 추가
+        foreach (var itemId in actualDropItemIds)
         {
-            // 랜덤 드롭 - 확률에 따라 아이템 드롭
-            foreach (var dropItem in randomDropItems)
-            {
-                // 0-100 범위의 확률을 0-1 범위로 변환하여 비교
-                float randomValue = Random.Range(0f, 100f);
-                if (randomValue <= dropItem.dropChance)
-                {
-                    // 확률에 성공하면 아이템 추가
-                    ItemManager.Instance.AddItemLogic(dropItem.itemId);
-                    Debug.Log($"랜덤 드롭: {dropItem.itemId} 획득! (확률: {dropItem.dropChance}%, 주사위: {randomValue})");
-                }
-                else
-                {
-                    Debug.Log($"랜덤 드롭 실패: {dropItem.itemId} (확률: {dropItem.dropChance}%, 주사위: {randomValue})");
-                }
-            }
-        }
-        else
-        {
-            // 고정 드롭 - 지정된 모든 아이템 드롭
-            foreach (var itemId in dropItemIds)
-            {
-                ItemManager.Instance.AddItemLogic(itemId);
-                Debug.Log($"고정 드롭: {itemId} 획득!");
-            }
+            ItemManager.Instance.AddItemLogic(itemId);
+            Debug.Log($"아이템 박스에서 {itemId} 획득!");
         }
 
         Destroy(gameObject); // 박스 삭제
