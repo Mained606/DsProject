@@ -118,10 +118,22 @@ public class CompassIndicater : MonoBehaviour
     
     public static void AddTarget(Transform newTarget)
     {
-        if (Instance.targets.Contains(newTarget)) return;
+        if (Instance == null)
+        {
+            Debug.LogError("[CompassIndicater] Instance가 null입니다. CompassIndicater가 활성화되지 않았습니다.");
+            return;
+        }
+        
+        if (Instance.targets.Contains(newTarget))
+        {
+            Debug.Log($"[CompassIndicater] 이미 등록된 타겟입니다: {newTarget.name}");
+            return;
+        }
+        
         Instance.targets.Add(newTarget);
         RectTransform newMarker = Instantiate(Instance.markerPrefab, Instance.compassBar);
         Instance.activeMarkers.Add(newMarker);
+        Debug.Log($"[CompassIndicater] 새 타겟 추가됨: {newTarget.name}");
     }
 
     public static void RemoveTarget(Transform targetToRemove)

@@ -432,6 +432,118 @@ public class UIManager : BaseManager<UIManager>
         {
             distanceCheck = gameObj.AddComponent<QuestDistanceCheck>();
         }
+        
+        // 퀘스트 지급자 정보가 없는 경우 NPC 정보 검색
+        if (string.IsNullOrEmpty(quest.questGiver))
+        {
+            NPCData foundNPC = null;
+            
+            // NPC 데이터베이스에서 이 퀘스트를 제공하는 NPC 찾기
+            foreach (var npc in QuestManager.NpcDatabase.subQuestNpcLists)
+            {
+                if (npc.relatedQuestIds != null && npc.relatedQuestIds.Contains(quest.id))
+                {
+                    quest.questGiver = npc.name;
+                    foundNPC = npc;
+                    break;
+                }
+                
+                // quests 배열 확인
+                if (npc.quests != null)
+                {
+                    foreach (var q in npc.quests)
+                    {
+                        if (q != null && q.id == quest.id)
+                        {
+                            quest.questGiver = npc.name;
+                            foundNPC = npc;
+                            break;
+                        }
+                    }
+                    
+                    if (!string.IsNullOrEmpty(quest.questGiver))
+                        break;
+                }
+            }
+            
+            // 일반 NPC 목록에서도 검색
+            if (string.IsNullOrEmpty(quest.questGiver))
+            {
+                foreach (var npc in QuestManager.NpcDatabase.npcLists)
+                {
+                    if (npc.relatedQuestIds != null && npc.relatedQuestIds.Contains(quest.id))
+                    {
+                        quest.questGiver = npc.name;
+                        foundNPC = npc;
+                        break;
+                    }
+                    
+                    // quests 배열 확인
+                    if (npc.quests != null)
+                    {
+                        foreach (var q in npc.quests)
+                        {
+                            if (q != null && q.id == quest.id)
+                            {
+                                quest.questGiver = npc.name;
+                                foundNPC = npc;
+                                break;
+                            }
+                        }
+                        
+                        if (!string.IsNullOrEmpty(quest.questGiver))
+                            break;
+                    }
+                }
+            }
+            
+            // 찾은 NPC가 있고 아직 QuestConditionPoint에 등록되지 않았다면 등록
+            if (foundNPC != null && !string.IsNullOrEmpty(foundNPC.id))
+            {
+                if (!QuestManager.QuestConditionPoint.ContainsKey(foundNPC.id) && foundNPC.currentNPC != null)
+                {
+                    QuestManager.QuestConditionPoint[foundNPC.id] = foundNPC.currentNPC.transform;
+                    Debug.Log($"[UIManager] 퀘스트 {quest.id}의 지급자 {foundNPC.name}(ID: {foundNPC.id})를 QuestConditionPoint에 등록했습니다.");
+                }
+                
+                // 현재 NPC 게임오브젝트가 없으면 씬에서 찾아보기
+                if (foundNPC.currentNPC == null)
+                {
+                    // NPC ID로 직접 찾기
+                    GameObject npcObj = GameObject.Find(foundNPC.id);
+                    if (npcObj != null)
+                    {
+                        QuestManager.QuestConditionPoint[foundNPC.id] = npcObj.transform;
+                        Debug.Log($"[UIManager] GameObject.Find로 {foundNPC.name}(ID: {foundNPC.id})를 찾아 QuestConditionPoint에 등록했습니다.");
+                    }
+                    else
+                    {
+                        // NPC 이름으로 찾기
+                        npcObj = GameObject.Find(foundNPC.name);
+                        if (npcObj != null)
+                        {
+                            QuestManager.QuestConditionPoint[foundNPC.id] = npcObj.transform;
+                            Debug.Log($"[UIManager] GameObject.Find로 {foundNPC.name}을 찾아 QuestConditionPoint에 등록했습니다.");
+                        }
+                        else
+                        {
+                            // 태그로 찾기
+                            GameObject[] npcs = GameObject.FindGameObjectsWithTag("NPC");
+                            foreach (var npc in npcs)
+                            {
+                                if (npc.name.Contains(foundNPC.name) || npc.name.Contains(foundNPC.id))
+                                {
+                                    QuestManager.QuestConditionPoint[foundNPC.id] = npc.transform;
+                                    Debug.Log($"[UIManager] 태그를 통해 {foundNPC.name}을 찾아 QuestConditionPoint에 등록했습니다.");
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         distanceCheck.SetQuest(quest);
         if (subDisplay.Length > 0)
         {
