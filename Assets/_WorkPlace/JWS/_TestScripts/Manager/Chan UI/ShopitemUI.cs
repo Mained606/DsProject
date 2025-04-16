@@ -15,7 +15,7 @@ public class ShopitemUI : MonoBehaviour,IPointerClickHandler
     {
         TextMeshProUGUI[] text = transform.GetComponentsInChildren<TextMeshProUGUI>();
         transform.GetChild(2).GetComponent<Image>().sprite = thisItem.sprite;
-        text[0].text = thisItem.id;
+        text[0].text = thisItem.name;
         text[1].text = currentShopType == 0
       ? thisItem.costValue.ToString() // 구매 가격
       : Mathf.RoundToInt(thisItem.costValue * 0.7f).ToString();
