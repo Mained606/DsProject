@@ -162,7 +162,7 @@ public class QuestDistanceCheck : MonoBehaviour
             {
                 float distance;
                 string colorCode = CheckDistance(questGiverTransform, false, out distance);
-                questDescription += $" <color={colorCode}>({distance:F1}m)</color>";
+                questDescription += $" <color={colorCode}>{distance:F1}m</color>";
             }
         }
         
