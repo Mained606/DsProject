@@ -16,15 +16,48 @@ public class QuestDistanceCheck : MonoBehaviour
         subMainColor = "<color=white>";
     }
 
+    private void OnDisable()
+    {
+        // 게임 오브젝트가 비활성화될 때 콤파스에서 타겟 제거
+        if (quest != null && questGiverTransform != null)
+        {
+            CompassIndicater.RemoveTarget(questGiverTransform);
+            Debug.Log($"[QuestDistanceCheck] OnDisable: 콤파스에서 '{questGiverTransform.name}' 제거");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 게임 오브젝트가 파괴될 때 콤파스에서 타겟 제거
+        if (quest != null && questGiverTransform != null)
+        {
+            CompassIndicater.RemoveTarget(questGiverTransform);
+            Debug.Log($"[QuestDistanceCheck] OnDestroy: 콤파스에서 '{questGiverTransform.name}' 제거");
+        }
+    }
+
     public void SetQuest(Quest newQuest)
     {
         if (quest != null)
         {
+            // 이전 퀘스트의 타겟을 콤파스에서 제거
+            if (questGiverTransform != null)
+            {
+                CompassIndicater.RemoveTarget(questGiverTransform);
+                Debug.Log($"[QuestDistanceCheck] SetQuest: 이전 타겟 '{questGiverTransform.name}' 콤파스에서 제거");
+            }
             CompassIndicater.ClearAllTargets();
         }
         
         quest = newQuest;
         quest.CheckQuestCondition();
+        
+        // 퀘스트가 이미 완료된 경우 콤파스에 추가하지 않음
+        if (quest.isCompleted)
+        {
+            Debug.Log($"[QuestDistanceCheck] SetQuest: 퀘스트 '{quest.id}'가 이미 완료되어 콤파스에 추가하지 않음");
+            return;
+        }
         
         // 퀘스트 지급자가 설정되어 있는 경우 퀘스트 지급자 Transform 찾기
         if (!string.IsNullOrEmpty(quest.questGiver))
@@ -80,15 +113,22 @@ public class QuestDistanceCheck : MonoBehaviour
                 }
             }
             
-            // 퀘스트 지급자의 Transform을 콤파스에 추가
-            if (questGiverTransform != null)
+            // 퀘스트 지급자의 Transform을 콤파스에 추가 (퀘스트가 완료되지 않은 경우에만)
+            if (questGiverTransform != null && !quest.isCompleted)
             {
                 CompassIndicater.AddTarget(questGiverTransform);
                 Debug.Log($"[QuestDistanceCheck] 콤파스에 {quest.questGiver} 추가됨");
             }
             else
             {
-                Debug.LogWarning($"[QuestDistanceCheck] {quest.questGiver}의 Transform을 찾을 수 없음");
+                if (questGiverTransform == null)
+                {
+                    Debug.LogWarning($"[QuestDistanceCheck] {quest.questGiver}의 Transform을 찾을 수 없음");
+                }
+                else if (quest.isCompleted)
+                {
+                    Debug.Log($"[QuestDistanceCheck] 퀘스트 '{quest.id}'가 완료되어 {quest.questGiver}를 콤파스에 추가하지 않음");
+                }
             }
         }
     }
@@ -101,6 +141,14 @@ public class QuestDistanceCheck : MonoBehaviour
     private void Update()
     {
         if (quest == null || distanceText == null) return;
+
+        // 퀘스트가 완료된 경우 콤파스에서 타겟 제거
+        if (quest.isCompleted && questGiverTransform != null)
+        {
+            CompassIndicater.RemoveTarget(questGiverTransform);
+            questGiverTransform = null;
+            Debug.Log($"[QuestDistanceCheck] Update: 퀘스트 '{quest.id}'가 완료되어 콤파스에서 타겟 제거");
+        }
 
         string questDescription = $"{mainColor}{quest.description}</color>";
         
