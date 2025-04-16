@@ -353,8 +353,8 @@ public class GenerateData
             new Quest("서브퀘스트", "1_2002", "모험가의 길","무기를 강화하자",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"대장장이_002_collect", new QuestCondition(QuestConditionType.Collect, "수련용검_일반", "수련용검 무기를 강화하여 수련용검+3", 1, 3) },
-                    {"대장장이_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_1", "대장장이에게 말을 걸자",1) }
+                    {"수련용검_일반+3_Collect", new QuestCondition(QuestConditionType.Collect, "수련용검_일반", "수련용검 무기를 강화하여 수련용검+3", 1, 3) },
+                    // {"대장장이", new QuestCondition(QuestConditionType.Meet, "SubNPC_1", "대장장이에게 말을 걸자",1) }
                 },
                 new List<Reward>{new Reward("강화석", 3, 50, 50)}, true, "1_2001"),
 
@@ -372,8 +372,8 @@ public class GenerateData
             new Quest("서브퀘스트", "1_2004", "모험가의 길","야채 스프를 만들자",
                 new Dictionary<string, QuestCondition>
                 {
-                    {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "야채스프", "야채 스프 만들기",1) },
-                    {"location_003_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_3", "요리사에게 말을 걸자",1) }
+                    {"야채스프_Collect", new QuestCondition(QuestConditionType.Collect, "야채스프", "야채 스프 만들기",1) },
+                    // {"location_003_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_3", "요리사에게 말을 걸자",1) }
                 },
                 new List<Reward>{new Reward("야채스프", 3, 50, 50)}, true, "1_2003"),
 
@@ -381,8 +381,8 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_004", new QuestCondition(QuestConditionType.Explore, "location_004", "머쉬룸이 나오는 밭 찾기", 1) },
-                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Mushroom", "머쉬룸을 처치하자",10) },
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_4", "수배지를 확인하자",1) }
+                    {"머쉬룸_Kill", new QuestCondition(QuestConditionType.Kill, "Mushroom", "머쉬룸을 처치하자",10) },
+                    // {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_4", "수배지를 확인하자",1) }
                 },
                 new List<Reward>{new Reward("", 1, 50,50)},true),
 
@@ -390,8 +390,8 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_005", new QuestCondition(QuestConditionType.Explore, "location_005", "난폭한 베어 찾기", 1) },
-                    {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "벨라의 그림책", "그림책을 찾자",1) },
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_5", "벨라에게 그림책을 가져다주자.",1) }
+                    {"벨라의그림책_Collect", new QuestCondition(QuestConditionType.Collect, "벨라의 그림책", "그림책을 찾자",1) },
+                    // {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_5", "벨라에게 그림책을 가져다주자.",1) }
                 },
                 new List<Reward>{new Reward("야채스프", 1, 50,0)}, true),
 
@@ -399,8 +399,8 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_006", new QuestCondition(QuestConditionType.Explore, "location_006", "골렘 찾기", 1) },
-                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Golem", "골렘을 처치하자",10) },
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_6", "아일린에게 돌아가자",1) }
+                    {"골렘_Kill", new QuestCondition(QuestConditionType.Kill, "Golem", "골렘을 처치하자",10) },
+                    // {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_6", "아일린에게 돌아가자",1) }
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),
 
@@ -409,8 +409,8 @@ public class GenerateData
                 {
                     {"location_007", new QuestCondition(QuestConditionType.Explore, "location_007", "협곡의 입구를 찾자", 1) },
                     //{"location_002_kill", new QuestCondition(QuestConditionType.Kill, "보스", "보스를 처치하자",1) },
-                    {"location_002_collect", new QuestCondition(QuestConditionType.Collect, "개발자의 눈물", "보물 상자를 찾자",1) },
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_7", "아저씨에게 가자",1) }
+                    {"보물상자_Collect", new QuestCondition(QuestConditionType.Collect, "보물상자", "보물 상자를 찾자",1) },
+                    // {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_7", "아저씨에게 가자",1) }
                 },
                 new List<Reward>{new Reward("", 10, 50,50)}, true),
 
@@ -418,8 +418,8 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_008", new QuestCondition(QuestConditionType.Explore, "location_008", "모파안 찾기", 1) },
-                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Mophan", "괴물을 처치하자",1) },
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_8", "테오에게 가자",1) }
+                    {"모파안_Kill", new QuestCondition(QuestConditionType.Kill, "Mophan", "괴물을 처치하자",1) },
+                    // {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_8", "테오에게 가자",1) }
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),
 
@@ -427,9 +427,9 @@ public class GenerateData
                 new Dictionary<string, QuestCondition>
                 {
                     {"location_009", new QuestCondition(QuestConditionType.Explore, "location_009", "거대한 숲으로 가자", 1) },
-                    {"location_002_kill", new QuestCondition(QuestConditionType.Kill, "Totem", "숲 속의 이상한 물건을 파괴하자",1) },
+                    {"토템_Kill", new QuestCondition(QuestConditionType.Kill, "Totem", "숲 속의 이상한 물건을 파괴하자",1) },
                     //{"location_002_collect", new QuestCondition(QuestConditionType.Kill, "몬스터들 id", "몰려오는 몬스터들을 모두 처치하자",1) },
-                    {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_9", "세이아에게 가자",1) }
+                    // {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_9", "세이아에게 가자",1) }
                 },
                 new List<Reward>{new Reward("", 0, 50,50)}, true),
 

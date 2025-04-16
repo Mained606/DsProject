@@ -118,24 +118,83 @@ public class CompassIndicater : MonoBehaviour
     
     public static void AddTarget(Transform newTarget)
     {
-        if (Instance.targets.Contains(newTarget)) return;
+        if (Instance == null)
+        {
+            Debug.LogError("[CompassIndicater] Instance가 null입니다. AddTarget을 호출할 수 없습니다.");
+            return;
+        }
+
+        if (Instance.targets.Contains(newTarget))
+        {
+            Debug.Log($"[CompassIndicater] 타겟 '{newTarget.name}'는 이미 콤파스에 등록되어 있습니다.");
+            return;
+        }
+
         Instance.targets.Add(newTarget);
         RectTransform newMarker = Instantiate(Instance.markerPrefab, Instance.compassBar);
         Instance.activeMarkers.Add(newMarker);
+        Debug.Log($"[CompassIndicater] 새 타겟 '{newTarget.name}'를 콤파스에 추가했습니다.");
     }
 
-    public static void RemoveTarget(Transform targetToRemove)
+    public static void RemoveTarget(Transform target)
     {
-        int index;
-        if (Instance.targets.Contains(targetToRemove)) index = Instance.targets.IndexOf(targetToRemove);
-        else return;
-
-        if (index >= 0)
+        if (Instance == null)
         {
-            Destroy(Instance.activeMarkers[index].gameObject);
-            Instance.activeMarkers.RemoveAt(index);
-            Instance.targets.RemoveAt(index);
+            Debug.LogError("[CompassIndicater] Instance가 null입니다. RemoveTarget을 호출할 수 없습니다.");
+            return;
         }
+
+        int targetIndex = Instance.targets.IndexOf(target);
+        if (targetIndex != -1)
+        {
+            // 타겟 리스트에서 제거
+            Instance.targets.RemoveAt(targetIndex);
+            
+            // 해당 마커 제거
+            if (targetIndex < Instance.activeMarkers.Count)
+            {
+                RectTransform marker = Instance.activeMarkers[targetIndex];
+                if (marker != null)
+                {
+                    Destroy(marker.gameObject);
+                }
+                Instance.activeMarkers.RemoveAt(targetIndex);
+                Debug.Log($"[CompassIndicater] 타겟 '{target.name}'를 콤파스에서 제거했습니다.");
+            }
+            else
+            {
+                Debug.LogWarning($"[CompassIndicater] 타겟 '{target.name}'는 제거되었지만, 해당하는 마커를 찾을 수 없습니다.");
+                ResetMarkers();
+            }
+        }
+        else
+        {
+            Debug.Log($"[CompassIndicater] 타겟 '{target.name}'는 콤파스에 등록되어 있지 않습니다.");
+        }
+    }
+    
+    private static void ResetMarkers()
+    {
+        if (Instance == null) return;
+        
+        // 기존 모든 마커 제거
+        foreach (RectTransform marker in Instance.activeMarkers)
+        {
+            if (marker != null)
+            {
+                Destroy(marker.gameObject);
+            }
+        }
+        Instance.activeMarkers.Clear();
+        
+        // 모든 타겟에 대해 새 마커 생성
+        foreach (Transform target in Instance.targets)
+        {
+            RectTransform newMarker = Instantiate(Instance.markerPrefab, Instance.compassBar);
+            Instance.activeMarkers.Add(newMarker);
+        }
+        
+        Debug.Log("[CompassIndicater] 모든 마커를 재설정했습니다.");
     }
 
     public static void ClearAllTargets()
