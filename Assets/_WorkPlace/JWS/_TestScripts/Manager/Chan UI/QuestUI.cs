@@ -155,24 +155,9 @@ public class QuestUI : MonoBehaviour
         {
             int index = i;
             buttons[i].onClick.RemoveAllListeners();
-          /*  Animator animator = buttons[i].GetComponent<Animator>();
-            if (animator != null) ButtonReset(animator);*/
         }
     }
-
-   /* private void ButtonReset(Animator animator)
-    {
-        Image image1 = animator.transform.GetChild(0).GetComponent<Image>();
-        Color color1 = image1.color;
-        color1.a = 0f;
-        image1.color = color1;
-
-        Image image2 = animator.transform.GetChild(3).GetComponent<Image>();
-        Color color2 = image2.color;
-        color2.a = 0f;
-        image2.color = color2;
-    }*/
-
+    
     private void OnButtonClick(int buttonIndex)
     {
         currentButtonIndex = buttonIndex;
