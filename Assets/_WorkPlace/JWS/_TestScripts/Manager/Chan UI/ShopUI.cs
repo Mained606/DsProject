@@ -13,6 +13,7 @@ public class ShopUI : MonoBehaviour
     [SerializeField] private GameObject warningPopup;             // 전체 팝업 오브젝트
     [SerializeField] private TextMeshProUGUI warningText;         // 메시지 출력용
     [SerializeField] private Button warningButton;
+    [SerializeField] private Button warningCancelButton;
     [SerializeField] private Button PlusButton;
     [SerializeField] private Button MinusButton;
 
@@ -31,9 +32,11 @@ public class ShopUI : MonoBehaviour
 
     private void OnEnable()
     {
+        Debug.Log("[디버그] ShopUI OnEnable 호출됨");
         AddButtonListeners();
         PlusButton.onClick.AddListener(() =>
         {
+            Debug.Log($"[디버그] 현재 아이템 수량: {currentInfoItem.quantity}, 현재 선택 수량: {sellQuantity}");
             if (sellQuantity < currentInfoItem.quantity)
                 sellQuantity++;
             warningText.text = $"{sellQuantity}";
@@ -52,6 +55,11 @@ public class ShopUI : MonoBehaviour
             ItemManager.Instance.SellItem(currentInfoItem, shopNpcData.shopData.valueReductionRate, sellQuantity);
             UpdateUI();
         });
+        warningCancelButton.onClick.AddListener(() =>
+        {
+            warningPopup.SetActive(false);
+        });
+
     }
 
     private void OnDisable()
@@ -136,17 +144,14 @@ public class ShopUI : MonoBehaviour
                 case 1:
                     if (shopItemInfoPosition.gameObject.activeSelf)
                     {
-                        // 스택형이고 2개 이상이면 수량 선택 팝업 띄움
                         if (currentInfoItem.isStackable && currentInfoItem.quantity > 1)
                         {
-                            sellQuantity = 1;
                             warningText.text = $"{sellQuantity}";
                             warningPopup.SetActive(true);
                             return;
                         }
                         else
                         {
-                            // 스택 불가 or 수량 1개면 바로 판매
                             ItemManager.Instance.SellItem(currentInfoItem, shopNpcData.shopData.valueReductionRate, 1);
                         }
                     }
@@ -189,6 +194,9 @@ public class ShopUI : MonoBehaviour
         uiText[1].text = currentInfoItem.ToStringTMPro();
         buttons[2].gameObject.SetActive(true);
         buttons[2].transform.GetComponentInChildren<TextMeshProUGUI>().text = currentType == 0 ? "구입" : "판매";
+
+        sellQuantity = 1;
+        warningText.text = $"{sellQuantity}";
     }
-   
+
 }
