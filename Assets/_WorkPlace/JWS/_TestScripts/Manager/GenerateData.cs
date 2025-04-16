@@ -409,7 +409,7 @@ public class GenerateData
                 {
                     {"location_007", new QuestCondition(QuestConditionType.Explore, "location_007", "협곡의 입구를 찾자", 1) },
                     //{"location_002_kill", new QuestCondition(QuestConditionType.Kill, "보스", "보스를 처치하자",1) },
-                    {"보물상자_Collect", new QuestCondition(QuestConditionType.Collect, "보물상자", "보물 상자를 찾자",1) },
+                    {"보물상자_Collect", new QuestCondition(QuestConditionType.Collect, "개발자의 눈물", "보물 상자를 찾자",1) },
                     // {"location_002_meet", new QuestCondition(QuestConditionType.Meet, "SubNPC_7", "아저씨에게 가자",1) }
                 },
                 new List<Reward>{new Reward("", 10, 50,50)}, true, "1_1004"),
