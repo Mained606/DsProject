@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3519793645587539127
 Transform:
   m_ObjectHideFlags: 0
@@ -178,6 +178,8 @@ MonoBehaviour:
     equipmentMaxHpBonus: 0
     equipmentMaxMpBonus: 0
     dropItems: []
+    isRandomDrop: 0
+    randomDropItems: []
     experienceReward: 0
     goldReward: 0
   currentTargetTransform: {fileID: 0}
