@@ -126,7 +126,7 @@ public class CompassIndicater : MonoBehaviour
 
         if (Instance.targets.Contains(newTarget))
         {
-            Debug.Log($"[CompassIndicater] 타겟 '{newTarget.name}'는 이미 콤파스에 등록되어 있습니다.");
+            // Debug.Log($"[CompassIndicater] 타겟 '{newTarget.name}'는 이미 콤파스에 등록되어 있습니다.");
             return;
         }
 
