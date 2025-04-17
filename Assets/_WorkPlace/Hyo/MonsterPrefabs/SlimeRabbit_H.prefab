@@ -510,6 +510,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   footstep: {fileID: 8300000, guid: 69f2512636fb8ff4795dd94e1c1a0cab, type: 3}
+  footstepVol: 1
+  attack: {fileID: 8300000, guid: 71edf25d5464ffe45bbfcbd8b5656c10, type: 3}
+  attackVol: 1
+  hit: {fileID: 0}
+  hitVol: 0.2
+  dead: {fileID: 8300000, guid: de2d38704f994d1419a3fa8e30dfc9dc, type: 3}
+  deadVol: 2
 --- !u!1 &1779164207820988
 GameObject:
   m_ObjectHideFlags: 0
