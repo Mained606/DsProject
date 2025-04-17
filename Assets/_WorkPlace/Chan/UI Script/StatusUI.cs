@@ -300,7 +300,7 @@ public class StatusUI : MonoBehaviour
             DefaultText[0].text = $"<size=70%>{dragonData.characterName}</size>";
             DefaultText[1].text = $"<size=70%>Rank.</size>\n<size=120%>{dragonData.bondLevel}</size>";
             DefaultText[2].text = $"유대감 {dragonData.bondExperience} / {dragonData.CalculateExperienceToLevelUp(dragonData.bondLevel)}";
-            DefaultImages[2].fillAmount = (float)dragonData.bondExperience / dragonData.CalculateExperienceToLevelUp(dragonData.bondLevel);
+            DefaultImages[3].fillAmount = (float)dragonData.bondExperience / dragonData.CalculateExperienceToLevelUp(dragonData.bondLevel);
 
             // 드래곤은 장비 없음
             DefaultText[3].text = "";
