@@ -438,6 +438,7 @@ GameObject:
   - component: {fileID: 1383001703132117393}
   - component: {fileID: 5260659862101275354}
   - component: {fileID: 4524965120147467076}
+  - component: {fileID: 2919550736620029360}
   m_Layer: 10
   m_Name: Golem_H
   m_TagString: Monster
@@ -532,6 +533,26 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1.51, z: 0}
+--- !u!114 &2919550736620029360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1514742993440013547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8e033a7640e526498d699d0d04b9fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footstep: {fileID: 8300000, guid: 64254f1e961e34640943df4572127f50, type: 3}
+  footstepVol: 0.1
+  attack: {fileID: 8300000, guid: 4ea350bb5f4ea5c44adead988ca76fdd, type: 3}
+  attackVol: 2
+  hit: {fileID: 0}
+  hitVol: 0.2
+  dead: {fileID: 8300000, guid: 43244dd98a533a24cbc3efcd7308aa2d, type: 3}
+  deadVol: 0.2
 --- !u!1 &1616267534701415310
 GameObject:
   m_ObjectHideFlags: 0

@@ -501,12 +501,12 @@ public class ActivityNpc : MonoBehaviour
             nextPosition.y = hit.point.y;
         }
 
-        if (Terrain.activeTerrain != null && npcController.npcType == NpcType.Wander)
+        if (Terrain.activeTerrain != null)
         {
             float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
-            if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
+            if (Mathf.Abs(nextPosition.y - terrainHeight) >= 0.5f || !IsOnTerrain(nextPosition))
             {
-                nextPosition.y = terrainHeight;
+                    nextPosition.y = terrainHeight;
             }
         }
 
@@ -540,12 +540,12 @@ public class ActivityNpc : MonoBehaviour
             nextPosition.y = hit.point.y;
         }
 
-        if (Terrain.activeTerrain != null && npcController.npcType == NpcType.Wander)
+        if (Terrain.activeTerrain != null)
         {
             float terrainHeight = Terrain.activeTerrain.SampleHeight(nextPosition);
-            if (nextPosition.y < terrainHeight || !IsOnTerrain(nextPosition))
+            if (Mathf.Abs(nextPosition.y - terrainHeight) >= 0.5f || !IsOnTerrain(nextPosition))
             {
-                nextPosition.y = terrainHeight;
+                    nextPosition.y = terrainHeight;
             }
         }
 
