@@ -22102,7 +22102,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1872482859910544778, guid: 374b5299b5b99fd4b95cee6c15b23721, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.99911296
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3279622847885297901, guid: 374b5299b5b99fd4b95cee6c15b23721, type: 3}
       propertyPath: m_SizeDelta.y
@@ -22151,6 +22151,10 @@ PrefabInstance:
     - target: {fileID: 4740285055744058761, guid: 374b5299b5b99fd4b95cee6c15b23721, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6193396771667191880, guid: 374b5299b5b99fd4b95cee6c15b23721, type: 3}
+      propertyPath: m_text
+      value: "\uC6B4\uBA85\uC758 \uC2DC\uC791"
       objectReference: {fileID: 0}
     - target: {fileID: 6286987471255172132, guid: 374b5299b5b99fd4b95cee6c15b23721, type: 3}
       propertyPath: m_Pivot.x
@@ -22234,7 +22238,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6733447838579682395, guid: 374b5299b5b99fd4b95cee6c15b23721, type: 3}
       propertyPath: m_Size
-      value: 0.99911296
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6819455111118686080, guid: 374b5299b5b99fd4b95cee6c15b23721, type: 3}
       propertyPath: ChapterText
