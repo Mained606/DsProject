@@ -2,10 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Text;
-using Unity.VisualScripting;
-using UnityEngine.InputSystem;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
+
 
 
 public class QuestUI : MonoBehaviour
@@ -15,8 +12,14 @@ public class QuestUI : MonoBehaviour
     [SerializeField] private Transform questParent;
     [SerializeField] private Transform questInfo;
     [SerializeField] private Transform rewardItemView;
+
+    [SerializeField] private TextMeshProUGUI questNameText;
+    [SerializeField] private TextMeshProUGUI questGiverText;
+    [SerializeField] private TextMeshProUGUI questDescriptionText;
+    [SerializeField] private GameObject conditionText;
+    [SerializeField] private TextMeshProUGUI ChapterText;
+
     private Button[] buttons;
-    private TextMeshProUGUI[] commentText;
     private int currentButtonIndex = 0;
     private Quest preQuest;
     private Dictionary<string, List<Quest>> categorizedQuest = new Dictionary<string, List<Quest>>();
@@ -26,8 +29,7 @@ public class QuestUI : MonoBehaviour
     private void Awake()
     {
         buttons = transform.GetComponentsInChildren<Button>();
-        commentText = transform.GetComponentsInChildren<TextMeshProUGUI>();
-        conditionDisplayText = commentText[7].transform.GetChild(0).GetComponentsInChildren<TextMeshProUGUI>(true);
+        conditionDisplayText = conditionText.GetComponentsInChildren<TextMeshProUGUI>(true);
 
         foreach (TextMeshProUGUI child in conditionDisplayText)
         {
@@ -35,7 +37,7 @@ public class QuestUI : MonoBehaviour
         }
 
         questInfo.gameObject.SetActive(false);
-        commentText[3].text = "현재 진행 챕터";
+        ChapterText.text = "운명의 부름";
     }
 
     private void OnEnable()
@@ -186,16 +188,16 @@ public class QuestUI : MonoBehaviour
             if (!questInfo.gameObject.activeSelf) questInfo.gameObject.SetActive(true);
         }
 
-        commentText[4].text = quest.name;
+        questNameText.text = quest.name;
         string giver = quest.questType == "메인퀘스트" ? "메인퀘스트" : quest.targetID.ToString();
-        commentText[5].text = $"의뢰인 : {giver}";
-        commentText[6].text = quest.description;
+        questGiverText.text = $"의뢰인 : {giver}";
+        questDescriptionText.text = quest.description;
 
         // 퀘스트가 완료 가능하면 추가 정보 표시
         if (quest.isCompletable)
         {
-            commentText[4].text = $"<color=green>[완료 가능]</color> {quest.name}";
-            commentText[6].text = $"{quest.description}\n\n<color=green>퀘스트 조건을 모두 충족했습니다. 퀘스트 제공자에게 돌아가 보상을 받으세요.</color>";
+            questNameText.text = $"<color=green>[완료 가능]</color> {quest.name}";
+            questDescriptionText.text = $"{quest.description}\n\n<color=green>퀘스트 조건을 모두 충족했습니다. 퀘스트 제공자에게 돌아가 보상을 받으세요.</color>";
         }
 
         // 기존 조건 텍스트 비활성화
