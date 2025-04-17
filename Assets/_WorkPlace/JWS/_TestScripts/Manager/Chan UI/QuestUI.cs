@@ -37,7 +37,7 @@ public class QuestUI : MonoBehaviour
         }
 
         questInfo.gameObject.SetActive(false);
-        ChapterText.text = "현재 진행 챕터";
+        ChapterText.text = "운명의 부름";
     }
 
     private void OnEnable()
