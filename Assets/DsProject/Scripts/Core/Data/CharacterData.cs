@@ -389,6 +389,7 @@ public class CharacterData : ISheetData
 
     private void LevelUp()
     {
+        if (GameManager.playerTransform.GetComponent<PlayerController>().cheatMode) return;
         isLevelingUp = true; // 레벨업 시작
         
         // 이펙트 추가
