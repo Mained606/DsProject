@@ -2,10 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Text;
-using Unity.VisualScripting;
-using UnityEngine.InputSystem;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
+
 
 
 public class QuestUI : MonoBehaviour
@@ -20,9 +17,9 @@ public class QuestUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI questGiverText;
     [SerializeField] private TextMeshProUGUI questDescriptionText;
     [SerializeField] private GameObject conditionText;
+    [SerializeField] private TextMeshProUGUI ChapterText;
 
     private Button[] buttons;
-    private TextMeshProUGUI[] commentText;
     private int currentButtonIndex = 0;
     private Quest preQuest;
     private Dictionary<string, List<Quest>> categorizedQuest = new Dictionary<string, List<Quest>>();
@@ -32,7 +29,6 @@ public class QuestUI : MonoBehaviour
     private void Awake()
     {
         buttons = transform.GetComponentsInChildren<Button>();
-        commentText = transform.GetComponentsInChildren<TextMeshProUGUI>();
         conditionDisplayText = conditionText.GetComponentsInChildren<TextMeshProUGUI>(true);
 
         foreach (TextMeshProUGUI child in conditionDisplayText)
@@ -41,7 +37,7 @@ public class QuestUI : MonoBehaviour
         }
 
         questInfo.gameObject.SetActive(false);
-        commentText[3].text = "현재 진행 챕터";
+        ChapterText.text = "현재 진행 챕터";
     }
 
     private void OnEnable()
