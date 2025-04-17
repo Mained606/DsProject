@@ -551,8 +551,8 @@ public class QuestManager : BaseManager<QuestManager>
 
         // 퀘스트 완료 처리
         quest.isCompleted = true;
-        questDatabase.Remove(quest);
-        completedQuests.Add(quest);
+      /*  questDatabase.Remove(quest);
+        completedQuests.Add(quest);*/
         
         // 퀘스트 완료 시 관련 NPC의 대화 상태 정리
         if (quest != null && !string.IsNullOrEmpty(quest.id))
