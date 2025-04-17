@@ -165,44 +165,4 @@ public class GameManager : MonoBehaviour
     }
     ////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
-
-
-
-    ////////////////////////////////////////////////////////////
-    // 세이브/로드 시스템 관련 메서드
-    ////////////////////////////////////////////////////////////
-    public PlayerData GetCurrentPlayerData()
-    {
-        // 플레이어 데이터 가져오기
-        // 실제 구현 시에는 CharacterManager 등에서 플레이어 데이터를 가져오는 로직 필요
-        return null;
-    }
-
-    public DragonData GetCurrentDragonData()
-    {
-        // 용 데이터 가져오기
-        // 실제 구현 시에는 드래곤 매니저에서 데이터를 가져오는 로직 필요
-        return null;
-    }
-
-    public void ApplyPlayerSaveData(PlayerSaveData playerSaveData)
-    {
-        // 플레이어 데이터 적용
-        // 실제 구현 시에는 CharacterManager 등에 데이터를 적용하는 로직 필요
-        
-        // 플레이어 위치 설정
-        if (playerTransform != null && playerSaveData.position != null)
-        {
-            playerTransform.position = playerSaveData.position.ToVector3();
-            playerTransform.rotation = Quaternion.Euler(playerSaveData.rotation.ToVector3());
-        }
-    }
-
-    public void ApplyDragonSaveData(DragonSaveData dragonSaveData)
-    {
-        // 용 데이터 적용
-        // 실제 구현 시에는 드래곤 매니저에 데이터를 적용하는 로직 필요
-    }
-    ////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////
 }
