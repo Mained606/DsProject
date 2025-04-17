@@ -15,22 +15,21 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
     [NonSerialized] public Image ElementIcon;
     [NonSerialized] public TextMeshProUGUI ItemLevel;
     [NonSerialized] public TextMeshProUGUI ItemLevelPreview;
-
     [NonSerialized] public TextMeshProUGUI[] amountCount;
     [NonSerialized] public bool isEquireSlot = false;
-    private int preAmountCount = 0;
-    private float lastClickTime = 0f;
-    private const float doubleClickThreshold = 0.3f;
+
     private Image ElenmtSlotIcon;
+    private int preAmountCount = 0;
 
     private void Start()
     {
         if (!isEquireSlot) InventorytooltipWindow.SetActive(false);
+
         amountCount = transform.GetComponentsInChildren<TextMeshProUGUI>();
 
         if (currentItem != null && currentItem.sprite != null)
         {
-            this.transform.GetComponentsInChildren<Image>(true)[2].sprite = currentItem.sprite;
+            GetComponentsInChildren<Image>(true)[2].sprite = currentItem.sprite;
         }
 
         if (currentItem.isStackable)
@@ -48,31 +47,26 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
         amountCount[2].text = $"<color={nameColor}>{currentItem.name}</color>";
 
         ElenmtSlotIcon = GetComponentsInChildren<Image>()[3];
-        if (ElenmtSlotIcon != null)
+        if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) &&
+            currentItem.itemSkill != null && currentItem.itemSkill.element != ElementalAttribute.None)
         {
-            // 장비인지, 그리고 속성이 있는지 확인
-            if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) &&
-                currentItem.itemSkill != null && currentItem.itemSkill.element != ElementalAttribute.None)
+            ElenmtSlotIcon.gameObject.SetActive(false);
+            Addressables.LoadAssetAsync<Sprite>(currentItem.itemSkill.element.ToString()).Completed += (handle) =>
             {
-                ElenmtSlotIcon.gameObject.SetActive(false); // 로드 중에는 일단 꺼둠
-
-                Addressables.LoadAssetAsync<Sprite>(currentItem.itemSkill.element.ToString()).Completed += (handle) =>
+                if (handle.Status == AsyncOperationStatus.Succeeded)
                 {
-                    if (handle.Status == AsyncOperationStatus.Succeeded)
-                    {
-                        ElenmtSlotIcon.sprite = handle.Result;
-                        ElenmtSlotIcon.gameObject.SetActive(true);
-                    }
-                    else
-                    {
-                        ElenmtSlotIcon.gameObject.SetActive(false);
-                    }
-                };
-            }
-            else
-            {
-                ElenmtSlotIcon.gameObject.SetActive(false);
-            }
+                    ElenmtSlotIcon.sprite = handle.Result;
+                    ElenmtSlotIcon.gameObject.SetActive(true);
+                }
+                else
+                {
+                    ElenmtSlotIcon.gameObject.SetActive(false);
+                }
+            };
+        }
+        else
+        {
+            ElenmtSlotIcon.gameObject.SetActive(false);
         }
 
         UpdateSlotLevel();
@@ -118,6 +112,7 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
             amountCount[1].enabled = false;
         }
     }
+
     private void UpdateSlotLevel()
     {
         if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) && currentItem.itemSkill != null)
@@ -141,31 +136,28 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
             amountCount[3].enabled = false;
         }
     }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (!isEquireSlot && !InventorytooltipWindow.activeSelf)
         {
-            // 드래그 가능 판단
             if (currentItem.type == ItemType.소모품 ||
                 currentItem.type == ItemType.요리재료 ||
                 currentItem.type == ItemType.무기 ||
-                currentItem.type == ItemType.요리||
+                currentItem.type == ItemType.요리 ||
                 currentItem.type == ItemType.방어구)
             {
                 if (!TryGetComponent(out DraggableItem ditem))
                     gameObject.AddComponent<DraggableItem>();
             }
 
-            // 기본 인포 표시
             InventorytooltipWindow.SetActive(true);
             ItemImage.sprite = currentItem.sprite;
 
             string nameColor = currentItem.GetGradeColor(currentItem.grade);
-            string coloredName = $"<color={nameColor}>{currentItem.name}</color>";
-            textPoint[1].text = coloredName;
+            textPoint[1].text = $"<color={nameColor}>{currentItem.name}</color>";
             textPoint[2].text = currentItem.ToStringTMPro();
 
-            // 속성 아이콘 처리
             if (currentItem.itemSkill != null)
             {
                 ElementalAttribute attr = currentItem.itemSkill.element;
@@ -196,7 +188,6 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
                 ElementIcon.gameObject.SetActive(false);
             }
 
-            // 강화 레벨 처리
             if ((currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구) && currentItem.itemSkill != null)
             {
                 int level = currentItem.itemSkill.Level;
@@ -208,9 +199,9 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
                     ItemLevel.color = Color.white;
                 else if (level <= 5 && ColorUtility.TryParseHtmlString("#A6D8F1", out parsedColor))
                     ItemLevel.color = parsedColor;
-                else if (level <= 9 && ColorUtility.TryParseHtmlString("#D4A6F1", out parsedColor))
+                else if (level <= 8 && ColorUtility.TryParseHtmlString("#D4A6F1", out parsedColor))
                     ItemLevel.color = parsedColor;
-                else if (level >= 10 && ColorUtility.TryParseHtmlString("#FFD700", out parsedColor))
+                else if (level >= 9 && ColorUtility.TryParseHtmlString("#FFD700", out parsedColor))
                     ItemLevel.color = parsedColor;
             }
             else
@@ -218,6 +209,7 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
                 ItemLevel.gameObject.SetActive(false);
             }
 
+            // 위치 보정 로직 (슬롯2만)
             RectTransform itemRect = GetComponent<RectTransform>();
             RectTransform tooltipRect = InventorytooltipWindow.GetComponent<RectTransform>();
             RectTransform canvasRect = tooltipRect.GetComponentInParent<Canvas>().GetComponent<RectTransform>();
@@ -250,33 +242,14 @@ public class InventorySlotTooltip2 : MonoBehaviour, IPointerEnterHandler, IPoint
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        float currentTime = Time.time;
-        if (currentTime - lastClickTime <= doubleClickThreshold)
-        {
-            HandleDoubleClick(eventData);
-        }
-        else
-        {
-            HandleSingleClick(eventData);
-        }
+        if (eventData.button != PointerEventData.InputButton.Right) return;
 
-        lastClickTime = currentTime;
-    }
-
-    private void HandleSingleClick(PointerEventData eventData)
-    {
         if (currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구 || currentItem.type == ItemType.장신구)
         {
-            Debug.Log($"'{currentItem.name}' 아이템을 클릭했습니다.");
-        }
-    }
-
-    private void HandleDoubleClick(PointerEventData eventData)
-    {
-        if (currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구 || currentItem.type == ItemType.장신구)
-        {
-            if (!currentItem.isEquired) ItemEffectManager.Instance.ApplyItemEffect(currentItem);
-            else ItemEffectManager.Instance.UnequipmentEffect(currentItem);
+            if (!currentItem.isEquired)
+                ItemEffectManager.Instance.ApplyItemEffect(currentItem);
+            else
+                ItemEffectManager.Instance.UnequipmentEffect(currentItem);
         }
     }
 
