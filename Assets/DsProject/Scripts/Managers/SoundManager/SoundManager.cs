@@ -134,12 +134,12 @@ public class SoundManager : MonoBehaviour
             audioSource.volume = sFXVolume;
             audioSource.pitch = 1f;
             audioSource.priority = 120;
-            // audioSource.spatialBlend = 1f;          // 3D 사운드 활성화
-            // audioSource.dopplerLevel = 1f;         // 도플러 효과 설정
-            // audioSource.spread = 360f;             // 소리 확산 각도
+            audioSource.spatialBlend = 1f;          // 3D 사운드 활성화
+            audioSource.dopplerLevel = 1f;         // 도플러 효과 설정
+            audioSource.spread = 360f;             // 소리 확산 각도
             audioSource.minDistance = 1f;          // 최대 음량이 들리는 최소 거리
-            audioSource.maxDistance = 20f;         // 소리가 사라지는 최대 거리
-                                                   //audioSource.rolloffMode = AudioRolloffMode.Logarithmic; // 감쇠 설정
+            audioSource.maxDistance = 5f;         // 소리가 사라지는 최대 거리
+            audioSource.rolloffMode = AudioRolloffMode.Logarithmic; // 감쇠 설정
             audioSource.outputAudioMixerGroup = _SoundEffect; // 믹서 그룹
         }
         _AudioUnusedQueue = new Queue<AudioSource>(_AudioSource);
