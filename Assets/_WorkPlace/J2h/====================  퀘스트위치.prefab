@@ -167,6 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &6790214624437921109
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -236,6 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &9162882188531482707
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5189,6 +5191,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &5049152292823531535
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5360,7 +5363,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 59.6, y: 14.39, z: -118.2}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 485728770659265592}
@@ -5377,6 +5380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &5507463964052048767
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5550,7 +5554,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -115.4, y: 19.87, z: 153.1}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 485728770659265592}
@@ -5567,6 +5571,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &8000259153050349220
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5740,7 +5745,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.9857919, z: -0, w: -0.16797104}
   m_LocalPosition: {x: -170.14, y: 12.82, z: -41.57}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 485728770659265592}
@@ -5757,6 +5762,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &1834209533716711644
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5776,7 +5782,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 5
+  m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4835110512012661436
 GameObject:
@@ -5823,6 +5829,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &6788430747272820776
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5994,7 +6001,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -334.32, y: 24.312, z: 280.72003}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 485728770659265592}
@@ -6011,6 +6018,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &2345801232287351657
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -6201,6 +6209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &2314747602869837126
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -6282,7 +6291,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 34.02, y: 22.17, z: 225.76}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 485728770659265592}
@@ -6299,6 +6308,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &2390409209962991822
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -6397,6 +6407,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &7574108092599556904
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -6446,7 +6457,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -62.5, y: 29.9, z: 243.1}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 485728770659265592}
@@ -6463,6 +6474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &7382468048423248233
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -11371,6 +11383,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &6914211515445032307
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -16279,6 +16292,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ace2acdc6baae24386e863202138a13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  radius: 20
 --- !u!135 &1661349694070139638
 SphereCollider:
   m_ObjectHideFlags: 0

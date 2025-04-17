@@ -4,11 +4,12 @@ using UnityEngine;
 public class QuestLocation : MonoBehaviour
 {
     private bool isQuestUpdated = false;
+    [SerializeField] private float radius = 3f;
 
     private void Awake()
     {
         SphereCollider collider = GetComponent<SphereCollider>();
-        collider.radius = 5f;
+        collider.radius = radius;
         collider.isTrigger = true;
     }
 
@@ -33,7 +34,7 @@ public class QuestLocation : MonoBehaviour
             Vector3 player = new Vector3(other.transform.position.x, 0, other.transform.position.z);
             float distance = Vector3.Distance(target, player);
 
-            if (distance <= 5f && !isQuestUpdated)
+            if (distance <= 15f && !isQuestUpdated)
             {
                 isQuestUpdated = true;
                 CompassIndicater.RemoveTarget(QuestManager.GetQuestConditionPoint(this.gameObject.name));
