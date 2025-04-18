@@ -34,14 +34,14 @@ public class TitleSceneInitializer : MonoBehaviour
         }
         
         // SaveSystemInitializer가 없으면 생성
-        if (FindObjectOfType<SaveSystemInitializer>() == null)
+        if (FindFirstObjectByType<SaveSystemInitializer>() == null)
         {
             GameObject saveSystemObj = new GameObject("SaveSystemInitializer");
             SaveSystemInitializer saveSystem = saveSystemObj.AddComponent<SaveSystemInitializer>();
             
             // 씬 이름 설정
             saveSystem.titleSceneName = SceneManager.GetActiveScene().name;
-            saveSystem.mainGameSceneName = "MainSceneTest"; // 메인 게임 씬 이름 설정
+            saveSystem.mainGameSceneName = "Ds_ProjectTest"; // 메인 게임 씬 이름 설정
             
             DontDestroyOnLoad(saveSystemObj);
         }
@@ -52,7 +52,7 @@ public class TitleSceneInitializer : MonoBehaviour
         // 타이틀 씬 UI를 찾고 초기화
         if (titleSceneUI == null)
         {
-            titleSceneUI = FindObjectOfType<TitleScene>();
+            titleSceneUI = FindFirstObjectByType<TitleScene>();
         }
     }
     

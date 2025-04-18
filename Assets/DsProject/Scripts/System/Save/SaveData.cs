@@ -76,6 +76,7 @@ public class SaveData
             public string itemId;
             public int count;
             public int slotIndex;
+            public int itemLevel;
         }
     }
     

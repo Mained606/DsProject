@@ -1490,4 +1490,59 @@ public class QuestManager : BaseManager<QuestManager>
         
         Debug.Log($"[QuestManager] NPC {npcId}에 퀘스트 {questId}에 대한 대화 데이터 설정 완료");
     }
+
+    // 퀘스트 시스템 초기화
+    public void ClearQuestData()
+    {
+        // 활성화된 퀘스트 목록 초기화
+        questDatabase.Clear();
+        
+        // 완료 가능한 퀘스트 목록 초기화
+        completableQuests.Clear();
+        
+        Debug.Log("[QuestManager] 퀘스트 데이터 초기화됨");
+    }
+    
+    // 퀘스트 추적 설정
+    public void TrackQuest(Quest quest)
+    {
+        if (quest != null)
+        {
+            // 퀘스트 추적 로직 (UI 표시 등)
+            // 실제 추적 시스템이 구현되어 있다면 여기에 추가
+            
+            Debug.Log($"[QuestManager] 퀘스트 '{quest.name}' 추적 활성화");
+        }
+    }
+    
+    // 완료된 퀘스트 추가
+    public void AddCompletedQuest(Quest quest)
+    {
+        if (quest == null)
+        {
+            Debug.LogWarning("[QuestManager] 완료된 퀘스트에 null 퀘스트를 추가하려고 했습니다.");
+            return;
+        }
+        
+        if (!completedQuests.Contains(quest))
+        {
+            // 활성 퀘스트 목록에서 제거
+            if (questDatabase.Contains(quest))
+            {
+                questDatabase.Remove(quest);
+            }
+            
+            // 완료 가능한 퀘스트 목록에서 제거
+            if (completableQuests.Contains(quest))
+            {
+                completableQuests.Remove(quest);
+            }
+            
+            // 완료된 퀘스트 목록에 추가
+            completedQuests.Add(quest);
+            quest.isCompleted = true;
+            
+            Debug.Log($"[QuestManager] 퀘스트 '{quest.name}' 완료 처리됨");
+        }
+    }
 }

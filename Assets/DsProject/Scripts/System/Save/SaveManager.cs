@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class SaveManager : MonoBehaviour
 {
@@ -244,67 +245,63 @@ public class SaveManager : MonoBehaviour
     {
         try {
             // 인벤토리 항목 저장
-            if (InventoryManager.Instance != null)
+            saveData.inventoryData.items.Clear();
+            foreach (var item in InventoryManager.InventoryList)
             {
-                // 일반 인벤토리 저장
-                saveData.inventoryData.items.Clear();
-                foreach (var item in InventoryManager.InventoryList)
+                SaveData.InventoryData.ItemInfo itemInfo = new SaveData.InventoryData.ItemInfo
                 {
-                    SaveData.InventoryData.ItemInfo itemInfo = new SaveData.InventoryData.ItemInfo
+                    itemId = item.id,
+                    count = item.quantity,
+                    slotIndex = -1, // 슬롯 인덱스는 필요에 따라 저장
+                    itemLevel = item.itemSkill != null ? item.itemSkill.Level : 0 // 아이템 강화 수치 저장
+                };
+                saveData.inventoryData.items.Add(itemInfo);
+            }
+            
+            // 장착 중인 장비 저장
+            if (ItemEffectManager.Instance != null)
+            {
+                // 무기 저장
+                var weapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+                if (weapon != null)
+                {
+                    saveData.inventoryData.weapon = new SaveData.InventoryData.ItemInfo
                     {
-                        itemId = item.id,
-                        count = item.quantity,
-                        slotIndex = 0 // 실제 구현에 맞게 조정
+                        itemId = weapon.id,
+                        count = 1,
+                        slotIndex = -1,
+                        itemLevel = weapon.itemSkill != null ? weapon.itemSkill.Level : 0 // 아이템 강화 수치 저장
                     };
-                    saveData.inventoryData.items.Add(itemInfo);
                 }
                 
-                // 장착 중인 장비 저장
-                if (ItemEffectManager.Instance != null)
+                // 방어구 저장
+                var armor = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.몸);
+                if (armor != null)
                 {
-                    // 무기 저장
-                    var weapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
-                    if (weapon != null)
+                    saveData.inventoryData.armor = new SaveData.InventoryData.ItemInfo
                     {
-                        saveData.inventoryData.weapon = new SaveData.InventoryData.ItemInfo
-                        {
-                            itemId = weapon.id,
-                            count = 1,
-                            slotIndex = -1
-                        };
-                    }
-                    
-                    // 방어구 저장
-                    var armor = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.몸);
-                    if (armor != null)
-                    {
-                        saveData.inventoryData.armor = new SaveData.InventoryData.ItemInfo
-                        {
-                            itemId = armor.id,
-                            count = 1,
-                            slotIndex = -1
-                        };
-                    }
-                    
-                    // 액세서리 저장
-                    var accessory = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.머리);
-                    if (accessory != null)
-                    {
-                        saveData.inventoryData.accessory = new SaveData.InventoryData.ItemInfo
-                        {
-                            itemId = accessory.id,
-                            count = 1,
-                            slotIndex = -1
-                        };
-                    }
+                        itemId = armor.id,
+                        count = 1,
+                        slotIndex = -1,
+                        itemLevel = armor.itemSkill != null ? armor.itemSkill.Level : 0 // 아이템 강화 수치 저장
+                    };
                 }
                 
-                Debug.Log("인벤토리 데이터가 성공적으로 저장되었습니다.");
+                // 액세서리 저장
+                var accessory = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.머리);
+                if (accessory != null)
+                {
+                    saveData.inventoryData.accessory = new SaveData.InventoryData.ItemInfo
+                    {
+                        itemId = accessory.id,
+                        count = 1,
+                        slotIndex = -1,
+                        itemLevel = accessory.itemSkill != null ? accessory.itemSkill.Level : 0 // 아이템 강화 수치 저장
+                    };
+                }
             }
-            else
-            {
-                Debug.LogWarning("InventoryManager.Instance가 null입니다. 인벤토리를 저장할 수 없습니다.");
-            }
+            
+            Debug.Log("인벤토리 데이터가 성공적으로 저장되었습니다.");
         }
         catch (Exception e)
         {
@@ -366,9 +363,16 @@ public class SaveManager : MonoBehaviour
                             SaveData.QuestData.QuestInfo questInfo = new SaveData.QuestData.QuestInfo
                             {
                                 questId = quest.id,
-                                progress = 0, // Dictionary는 직렬화가 어려우므로 개별 처리 필요
-                                isTracking = false // 추적 기능이 있다면 저장
+                                isTracking = false // 추적 기능이 있다면 해당 상태 저장
                             };
+                            
+                            // 진행 상태 저장 (첫 번째 조건만 저장하거나 필요에 따라 확장)
+                            if (quest.progress != null && quest.progress.Count > 0)
+                            {
+                                var firstProgress = quest.progress.FirstOrDefault();
+                                questInfo.progress = firstProgress.Value;
+                            }
+                            
                             saveData.questData.activeQuests.Add(questInfo);
                         }
                     }
@@ -510,24 +514,110 @@ public class SaveManager : MonoBehaviour
                     if (item != null)
                     {
                         item.quantity = itemInfo.count;
+                        
+                        // 아이템 강화 수치 적용 (추가)
+                        if (item.itemSkill != null && itemInfo.itemLevel > 0)
+                        {
+                            item.itemSkill.Level = itemInfo.itemLevel;
+                        }
+                        
                         InventoryManager.Instance.AddItemLogic(item);
                     }
                 }
                 
-                // 장착 중인 장비 복원 - 실제 구현이 불분명하여 로그만 출력
-                if (saveData.inventoryData.weapon != null)
+                // 장착 중인 장비 복원
+                if (ItemEffectManager.Instance != null)
                 {
-                    Debug.Log($"무기 장착: {saveData.inventoryData.weapon.itemId}");
-                }
-                
-                if (saveData.inventoryData.armor != null)
-                {
-                    Debug.Log($"방어구 장착: {saveData.inventoryData.armor.itemId}");
-                }
-                
-                if (saveData.inventoryData.accessory != null)
-                {
-                    Debug.Log($"액세서리 장착: {saveData.inventoryData.accessory.itemId}");
+                    // 무기 장착
+                    if (saveData.inventoryData.weapon != null)
+                    {
+                        // 인벤토리에서 해당 ID를 가진 아이템을 찾음
+                        Item weaponInInventory = InventoryManager.Instance.FindInventoryItem(saveData.inventoryData.weapon.itemId);
+                        
+                        if (weaponInInventory != null)
+                        {
+                            // 인벤토리에 있는 아이템을 직접 장착
+                            // 이미 강화 수치가 적용되어 있으므로 추가 설정 필요 없음
+                            ItemEffectManager.Instance.ApplyItemEffect(weaponInInventory);
+                            Debug.Log($"무기 장착: {weaponInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {weaponInInventory.itemSkill?.Level ?? 0})");
+                        }
+                        else
+                        {
+                            // 인벤토리에 아이템이 없는 경우 새로 생성
+                            Item weapon = ItemManager.Instance.GetItemById(saveData.inventoryData.weapon.itemId);
+                            if (weapon != null)
+                            {
+                                // 강화 수치 적용
+                                if (weapon.itemSkill != null && saveData.inventoryData.weapon.itemLevel > 0)
+                                {
+                                    weapon.itemSkill.Level = saveData.inventoryData.weapon.itemLevel;
+                                }
+                                
+                                ItemEffectManager.Instance.ApplyItemEffect(weapon);
+                                Debug.Log($"무기 장착: {weapon.name} (새로 생성한 아이템, 레벨: {weapon.itemSkill?.Level ?? 0})");
+                            }
+                        }
+                    }
+                    
+                    // 방어구 장착
+                    if (saveData.inventoryData.armor != null)
+                    {
+                        // 인벤토리에서 해당 ID를 가진 아이템을 찾음
+                        Item armorInInventory = InventoryManager.Instance.FindInventoryItem(saveData.inventoryData.armor.itemId);
+                        
+                        if (armorInInventory != null)
+                        {
+                            // 인벤토리에 있는 아이템을 직접 장착
+                            ItemEffectManager.Instance.ApplyItemEffect(armorInInventory);
+                            Debug.Log($"방어구 장착: {armorInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {armorInInventory.itemSkill?.Level ?? 0})");
+                        }
+                        else
+                        {
+                            // 인벤토리에 아이템이 없는 경우 새로 생성
+                            Item armor = ItemManager.Instance.GetItemById(saveData.inventoryData.armor.itemId);
+                            if (armor != null)
+                            {
+                                // 강화 수치 적용
+                                if (armor.itemSkill != null && saveData.inventoryData.armor.itemLevel > 0)
+                                {
+                                    armor.itemSkill.Level = saveData.inventoryData.armor.itemLevel;
+                                }
+                                
+                                ItemEffectManager.Instance.ApplyItemEffect(armor);
+                                Debug.Log($"방어구 장착: {armor.name} (새로 생성한 아이템, 레벨: {armor.itemSkill?.Level ?? 0})");
+                            }
+                        }
+                    }
+                    
+                    // 액세서리 장착
+                    if (saveData.inventoryData.accessory != null)
+                    {
+                        // 인벤토리에서 해당 ID를 가진 아이템을 찾음
+                        Item accessoryInInventory = InventoryManager.Instance.FindInventoryItem(saveData.inventoryData.accessory.itemId);
+                        
+                        if (accessoryInInventory != null)
+                        {
+                            // 인벤토리에 있는 아이템을 직접 장착
+                            ItemEffectManager.Instance.ApplyItemEffect(accessoryInInventory);
+                            Debug.Log($"액세서리 장착: {accessoryInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {accessoryInInventory.itemSkill?.Level ?? 0})");
+                        }
+                        else
+                        {
+                            // 인벤토리에 아이템이 없는 경우 새로 생성
+                            Item accessory = ItemManager.Instance.GetItemById(saveData.inventoryData.accessory.itemId);
+                            if (accessory != null)
+                            {
+                                // 강화 수치 적용
+                                if (accessory.itemSkill != null && saveData.inventoryData.accessory.itemLevel > 0)
+                                {
+                                    accessory.itemSkill.Level = saveData.inventoryData.accessory.itemLevel;
+                                }
+                                
+                                ItemEffectManager.Instance.ApplyItemEffect(accessory);
+                                Debug.Log($"액세서리 장착: {accessory.name} (새로 생성한 아이템, 레벨: {accessory.itemSkill?.Level ?? 0})");
+                            }
+                        }
+                    }
                 }
                 
                 // UI 갱신
@@ -582,18 +672,51 @@ public class SaveManager : MonoBehaviour
         {
             if (QuestManager.Instance != null)
             {
+                // 기존 퀘스트 데이터 초기화
+                QuestManager.Instance.ClearQuestData();
+                
                 // 활성화된 퀘스트 복원
                 foreach (var questInfo in saveData.questData.activeQuests)
                 {
-                    // 퀘스트 활성화 메서드가 확인되지 않아 로그만 출력
-                    Debug.Log($"퀘스트 활성화: {questInfo.questId}");
+                    Quest quest = QuestManager.Instance.GetQuestById(questInfo.questId);
+                    if (quest != null)
+                    {
+                        QuestManager.Instance.AddQuest(quest);
+                        
+                        // 퀘스트 진행 상태 복원
+                        foreach (var condition in quest.requiredConditions)
+                        {
+                            if (questInfo.progress > 0)
+                            {
+                                // 진행 상태 초기화
+                                quest.progress[condition.Key] = questInfo.progress;
+                                
+                                // 조건 완료 상태 확인
+                                if (quest.progress[condition.Key] >= condition.Value.requiredQuantity)
+                                {
+                                    condition.Value.isCompleted = true;
+                                }
+                            }
+                        }
+                        
+                        // 추적 상태 복원
+                        if (questInfo.isTracking)
+                        {
+                            QuestManager.Instance.TrackQuest(quest);
+                        }
+                    }
                 }
                 
                 // 완료된 퀘스트 복원
                 foreach (var questId in saveData.questData.completedQuests)
                 {
-                    // 퀘스트 완료 메서드가 확인되지 않아 로그만 출력
-                    Debug.Log($"퀘스트 완료: {questId}");
+                    Quest quest = QuestManager.Instance.GetQuestById(questId);
+                    if (quest != null)
+                    {
+                        // 직접 완료된 퀘스트 목록에 추가
+                        quest.isCompleted = true;
+                        QuestManager.Instance.AddCompletedQuest(quest);
+                    }
                 }
                 
                 Debug.Log("퀘스트 데이터가 성공적으로 적용되었습니다.");

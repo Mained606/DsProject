@@ -24,7 +24,7 @@ public class TitleScene : MonoBehaviour
         fadeCoroutines = new Coroutine[buttonCount][];
         
         // SaveSystemInitializer 찾기 또는 생성
-        saveSystem = FindObjectOfType<SaveSystemInitializer>();
+        saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
         if (saveSystem == null)
         {
             GameObject saveSystemObj = new GameObject("SaveSystemInitializer");
@@ -194,6 +194,12 @@ public class TitleScene : MonoBehaviour
         {
             case 0: // 새 게임 버튼
                 Debug.Log("새 게임 시작");
+                // 저장 데이터 삭제
+                if (SaveManager.Instance != null)
+                {
+                    SaveManager.Instance.ResetSaveData();
+                    Debug.Log("기존 저장 데이터가 삭제되었습니다.");
+                }
                 saveSystem.StartNewGame();
                 break;
                 
