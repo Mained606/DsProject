@@ -162,32 +162,47 @@ public class SaveSystemInitializer : MonoBehaviour
     {
         if (SkillManager.Instance != null && SkillManager.SkillList != null)
         {
-            int resetCount = 0;
+            int playerResetCount = 0;
+            int nonPlayerSetCount = 0;
             
-            // 모든 스킬에서 플레이어 스킬만 선택적으로 초기화
+            // 모든 스킬에 대해 초기화
             foreach (var skillEntry in SkillManager.SkillList)
             {
-                // 플레이어 스킬만 초기화 (드래곤, 보스 스킬 제외)
+                Skills skill = skillEntry.Value;
+                
+                // 플레이어 스킬은 모두 false로 설정 (이전 상태와 상관 없이)
                 if (skillEntry.Key.Item1 == EntityType.Player)
                 {
-                    Skills skill = skillEntry.Value;
+                    // unLockSkill 상태와 관계없이 모든 플레이어 스킬 초기화
+                    bool wasUnlocked = skill.unLockSkill;
+                    skill.unLockSkill = false;
+                    playerResetCount++;
                     
-                    // 스킬 언락 상태 초기화
-                    if (skill.unLockSkill)
+                    // 스킬 레벨도 1로 초기화
+                    skill.skillLevel = 1;
+                    skill.Initialize(); // 스킬 초기화 (현재 스탯 값 등 리셋)
+                    
+                    if (wasUnlocked)
                     {
-                        skill.unLockSkill = false;
-                        resetCount++;
-                        
-                        // 스킬 레벨도 1로 초기화
-                        skill.skillLevel = 1;
-                        skill.Initialize(); // 스킬 초기화 (현재 스탯 값 등 리셋)
-                        
                         Debug.Log($"플레이어 스킬 '{skill.skillName}'의 언락 상태가 초기화되었습니다.");
+                    }
+                }
+                // 몬스터, 보스, 드래곤 스킬은 모두 true로 설정
+                else 
+                {
+                    bool wasLocked = !skill.unLockSkill;
+                    skill.unLockSkill = true;
+                    nonPlayerSetCount++;
+                    
+                    if (wasLocked)
+                    {
+                        Debug.Log($"비플레이어 스킬 '{skill.skillName}'의 언락 상태가 활성화되었습니다.");
                     }
                 }
             }
             
-            Debug.Log($"총 {resetCount}개의 플레이어 스킬 언락 상태가 초기화되었습니다.");
+            Debug.Log($"총 {playerResetCount}개의 플레이어 스킬이 잠김 상태로 초기화되었습니다.");
+            Debug.Log($"총 {nonPlayerSetCount}개의 비플레이어 스킬이 활성화되었습니다.");
         }
         else
         {

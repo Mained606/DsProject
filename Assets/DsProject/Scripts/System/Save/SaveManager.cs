@@ -1157,6 +1157,31 @@ public class SaveManager : MonoBehaviour
             Debug.Log("저장 데이터가 초기화되었습니다.");
         }
         
+        // 스킬 초기화 로직 추가
+        if (SkillManager.Instance != null && SkillManager.SkillList != null)
+        {
+            // 모든 스킬에 대해 초기화
+            foreach (var skillEntry in SkillManager.SkillList)
+            {
+                Skills skill = skillEntry.Value;
+                
+                // 플레이어 스킬은 모두 false로 설정
+                if (skillEntry.Key.Item1 == EntityType.Player)
+                {
+                    skill.unLockSkill = false;
+                    skill.skillLevel = 1;
+                    skill.Initialize();
+                }
+                // 몬스터, 보스, 드래곤 스킬은 모두 true로 설정
+                else
+                {
+                    skill.unLockSkill = true;
+                }
+            }
+            
+            Debug.Log("스킬 언락 상태가 초기화되었습니다.");
+        }
+        
         currentSaveData = null;
     }
     
