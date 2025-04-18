@@ -60,8 +60,7 @@ public class DragonUltimateAttackState : IDragonState
             dragon.SetAttacking(false);
             
             // 전투 상태인지 확인
-            bool inCombat = GameStateMachine.Instance.CurrentState == GameSystemState.Combat || 
-                           GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle;
+            bool inCombat = dragon.IsInCombat();
             
             // 다음 상태 결정
             if (inCombat && dragon.HasTarget)

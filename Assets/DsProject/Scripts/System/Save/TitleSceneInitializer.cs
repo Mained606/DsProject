@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using DsProject.Scripts.System.Save;
 
 /// <summary>
 /// 타이틀 씬에서 SaveManager를 초기화하고 타이틀 UI와 연결하는 역할을 담당합니다.

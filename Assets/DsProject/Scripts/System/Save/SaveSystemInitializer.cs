@@ -91,8 +91,77 @@ public class SaveSystemInitializer : MonoBehaviour
             SaveManager.Instance.ResetSaveData();
         }
         
+        // 아이템 강화 수치 초기화
+        ResetAllItemEnhancements();
+        
         // 메인 게임 씬 로드
         SceneManager.LoadScene(mainGameSceneName);
+    }
+    
+    // 아이템 강화 수치 초기화 메서드 추가
+    private void ResetAllItemEnhancements()
+    {
+        // 먼저 아이템 템플릿 초기화
+        if (ItemManager.Instance != null && ItemManager.ItemDatabase != null)
+        {
+            // 모든 아이템 템플릿 초기화
+            foreach (var item in ItemManager.ItemDatabase)
+            {
+                if (item.itemSkill != null)
+                {
+                    // 아이템 레벨을 0으로 초기화
+                    item.itemSkill.Level = 0;
+                    Debug.Log($"아이템 템플릿 '{item.id}'의 강화 수치가 초기화되었습니다.");
+                }
+            }
+            
+            Debug.Log("모든 아이템 템플릿의 강화 수치가 초기화되었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("ItemManager 또는 ItemDatabase가 null입니다. 아이템 템플릿 강화 수치를 초기화할 수 없습니다.");
+        }
+        
+        // 인벤토리 내 아이템 초기화
+        if (InventoryManager.Instance != null)
+        {
+            // 인벤토리의 모든 아이템 초기화
+            foreach (var item in InventoryManager.InventoryList)
+            {
+                if (item != null && item.itemSkill != null)
+                {
+                    // 아이템 레벨을 0으로 초기화
+                    item.itemSkill.Level = 0;
+                    Debug.Log($"인벤토리 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
+                }
+            }
+            
+            // 장착 중인 아이템도 초기화
+            var equippedItems = new List<Item>();
+            // 여러 장비 슬롯에서 장착된 아이템을 가져옵니다
+            foreach (EquipmentSlot slot in System.Enum.GetValues(typeof(EquipmentSlot)))
+            {
+                equippedItems.AddRange(InventoryManager.GetSlotItem(slot));
+            }
+            if (equippedItems != null)
+            {
+                foreach (var item in equippedItems)
+                {
+                    if (item != null && item.itemSkill != null)
+                    {
+                        // 아이템 레벨을 0으로 초기화
+                        item.itemSkill.Level = 0;
+                        Debug.Log($"장착 중인 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
+                    }
+                }
+            }
+            
+            Debug.Log("인벤토리 및 장착 아이템의 강화 수치가 초기화되었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("InventoryManager.Instance가 null입니다. 인벤토리 아이템 강화 수치를 초기화할 수 없습니다.");
+        }
     }
     
     // 게임 로드 (저장된 게임 불러오기)

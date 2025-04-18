@@ -1431,6 +1431,7 @@ GameObject:
   - component: {fileID: 4239135750975846520}
   - component: {fileID: -9081026810119724580}
   - component: {fileID: -1367065386049946532}
+  - component: {fileID: 3460703339375189994}
   m_Layer: 6
   m_Name: BabyDragonNPC
   m_TagString: Dragon
@@ -1504,6 +1505,7 @@ MonoBehaviour:
     currentNPC: {fileID: 0}
     dialogue: []
     conditionalDialogue: []
+    relatedQuestIds: []
     quests: []
     items: []
     shopData:
@@ -1527,7 +1529,12 @@ MonoBehaviour:
     interactionEffect: {fileID: 0}
     isShop: 0
     isQuestGiver: 0
+    isQuestActivator: 0
     reputationRequirement: 0
+  isMainQuestNpc: 0
+  isSubQuestNpc: 0
+  subQuestId: 
+  isNearest: 0
 --- !u!114 &-1367065386049946532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1543,6 +1550,22 @@ MonoBehaviour:
   layer:
     serializedVersion: 2
     m_Bits: 0
+--- !u!114 &3460703339375189994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6847506254371132336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e57e2b15a7b144f4a98b9f52c8c3a2d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectId: 
+  saveActivationState: 1
+  savePosition: 1
+  saveRotation: 1
 --- !u!1 &6947217215586214734
 GameObject:
   m_ObjectHideFlags: 0

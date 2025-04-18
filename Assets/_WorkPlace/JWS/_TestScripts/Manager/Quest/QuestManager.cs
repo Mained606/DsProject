@@ -898,7 +898,7 @@ public class QuestManager : BaseManager<QuestManager>
         return subQuestDatabase[Random.Range(0, subQuestDatabase.Count)];
     }
 
-    private void MainQuestSequenceStart(int index)
+    public void MainQuestSequenceStart(int index)
     {
         string logPrefix = $"[MainQuestSequenceStart] 인덱스: {index}";
         Debug.Log($"{logPrefix}, 메인 퀘스트 DB 크기: {mainQuestDatabase.Count}");
@@ -910,15 +910,28 @@ public class QuestManager : BaseManager<QuestManager>
             return;
         }
         
+        // 현재 진행할 퀘스트
+        Quest questToAdd = mainQuestDatabase[index];
+        
+        // 이미 완료된 퀘스트인지 확인 (추가된 부분)
+        if (completedQuests.Exists(q => q.id == questToAdd.id))
+        {
+            Debug.Log($"{logPrefix}: 퀘스트 '{questToAdd.id}'는 이미 완료되었습니다. 다음 퀘스트로 진행합니다.");
+            // 첫 번째 퀘스트(1_1001)가 이미 완료된 경우 다음 인덱스로 재귀 호출
+            if (index == 0 && questToAdd.id == "1_1001")
+            {
+                currentMainQuestIndex = 1; // 다음 인덱스로 설정
+                MainQuestSequenceStart(currentMainQuestIndex);
+            }
+            return;
+        }
+        
         // 첫 번째 퀘스트이거나, 이전 퀘스트가 완료된 경우에만 다음 퀘스트 진행
         bool isFirstQuest = index == 0;
         bool isPreviousQuestCompleted = index > 0 && mainQuestDatabase[index-1].isCompleted;
         
         if (isFirstQuest || isPreviousQuestCompleted)
         {
-            // 현재 진행할 퀘스트
-            Quest questToAdd = mainQuestDatabase[index];
-            
             // 이미 진행 중인 같은 ID의 퀘스트가 있는지 확인
             bool alreadyHasQuest = questDatabase.Any(q => q.id == questToAdd.id);
             

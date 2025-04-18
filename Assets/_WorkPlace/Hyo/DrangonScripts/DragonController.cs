@@ -1062,14 +1062,6 @@ public class DragonController : MonoBehaviour
     }
     
     /// <summary>
-    /// 공격 상태 설정
-    /// </summary>
-    public void SetAttacking(bool attacking)
-    {
-        isAttacking = attacking;
-    }
-    
-    /// <summary>
     /// 전투 종료 체크 시작
     /// </summary>
     public void StartEndCombatCheck()
@@ -1156,13 +1148,16 @@ public class DragonController : MonoBehaviour
     /// </summary>
     public void RotateToTarget()
     {
-        if (!HasTarget) return;
+        if (currentTargetTransform == null || player == null) return;
         
-        Vector3 targetDir = (currentTargetTransform.position - transform.position).normalized;
-        Quaternion lookRot = Quaternion.LookRotation(targetDir, Vector3.up);
-        transform.rotation = Quaternion.Lerp(transform.rotation, 
-                                         Quaternion.Euler(0f, lookRot.eulerAngles.y, 0f), 
-                                         Time.deltaTime * rotationSpeed * 3f);
+        Vector3 directionToTarget = currentTargetTransform.position - transform.position;
+        directionToTarget.y = 0; // Y축 회전만 고려
+        
+        if (directionToTarget != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(directionToTarget);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        }
     }
     
     /// <summary>
@@ -1309,6 +1304,20 @@ public class DragonController : MonoBehaviour
     public void StartUltimateCooldown()
     {
         TimerManager.Instance.StartTimer(ultimateCooldown);
+    }
+    #endregion
+
+    #region 공개 메서드
+    // 세이브/로드 시스템에서 호출하기 위한 공개 메서드
+    public void UpdateDragonModelPublic()
+    {
+        UpdateDragonModel();
+    }
+    
+    // 공격 상태 설정
+    public void SetAttacking(bool attacking)
+    {
+        isAttacking = attacking;
     }
     #endregion
 }

@@ -6,6 +6,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
 
+// 타입 오류 수정을 위해 SaveableObject 참조 명시적 추가
+using DsProject.Scripts.System.Save;
+
+namespace DsProject.Scripts.System.Save
+{
+    // SaveableObject 클래스가 이 네임스페이스 안에 있다고 선언하여 참조 오류 해결
+}
+
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
@@ -90,6 +98,9 @@ public class SaveManager : MonoBehaviour
             
             // 용 데이터 저장
             SaveDragonData(saveData);
+            
+            // 저장 가능한 오브젝트들의 상태 저장
+            SaveSaveableObjects(saveData);
             
             // 데이터를 JSON으로 변환
             string jsonData = JsonUtility.ToJson(saveData, true);
@@ -185,6 +196,9 @@ public class SaveManager : MonoBehaviour
         
         // 용 데이터 적용
         ApplyDragonData(saveData);
+        
+        // 저장 가능한 오브젝트들의 상태 로드
+        LoadSaveableObjects(saveData);
     }
     
     // 플레이어 데이터 저장
@@ -407,7 +421,7 @@ public class SaveManager : MonoBehaviour
     {
         if (GameManager.DragonTransform == null) return;
         
-        // 용 컨트롤러 가져오기
+        // 드래곤 컨트롤러 가져오기
         DragonController dragonController = GameManager.DragonTransform.GetComponent<DragonController>();
         if (dragonController == null) return;
         
@@ -415,36 +429,93 @@ public class SaveManager : MonoBehaviour
         saveData.dragonData.position = GameManager.DragonTransform.position;
         saveData.dragonData.rotation = GameManager.DragonTransform.rotation;
         
+        // 활성화 상태 저장
+        saveData.dragonData.isActive = GameManager.DragonTransform.gameObject.activeSelf;
+        
         try {
-            // DragonData 참조 가져오기
-            DragonData dragon = dragonController.DragonData;
-            if (dragon == null)
-            {
-                Debug.LogWarning("DragonData가 null입니다.");
-                dragon = CharacterManager.DragonData;
-                if (dragon == null)
-                {
-                    Debug.LogError("CharacterManager.DragonData도 null입니다.");
-                    return;
-                }
+            DragonData dragonData = CharacterManager.DragonData;
+            
+            if (dragonData != null) {
+                // 기본 정보 저장
+                saveData.dragonData.level = dragonData.bondLevel;
+                
+                // 언락된 능력 저장
+                saveData.dragonData.unlockedAbilities.Clear();
+                // DragonData의 unlockedAbilities 필드가 존재한다면 아래 코드를 유지
+                // 그렇지 않으면 필요한 능력들을 직접 저장
+                saveData.dragonData.unlockedAbilities.Add("BasicAttack");
             }
             
-            // 기본 정보 저장
-            saveData.dragonData.isUnlocked = true;
-            saveData.dragonData.level = dragon.bondLevel;
-            
-            // HP 정보 저장 (기본값 설정)
-            saveData.dragonData.maxHealth = 100.0f;
-            saveData.dragonData.currentHealth = 100.0f;
-            
-            // 언락된 능력 저장
-            saveData.dragonData.unlockedAbilities.Clear();
-            saveData.dragonData.unlockedAbilities.Add("BasicAttack");
-            
-            Debug.Log("용 데이터가 성공적으로 저장되었습니다.");
+            Debug.Log($"용 데이터가 성공적으로 저장되었습니다. 활성화 상태: {saveData.dragonData.isActive}");
         }
         catch (Exception e) {
             Debug.LogWarning($"용 데이터 저장 중 오류: {e.Message}");
+        }
+    }
+    
+    // 저장 가능한 오브젝트들의 상태 저장
+    private void SaveSaveableObjects(SaveData saveData)
+    {
+        if (saveData.saveableObjects == null || saveData.saveableObjects.objects == null)
+        {
+            Debug.Log("저장된 오브젝트 데이터가 없습니다.");
+            return;
+        }
+        
+        // SaveableObject 컴포넌트가 있는 모든 오브젝트를 찾기
+        // (비활성화된 오브젝트도 찾기 위해 Resources.FindObjectsOfTypeAll 사용)
+        SaveableObject[] saveableObjects = Resources.FindObjectsOfTypeAll<SaveableObject>();
+        
+        Debug.Log($"씬에서 {saveableObjects.Length}개의 SaveableObject 컴포넌트를 찾았습니다.");
+        
+        // ID로 활성화 상태와 위치를 저장할 수 있는 오브젝트를 찾고 일괄 저장 이벤트 발생
+        foreach (var saveableObject in saveableObjects)
+        {
+            // 각 SaveableObject는 자신의 OnGameSaved 핸들러에서 자신의 상태를 저장함
+            // 여기서는 추가적인 작업 필요 없음
+            Debug.Log($"SaveableObject: {saveableObject.gameObject.name} (ID: {saveableObject.objectId})");
+        }
+    }
+    
+    // 지연 활성화를 위한 코루틴
+    private IEnumerator DelayedActivation(GameObject obj, bool activate)
+    {
+        // 씬 로드 후 객체를 찾는 데 시간이 필요할 수 있으므로 약간의 지연 추가
+        yield return new WaitForSeconds(0.2f);
+        
+        if (obj != null)
+        {
+            obj.SetActive(activate);
+            Debug.Log($"오브젝트 '{obj.name}'의 활성화 상태를 {activate}로 설정했습니다.");
+        }
+    }
+    
+    // 지연 드래곤 업데이트를 위한 코루틴
+    private IEnumerator DelayedDragonUpdate(DragonController controller)
+    {
+        // 모든 컴포넌트가 초기화될 시간을 줌
+        yield return new WaitForSeconds(0.5f);
+        
+        if (controller != null)
+        {
+            // 새로 추가된 공개 메서드 호출
+            bool prevActiveState = controller.gameObject.activeSelf;
+            
+            // 비활성화 상태라면 임시로 활성화
+            if (!prevActiveState)
+            {
+                controller.gameObject.SetActive(true);
+            }
+            
+            controller.UpdateDragonModelPublic();
+            
+            // 원래 상태로 복원
+            if (!prevActiveState)
+            {
+                controller.gameObject.SetActive(false);
+            }
+            
+            Debug.Log("Dragon 모델 업데이트 완료");
         }
     }
     
@@ -735,28 +806,60 @@ public class SaveManager : MonoBehaviour
     // 용 데이터 적용
     private void ApplyDragonData(SaveData saveData)
     {
-        if (GameManager.DragonTransform == null) return;
-        
-        // 용 컨트롤러 가져오기
-        DragonController dragonController = GameManager.DragonTransform.GetComponent<DragonController>();
-        if (dragonController == null) return;
-        
-        // 위치 및 회전 복원
-        GameManager.DragonTransform.position = saveData.dragonData.position;
-        GameManager.DragonTransform.rotation = saveData.dragonData.rotation;
-        
         try {
+            if (GameManager.DragonTransform == null)
+            {
+                Debug.LogWarning("Dragon Transform이 null입니다. 씬에서 Dragon을 찾는 중...");
+                
+                // 씬에서 Dragon 찾기 시도 (활성화 상태와 관계없이 찾기)
+                var dragons = Resources.FindObjectsOfTypeAll<DragonController>();
+                
+                if (dragons.Length > 0)
+                {
+                    Debug.Log($"씬에서 Dragon을 찾았습니다. 총 {dragons.Length}개");
+                    GameManager.DragonTransform = dragons[0].transform;
+                }
+                else
+                {
+                    Debug.LogError("씬에서 Dragon을 찾을 수 없습니다.");
+                    
+                    // Dragon 프리팹을 Resources 폴더에서 찾아 인스턴스화 시도
+                    var dragonPrefab = Resources.Load<GameObject>("Prefabs/Dragon");
+                    if (dragonPrefab != null)
+                    {
+                        var dragonInstance = Instantiate(dragonPrefab);
+                        GameManager.DragonTransform = dragonInstance.transform;
+                        Debug.Log("Dragon 프리팹을 인스턴스화했습니다.");
+                    }
+                    else
+                    {
+                        Debug.LogError("Dragon 프리팹을 찾을 수 없습니다.");
+                        return;
+                    }
+                }
+            }
+            
+            // 용 컨트롤러 가져오기
+            DragonController dragonController = GameManager.DragonTransform.GetComponent<DragonController>();
+            if (dragonController == null)
+            {
+                Debug.LogError("Dragon 오브젝트에 DragonController 컴포넌트가 없습니다.");
+                return;
+            }
+            
+            // 위치 및 회전 복원
+            GameManager.DragonTransform.position = saveData.dragonData.position;
+            GameManager.DragonTransform.rotation = saveData.dragonData.rotation;
+            
+            // 활성화 상태 복원 (코루틴으로 지연 적용)
+            StartCoroutine(DelayedActivation(GameManager.DragonTransform.gameObject, saveData.dragonData.isActive));
+            
             // DragonData 참조 가져오기
-            DragonData dragon = dragonController.DragonData;
+            DragonData dragon = CharacterManager.DragonData;
             if (dragon == null)
             {
-                Debug.LogWarning("DragonData가 null입니다.");
-                dragon = CharacterManager.DragonData;
-                if (dragon == null)
-                {
-                    Debug.LogError("CharacterManager.DragonData도 null입니다.");
-                    return;
-                }
+                Debug.LogError("CharacterManager.DragonData가 null입니다.");
+                return;
             }
             
             // 기본 정보 복원
@@ -768,13 +871,41 @@ public class SaveManager : MonoBehaviour
                 Debug.Log($"드래곤 능력 로드: {ability}");
             }
             
-            // 모델 및 설정 업데이트 시도 (private 메서드 호출 대신 로그만 출력)
-            Debug.Log("드래곤 모델 및 설정 업데이트 필요");
+            // 드래곤 모델 업데이트 로직
+            if (dragonController != null)
+            {
+                // 활성화 상태에 관계없이 드래곤 모델 업데이트 시도
+                StartCoroutine(DelayedDragonUpdate(dragonController));
+            }
             
-            Debug.Log("용 데이터가 성공적으로 적용되었습니다.");
+            Debug.Log($"용 데이터가 성공적으로 적용되었습니다. 활성화 상태: {saveData.dragonData.isActive}");
         }
         catch (Exception e) {
             Debug.LogWarning($"용 데이터 적용 중 오류: {e.Message}");
+        }
+    }
+    
+    // 저장 가능한 오브젝트들의 상태 로드
+    private void LoadSaveableObjects(SaveData saveData)
+    {
+        if (saveData.saveableObjects == null || saveData.saveableObjects.objects == null)
+        {
+            Debug.Log("저장된 오브젝트 데이터가 없습니다.");
+            return;
+        }
+        
+        // SaveableObject 컴포넌트가 있는 모든 오브젝트를 찾기
+        // (비활성화된 오브젝트도 찾기 위해 Resources.FindObjectsOfTypeAll 사용)
+        SaveableObject[] saveableObjects = Resources.FindObjectsOfTypeAll<SaveableObject>();
+        
+        Debug.Log($"씬에서 {saveableObjects.Length}개의 SaveableObject 컴포넌트를 찾았습니다.");
+        
+        // ID로 활성화 상태와 위치를 복원할 수 있는 오브젝트를 찾고 일괄 로드 이벤트 발생
+        foreach (var saveableObject in saveableObjects)
+        {
+            // 각 SaveableObject는 자신의 OnGameLoaded 핸들러에서 자신의 상태를 복원함
+            // 여기서는 추가적인 작업 필요 없음
+            Debug.Log($"SaveableObject: {saveableObject.gameObject.name} (ID: {saveableObject.objectId})");
         }
     }
     
