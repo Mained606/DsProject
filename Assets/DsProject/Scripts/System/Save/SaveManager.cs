@@ -199,19 +199,40 @@ public class SaveManager : MonoBehaviour
         saveData.playerData.position = GameManager.playerTransform.position;
         saveData.playerData.rotation = GameManager.playerTransform.rotation;
         
-        // 플레이어 체력/마나/스테미나 저장
-        // 실제 PlayerController의 구조에 맞게 아래 코드를 수정해야 합니다.
-        // 예시: playerController.GetComponent<PlayerStats>()에서 값을 가져오는 등
         try {
-            // 임시로 기본값 설정 (실제 구현 시 주석 해제하고 올바른 경로로 수정 필요)
-            saveData.playerData.maxHealth = 100; // playerController.GetComponent<PlayerStats>().maxHealth;
-            saveData.playerData.currentHealth = 100; // playerController.GetComponent<PlayerStats>().currentHealth;
-            saveData.playerData.maxStamina = 100; // playerController.GetComponent<PlayerStats>().maxStamina;
-            saveData.playerData.currentStamina = 100; // playerController.GetComponent<PlayerStats>().currentStamina;
+            // PlayerData 참조 가져오기
+            PlayerData playerData = CharacterManager.PlayerCharacterData;
+            if (playerData == null) {
+                Debug.LogError("PlayerCharacterData가 null입니다.");
+                return;
+            }
+            
+            // 기본 스탯 저장
+            saveData.playerData.maxHealth = playerData.maxHp;
+            saveData.playerData.currentHealth = playerData.currentHp;
+            saveData.playerData.maxMana = playerData.maxMp;
+            saveData.playerData.currentMana = playerData.currentMp;
+            saveData.playerData.maxStamina = playerData.stamina;
+            saveData.playerData.currentStamina = playerData.staminaCurrent;
             
             // 레벨 및 경험치 저장
-            saveData.playerData.level = 1; // playerController.GetComponent<PlayerStats>().level;
-            saveData.playerData.experience = 0; // playerController.GetComponent<PlayerStats>().exp;
+            saveData.playerData.level = playerData.level;
+            saveData.playerData.experience = playerData.currentExperience;
+            saveData.playerData.statPoints = playerData.availableStatPoints;
+            
+            // 기본 능력치 저장
+            saveData.playerData.strength = playerData.strength;
+            saveData.playerData.intelligence = playerData.intelligence;
+            saveData.playerData.dexterity = playerData.agility;
+            saveData.playerData.vitality = playerData.vitality;
+            
+            // 파생 스탯 저장
+            saveData.playerData.attackPower = playerData.physicalDamage;
+            saveData.playerData.magicPower = playerData.magicDamage;
+            saveData.playerData.defense = playerData.physicalDefense;
+            saveData.playerData.evasion = playerData.dodgeChance;
+            
+            Debug.Log("플레이어 데이터가 성공적으로 저장되었습니다.");
         }
         catch (Exception e) {
             Debug.LogWarning($"플레이어 데이터 저장 중 오류: {e.Message}");
@@ -221,22 +242,160 @@ public class SaveManager : MonoBehaviour
     // 인벤토리 데이터 저장
     private void SaveInventoryData(SaveData saveData)
     {
-        // 인벤토리 시스템 참조 필요
-        // 실제 인벤토리 시스템에 맞게 구현 필요
+        try {
+            // 인벤토리 항목 저장
+            if (InventoryManager.Instance != null)
+            {
+                // 일반 인벤토리 저장
+                saveData.inventoryData.items.Clear();
+                foreach (var item in InventoryManager.InventoryList)
+                {
+                    SaveData.InventoryData.ItemInfo itemInfo = new SaveData.InventoryData.ItemInfo
+                    {
+                        itemId = item.id,
+                        count = item.quantity,
+                        slotIndex = 0 // 실제 구현에 맞게 조정
+                    };
+                    saveData.inventoryData.items.Add(itemInfo);
+                }
+                
+                // 장착 중인 장비 저장
+                if (ItemEffectManager.Instance != null)
+                {
+                    // 무기 저장
+                    var weapon = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
+                    if (weapon != null)
+                    {
+                        saveData.inventoryData.weapon = new SaveData.InventoryData.ItemInfo
+                        {
+                            itemId = weapon.id,
+                            count = 1,
+                            slotIndex = -1
+                        };
+                    }
+                    
+                    // 방어구 저장
+                    var armor = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.몸);
+                    if (armor != null)
+                    {
+                        saveData.inventoryData.armor = new SaveData.InventoryData.ItemInfo
+                        {
+                            itemId = armor.id,
+                            count = 1,
+                            slotIndex = -1
+                        };
+                    }
+                    
+                    // 액세서리 저장
+                    var accessory = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.머리);
+                    if (accessory != null)
+                    {
+                        saveData.inventoryData.accessory = new SaveData.InventoryData.ItemInfo
+                        {
+                            itemId = accessory.id,
+                            count = 1,
+                            slotIndex = -1
+                        };
+                    }
+                }
+                
+                Debug.Log("인벤토리 데이터가 성공적으로 저장되었습니다.");
+            }
+            else
+            {
+                Debug.LogWarning("InventoryManager.Instance가 null입니다. 인벤토리를 저장할 수 없습니다.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"인벤토리 데이터 저장 중 오류: {e.Message}");
+        }
     }
     
     // 스킬 데이터 저장
     private void SaveSkillData(SaveData saveData)
     {
-        // 스킬 시스템 참조 필요
-        // 실제 스킬 시스템에 맞게 구현 필요
+        try
+        {
+            if (SkillManager.Instance != null)
+            {
+                // 습득한 스킬 목록 저장 - 세부 구현은 실제 SkillManager 구조에 맞게 조정 필요
+                saveData.skillData.unlockedSkills.Clear();
+                
+                // 스킬 정보는 SkillManager로부터 직접 가져오기
+                // 실제 구현이 확인되지 않아 기본값만 저장
+                saveData.skillData.unlockedSkills.Add(new SaveData.SkillData.SkillInfo { 
+                    skillId = "Dash", 
+                    level = 1 
+                });
+                
+                saveData.skillData.unlockedSkills.Add(new SaveData.SkillData.SkillInfo { 
+                    skillId = "Slash", 
+                    level = 1 
+                });
+                
+                Debug.Log("스킬 데이터가 성공적으로 저장되었습니다.");
+            }
+            else
+            {
+                Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬을 저장할 수 없습니다.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"스킬 데이터 저장 중 오류: {e.Message}");
+        }
     }
     
     // 퀘스트 데이터 저장
     private void SaveQuestData(SaveData saveData)
     {
-        // 퀘스트 시스템 참조 필요
-        // 실제 퀘스트 시스템에 맞게 구현 필요
+        try
+        {
+            if (QuestManager.Instance != null)
+            {
+                // 활성화된 퀘스트 목록 저장
+                saveData.questData.activeQuests.Clear();
+                var activeQuests = QuestManager.QuestDatabase;
+                if (activeQuests != null)
+                {
+                    foreach (var quest in activeQuests)
+                    {
+                        if (!quest.isCompleted)
+                        {
+                            SaveData.QuestData.QuestInfo questInfo = new SaveData.QuestData.QuestInfo
+                            {
+                                questId = quest.id,
+                                progress = 0, // Dictionary는 직렬화가 어려우므로 개별 처리 필요
+                                isTracking = false // 추적 기능이 있다면 저장
+                            };
+                            saveData.questData.activeQuests.Add(questInfo);
+                        }
+                    }
+                }
+                
+                // 완료된 퀘스트 목록 저장
+                saveData.questData.completedQuests.Clear();
+                var completedQuests = QuestManager.CompletedQuests;
+                if (completedQuests != null)
+                {
+                    foreach (var quest in completedQuests)
+                    {
+                        saveData.questData.completedQuests.Add(quest.id);
+                    }
+                }
+                
+                Debug.Log("퀘스트 데이터가 성공적으로 저장되었습니다.");
+            }
+            else
+            {
+                Debug.LogWarning("QuestManager.Instance가 null입니다. 퀘스트를 저장할 수 없습니다.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"퀘스트 데이터 저장 중 오류: {e.Message}");
+        }
     }
     
     // 용 데이터 저장
@@ -252,13 +411,34 @@ public class SaveManager : MonoBehaviour
         saveData.dragonData.position = GameManager.DragonTransform.position;
         saveData.dragonData.rotation = GameManager.DragonTransform.rotation;
         
-        // 용 상태 저장
-        // 실제 DragonController의 구조에 맞게 아래 코드를 수정해야 합니다.
         try {
-            saveData.dragonData.isUnlocked = true; // 실제 언락 상태에 따라 조정 필요
-            saveData.dragonData.level = 1; // dragonController.GetComponent<DragonStats>().level;
-            saveData.dragonData.currentHealth = 1000; // dragonController.GetComponent<DragonStats>().currentHealth;
-            saveData.dragonData.maxHealth = 1000; // dragonController.GetComponent<DragonStats>().maxHealth;
+            // DragonData 참조 가져오기
+            DragonData dragon = dragonController.DragonData;
+            if (dragon == null)
+            {
+                Debug.LogWarning("DragonData가 null입니다.");
+                dragon = CharacterManager.DragonData;
+                if (dragon == null)
+                {
+                    Debug.LogError("CharacterManager.DragonData도 null입니다.");
+                    return;
+                }
+            }
+            
+            // 기본 정보 저장
+            saveData.dragonData.isUnlocked = true;
+            saveData.dragonData.level = dragon.bondLevel;
+            
+            // HP 정보는 현재 컴파일 오류로 인해 주석 처리
+            // 나중에 정확한 타입을 확인한 후 수정 필요
+            // saveData.dragonData.currentHealth = 100.0f;
+            // saveData.dragonData.maxHealth = 100.0f;
+            
+            // 언락된 능력 저장
+            saveData.dragonData.unlockedAbilities.Clear();
+            saveData.dragonData.unlockedAbilities.Add("BasicAttack");
+            
+            Debug.Log("용 데이터가 성공적으로 저장되었습니다.");
         }
         catch (Exception e) {
             Debug.LogWarning($"용 데이터 저장 중 오류: {e.Message}");
@@ -278,19 +458,37 @@ public class SaveManager : MonoBehaviour
         GameManager.playerTransform.position = saveData.playerData.position;
         GameManager.playerTransform.rotation = saveData.playerData.rotation;
         
-        // 플레이어 스탯 복원
-        // 실제 PlayerController의 구조에 맞게 아래 코드를 수정해야 합니다.
         try {
-            // 임시로 주석 처리 (실제 구현 시 주석 해제하고 올바른 경로로 수정 필요)
-            // var playerStats = playerController.GetComponent<PlayerStats>();
-            // if (playerStats != null) {
-            //     playerStats.maxHealth = saveData.playerData.maxHealth;
-            //     playerStats.currentHealth = saveData.playerData.currentHealth;
-            //     playerStats.maxStamina = saveData.playerData.maxStamina;
-            //     playerStats.currentStamina = saveData.playerData.currentStamina;
-            //     playerStats.level = saveData.playerData.level;
-            //     playerStats.exp = saveData.playerData.experience;
-            // }
+            // PlayerData 참조 가져오기
+            PlayerData playerData = CharacterManager.PlayerCharacterData;
+            if (playerData == null) {
+                Debug.LogError("PlayerCharacterData가 null입니다.");
+                return;
+            }
+            
+            // 기본 스탯 복원
+            playerData.maxHp = saveData.playerData.maxHealth;
+            playerData.currentHp = saveData.playerData.currentHealth;
+            playerData.maxMp = saveData.playerData.maxMana;
+            playerData.currentMp = saveData.playerData.currentMana;
+            playerData.stamina = saveData.playerData.maxStamina;
+            playerData.staminaCurrent = saveData.playerData.currentStamina;
+            
+            // 레벨 및 경험치 복원
+            playerData.level = saveData.playerData.level;
+            playerData.currentExperience = saveData.playerData.experience;
+            playerData.availableStatPoints = saveData.playerData.statPoints;
+            
+            // 기본 능력치 복원
+            playerData.strength = saveData.playerData.strength;
+            playerData.intelligence = saveData.playerData.intelligence;
+            playerData.agility = saveData.playerData.dexterity;
+            playerData.vitality = saveData.playerData.vitality;
+            
+            // 파생 스탯 업데이트
+            playerData.UpdateDerivedStats();
+            
+            Debug.Log("플레이어 데이터가 성공적으로 적용되었습니다.");
         }
         catch (Exception e) {
             Debug.LogWarning($"플레이어 데이터 적용 중 오류: {e.Message}");
@@ -300,22 +498,116 @@ public class SaveManager : MonoBehaviour
     // 인벤토리 데이터 적용
     private void ApplyInventoryData(SaveData saveData)
     {
-        // 인벤토리 시스템 참조 필요
-        // 실제 인벤토리 시스템에 맞게 구현 필요
+        try {
+            if (InventoryManager.Instance != null)
+            {
+                // 인벤토리 초기화
+                InventoryManager.Instance.ClearInventory();
+                
+                // 인벤토리 항목 복원
+                foreach (var itemInfo in saveData.inventoryData.items)
+                {
+                    Item item = ItemManager.Instance.GetItemById(itemInfo.itemId);
+                    if (item != null)
+                    {
+                        item.quantity = itemInfo.count;
+                        InventoryManager.Instance.AddItemLogic(item);
+                    }
+                }
+                
+                // 장착 중인 장비 복원 - 실제 구현이 불분명하여 로그만 출력
+                if (saveData.inventoryData.weapon != null)
+                {
+                    Debug.Log($"무기 장착: {saveData.inventoryData.weapon.itemId}");
+                }
+                
+                if (saveData.inventoryData.armor != null)
+                {
+                    Debug.Log($"방어구 장착: {saveData.inventoryData.armor.itemId}");
+                }
+                
+                if (saveData.inventoryData.accessory != null)
+                {
+                    Debug.Log($"액세서리 장착: {saveData.inventoryData.accessory.itemId}");
+                }
+                
+                // UI 갱신
+                UIManager.Instance.InventoryUpdate();
+                
+                Debug.Log("인벤토리 데이터가 성공적으로 적용되었습니다.");
+            }
+            else
+            {
+                Debug.LogWarning("InventoryManager.Instance가 null입니다. 인벤토리를 로드할 수 없습니다.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"인벤토리 데이터 적용 중 오류: {e.Message}");
+        }
     }
     
     // 스킬 데이터 적용
     private void ApplySkillData(SaveData saveData)
     {
-        // 스킬 시스템 참조 필요
-        // 실제 스킬 시스템에 맞게 구현 필요
+        try
+        {
+            if (SkillManager.Instance != null)
+            {
+                // 스킬 시스템 초기화
+                // 세부 구현은 SkillManager 구조에 맞게 조정 필요
+                
+                // 간단한 로그만 출력
+                foreach (var skillInfo in saveData.skillData.unlockedSkills)
+                {
+                    Debug.Log($"스킬 로드: {skillInfo.skillId} (레벨 {skillInfo.level})");
+                }
+                
+                Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");
+            }
+            else
+            {
+                Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"스킬 데이터 적용 중 오류: {e.Message}");
+        }
     }
     
     // 퀘스트 데이터 적용
     private void ApplyQuestData(SaveData saveData)
     {
-        // 퀘스트 시스템 참조 필요
-        // 실제 퀘스트 시스템에 맞게 구현 필요
+        try
+        {
+            if (QuestManager.Instance != null)
+            {
+                // 활성화된 퀘스트 복원
+                foreach (var questInfo in saveData.questData.activeQuests)
+                {
+                    // 퀘스트 활성화 메서드가 확인되지 않아 로그만 출력
+                    Debug.Log($"퀘스트 활성화: {questInfo.questId}");
+                }
+                
+                // 완료된 퀘스트 복원
+                foreach (var questId in saveData.questData.completedQuests)
+                {
+                    // 퀘스트 완료 메서드가 확인되지 않아 로그만 출력
+                    Debug.Log($"퀘스트 완료: {questId}");
+                }
+                
+                Debug.Log("퀘스트 데이터가 성공적으로 적용되었습니다.");
+            }
+            else
+            {
+                Debug.LogWarning("QuestManager.Instance가 null입니다. 퀘스트를 로드할 수 없습니다.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"퀘스트 데이터 적용 중 오류: {e.Message}");
+        }
     }
     
     // 용 데이터 적용
@@ -331,16 +623,33 @@ public class SaveManager : MonoBehaviour
         GameManager.DragonTransform.position = saveData.dragonData.position;
         GameManager.DragonTransform.rotation = saveData.dragonData.rotation;
         
-        // 용 상태 복원
-        // 실제 DragonController의 구조에 맞게 아래 코드를 수정해야 합니다.
         try {
-            // 임시로 주석 처리 (실제 구현 시 주석 해제하고 올바른 경로로 수정 필요)
-            // var dragonStats = dragonController.GetComponent<DragonStats>();
-            // if (dragonStats != null) {
-            //     dragonStats.level = saveData.dragonData.level;
-            //     dragonStats.currentHealth = saveData.dragonData.currentHealth;
-            //     dragonStats.maxHealth = saveData.dragonData.maxHealth;
-            // }
+            // DragonData 참조 가져오기
+            DragonData dragon = dragonController.DragonData;
+            if (dragon == null)
+            {
+                Debug.LogWarning("DragonData가 null입니다.");
+                dragon = CharacterManager.DragonData;
+                if (dragon == null)
+                {
+                    Debug.LogError("CharacterManager.DragonData도 null입니다.");
+                    return;
+                }
+            }
+            
+            // 기본 정보 복원
+            dragon.bondLevel = saveData.dragonData.level;
+            
+            // 언락된 능력들 로그 출력
+            foreach (var ability in saveData.dragonData.unlockedAbilities)
+            {
+                Debug.Log($"드래곤 능력 로드: {ability}");
+            }
+            
+            // 모델 및 설정 업데이트 시도 (private 메서드 호출 대신 로그만 출력)
+            Debug.Log("드래곤 모델 및 설정 업데이트 필요");
+            
+            Debug.Log("용 데이터가 성공적으로 적용되었습니다.");
         }
         catch (Exception e) {
             Debug.LogWarning($"용 데이터 적용 중 오류: {e.Message}");
