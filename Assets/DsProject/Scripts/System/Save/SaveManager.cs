@@ -982,6 +982,17 @@ public class SaveManager : MonoBehaviour
                     Quest quest = QuestManager.Instance.GetQuestById(questInfo.questId);
                     if (quest != null)
                     {
+                        // 메인퀘스트가 아니거나, 메인퀘스트이지만 완료된 퀘스트 목록에 없는 경우에만 추가
+                        bool isMainQuest = quest.questType == "메인퀘스트";
+                        bool isAlreadyCompleted = saveData.questData.completedQuests.Contains(quest.id);
+                        
+                        // 메인퀘스트이면서 이미 완료된 퀘스트인 경우 추가하지 않음
+                        if (isMainQuest && isAlreadyCompleted)
+                        {
+                            Debug.Log($"[SaveManager] 완료된 메인퀘스트 '{quest.name}'({quest.id})는 QuestDatabase에 추가하지 않습니다.");
+                            continue;
+                        }
+                        
                         QuestManager.Instance.AddQuest(quest);
                         
                         // 퀘스트 진행 상태 복원
@@ -1020,7 +1031,16 @@ public class SaveManager : MonoBehaviour
                     }
                 }
                 
-                Debug.Log("퀘스트 데이터가 성공적으로 적용되었습니다.");
+                // 로드 후 명시적으로 UI 업데이트 호출 - 퀘스트가 없을 때도 UI 정리하기 위함
+                if (UIManager.Instance != null)
+                {
+                    // UI 업데이트 요청
+                    UIManager.Instance.QuestUpdate();
+                }
+                
+                // 활성 퀘스트 상태 로그
+                int activeCount = QuestManager.QuestDatabase.Count;
+                Debug.Log($"퀘스트 데이터가 성공적으로 적용되었습니다. 활성 퀘스트: {activeCount}개");
             }
             else
             {

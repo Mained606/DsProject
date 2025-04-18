@@ -1513,7 +1513,13 @@ public class QuestManager : BaseManager<QuestManager>
         // 완료 가능한 퀘스트 목록 초기화
         completableQuests.Clear();
         
-        Debug.Log("[QuestManager] 퀘스트 데이터 초기화됨");
+        // 퀘스트 조건 포인트 초기화
+        questConditionPoint.Clear();
+        
+        // 메인 퀘스트 인덱스 초기화
+        currentMainQuestIndex = 0;
+        
+        Debug.Log("[QuestManager] 퀘스트 데이터와 관련 상태 초기화됨");
     }
     
     // 퀘스트 추적 설정
