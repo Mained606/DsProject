@@ -94,6 +94,9 @@ public class SaveSystemInitializer : MonoBehaviour
         // 아이템 강화 수치 초기화
         ResetAllItemEnhancements();
         
+        // 플레이어 스킬 언락 상태 초기화
+        ResetAllPlayerSkills();
+        
         // 메인 게임 씬 로드
         SceneManager.LoadScene(mainGameSceneName);
     }
@@ -111,6 +114,31 @@ public class SaveSystemInitializer : MonoBehaviour
                 {
                     // 아이템 레벨을 0으로 초기화
                     item.itemSkill.Level = 0;
+                    
+                    // 아이템 파생 스탯도 초기화
+                    if (item.itemStat != null)
+                    {
+                        // 아이템 타입에 따른 스탯 초기화
+                        if (item.type == ItemType.무기)
+                        {
+                            if (item.weaponType == WeaponType.완드)
+                            {
+                                // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
+                                item.itemStat.Initialize();
+                            }
+                            else
+                            {
+                                // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
+                                item.itemStat.Initialize();
+                            }
+                        }
+                        else if (item.type == ItemType.방어구)
+                        {
+                            // 강화로 증가된 방어력을 초기화 (간단히 Initialize 호출)
+                            item.itemStat.Initialize();
+                        }
+                    }
+                    
                     Debug.Log($"아이템 템플릿 '{item.id}'의 강화 수치가 초기화되었습니다.");
                 }
             }
@@ -132,6 +160,31 @@ public class SaveSystemInitializer : MonoBehaviour
                 {
                     // 아이템 레벨을 0으로 초기화
                     item.itemSkill.Level = 0;
+                    
+                    // 파생 스탯도 초기화
+                    if (item.itemStat != null)
+                    {
+                        // 아이템 타입에 따른 스탯 초기화
+                        if (item.type == ItemType.무기)
+                        {
+                            if (item.weaponType == WeaponType.완드)
+                            {
+                                // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
+                                item.itemStat.Initialize();
+                            }
+                            else
+                            {
+                                // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
+                                item.itemStat.Initialize();
+                            }
+                        }
+                        else if (item.type == ItemType.방어구)
+                        {
+                            // 강화로 증가된 방어력을 초기화 (간단히 Initialize 호출)
+                            item.itemStat.Initialize();
+                        }
+                    }
+                    
                     Debug.Log($"인벤토리 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
                 }
             }
@@ -151,6 +204,31 @@ public class SaveSystemInitializer : MonoBehaviour
                     {
                         // 아이템 레벨을 0으로 초기화
                         item.itemSkill.Level = 0;
+                        
+                        // 파생 스탯도 초기화
+                        if (item.itemStat != null)
+                        {
+                            // 아이템 타입에 따른 스탯 초기화
+                            if (item.type == ItemType.무기)
+                            {
+                                if (item.weaponType == WeaponType.완드)
+                                {
+                                    // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
+                                    item.itemStat.Initialize();
+                                }
+                                else
+                                {
+                                    // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
+                                    item.itemStat.Initialize();
+                                }
+                            }
+                            else if (item.type == ItemType.방어구)
+                            {
+                                // 강화로 증가된 방어력을 초기화 (간단히 Initialize 호출)
+                                item.itemStat.Initialize();
+                            }
+                        }
+                        
                         Debug.Log($"장착 중인 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
                     }
                 }
@@ -161,6 +239,44 @@ public class SaveSystemInitializer : MonoBehaviour
         else
         {
             Debug.LogWarning("InventoryManager.Instance가 null입니다. 인벤토리 아이템 강화 수치를 초기화할 수 없습니다.");
+        }
+    }
+    
+    // 플레이어 스킬 언락 상태 초기화 메서드 추가
+    private void ResetAllPlayerSkills()
+    {
+        if (SkillManager.Instance != null && SkillManager.SkillList != null)
+        {
+            int resetCount = 0;
+            
+            // 모든 스킬에서 플레이어 스킬만 선택적으로 초기화
+            foreach (var skillEntry in SkillManager.SkillList)
+            {
+                // 플레이어 스킬만 초기화 (드래곤, 보스 스킬 제외)
+                if (skillEntry.Key.Item1 == EntityType.Player)
+                {
+                    Skills skill = skillEntry.Value;
+                    
+                    // 스킬 언락 상태 초기화
+                    if (skill.unLockSkill)
+                    {
+                        skill.unLockSkill = false;
+                        resetCount++;
+                        
+                        // 스킬 레벨도 1로 초기화
+                        skill.skillLevel = 1;
+                        skill.Initialize(); // 스킬 초기화 (현재 스탯 값 등 리셋)
+                        
+                        Debug.Log($"플레이어 스킬 '{skill.skillName}'의 언락 상태가 초기화되었습니다.");
+                    }
+                }
+            }
+            
+            Debug.Log($"총 {resetCount}개의 플레이어 스킬 언락 상태가 초기화되었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("SkillManager 또는 SkillList가 null입니다. 스킬 언락 상태를 초기화할 수 없습니다.");
         }
     }
     

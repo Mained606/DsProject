@@ -590,6 +590,32 @@ public class SaveManager : MonoBehaviour
                         if (item.itemSkill != null && itemInfo.itemLevel > 0)
                         {
                             item.itemSkill.Level = itemInfo.itemLevel;
+                            
+                            // 강화 수치에 따른 파생 스탯 업데이트
+                            if (item.itemStat != null)
+                            {
+                                // 먼저 초기 스탯으로 초기화
+                                item.itemStat.Initialize();
+                                
+                                // 레벨에 따라 스탯 증가 (여러 번 ApplyItemStat 호출)
+                                for (int i = 0; i < item.itemSkill.Level; i++)
+                                {
+                                    if (item.type == ItemType.무기)
+                                    {
+                                        // 무기 강화시 공격력 증가 (예시값 5로 설정)
+                                        float attackBonus = 5.0f;
+                                        item.itemSkill.ApplyItemStat(item, attackBonus, 1);
+                                    }
+                                    else if (item.type == ItemType.방어구)
+                                    {
+                                        // 방어구 강화시 방어력 증가 (예시값 3으로 설정)
+                                        float defenseBonus = 3.0f;
+                                        item.itemSkill.ApplyItemStat(item, defenseBonus, 1);
+                                    }
+                                }
+                                
+                                Debug.Log($"아이템 '{item.name}' (레벨: {item.itemSkill.Level})의 파생 스탯이 업데이트되었습니다.");
+                            }
                         }
                         
                         InventoryManager.Instance.AddItemLogic(item);
@@ -622,6 +648,21 @@ public class SaveManager : MonoBehaviour
                                 if (weapon.itemSkill != null && saveData.inventoryData.weapon.itemLevel > 0)
                                 {
                                     weapon.itemSkill.Level = saveData.inventoryData.weapon.itemLevel;
+                                    
+                                    // 강화 수치에 따른 파생 스탯 업데이트
+                                    if (weapon.itemStat != null)
+                                    {
+                                        // 먼저 초기 스탯으로 초기화
+                                        weapon.itemStat.Initialize();
+                                        
+                                        // 레벨에 따라 스탯 증가 (여러 번 ApplyItemStat 호출)
+                                        for (int i = 0; i < weapon.itemSkill.Level; i++)
+                                        {
+                                            // 무기 강화시 공격력 증가 (예시값 5로 설정)
+                                            float attackBonus = 5.0f;
+                                            weapon.itemSkill.ApplyItemStat(weapon, attackBonus, 1);
+                                        }
+                                    }
                                 }
                                 
                                 ItemEffectManager.Instance.ApplyItemEffect(weapon);
@@ -652,6 +693,21 @@ public class SaveManager : MonoBehaviour
                                 if (armor.itemSkill != null && saveData.inventoryData.armor.itemLevel > 0)
                                 {
                                     armor.itemSkill.Level = saveData.inventoryData.armor.itemLevel;
+                                    
+                                    // 강화 수치에 따른 파생 스탯 업데이트
+                                    if (armor.itemStat != null)
+                                    {
+                                        // 먼저 초기 스탯으로 초기화
+                                        armor.itemStat.Initialize();
+                                        
+                                        // 레벨에 따라 스탯 증가 (여러 번 ApplyItemStat 호출)
+                                        for (int i = 0; i < armor.itemSkill.Level; i++)
+                                        {
+                                            // 방어구 강화시 방어력 증가 (예시값 3으로 설정)
+                                            float defenseBonus = 3.0f;
+                                            armor.itemSkill.ApplyItemStat(armor, defenseBonus, 1);
+                                        }
+                                    }
                                 }
                                 
                                 ItemEffectManager.Instance.ApplyItemEffect(armor);
@@ -682,6 +738,21 @@ public class SaveManager : MonoBehaviour
                                 if (accessory.itemSkill != null && saveData.inventoryData.accessory.itemLevel > 0)
                                 {
                                     accessory.itemSkill.Level = saveData.inventoryData.accessory.itemLevel;
+                                    
+                                    // 강화 수치에 따른 파생 스탯 업데이트
+                                    if (accessory.itemStat != null)
+                                    {
+                                        // 먼저 초기 스탯으로 초기화
+                                        accessory.itemStat.Initialize();
+                                        
+                                        // 레벨에 따라 스탯 증가 (여러 번 ApplyItemStat 호출)
+                                        for (int i = 0; i < accessory.itemSkill.Level; i++)
+                                        {
+                                            // 장신구 강화시 스탯 증가 (예시값 2로 설정)
+                                            float statBonus = 2.0f;
+                                            accessory.itemSkill.ApplyItemStat(accessory, statBonus, 1);
+                                        }
+                                    }
                                 }
                                 
                                 ItemEffectManager.Instance.ApplyItemEffect(accessory);
@@ -714,13 +785,53 @@ public class SaveManager : MonoBehaviour
         {
             if (SkillManager.Instance != null)
             {
-                // 스킬 시스템 초기화
-                // 세부 구현은 SkillManager 구조에 맞게 조정 필요
+                // 먼저 모든 플레이어 스킬을 잠금 상태로 초기화
+                foreach (var skillEntry in SkillManager.SkillList)
+                {
+                    if (skillEntry.Key.Item1 == EntityType.Player)
+                    {
+                        // 플레이어 스킬만 초기화 (드래곤, 보스 스킬은 유지)
+                        skillEntry.Value.unLockSkill = false;
+                        skillEntry.Value.skillLevel = 1;
+                        skillEntry.Value.Initialize(); // 스킬 초기화
+                    }
+                }
                 
-                // 간단한 로그만 출력
+                // 저장된 스킬 데이터 적용
                 foreach (var skillInfo in saveData.skillData.unlockedSkills)
                 {
-                    Debug.Log($"스킬 로드: {skillInfo.skillId} (레벨 {skillInfo.level})");
+                    // SkillManager에서 스킬 찾기
+                    foreach (var entry in SkillManager.SkillList)
+                    {
+                        // 스킬 ID 대신 스킬 이름으로 비교 (ID 매핑이 필요하면 추가 로직 구현 필요)
+                        if (entry.Key.Item2 == skillInfo.skillId)
+                        {
+                            Skills skill = entry.Value;
+                            
+                            // 스킬 상태 복원
+                            skill.unLockSkill = true;
+                            
+                            // 스킬 레벨 복원 (최소 1, 최대 해당 스킬의 최대 레벨 범위 내에서)
+                            int levelToRestore = Mathf.Clamp(skillInfo.level, 1, skill.maxSkillLevel);
+                            
+                            // 현재 레벨과 다르면 레벨 업데이트
+                            if (skill.skillLevel != levelToRestore)
+                            {
+                                // 레벨 1부터 시작해서 목표 레벨까지 하나씩 올림 (가중치 적용을 위해)
+                                skill.skillLevel = 1;
+                                skill.Initialize(); // 먼저 초기화
+                                
+                                // 목표 레벨까지 하나씩 레벨업 (가중치 적용을 위해)
+                                for (int i = 1; i < levelToRestore; i++)
+                                {
+                                    skill.LevelUp(true); // 강제 레벨업
+                                }
+                            }
+                            
+                            Debug.Log($"스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원됨");
+                            break; // 스킬을 찾았으므로 다음 스킬로 넘어감
+                        }
+                    }
                 }
                 
                 Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");
