@@ -127,9 +127,13 @@ public class QuestUI : MonoBehaviour
     {
         var questItem = Instantiate(questPrefab, questParent);
         
-        // 완료 가능한 퀘스트에 특별한 텍스트 추가
+        // 퀘스트 상태에 따라 다른 텍스트 표시
         string questTitle = quest.ToStringTMProforList();
-        if (quest.isCompletable)
+        if (quest.isCompleted)
+        {
+            questTitle = $"<color=blue>[완료됨]</color> {questTitle}";
+        }
+        else if (quest.isCompletable && !quest.isCompleted)
         {
             questTitle = $"<color=green>[완료 가능]</color> {questTitle}";
         }
@@ -193,8 +197,13 @@ public class QuestUI : MonoBehaviour
         questGiverText.text = $"의뢰인 : {giver}";
         questDescriptionText.text = quest.description;
 
-        // 퀘스트가 완료 가능하면 추가 정보 표시
-        if (quest.isCompletable)
+        // 퀘스트 상태에 따라 다른 텍스트 표시
+        if (quest.isCompleted)
+        {
+            questNameText.text = $"<color=blue>[완료됨]</color> {quest.name}";
+            questDescriptionText.text = $"{quest.description}\n\n<color=blue>이 퀘스트는 이미 완료했습니다.</color>";
+        }
+        else if (quest.isCompletable && !quest.isCompleted)
         {
             questNameText.text = $"<color=green>[완료 가능]</color> {quest.name}";
             questDescriptionText.text = $"{quest.description}\n\n<color=green>퀘스트 조건을 모두 충족했습니다. 퀘스트 제공자에게 돌아가 보상을 받으세요.</color>";
