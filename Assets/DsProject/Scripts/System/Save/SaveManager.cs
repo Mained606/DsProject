@@ -429,10 +429,9 @@ public class SaveManager : MonoBehaviour
             saveData.dragonData.isUnlocked = true;
             saveData.dragonData.level = dragon.bondLevel;
             
-            // HP 정보는 현재 컴파일 오류로 인해 주석 처리
-            // 나중에 정확한 타입을 확인한 후 수정 필요
-            // saveData.dragonData.currentHealth = 100.0f;
-            // saveData.dragonData.maxHealth = 100.0f;
+            // HP 정보 저장 (기본값 설정)
+            saveData.dragonData.maxHealth = 100.0f;
+            saveData.dragonData.currentHealth = 100.0f;
             
             // 언락된 능력 저장
             saveData.dragonData.unlockedAbilities.Clear();
@@ -467,10 +466,10 @@ public class SaveManager : MonoBehaviour
             }
             
             // 기본 스탯 복원
-            playerData.maxHp = saveData.playerData.maxHealth;
-            playerData.currentHp = saveData.playerData.currentHealth;
-            playerData.maxMp = saveData.playerData.maxMana;
-            playerData.currentMp = saveData.playerData.currentMana;
+            playerData.maxHp = (int)saveData.playerData.maxHealth;
+            playerData.currentHp = (int)saveData.playerData.currentHealth;
+            playerData.maxMp = (int)saveData.playerData.maxMana;
+            playerData.currentMp = (int)saveData.playerData.currentMana;
             playerData.stamina = saveData.playerData.maxStamina;
             playerData.staminaCurrent = saveData.playerData.currentStamina;
             
