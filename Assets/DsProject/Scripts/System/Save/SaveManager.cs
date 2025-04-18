@@ -315,6 +315,36 @@ public class SaveManager : MonoBehaviour
                 }
             }
             
+            // 퀵슬롯에 등록된 아이템 저장
+            saveData.inventoryData.quickSlotItems.Clear();
+            
+            // UIManager에서 아이템 퀵슬롯 참조 가져오기
+            if (UIManager.Instance != null && InventoryManager.QuickSlotsUI != null)
+            {
+                var itemQuickSlotUI = InventoryManager.QuickSlotsUI;
+                var slots = itemQuickSlotUI.GetSlots();
+                
+                if (slots != null)
+                {
+                    for (int i = 0; i < slots.Length; i++)
+                    {
+                        var item = slots[i].GetItem();
+                        if (item != null)
+                        {
+                            SaveData.InventoryData.ItemInfo itemInfo = new SaveData.InventoryData.ItemInfo
+                            {
+                                itemId = item.id,
+                                count = 1, // 퀵슬롯은 소모품 참조만 저장
+                                slotIndex = i,
+                                itemLevel = item.itemSkill != null ? item.itemSkill.Level : 0
+                            };
+                            saveData.inventoryData.quickSlotItems.Add(itemInfo);
+                            Debug.Log($"퀵슬롯 {i}에 등록된 아이템 '{item.id}'을 저장했습니다.");
+                        }
+                    }
+                }
+            }
+            
             Debug.Log("인벤토리 데이터가 성공적으로 저장되었습니다.");
         }
         catch (Exception e)
@@ -330,22 +360,53 @@ public class SaveManager : MonoBehaviour
         {
             if (SkillManager.Instance != null)
             {
-                // 습득한 스킬 목록 저장 - 세부 구현은 실제 SkillManager 구조에 맞게 조정 필요
+                // 습득한 스킬 목록 저장
                 saveData.skillData.unlockedSkills.Clear();
                 
-                // 스킬 정보는 SkillManager로부터 직접 가져오기
-                // 실제 구현이 확인되지 않아 기본값만 저장
-                saveData.skillData.unlockedSkills.Add(new SaveData.SkillData.SkillInfo { 
-                    skillId = "Dash", 
-                    level = 1 
-                });
+                // SkillManager에서 언락된 스킬 정보 가져오기
+                foreach (var entry in SkillManager.SkillList)
+                {
+                    // 플레이어 스킬만 저장
+                    if (entry.Key.Item1 == EntityType.Player)
+                    {
+                        Skills skill = entry.Value;
+                        
+                        // 언락된 스킬만 저장
+                        if (skill.unLockSkill)
+                        {
+                            saveData.skillData.unlockedSkills.Add(new SaveData.SkillData.SkillInfo { 
+                                skillId = skill.skillName, 
+                                level = skill.skillLevel 
+                            });
+                            
+                            Debug.Log($"스킬 '{skill.skillName}' (레벨 {skill.skillLevel})을 저장했습니다.");
+                        }
+                    }
+                }
                 
-                saveData.skillData.unlockedSkills.Add(new SaveData.SkillData.SkillInfo { 
-                    skillId = "Slash", 
-                    level = 1 
-                });
+                // 퀵슬롯에 등록된 스킬 저장
+                saveData.skillData.quickSlotSkills.Clear();
                 
-                Debug.Log("스킬 데이터가 성공적으로 저장되었습니다.");
+                if (UIManager.SkillsQuickSlot != null)
+                {
+                    for (int i = 0; i < UIManager.SkillsQuickSlot.registedSkillList.Count; i++)
+                    {
+                        Skills skill = UIManager.SkillsQuickSlot.registedSkillList[i];
+                        if (skill != null)
+                        {
+                            // 스킬 ID 저장 (스킬 이름 사용)
+                            saveData.skillData.quickSlotSkills.Add(skill.skillName);
+                            Debug.Log($"퀵슬롯 {i}에 등록된 스킬 '{skill.skillName}'을 저장했습니다.");
+                        }
+                        else
+                        {
+                            // 빈 슬롯은 빈 문자열로 저장
+                            saveData.skillData.quickSlotSkills.Add("");
+                        }
+                    }
+                }
+                
+                Debug.Log($"스킬 데이터가 성공적으로 저장되었습니다. 총 {saveData.skillData.unlockedSkills.Count}개의 스킬.");
             }
             else
             {
@@ -762,6 +823,33 @@ public class SaveManager : MonoBehaviour
                     }
                 }
                 
+                // 퀵슬롯에 등록된 아이템 복원
+                if (InventoryManager.QuickSlotsUI != null && saveData.inventoryData.quickSlotItems.Count > 0)
+                {
+                    // 먼저 모든 슬롯 초기화
+                    InventoryManager.QuickSlotsUI.ClearAll();
+                    
+                    // 저장된 아이템 슬롯 복원
+                    var slots = InventoryManager.QuickSlotsUI.GetSlots();
+                    
+                    foreach (var itemInfo in saveData.inventoryData.quickSlotItems)
+                    {
+                        if (itemInfo.slotIndex >= 0 && itemInfo.slotIndex < slots.Length)
+                        {
+                            // 인벤토리에서 해당 아이템 찾기
+                            var item = InventoryManager.Instance.FindInventoryItem(itemInfo.itemId);
+                            if (item != null)
+                            {
+                                // 퀵슬롯에 아이템 할당
+                                slots[itemInfo.slotIndex].SetItem(item);
+                                Debug.Log($"퀵슬롯 {itemInfo.slotIndex}에 아이템 '{item.name}'을 복원했습니다.");
+                            }
+                        }
+                    }
+                    
+                    Debug.Log("아이템 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
+                }
+                
                 // UI 갱신
                 UIManager.Instance.InventoryUpdate();
                 
@@ -832,6 +920,44 @@ public class SaveManager : MonoBehaviour
                             break; // 스킬을 찾았으므로 다음 스킬로 넘어감
                         }
                     }
+                }
+                
+                // 퀵슬롯에 등록된 스킬 복원
+                if (UIManager.SkillsQuickSlot != null && saveData.skillData.quickSlotSkills.Count > 0)
+                {
+                    // 먼저 모든 슬롯 초기화
+                    UIManager.SkillsQuickSlot.ClearAllSlots();
+                    
+                    // 저장된 스킬 슬롯 복원
+                    for (int i = 0; i < saveData.skillData.quickSlotSkills.Count; i++)
+                    {
+                        string skillId = saveData.skillData.quickSlotSkills[i];
+                        if (!string.IsNullOrEmpty(skillId))
+                        {
+                            // SkillManager에서 스킬 찾기
+                            Skills skill = null;
+                            foreach (var entry in SkillManager.SkillList)
+                            {
+                                if (entry.Key.Item2 == skillId)
+                                {
+                                    skill = entry.Value;
+                                    break;
+                                }
+                            }
+                            
+                            if (skill != null)
+                            {
+                                // 스킬 아이콘 가져오기
+                                Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
+                                
+                                // 퀵슬롯에 스킬 할당
+                                UIManager.SkillsQuickSlot.AssignSkillToSlot(skill, icon, i);
+                                Debug.Log($"퀵슬롯 {i}에 스킬 '{skill.skillName}'을 복원했습니다.");
+                            }
+                        }
+                    }
+                    
+                    Debug.Log("스킬 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
                 }
                 
                 Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");

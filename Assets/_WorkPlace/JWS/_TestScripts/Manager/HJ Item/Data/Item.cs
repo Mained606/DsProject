@@ -104,35 +104,44 @@ public class Item : ISheetData
     // 아이템 복제
     public Item Clone()
     {
-        Item newItem = new Item(this.id, this.name, this.description, this.type, this.grade,
-            this.quantity, this.maxStack, this.isStackable, this.isDiscardable, this.costValue);
-
-        if (this.itemStat != null)
-        {
-            newItem.itemStat = this.itemStat.Clone();
-        }
-
+        Item newItem = new Item(id, name, description, type, grade, quantity, maxStack, isStackable, isDiscardable, costValue);
+        newItem.sprite = this.sprite;
         if (this.durability != null)
         {
-            newItem.durability = this.durability.Clone(); // 내구도도 복제
+            newItem.durability = this.durability.Clone();
         }
-
-        if(this.itemSkill != null)
-        {
-            newItem.itemSkill = this.itemSkill.Clone();
-        }
-
+        newItem.equipmentSlot = this.equipmentSlot;
+        newItem.consumableType = this.consumableType;
+        newItem.weaponType = this.weaponType;
+        newItem.effectAmount = this.effectAmount;
         newItem.effect = this.effect;
         newItem.isQuestItem = this.isQuestItem;
-        newItem.sprite = this.sprite;
-        newItem.dropChance = this.dropChance;
-        newItem.equipmentSlot = this.equipmentSlot;
-        newItem.weaponType = this.weaponType;
-        newItem.consumableType = this.consumableType;
-        newItem.effectAmount = this.effectAmount;
         newItem.questId = this.questId;
+        newItem.dropChance = this.dropChance;
+        newItem.isEquired = this.isEquired;
+
+        // 무기/방어구 관련 속성 복사
+        if (type == ItemType.무기 || type == ItemType.방어구)
+        {
+            newItem.itemStat = this.itemStat?.Clone();
+            newItem.itemSkill = this.itemSkill?.Clone();
+        }
 
         return newItem;
+    }
+
+    // 아이템 강화 수치 초기화
+    public void ResetEnhancement()
+    {
+        if (itemSkill != null)
+        {
+            itemSkill.Level = 0;
+        }
+        
+        if (itemStat != null)
+        {
+            itemStat.Initialize();
+        }
     }
 
     // UI에 표시할 아이템 정보 (TextMeshPro 전용)

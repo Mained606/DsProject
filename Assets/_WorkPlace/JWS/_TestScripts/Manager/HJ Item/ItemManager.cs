@@ -252,7 +252,28 @@ public class ItemManager : BaseManager<ItemManager>
         return items;
     }
 
-
+    public void ResetAllItemInstances()
+    {
+        // 모든 아이템 템플릿 초기화
+        foreach (var item in itemList.itemList)
+        {
+            if (item.itemSkill != null)
+            {
+                // 아이템 레벨을 0으로 초기화
+                item.itemSkill.Level = 0;
+                
+                // 아이템 파생 스탯도 초기화
+                if (item.itemStat != null)
+                {
+                    item.itemStat.Initialize();
+                }
+                
+                Debug.Log($"아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
+            }
+        }
+        
+        Debug.Log("모든 아이템 인스턴스가 초기화되었습니다.");
+    }
 
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
     {

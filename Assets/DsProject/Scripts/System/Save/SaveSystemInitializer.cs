@@ -104,87 +104,27 @@ public class SaveSystemInitializer : MonoBehaviour
     // 아이템 강화 수치 초기화 메서드 추가
     private void ResetAllItemEnhancements()
     {
-        // 먼저 아이템 템플릿 초기화
-        if (ItemManager.Instance != null && ItemManager.ItemDatabase != null)
+        // 1. 아이템 템플릿 초기화 (ItemManager.ItemDatabase)
+        if (ItemManager.Instance != null)
         {
-            // 모든 아이템 템플릿 초기화
-            foreach (var item in ItemManager.ItemDatabase)
-            {
-                if (item.itemSkill != null)
-                {
-                    // 아이템 레벨을 0으로 초기화
-                    item.itemSkill.Level = 0;
-                    
-                    // 아이템 파생 스탯도 초기화
-                    if (item.itemStat != null)
-                    {
-                        // 아이템 타입에 따른 스탯 초기화
-                        if (item.type == ItemType.무기)
-                        {
-                            if (item.weaponType == WeaponType.완드)
-                            {
-                                // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
-                                item.itemStat.Initialize();
-                            }
-                            else
-                            {
-                                // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
-                                item.itemStat.Initialize();
-                            }
-                        }
-                        else if (item.type == ItemType.방어구)
-                        {
-                            // 강화로 증가된 방어력을 초기화 (간단히 Initialize 호출)
-                            item.itemStat.Initialize();
-                        }
-                    }
-                    
-                    Debug.Log($"아이템 템플릿 '{item.id}'의 강화 수치가 초기화되었습니다.");
-                }
-            }
-            
-            Debug.Log("모든 아이템 템플릿의 강화 수치가 초기화되었습니다.");
+            // 새로 추가한 메서드 호출
+            ItemManager.Instance.ResetAllItemInstances();
         }
         else
         {
-            Debug.LogWarning("ItemManager 또는 ItemDatabase가 null입니다. 아이템 템플릿 강화 수치를 초기화할 수 없습니다.");
+            Debug.LogWarning("ItemManager.Instance가 null입니다. 아이템 템플릿 강화 수치를 초기화할 수 없습니다.");
         }
         
-        // 인벤토리 내 아이템 초기화
+        // 2. 인벤토리 내 아이템 초기화
         if (InventoryManager.Instance != null)
         {
             // 인벤토리의 모든 아이템 초기화
             foreach (var item in InventoryManager.InventoryList)
             {
-                if (item != null && item.itemSkill != null)
+                if (item != null)
                 {
-                    // 아이템 레벨을 0으로 초기화
-                    item.itemSkill.Level = 0;
-                    
-                    // 파생 스탯도 초기화
-                    if (item.itemStat != null)
-                    {
-                        // 아이템 타입에 따른 스탯 초기화
-                        if (item.type == ItemType.무기)
-                        {
-                            if (item.weaponType == WeaponType.완드)
-                            {
-                                // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
-                                item.itemStat.Initialize();
-                            }
-                            else
-                            {
-                                // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
-                                item.itemStat.Initialize();
-                            }
-                        }
-                        else if (item.type == ItemType.방어구)
-                        {
-                            // 강화로 증가된 방어력을 초기화 (간단히 Initialize 호출)
-                            item.itemStat.Initialize();
-                        }
-                    }
-                    
+                    // 아이템 강화 수치 초기화
+                    item.ResetEnhancement();
                     Debug.Log($"인벤토리 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
                 }
             }
@@ -200,35 +140,10 @@ public class SaveSystemInitializer : MonoBehaviour
             {
                 foreach (var item in equippedItems)
                 {
-                    if (item != null && item.itemSkill != null)
+                    if (item != null)
                     {
-                        // 아이템 레벨을 0으로 초기화
-                        item.itemSkill.Level = 0;
-                        
-                        // 파생 스탯도 초기화
-                        if (item.itemStat != null)
-                        {
-                            // 아이템 타입에 따른 스탯 초기화
-                            if (item.type == ItemType.무기)
-                            {
-                                if (item.weaponType == WeaponType.완드)
-                                {
-                                    // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
-                                    item.itemStat.Initialize();
-                                }
-                                else
-                                {
-                                    // 강화로 증가된 공격력을 초기화 (간단히 Initialize 호출)
-                                    item.itemStat.Initialize();
-                                }
-                            }
-                            else if (item.type == ItemType.방어구)
-                            {
-                                // 강화로 증가된 방어력을 초기화 (간단히 Initialize 호출)
-                                item.itemStat.Initialize();
-                            }
-                        }
-                        
+                        // 아이템 강화 수치 초기화
+                        item.ResetEnhancement();
                         Debug.Log($"장착 중인 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
                     }
                 }
