@@ -369,11 +369,13 @@ public class SaveManager : MonoBehaviour
                     // 플레이어 스킬만 저장
                     if (entry.Key.Item1 == EntityType.Player)
                     {
-                        Skills skill = entry.Value;
+                        // 새로운 메서드로 언락 상태 확인
+                        bool isUnlocked = SkillManager.Instance.IsSkillUnlocked(entry.Key.Item1, entry.Key.Item2);
                         
                         // 언락된 스킬만 저장
-                        if (skill.unLockSkill)
+                        if (isUnlocked)
                         {
+                            Skills skill = entry.Value;
                             saveData.skillData.unlockedSkills.Add(new SaveData.SkillData.SkillInfo { 
                                 skillId = skill.skillName, 
                                 level = skill.skillLevel 
@@ -416,6 +418,104 @@ public class SaveManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogWarning($"스킬 데이터 저장 중 오류: {e.Message}");
+        }
+    }
+    
+    // 스킬 데이터 적용
+    private void ApplySkillData(SaveData saveData)
+    {
+        try
+        {
+            if (SkillManager.Instance != null)
+            {
+                // 먼저 모든 플레이어 스킬을 잠금 상태로 초기화
+                SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
+                
+                // 저장된 스킬 데이터 적용
+                foreach (var skillInfo in saveData.skillData.unlockedSkills)
+                {
+                    // SkillManager에서 스킬 찾기
+                    foreach (var entry in SkillManager.SkillList)
+                    {
+                        // 스킬 ID 대신 스킬 이름으로 비교 (ID 매핑이 필요하면 추가 로직 구현 필요)
+                        if (entry.Key.Item2 == skillInfo.skillId)
+                        {
+                            // 새로운 메서드로 언락 상태 설정
+                            SkillManager.Instance.SetSkillUnlockState(entry.Key.Item1, entry.Key.Item2, true);
+                            
+                            Skills skill = entry.Value;
+                            
+                            // 스킬 레벨 복원 (최소 1, 최대 해당 스킬의 최대 레벨 범위 내에서)
+                            int levelToRestore = Mathf.Clamp(skillInfo.level, 1, skill.maxSkillLevel);
+                            
+                            // 현재 레벨과 다르면 레벨 업데이트
+                            if (skill.skillLevel != levelToRestore)
+                            {
+                                // 레벨 1부터 시작해서 목표 레벨까지 하나씩 올림 (가중치 적용을 위해)
+                                skill.skillLevel = 1;
+                                skill.Initialize(); // 먼저 초기화
+                                
+                                // 목표 레벨까지 하나씩 레벨업 (가중치 적용을 위해)
+                                for (int i = 1; i < levelToRestore; i++)
+                                {
+                                    skill.LevelUp(true); // 강제 레벨업
+                                }
+                            }
+                            
+                            Debug.Log($"스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원됨");
+                            break; // 스킬을 찾았으므로 다음 스킬로 넘어감
+                        }
+                    }
+                }
+                
+                // 퀵슬롯에 등록된 스킬 복원
+                if (UIManager.SkillsQuickSlot != null && saveData.skillData.quickSlotSkills.Count > 0)
+                {
+                    // 먼저 모든 슬롯 초기화
+                    UIManager.SkillsQuickSlot.ClearAllSlots();
+                    
+                    // 저장된 스킬 슬롯 복원
+                    for (int i = 0; i < saveData.skillData.quickSlotSkills.Count; i++)
+                    {
+                        string skillId = saveData.skillData.quickSlotSkills[i];
+                        if (!string.IsNullOrEmpty(skillId))
+                        {
+                            // SkillManager에서 스킬 찾기
+                            Skills skill = null;
+                            foreach (var entry in SkillManager.SkillList)
+                            {
+                                if (entry.Key.Item2 == skillId)
+                                {
+                                    skill = entry.Value;
+                                    break;
+                                }
+                            }
+                            
+                            if (skill != null)
+                            {
+                                // 스킬 아이콘 가져오기
+                                Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
+                                
+                                // 퀵슬롯에 스킬 할당
+                                UIManager.SkillsQuickSlot.AssignSkillToSlot(skill, icon, i);
+                                Debug.Log($"퀵슬롯 {i}에 스킬 '{skill.skillName}'을 복원했습니다.");
+                            }
+                        }
+                    }
+                    
+                    Debug.Log("스킬 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
+                }
+                
+                Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");
+            }
+            else
+            {
+                Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"스킬 데이터 적용 중 오류: {e.Message}");
         }
     }
     
@@ -866,113 +966,6 @@ public class SaveManager : MonoBehaviour
         }
     }
     
-    // 스킬 데이터 적용
-    private void ApplySkillData(SaveData saveData)
-    {
-        try
-        {
-            if (SkillManager.Instance != null)
-            {
-                // 먼저 모든 플레이어 스킬을 잠금 상태로 초기화
-                foreach (var skillEntry in SkillManager.SkillList)
-                {
-                    if (skillEntry.Key.Item1 == EntityType.Player)
-                    {
-                        // 플레이어 스킬만 초기화 (드래곤, 보스 스킬은 유지)
-                        skillEntry.Value.unLockSkill = false;
-                        skillEntry.Value.skillLevel = 1;
-                        skillEntry.Value.Initialize(); // 스킬 초기화
-                    }
-                }
-                
-                // 저장된 스킬 데이터 적용
-                foreach (var skillInfo in saveData.skillData.unlockedSkills)
-                {
-                    // SkillManager에서 스킬 찾기
-                    foreach (var entry in SkillManager.SkillList)
-                    {
-                        // 스킬 ID 대신 스킬 이름으로 비교 (ID 매핑이 필요하면 추가 로직 구현 필요)
-                        if (entry.Key.Item2 == skillInfo.skillId)
-                        {
-                            Skills skill = entry.Value;
-                            
-                            // 스킬 상태 복원
-                            skill.unLockSkill = true;
-                            
-                            // 스킬 레벨 복원 (최소 1, 최대 해당 스킬의 최대 레벨 범위 내에서)
-                            int levelToRestore = Mathf.Clamp(skillInfo.level, 1, skill.maxSkillLevel);
-                            
-                            // 현재 레벨과 다르면 레벨 업데이트
-                            if (skill.skillLevel != levelToRestore)
-                            {
-                                // 레벨 1부터 시작해서 목표 레벨까지 하나씩 올림 (가중치 적용을 위해)
-                                skill.skillLevel = 1;
-                                skill.Initialize(); // 먼저 초기화
-                                
-                                // 목표 레벨까지 하나씩 레벨업 (가중치 적용을 위해)
-                                for (int i = 1; i < levelToRestore; i++)
-                                {
-                                    skill.LevelUp(true); // 강제 레벨업
-                                }
-                            }
-                            
-                            Debug.Log($"스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원됨");
-                            break; // 스킬을 찾았으므로 다음 스킬로 넘어감
-                        }
-                    }
-                }
-                
-                // 퀵슬롯에 등록된 스킬 복원
-                if (UIManager.SkillsQuickSlot != null && saveData.skillData.quickSlotSkills.Count > 0)
-                {
-                    // 먼저 모든 슬롯 초기화
-                    UIManager.SkillsQuickSlot.ClearAllSlots();
-                    
-                    // 저장된 스킬 슬롯 복원
-                    for (int i = 0; i < saveData.skillData.quickSlotSkills.Count; i++)
-                    {
-                        string skillId = saveData.skillData.quickSlotSkills[i];
-                        if (!string.IsNullOrEmpty(skillId))
-                        {
-                            // SkillManager에서 스킬 찾기
-                            Skills skill = null;
-                            foreach (var entry in SkillManager.SkillList)
-                            {
-                                if (entry.Key.Item2 == skillId)
-                                {
-                                    skill = entry.Value;
-                                    break;
-                                }
-                            }
-                            
-                            if (skill != null)
-                            {
-                                // 스킬 아이콘 가져오기
-                                Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
-                                
-                                // 퀵슬롯에 스킬 할당
-                                UIManager.SkillsQuickSlot.AssignSkillToSlot(skill, icon, i);
-                                Debug.Log($"퀵슬롯 {i}에 스킬 '{skill.skillName}'을 복원했습니다.");
-                            }
-                        }
-                    }
-                    
-                    Debug.Log("스킬 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
-                }
-                
-                Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");
-            }
-            else
-            {
-                Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning($"스킬 데이터 적용 중 오류: {e.Message}");
-        }
-    }
-    
     // 퀘스트 데이터 적용
     private void ApplyQuestData(SaveData saveData)
     {
@@ -1157,28 +1150,11 @@ public class SaveManager : MonoBehaviour
             Debug.Log("저장 데이터가 초기화되었습니다.");
         }
         
-        // 스킬 초기화 로직 추가
-        if (SkillManager.Instance != null && SkillManager.SkillList != null)
+        // 스킬 초기화 로직 수정
+        if (SkillManager.Instance != null)
         {
-            // 모든 스킬에 대해 초기화
-            foreach (var skillEntry in SkillManager.SkillList)
-            {
-                Skills skill = skillEntry.Value;
-                
-                // 플레이어 스킬은 모두 false로 설정
-                if (skillEntry.Key.Item1 == EntityType.Player)
-                {
-                    skill.unLockSkill = false;
-                    skill.skillLevel = 1;
-                    skill.Initialize();
-                }
-                // 몬스터, 보스, 드래곤 스킬은 모두 true로 설정
-                else
-                {
-                    skill.unLockSkill = true;
-                }
-            }
-            
+            // 새로운 메서드 사용
+            SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
             Debug.Log("스킬 언락 상태가 초기화되었습니다.");
         }
         

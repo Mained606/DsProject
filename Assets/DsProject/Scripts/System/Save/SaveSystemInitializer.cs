@@ -160,53 +160,14 @@ public class SaveSystemInitializer : MonoBehaviour
     // 플레이어 스킬 언락 상태 초기화 메서드 추가
     private void ResetAllPlayerSkills()
     {
-        if (SkillManager.Instance != null && SkillManager.SkillList != null)
+        if (SkillManager.Instance != null)
         {
-            int playerResetCount = 0;
-            int nonPlayerSetCount = 0;
-            
-            // 모든 스킬에 대해 초기화
-            foreach (var skillEntry in SkillManager.SkillList)
-            {
-                Skills skill = skillEntry.Value;
-                
-                // 플레이어 스킬은 모두 false로 설정 (이전 상태와 상관 없이)
-                if (skillEntry.Key.Item1 == EntityType.Player)
-                {
-                    // unLockSkill 상태와 관계없이 모든 플레이어 스킬 초기화
-                    bool wasUnlocked = skill.unLockSkill;
-                    skill.unLockSkill = false;
-                    playerResetCount++;
-                    
-                    // 스킬 레벨도 1로 초기화
-                    skill.skillLevel = 1;
-                    skill.Initialize(); // 스킬 초기화 (현재 스탯 값 등 리셋)
-                    
-                    if (wasUnlocked)
-                    {
-                        Debug.Log($"플레이어 스킬 '{skill.skillName}'의 언락 상태가 초기화되었습니다.");
-                    }
-                }
-                // 몬스터, 보스, 드래곤 스킬은 모두 true로 설정
-                else 
-                {
-                    bool wasLocked = !skill.unLockSkill;
-                    skill.unLockSkill = true;
-                    nonPlayerSetCount++;
-                    
-                    if (wasLocked)
-                    {
-                        Debug.Log($"비플레이어 스킬 '{skill.skillName}'의 언락 상태가 활성화되었습니다.");
-                    }
-                }
-            }
-            
-            Debug.Log($"총 {playerResetCount}개의 플레이어 스킬이 잠김 상태로 초기화되었습니다.");
-            Debug.Log($"총 {nonPlayerSetCount}개의 비플레이어 스킬이 활성화되었습니다.");
+            // 새로 추가된 메서드 호출
+            SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
         }
         else
         {
-            Debug.LogWarning("SkillManager 또는 SkillList가 null입니다. 스킬 언락 상태를 초기화할 수 없습니다.");
+            Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬 언락 상태를 초기화할 수 없습니다.");
         }
     }
     
