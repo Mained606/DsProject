@@ -11,6 +11,9 @@ public class TitleScene : MonoBehaviour
     private Button[] buttons;
     private Image[][] buttonSideImages;
     private Coroutine[][] fadeCoroutines;
+    
+    // SaveSystemInitializer 참조 추가
+    private SaveSystemInitializer saveSystem;
 
     private void Start()
     {
@@ -19,6 +22,14 @@ public class TitleScene : MonoBehaviour
 
         buttonSideImages = new Image[buttonCount][];
         fadeCoroutines = new Coroutine[buttonCount][];
+        
+        // SaveSystemInitializer 찾기 또는 생성
+        saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
+        if (saveSystem == null)
+        {
+            GameObject saveSystemObj = new GameObject("SaveSystemInitializer");
+            saveSystem = saveSystemObj.AddComponent<SaveSystemInitializer>();
+        }
 
         for (int i = 0; i < buttonCount; i++)
         {
@@ -48,6 +59,31 @@ public class TitleScene : MonoBehaviour
         {
             AddEventTriggers(buttons[i].gameObject, i);
             AddClickListener(buttons[i], i);
+        }
+        
+        // 저장된 게임 데이터 확인 및 계속하기 버튼 활성화 설정
+        UpdateContinueButtonState();
+    }
+    
+    // 저장된 게임 데이터 유무에 따라 계속하기 버튼 상태 업데이트
+    public void UpdateContinueButtonState()
+    {
+        bool hasSaveData = SaveManager.Instance != null && SaveManager.Instance.HasSaveData();
+        
+        // 계속하기 버튼 찾기 (버튼의 이름이나 인덱스에 따라 수정 필요)
+        // 예시: 두 번째 버튼이 계속하기라면
+        if (buttons.Length >= 2)
+        {
+            buttons[1].interactable = hasSaveData;
+            
+            // 저장 데이터가 없을 경우 비활성화된 상태 표시
+            TextMeshProUGUI buttonText = buttons[1].GetComponentInChildren<TextMeshProUGUI>();
+            if (buttonText != null)
+            {
+                buttonText.color = hasSaveData ? 
+                    new Color(buttonText.color.r, buttonText.color.g, buttonText.color.b, 1f) : 
+                    new Color(buttonText.color.r, buttonText.color.g, buttonText.color.b, 0.5f);
+            }
         }
     }
 
@@ -142,7 +178,61 @@ public class TitleScene : MonoBehaviour
 
                 SetAlpha(buttonSideImages[index][i], 0f);
             }
+            
+            // 4. 버튼 액션 실행
+            ExecuteButtonAction(index);
         });
+    }
+    
+    // 버튼 인덱스에 따른 동작 실행
+    private void ExecuteButtonAction(int buttonIndex)
+    {
+        if (saveSystem == null) return;
+        
+        // 버튼 인덱스에 따라 다른 동작 실행 (실제 버튼 순서에 맞게 수정 필요)
+        switch (buttonIndex)
+        {
+            case 0: // 새 게임 버튼
+                Debug.Log("새 게임 시작");
+                // 저장 데이터 삭제
+                if (SaveManager.Instance != null)
+                {
+                    SaveManager.Instance.ResetSaveData();
+                    Debug.Log("기존 저장 데이터가 삭제되었습니다.");
+                }
+                saveSystem.StartNewGame();
+                break;
+                
+            case 1: // 계속하기 버튼
+                if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
+                {
+                    Debug.Log("저장된 게임 불러오기");
+                    saveSystem.LoadSavedGame();
+                }
+                else
+                {
+                    Debug.LogWarning("저장된 게임이 없습니다.");
+                }
+                break;
+                
+            case 2: // 설정 버튼
+                Debug.Log("설정 메뉴 열기");
+                // 설정 메뉴 관련 코드
+                break;
+                
+            case 3: // 종료 버튼
+                Debug.Log("게임 종료");
+                #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+                #else
+                Application.Quit();
+                #endif
+                break;
+                
+            default:
+                Debug.Log($"버튼 {buttonIndex} 클릭됨");
+                break;
+        }
     }
 
     private IEnumerator FadeOutText(TextMeshProUGUI text, float duration = 1.5f)

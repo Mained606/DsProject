@@ -18,11 +18,38 @@ public class ItemManager : BaseManager<ItemManager>
     public static List<Item> ItemDatabase => Instance.itemList.itemList;
     private Dictionary<string, Sprite> itemSpriteDictionary = new Dictionary<string, Sprite>(); // 스프라이트 딕셔너리
     private Dictionary<string, Sprite> skillSpriteDictionary = new Dictionary<string, Sprite>(); // 스킬 스프라이트 딕셔너리
+    
+    // 런타임 동안만 아이템 강화 정보를 유지하는 딕셔너리 추가
+    private Dictionary<string, ItemEnhancementInfo> itemEnhancementData = new Dictionary<string, ItemEnhancementInfo>();
+    
+    // 아이템 강화 정보를 저장하는 클래스
+    private class ItemEnhancementInfo
+    {
+        public int EnhancementLevel { get; set; } = 0;
+        public ItemStat EnhancedStats { get; set; } = null;
+        
+        public ItemEnhancementInfo(int level, ItemStat stats)
+        {
+            EnhancementLevel = level;
+            EnhancedStats = stats != null ? stats.Clone() : null;
+        }
+    }
 
     protected override void Awake()
     {
         base.Awake();
         ItemGenerater itemGenerater = new ItemGenerater();
+
+        // 아이템 강화 정보 딕셔너리 초기화
+        itemEnhancementData = new Dictionary<string, ItemEnhancementInfo>();
+        
+        // 모든 아이템의 초기 강화 정보 저장
+        foreach (var item in itemList.itemList)
+        {
+            int initialLevel = item.itemSkill != null ? item.itemSkill.Level : 0;
+            ItemStat initialStats = item.itemStat != null ? item.itemStat.Clone() : null;
+            itemEnhancementData[item.id] = new ItemEnhancementInfo(initialLevel, initialStats);
+        }
 
         Addressables.LoadAssetsAsync<Sprite>("ItemSprites", sprite =>
         {
@@ -58,6 +85,71 @@ public class ItemManager : BaseManager<ItemManager>
             {
                 //item.itemStat.Initialize();
             }
+        }
+    }
+
+    // 아이템 강화 레벨을 가져오는 메서드 추가
+    public int GetItemEnhancementLevel(string itemId)
+    {
+        if (itemEnhancementData.TryGetValue(itemId, out ItemEnhancementInfo info))
+        {
+            return info.EnhancementLevel;
+        }
+        return 0;
+    }
+    
+    // 아이템 강화 스탯을 가져오는 메서드 추가
+    public ItemStat GetItemEnhancedStats(string itemId)
+    {
+        if (itemEnhancementData.TryGetValue(itemId, out ItemEnhancementInfo info) && info.EnhancedStats != null)
+        {
+            return info.EnhancedStats;
+        }
+        
+        Item item = GetItemById(itemId);
+        return item?.itemStat;
+    }
+    
+    // 아이템 강화 레벨 설정 메서드 추가
+    public void SetItemEnhancementLevel(string itemId, int level)
+    {
+        if (!itemEnhancementData.ContainsKey(itemId))
+        {
+            Item item = GetItemById(itemId);
+            if (item == null) return;
+            
+            itemEnhancementData[itemId] = new ItemEnhancementInfo(level, item.itemStat?.Clone());
+        }
+        else
+        {
+            itemEnhancementData[itemId].EnhancementLevel = level;
+        }
+        
+        // 표시용으로 런타임 아이템 객체에도 적용
+        Item originalItem = GetItemById(itemId);
+        if (originalItem?.itemSkill != null)
+        {
+            originalItem.itemSkill.Level = level;
+        }
+    }
+    
+    // 아이템 강화 스탯 설정 메서드 추가
+    public void SetItemEnhancedStats(string itemId, ItemStat stats)
+    {
+        if (!itemEnhancementData.ContainsKey(itemId))
+        {
+            itemEnhancementData[itemId] = new ItemEnhancementInfo(0, stats);
+        }
+        else
+        {
+            itemEnhancementData[itemId].EnhancedStats = stats;
+        }
+        
+        // 표시용으로 런타임 아이템 객체에도 적용
+        Item originalItem = GetItemById(itemId);
+        if (originalItem != null)
+        {
+            originalItem.itemStat = stats != null ? stats.Clone() : null;
         }
     }
 
@@ -252,10 +344,43 @@ public class ItemManager : BaseManager<ItemManager>
         return items;
     }
 
-
+    public void ResetAllItemInstances()
+    {
+        // 모든 아이템 강화 정보 초기화
+        itemEnhancementData.Clear();
+        
+        // 모든 아이템의 초기 상태 다시 저장
+        foreach (var item in itemList.itemList)
+        {
+            // 강화 레벨 초기화
+            if (item.itemSkill != null)
+            {
+                // 런타임 표시용으로 Item 객체 자체도 초기화
+                item.itemSkill.Level = 0;
+            }
+            
+            // 아이템 스탯 초기화
+            if (item.itemStat != null)
+            {
+                item.itemStat.Initialize();
+            }
+            
+            // 초기화된 상태를 딕셔너리에 저장
+            itemEnhancementData[item.id] = new ItemEnhancementInfo(0, item.itemStat?.Clone());
+            
+            Debug.Log($"아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
+        }
+        
+        Debug.Log("모든 아이템 인스턴스가 초기화되었습니다.");
+    }
 
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
     {
-
+        // 게임 시작 시 모든 아이템 초기화
+        if (newState == GameSystemState.Play || newState == GameSystemState.MainQuestPlay)
+        {
+            ResetAllItemInstances();
+            Debug.Log("게임 시작: 모든 아이템이 초기화되었습니다.");
+        }
     }
 }

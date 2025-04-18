@@ -65,6 +65,9 @@ public class SkillManager : BaseManager<SkillManager>
     [System.NonSerialized]
     private Dictionary<(EntityType, string), float> skillCooldownRemaining = new Dictionary<(EntityType, string), float>();
 
+    [System.NonSerialized]
+    private Dictionary<(EntityType, string), bool> skillUnlockState = new Dictionary<(EntityType, string), bool>();
+
     [SerializeField] private List<Skills> currentUsedSkills = new List<Skills>();
 
     [System.NonSerialized]
@@ -88,6 +91,7 @@ public class SkillManager : BaseManager<SkillManager>
         blinkCoroutines = new Dictionary<Skills, Coroutine>();
         skillBlinkState = new Dictionary<Skills, bool>();
         skillCooldownRemaining = new Dictionary<(EntityType, string), float>();
+        skillUnlockState = new Dictionary<(EntityType, string), bool>();
         
         InitializeSkillDictionary();
     }
@@ -123,6 +127,8 @@ public class SkillManager : BaseManager<SkillManager>
             if (!skillList.ContainsKey(key))
             {
                 skillList[key] = skill;
+                // 초기 언락 상태를 별도의 딕셔너리에 저장
+                skillUnlockState[key] = skill.unLockSkill;
                 skill.Initialize();
                 Debug.Log($"[SkillManager] 스킬 등록: {entityType}-{skill.skillName}, 지속시간: {skill.buffDuration}초, 쿨타임: {skill.cooldown}초");
             }
@@ -950,8 +956,112 @@ public class SkillManager : BaseManager<SkillManager>
         return 0f;
     }
 
+    // 스킬 언락 상태 가져오기 (에셋 대신 메모리 상의 값 사용)
+    public bool IsSkillUnlocked(EntityType entityType, string skillName)
+    {
+        var key = (entityType, skillName);
+        if (skillUnlockState.TryGetValue(key, out bool isUnlocked))
+        {
+            return isUnlocked;
+        }
+        
+        // 키가 없는 경우, 기본값 반환
+        return entityType != EntityType.Player; // 플레이어 스킬은 기본적으로 잠김, 나머지는 기본적으로 해제됨
+    }
+    
+    // 스킬 언락 상태 설정
+    public void SetSkillUnlockState(EntityType entityType, string skillName, bool unlocked)
+    {
+        var key = (entityType, skillName);
+        skillUnlockState[key] = unlocked;
+        
+        // 런타임에서 표시용으로 Skills 객체에도 상태 업데이트
+        if (skillList.TryGetValue(key, out Skills skill))
+        {
+            skill.unLockSkill = unlocked;
+        }
+    }
+    
+    // 모든 플레이어 스킬 언락 상태 초기화
+    public void ResetAllPlayerSkillUnlockStates()
+    {
+        int resetCount = 0;
+        foreach (var entry in skillList)
+        {
+            if (entry.Key.Item1 == EntityType.Player)
+            {
+                var key = entry.Key;
+                skillUnlockState[key] = false;
+                entry.Value.unLockSkill = false;
+                entry.Value.skillLevel = 1;
+                entry.Value.Initialize();
+                resetCount++;
+            }
+        }
+        Debug.Log($"총 {resetCount}개의 플레이어 스킬 언락 상태가 초기화되었습니다.");
+    }
+
+    // 모든 스킬 초기화 메서드 (게임 시작 시 호출)
+    public void ResetAllSkills()
+    {
+        int resetCount = 0;
+        
+        // 모든 쿨다운 타이머 초기화
+        skillCooldownRemaining.Clear();
+        
+        // 모든 활성화된 버프 제거
+        activeBuffs.Clear();
+        
+        // 모든 스킬 초기화
+        foreach (var entry in skillList)
+        {
+            var key = entry.Key;
+            var skill = entry.Value;
+            
+            // 언락 상태 초기화 (엔티티별 초기 설정으로)
+            bool initialUnlockState = false;
+            if (key.Item1 == EntityType.Player)
+            {
+                // 플레이어 스킬의 초기 언락 상태 설정 (필요에 따라 조정)
+                initialUnlockState = false; // 기본적으로 모두 잠금
+                
+                // 초기에 해금된 기본 스킬이 있다면 여기서 설정
+                if (skill.skillName == "기본공격" || skill.skillName == "기본스킬")
+                {
+                    initialUnlockState = true;
+                }
+            }
+            else if (key.Item1 == EntityType.Dragon || key.Item1 == EntityType.Boss)
+            {
+                // NPC 스킬은 기본적으로 모두 해금
+                initialUnlockState = true;
+            }
+            
+            // 스킬 상태 초기화
+            skillUnlockState[key] = initialUnlockState;
+            skill.unLockSkill = initialUnlockState;
+            skill.skillLevel = 1;
+            skill.currentExperience = 0;
+            
+            // experienceToLevelUp은 내부 계산식 직접 구현 (skillLevel * 100f)
+            skill.experienceToLevelUp = Mathf.RoundToInt(skill.skillLevel * 100f);
+            
+            // 스킬 속성 초기화
+            skill.Initialize();
+            
+            resetCount++;
+        }
+        
+        Debug.Log($"총 {resetCount}개의 스킬이 초기화되었습니다.");
+    }
+
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-
+        // 게임 시작 시 모든 스킬 초기화
+        if (newState == GameSystemState.Play || newState == GameSystemState.MainQuestPlay)
+        {
+            ResetAllSkills();
+            Debug.Log("게임 시작: 모든 스킬이 초기화되었습니다.");
+        }
     }
 }

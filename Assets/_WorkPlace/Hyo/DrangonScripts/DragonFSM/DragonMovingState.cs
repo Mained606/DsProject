@@ -64,8 +64,7 @@ public class DragonMovingState : IDragonState
         stateTimer += Time.deltaTime;
 
         // 전투 상태인지 확인
-        bool inCombat = GameStateMachine.Instance.CurrentState == GameSystemState.Combat || 
-                         GameStateMachine.Instance.CurrentState == GameSystemState.BossBattle;
+        bool inCombat = dragon.IsInCombat();
 
         if (inCombat)
         {

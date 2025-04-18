@@ -384,12 +384,22 @@ public class UIManager : BaseManager<UIManager>
                 }
             }
         }
+        // 활성 퀘스트가 없는데 UI에 MainQuest(Clone)이 있으면 제거
+        else if (questListParent.childCount > 0)
+        {
+            foreach (Transform child in questListParent.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
     }
 
     public void QuestUI()
     {
-        if (QuestManager.QuestDatabase.Count > 0 || QuestManager.QuestDatabase.Count != questListParent.transform.childCount)
+        // 퀘스트가 있는 경우에만 UI 생성
+        if (QuestManager.QuestDatabase.Count > 0)
         {
+            // 기존 UI 요소 모두 제거
             foreach (Transform child in questListParent.transform)
             {
                 Destroy(child.gameObject);
@@ -421,6 +431,15 @@ public class UIManager : BaseManager<UIManager>
                 // 메인퀘스트와 서브퀘스트 모두 완료 처리
                 QuestManager.Instance.CompleteQuest(quest);
             }
+        }
+        // 퀘스트가 없는데 UI 요소가 있는 경우, 모두 제거
+        else if (questListParent.transform.childCount > 0)
+        {
+            foreach (Transform child in questListParent.transform)
+            {
+                Destroy(child.gameObject);
+            }
+            Debug.Log("[UIManager] 활성 퀘스트가 없어 UI 요소를 모두 제거했습니다.");
         }
     }
 

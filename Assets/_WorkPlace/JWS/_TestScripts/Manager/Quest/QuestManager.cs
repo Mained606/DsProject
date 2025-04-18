@@ -898,7 +898,7 @@ public class QuestManager : BaseManager<QuestManager>
         return subQuestDatabase[Random.Range(0, subQuestDatabase.Count)];
     }
 
-    private void MainQuestSequenceStart(int index)
+    public void MainQuestSequenceStart(int index)
     {
         string logPrefix = $"[MainQuestSequenceStart] 인덱스: {index}";
         Debug.Log($"{logPrefix}, 메인 퀘스트 DB 크기: {mainQuestDatabase.Count}");
@@ -910,15 +910,28 @@ public class QuestManager : BaseManager<QuestManager>
             return;
         }
         
+        // 현재 진행할 퀘스트
+        Quest questToAdd = mainQuestDatabase[index];
+        
+        // 이미 완료된 퀘스트인지 확인 (추가된 부분)
+        if (completedQuests.Exists(q => q.id == questToAdd.id))
+        {
+            Debug.Log($"{logPrefix}: 퀘스트 '{questToAdd.id}'는 이미 완료되었습니다. 다음 퀘스트로 진행합니다.");
+            // 첫 번째 퀘스트(1_1001)가 이미 완료된 경우 다음 인덱스로 재귀 호출
+            if (index == 0 && questToAdd.id == "1_1001")
+            {
+                currentMainQuestIndex = 1; // 다음 인덱스로 설정
+                MainQuestSequenceStart(currentMainQuestIndex);
+            }
+            return;
+        }
+        
         // 첫 번째 퀘스트이거나, 이전 퀘스트가 완료된 경우에만 다음 퀘스트 진행
         bool isFirstQuest = index == 0;
         bool isPreviousQuestCompleted = index > 0 && mainQuestDatabase[index-1].isCompleted;
         
         if (isFirstQuest || isPreviousQuestCompleted)
         {
-            // 현재 진행할 퀘스트
-            Quest questToAdd = mainQuestDatabase[index];
-            
             // 이미 진행 중인 같은 ID의 퀘스트가 있는지 확인
             bool alreadyHasQuest = questDatabase.Any(q => q.id == questToAdd.id);
             
@@ -1489,5 +1502,66 @@ public class QuestManager : BaseManager<QuestManager>
         NpcDatabase.SaveAsset();
         
         Debug.Log($"[QuestManager] NPC {npcId}에 퀘스트 {questId}에 대한 대화 데이터 설정 완료");
+    }
+
+    // 퀘스트 시스템 초기화
+    public void ClearQuestData()
+    {
+        // 활성화된 퀘스트 목록 초기화
+        questDatabase.Clear();
+        
+        // 완료 가능한 퀘스트 목록 초기화
+        completableQuests.Clear();
+        
+        // 퀘스트 조건 포인트 초기화
+        questConditionPoint.Clear();
+        
+        // 메인 퀘스트 인덱스 초기화
+        currentMainQuestIndex = 0;
+        
+        Debug.Log("[QuestManager] 퀘스트 데이터와 관련 상태 초기화됨");
+    }
+    
+    // 퀘스트 추적 설정
+    public void TrackQuest(Quest quest)
+    {
+        if (quest != null)
+        {
+            // 퀘스트 추적 로직 (UI 표시 등)
+            // 실제 추적 시스템이 구현되어 있다면 여기에 추가
+            
+            Debug.Log($"[QuestManager] 퀘스트 '{quest.name}' 추적 활성화");
+        }
+    }
+    
+    // 완료된 퀘스트 추가
+    public void AddCompletedQuest(Quest quest)
+    {
+        if (quest == null)
+        {
+            Debug.LogWarning("[QuestManager] 완료된 퀘스트에 null 퀘스트를 추가하려고 했습니다.");
+            return;
+        }
+        
+        if (!completedQuests.Contains(quest))
+        {
+            // 활성 퀘스트 목록에서 제거
+            if (questDatabase.Contains(quest))
+            {
+                questDatabase.Remove(quest);
+            }
+            
+            // 완료 가능한 퀘스트 목록에서 제거
+            if (completableQuests.Contains(quest))
+            {
+                completableQuests.Remove(quest);
+            }
+            
+            // 완료된 퀘스트 목록에 추가
+            completedQuests.Add(quest);
+            quest.isCompleted = true;
+            
+            Debug.Log($"[QuestManager] 퀘스트 '{quest.name}' 완료 처리됨");
+        }
     }
 }

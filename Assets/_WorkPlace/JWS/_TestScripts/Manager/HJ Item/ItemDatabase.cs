@@ -81,7 +81,13 @@ public class ItemList : ScriptableObject
     
     private void OnDisable()
     {
-        SaveAsset(); // 자동 저장
+#if UNITY_EDITOR
+        // 게임 플레이 중이 아닐 때만 저장
+        if (!EditorApplication.isPlaying)
+        {
+            SaveAsset(); // 에디터에서만 저장
+        }
+#endif
     }
 
     public void SaveAsset()

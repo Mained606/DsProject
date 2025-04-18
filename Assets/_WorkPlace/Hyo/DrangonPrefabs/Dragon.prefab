@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3519793645587539127}
   - component: {fileID: 1478377865561093195}
   - component: {fileID: 8450997723151421220}
+  - component: {fileID: 3073744886478622823}
   m_Layer: 0
   m_Name: Dragon
   m_TagString: Untagged
@@ -178,6 +179,8 @@ MonoBehaviour:
     equipmentMaxHpBonus: 0
     equipmentMaxMpBonus: 0
     dropItems: []
+    isRandomDrop: 0
+    randomDropItems: []
     experienceReward: 0
     goldReward: 0
   currentTargetTransform: {fileID: 0}
@@ -195,3 +198,19 @@ MonoBehaviour:
   - {fileID: 3519793645587539127}
   evolutionEffectPrefab: {fileID: 0}
   evolutionMaterial: {fileID: 0}
+--- !u!114 &3073744886478622823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3118469530045523962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e57e2b15a7b144f4a98b9f52c8c3a2d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectId: 
+  saveActivationState: 1
+  savePosition: 1
+  saveRotation: 1

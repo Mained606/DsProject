@@ -59,4 +59,15 @@ public class SkillQuickSlotUI : MonoBehaviour
             registedSkillList.Add(skill); // 슬롯 인덱스를 그대로 리스트 인덱스로 반영
         }
     }
+
+    // 모든 스킬 슬롯 초기화
+    public void ClearAllSlots()
+    {
+        foreach (var slot in quickSlots)
+        {
+            slot.ClearSlot();
+        }
+        
+        UpdateRegistedList(); // 리스트 동기화
+    }
 }

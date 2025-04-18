@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,16 +25,42 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-      
-          StartCoroutine(DelayChangeStateToInventoryChange());
+        StartCoroutine(DelayChangeStateToInventoryChange());
     }
+
     private IEnumerator DelayChangeStateToInventoryChange()
     {
         yield return new WaitForSeconds(0.5f);
-        memo.SetActive(true);
-        GameStateMachine.Instance.ChangeState(GameSystemState.Event);
-      
+        
+        // QuestManager가 초기화되었는지 확인
+        bool questManagerReady = QuestManager.Instance != null;
+        
+        // 메인퀘스트 1_1001이 이미 완료되었는지 확인
+        bool isMainQuest1001Completed = false;
+        if (questManagerReady)
+        {
+            // 완료된 퀘스트 중에 메인퀘스트 1_1001이 있는지 확인
+            isMainQuest1001Completed = QuestManager.CompletedQuests.Any(q => q.id == "1_1001");
+            
+            if (isMainQuest1001Completed)
+            {
+                Debug.Log("[GameManager] 메인퀘스트 1_1001이 이미 완료되었으므로 메모를 표시하지 않습니다.");
+            }
+        }
+        
+        // 메인퀘스트 1_1001이 완료되지 않았을 때만 메모 활성화
+        if (!isMainQuest1001Completed)
+        {
+            memo.SetActive(true);
+            GameStateMachine.Instance.ChangeState(GameSystemState.Event);
+        }
+        else
+        {
+            // 메모를 표시하지 않고 바로 탐색 상태로 변경
+            GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
+        }
     }
+
     private void OnDisable()
     {
         SaveAllAssets();
