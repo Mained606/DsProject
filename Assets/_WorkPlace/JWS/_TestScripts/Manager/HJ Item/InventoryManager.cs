@@ -57,6 +57,7 @@ public class InventoryManager : BaseManager<InventoryManager>
             HandleNonStackableItem(addItem);
         }
         UIManager.Instance.InventoryUpdate();
+        UpdateQuickSlotQuantity();
     }
 
     /// JWS  /////////////////////////////////////////
@@ -171,6 +172,7 @@ public class InventoryManager : BaseManager<InventoryManager>
             Debug.LogWarning($"[InventoryManager] 아이템 '{itemId}'를 {quantity}개 제거하려 했으나, 수량이 부족합니다.");
         }
         UIManager.Instance.InventoryUpdate();
+        UpdateQuickSlotQuantity();
     }
 
     public int GetItemQuantity(string itemId)
@@ -190,6 +192,7 @@ public class InventoryManager : BaseManager<InventoryManager>
         if (inventory.Count > 0)
         {
             inventory.Clear();
+            UpdateQuickSlotQuantity();
         }
     }
 
@@ -219,6 +222,7 @@ public class InventoryManager : BaseManager<InventoryManager>
         int previousCapacity = CurrentCapacity;
         CurrentCapacity = Mathf.Min(CurrentCapacity + expandSize, maxCapacity);
         UIManager.SystemGameMessage($"인벤토리가 확장되었습니다. 이전 용량: {previousCapacity}, 현재 용량: {CurrentCapacity}/{maxCapacity}", MessageTag.아이템_획득);
+        UpdateQuickSlotQuantity();
     }
 
     public void PrintInventory()
@@ -267,5 +271,30 @@ public class InventoryManager : BaseManager<InventoryManager>
         }
         
         return count;
+    }
+
+    public void UpdateQuickSlotQuantity()
+    {
+        if (quickSlotsUI == null) return;
+        
+        foreach (var slot in quickSlotsUI.GetSlots())
+        {
+            Item item = slot.GetItem();
+            if (item != null)
+            {
+                // 아이템이 인벤토리에 있는지 확인
+                int quantity = GetItemQuantity(item.id);
+                if (quantity > 0)
+                {
+                    // 수량 업데이트
+                    slot.UpdateQuantityText(quantity);
+                }
+                else
+                {
+                    // 인벤토리에 없으면 슬롯 리셋
+                    slot.ResetSlot();
+                }
+            }
+        }
     }
 }

@@ -132,4 +132,18 @@ public class DropZone : MonoBehaviour, IDropHandler
     }
 
     public Item GetItem() => currentItem;
+
+    // 외부에서 수량 텍스트만 업데이트할 수 있는 메서드 추가
+    public void UpdateQuantityText(int quantity)
+    {
+        if (currentItem == null) return;
+        
+        quantityText.text = quantity.ToString();
+        
+        // 수량이 0인 경우 슬롯 리셋
+        if (quantity <= 0)
+        {
+            ResetSlot();
+        }
+    }
 }
