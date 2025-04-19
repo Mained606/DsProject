@@ -20,6 +20,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject interactTextUI;
     [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
+    [SerializeField] private GameObject gameOverUI_1; // 게임오버 UI
     
     [SerializeField] private GameObject infoMessageWindow;
     [SerializeField] private Button infoMessageCloseButton; // 04.01 테스트용
@@ -133,6 +134,7 @@ public class UIManager : BaseManager<UIManager>
         cookingUI.SetActive(false);
         skillUI.SetActive(false);
         enhanceUI.SetActive(false);
+        gameOverUI_1.SetActive(false); // 게임오버 UI 초기화
     }
 
     private void Update()
@@ -773,6 +775,9 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.Enhance:
                 ToggleEnhanceUIWindow();
                 break;
+            case GameSystemState.GameOver:
+                ToggleGameOverUI();
+                break;
         }
         
         // InputManager에게 UI 상태 변경 알림
@@ -783,6 +788,25 @@ public class UIManager : BaseManager<UIManager>
         else
         {
             InputManager.Instance.SetGameplayInputsEnabled(true);
+        }
+    }
+
+    // 게임오버 UI를 토글하는 메서드
+    public void ToggleGameOverUI()
+    {
+        // HUD UI 비활성화
+        if (mainCanvas != null) mainCanvas.SetActive(false);
+        if (mainTitleButton != null) mainTitleButton.SetActive(false);
+        if (quickSlot != null) quickSlot.SetActive(false);
+        if (skillQuickSlot != null) skillQuickSlot.SetActive(false);
+        
+        // 게임오버 UI 활성화
+        if (gameOverUI_1 != null) 
+        {
+            gameOverUI_1.SetActive(true);
+            
+            // 마우스 커서 활성화
+            CameraManager.CursorLock();
         }
     }
 

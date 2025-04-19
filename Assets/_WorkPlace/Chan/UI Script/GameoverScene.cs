@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class GameoverScene : MonoBehaviour
@@ -17,7 +18,8 @@ public class GameoverScene : MonoBehaviour
     private readonly string[] hoverDescriptions = new string[]
     {
         "마지막 저장시점으로 돌아갑니다.",
-        "메인 메뉴 화면으로 돌아갑니다."
+        "메인 메뉴 화면으로 돌아갑니다.",
+        "게임을 종료합니다."
         // 버튼 개수에 따라 이 배열 늘리면 됨
     };
 
@@ -41,12 +43,94 @@ public class GameoverScene : MonoBehaviour
 
             SetAlpha(hoverImages[i], 0f);
             AddEventTriggers(buttons[i].gameObject, i);
+            
+            // 버튼 클릭 이벤트 추가
+            int buttonIndex = i;
+            buttons[i].onClick.AddListener(() => OnButtonClick(buttonIndex));
         }
 
         if (Description != null)
         {
             Description.text = ""; // 시작 시 빈 상태
         }
+    }
+
+    private void OnButtonClick(int buttonIndex)
+    {
+        switch (buttonIndex)
+        {
+            case 0: // RESTART 버튼
+                RestartGame();
+                break;
+            case 1: // TITLE 버튼
+                GoToTitleScene();
+                break;
+            case 2: // EXIT 버튼
+                ExitGame();
+                break;
+        }
+    }
+
+    private void RestartGame()
+    {
+        // 세이브 데이터 존재 여부 확인
+        if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
+        {
+            Debug.Log("저장된 게임 데이터가 있습니다. 메인 씬을 재로드하여 저장된 게임을 불러옵니다.");
+            
+            // UI 창 비활성화
+            gameObject.SetActive(false);
+            
+            // 현재 씬 재로드
+            Scene currentScene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(currentScene.name);
+            
+            // 씬이 로드되면 SaveSystemInitializer의 OnSceneLoaded에서 자동으로 저장 데이터를 로드함
+        }
+        else
+        {
+            Debug.Log("저장된 게임 데이터가 없습니다. 새 게임을 시작합니다.");
+            
+            // UI 창 비활성화
+            gameObject.SetActive(false);
+            
+            // SaveSystemInitializer를 찾아서 새 게임 시작
+            SaveSystemInitializer saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
+            if (saveSystem != null)
+            {
+                saveSystem.StartNewGame();
+            }
+            else
+            {
+                Debug.LogError("SaveSystemInitializer를 찾을 수 없습니다.");
+                // 타이틀 씬으로 이동 (대안)
+                SceneManager.LoadScene("TitleScene");
+            }
+        }
+    }
+
+    private void GoToTitleScene()
+    {
+        // 타이틀 씬으로 이동
+        SaveSystemInitializer saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
+        if (saveSystem != null)
+        {
+            SceneManager.LoadScene(saveSystem.titleSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene("TitleScene");
+        }
+    }
+
+    private void ExitGame()
+    {
+        // 게임 종료
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #else
+        Application.Quit();
+        #endif
     }
 
     private void SetAlpha(Image img, float alpha)
