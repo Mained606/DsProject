@@ -247,6 +247,18 @@ public class SaveManager : MonoBehaviour
             saveData.playerData.defense = playerData.physicalDefense;
             saveData.playerData.evasion = playerData.dodgeChance;
             
+            // 골드 저장
+            saveData.playerData.gold = playerData.gold;
+            
+            // 버프 정보 저장
+            saveData.playerData.hpBuffBonus = playerData.hpBuffBonus;
+            saveData.playerData.physicalDamageBuffMultiplier = playerData.physicalDamageBuffMultiplier;
+            saveData.playerData.magicDamageBuffMultiplier = playerData.magicDamageBuffMultiplier;
+            
+            // TODO: 버프 지속시간과 쿨타임 정보를 저장하는 코드를 구현
+            // SkillManager.Instance를 사용하여 활성화된 버프 목록을 가져온 후
+            // saveData.playerData.activeBuffs 리스트에 저장
+            
             Debug.Log("플레이어 데이터가 성공적으로 저장되었습니다.");
         }
         catch (Exception e) {
@@ -722,6 +734,18 @@ public class SaveManager : MonoBehaviour
             
             // 파생 스탯 업데이트
             playerData.UpdateDerivedStats();
+            
+            // 골드 복원
+            playerData.gold = saveData.playerData.gold;
+            
+            // 버프 정보 복원
+            playerData.hpBuffBonus = saveData.playerData.hpBuffBonus;
+            playerData.physicalDamageBuffMultiplier = saveData.playerData.physicalDamageBuffMultiplier;
+            playerData.magicDamageBuffMultiplier = saveData.playerData.magicDamageBuffMultiplier;
+            
+            // TODO: 버프 지속시간과 쿨타임 정보를 복원하는 코드를 구현
+            // saveData.playerData.activeBuffs 리스트에서 버프 정보를 가져와서
+            // SkillManager.Instance를 사용하여 버프 적용 및 지속시간 설정
             
             Debug.Log("플레이어 데이터가 성공적으로 적용되었습니다.");
         }

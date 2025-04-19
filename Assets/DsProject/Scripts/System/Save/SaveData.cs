@@ -59,6 +59,26 @@ namespace DsProject.Scripts.System.Save
             public float magicPower;
             public float defense;
             public float evasion;
+            
+            // 골드 추가
+            public int gold;
+            
+            // 버프 관련 필드 추가
+            public int hpBuffBonus;
+            public float physicalDamageBuffMultiplier;
+            public float magicDamageBuffMultiplier;
+            
+            // 버프 지속시간 정보를 저장할 리스트
+            public List<BuffSaveData> activeBuffs = new List<BuffSaveData>();
+        }
+        
+        // 버프 데이터를 저장하기 위한 클래스 추가
+        [Serializable]
+        public class BuffSaveData
+        {
+            public string buffId; // 버프 ID
+            public float remainingDuration; // 남은 지속시간
+            public float cooldownRemaining; // 남은 쿨타임
         }
         
         [Serializable]
