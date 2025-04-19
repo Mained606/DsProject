@@ -428,7 +428,7 @@ public class CameraManager : BaseManager<CameraManager>
             3f
         );
         poseList.poseList.Add(newPose);
-        Debug.Log($"{currentTransitionType}의 카메라포즈 저장완료");
+        //Debug.Log($"{currentTransitionType}의 카메라포즈 저장완료");
     }
 
     // 상태 처리 메서드

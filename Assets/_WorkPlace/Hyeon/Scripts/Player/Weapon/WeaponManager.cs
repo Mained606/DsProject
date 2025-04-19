@@ -45,7 +45,7 @@ public class WeaponManager : MonoBehaviour
                 {
                     int index = (int)weaponName;
                     transOb.SetSiblingIndex(index);
-                    Debug.Log($"'{objectName}'은 WeaponObjectName의 인덱스 {index}입니다.");
+                    //Debug.Log($"'{objectName}'은 WeaponObjectName의 인덱스 {index}입니다.");
                 }
                 else
                 {

@@ -19,7 +19,7 @@ public class FogControl : MonoBehaviour
         if (ColorUtility.TryParseHtmlString("#808080", out fogColor))
         {
             RenderSettings.fogColor = fogColor; // Fog 색상 설정
-            Debug.Log("Fog 색상이 #808080로 설정되었습니다.");
+            //Debug.Log("Fog 색상이 #808080로 설정되었습니다.");
         }
         else
         {

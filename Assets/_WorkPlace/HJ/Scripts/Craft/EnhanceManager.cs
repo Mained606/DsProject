@@ -33,13 +33,13 @@ public class EnhanceManager : BaseManager<EnhanceManager>
     {
         if (upgradeIngredient == null || !EnhancementItemIds.Contains(upgradeIngredient.id))
         {
-            Debug.Log("업그레이드 재료가 아님");
+            //Debug.Log("업그레이드 재료가 아님");
             return;
         }
 
         if (upgradeItem.itemSkill.Level >= 9)
         {
-            Debug.Log("강화 레벨 초과");
+            //Debug.Log("강화 레벨 초과");
             return;
         }
 
@@ -77,7 +77,7 @@ public class EnhanceManager : BaseManager<EnhanceManager>
         // 아이템 강화 성공 시 퀘스트 진행 상태 업데이트
         QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Collect, item.id, 0);
 
-        Debug.Log($"강화 성공\n아이템 레벨: {item.itemSkill.Level}");
+        //Debug.Log($"강화 성공\n아이템 레벨: {item.itemSkill.Level}");
     }
 
     private void Downgraded(Item item)
@@ -88,7 +88,7 @@ public class EnhanceManager : BaseManager<EnhanceManager>
         // 아이템 다운그레이드 시 퀘스트 진행 상태 업데이트
         QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Collect, item.id, 0);
 
-        Debug.Log($"강화 실패, 다운그레이드\n아이템 레벨: {item.itemSkill.Level}");
+        //Debug.Log($"강화 실패, 다운그레이드\n아이템 레벨: {item.itemSkill.Level}");
     }
 
     private void Destroyed(Item item)
@@ -105,7 +105,7 @@ public class EnhanceManager : BaseManager<EnhanceManager>
         // 아이템 파괴 시 퀘스트 진행 상태 업데이트
         QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Collect, itemId, 0);
 
-        Debug.Log("강화 실패, 아이템 파괴");
+        //Debug.Log("강화 실패, 아이템 파괴");
     }
 
     public Item PreviewEnhance(Item item)

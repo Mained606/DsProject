@@ -32,7 +32,7 @@ public class TigerAttack : MonoBehaviour
             StartCoroutine(SlowDown());
         }
         else
-            Debug.Log("No Rigidbody");
+            //Debug.Log("No Rigidbody");
 
         if (objectsToDetach != null)
             StartCoroutine(DetachObjects());

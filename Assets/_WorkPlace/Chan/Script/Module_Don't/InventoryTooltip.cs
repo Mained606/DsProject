@@ -182,7 +182,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     {
         if (currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구 || currentItem.type == ItemType.장신구)
         {
-            Debug.Log($"'{currentItem.name}' 아이템을 클릭했습니다.");
+            // //Debug.Log($"'{currentItem.name}' 아이템을 클릭했습니다.");
         }
 
         //03.12 HJ 추가
@@ -203,7 +203,7 @@ public class InventoryTooltip : MonoBehaviour, IPointerEnterHandler, IPointerExi
     //{
     //    if (currentItem.type == ItemType.무기 || currentItem.type == ItemType.방어구)
     //    {
-    //        Debug.Log($"마우스 우클릭, 아이템 타입: {currentItem.type}");
+    //        //Debug.Log($"마우스 우클릭, 아이템 타입: {currentItem.type}");
     //        EnhanceManager.Instance.Enhance(currentItem, InventoryManager.Instance.selectedItem);
     //    }        
     //}

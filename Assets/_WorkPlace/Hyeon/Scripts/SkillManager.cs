@@ -130,7 +130,7 @@ public class SkillManager : BaseManager<SkillManager>
                 // 초기 언락 상태를 별도의 딕셔너리에 저장
                 skillUnlockState[key] = skill.unLockSkill;
                 skill.Initialize();
-                Debug.Log($"[SkillManager] 스킬 등록: {entityType}-{skill.skillName}, 지속시간: {skill.buffDuration}초, 쿨타임: {skill.cooldown}초");
+                // //Debug.Log($"[SkillManager] 스킬 등록: {entityType}-{skill.skillName}, 지속시간: {skill.buffDuration}초, 쿨타임: {skill.cooldown}초");
             }
         }
     }
@@ -139,7 +139,7 @@ public class SkillManager : BaseManager<SkillManager>
     {
         foreach (var skillWeight in skillWeights)
         {
-            Debug.Log($"스킬가중치 등록 {skillWeight.skillName}");
+            //Debug.Log($"스킬가중치 등록 {skillWeight.skillName}");
             var key = (entityType, skillWeight.skillName);
             if (!skillWeightList.ContainsKey(key))
             {
@@ -172,7 +172,7 @@ public class SkillManager : BaseManager<SkillManager>
     {
         if (isActivating)
         {
-            Debug.Log("현재 스킬이 활성화 중이므로 새로운 스킬을 사용할 수 없습니다.");
+            //Debug.Log("현재 스킬이 활성화 중이므로 새로운 스킬을 사용할 수 없습니다.");
             return;
         }
 
@@ -185,7 +185,7 @@ public class SkillManager : BaseManager<SkillManager>
 
         if (skill.cooldownTimer.IsRunning)
         {
-            Debug.Log($"{skill.skillName} is on cooldown! (남은 시간: {skill.cooldownTimer.RemainingTime})");
+            //Debug.Log($"{skill.skillName} is on cooldown! (남은 시간: {skill.cooldownTimer.RemainingTime})");
             return;
         }
 
@@ -332,7 +332,7 @@ public class SkillManager : BaseManager<SkillManager>
         foreach (var skill in skillsToRemove)
         {
             currentUsedSkills.Remove(skill);
-            Debug.Log($"[CheckSkillCoolTime] {skill.skillName} 스킬 쿨다운 완료");
+            //Debug.Log($"[CheckSkillCoolTime] {skill.skillName} 스킬 쿨다운 완료");
         }
         
         // 모든 활성 버프에 대해 UI 업데이트 - 지속시간 기반
@@ -610,7 +610,7 @@ public class SkillManager : BaseManager<SkillManager>
 
         if (currentMp < skill.energyCost)
         {
-            Debug.Log($"MP 부족: {skillName} 사용 불가 (현재 MP: {currentMp}, 필요 MP: {skill.energyCost})");
+            //Debug.Log($"MP 부족: {skillName} 사용 불가 (현재 MP: {currentMp}, 필요 MP: {skill.energyCost})");
             return false;
         }
 
@@ -934,7 +934,7 @@ public class SkillManager : BaseManager<SkillManager>
         if (!skillCooldownRemaining.ContainsKey(key))
         {
             skillCooldownRemaining[key] = 0f;
-            Debug.Log($"[SkillManager] 드래곤 버프 쿨다운 등록: {buffName}");
+            //Debug.Log($"[SkillManager] 드래곤 버프 쿨다운 등록: {buffName}");
         }
     }
 
@@ -998,7 +998,7 @@ public class SkillManager : BaseManager<SkillManager>
                 resetCount++;
             }
         }
-        Debug.Log($"총 {resetCount}개의 플레이어 스킬 언락 상태가 초기화되었습니다.");
+        //Debug.Log($"총 {resetCount}개의 플레이어 스킬 언락 상태가 초기화되었습니다.");
     }
 
     // 모든 스킬 초기화 메서드 (게임 시작 시 호출)
@@ -1052,7 +1052,7 @@ public class SkillManager : BaseManager<SkillManager>
             resetCount++;
         }
         
-        Debug.Log($"총 {resetCount}개의 스킬이 초기화되었습니다.");
+        //Debug.Log($"총 {resetCount}개의 스킬이 초기화되었습니다.");
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
@@ -1061,7 +1061,7 @@ public class SkillManager : BaseManager<SkillManager>
         if (newState == GameSystemState.Play || newState == GameSystemState.MainQuestPlay)
         {
             ResetAllSkills();
-            Debug.Log("게임 시작: 모든 스킬이 초기화되었습니다.");
+            //Debug.Log("게임 시작: 모든 스킬이 초기화되었습니다.");
         }
     }
 }

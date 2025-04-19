@@ -83,7 +83,7 @@ public class CraftManager : MonoBehaviour
     {
         if (selectedIngredients.Count >= maxIngredients)
         {
-            Debug.Log("최대 갯수 초과");
+            //Debug.Log("최대 갯수 초과");
             return;
         }
 
@@ -91,11 +91,11 @@ public class CraftManager : MonoBehaviour
 
         selectedIngredients.Add(ingredient);
 
-        Debug.Log("재료 추가됨: " + ingredient.id);
+        //Debug.Log("재료 추가됨: " + ingredient.id);
         //===============================================
         foreach (var item in selectedIngredients)
         {
-            Debug.Log($"아이템: {item.name}, 개수: {item.quantity}");
+            //Debug.Log($"아이템: {item.name}, 개수: {item.quantity}");
         }
 
     }
@@ -109,7 +109,7 @@ public class CraftManager : MonoBehaviour
         }
 
         selectedIngredients.Clear(); // 리스트 비우기
-        Debug.Log("냄비 초기화");
+        //Debug.Log("냄비 초기화");
     }
 
     // 제작 버튼 
@@ -135,7 +135,7 @@ public class CraftManager : MonoBehaviour
     {
         ItemManager.Instance.AddItemLogic(recipe.itemId);
 
-        Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
+        //Debug.Log("제작 성공 인벤토리에 추가: " + recipe.itemId);
     }
     // 제작 실패 메세지
     protected virtual void FailedCrafting()
@@ -145,14 +145,14 @@ public class CraftManager : MonoBehaviour
             ItemManager.Instance.AddItemLogic(item.id);
         }
 
-        Debug.Log("제작 실패");
+        //Debug.Log("제작 실패");
     }
     // 없는 아이템 생성 시도시?
     protected Recipe FindMatchingRecipe(List<Item> ingredients)
     {
         if (Recipes == null || Recipes.Count == 0)
         {
-            Debug.Log("레시피가 존재하지 않음");
+            //Debug.Log("레시피가 존재하지 않음");
             return null;
         }
 

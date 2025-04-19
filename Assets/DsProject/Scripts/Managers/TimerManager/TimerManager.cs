@@ -83,7 +83,7 @@ public class TimerManager : BaseManager<TimerManager>
             Time.timeScale = 0f;
             IsGamePaused = true;
             
-            Debug.Log("게임 일시정지: 타임스케일 0으로 설정");
+            //Debug.Log("게임 일시정지: 타임스케일 0으로 설정");
         }
     }
 
@@ -96,7 +96,7 @@ public class TimerManager : BaseManager<TimerManager>
             Time.timeScale = 1f;
             IsGamePaused = false;
             
-            Debug.Log("게임 재개");
+            //Debug.Log("게임 재개");
         }
     }
 }

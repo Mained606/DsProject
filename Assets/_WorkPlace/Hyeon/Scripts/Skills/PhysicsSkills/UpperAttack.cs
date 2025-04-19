@@ -30,7 +30,7 @@ public class UpperAttack : MonoBehaviour
             StartCoroutine(SlowDown());
         }
         else
-            Debug.Log("No Rigidbody");
+            //Debug.Log("No Rigidbody");
 
         skills = SkillManager.Instance.GetSkill(EntityType.Player, "UpperAttack");
         SoundManager.Instance.PlayClipAtPoint("Sword_Scratch", transform.position, 0.1f, false);

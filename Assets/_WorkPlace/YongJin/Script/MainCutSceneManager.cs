@@ -19,10 +19,10 @@ public class MainCutSceneManager : BaseManager<MainCutSceneManager>
     {
         if(this.mainSceneId > 0)
         {
-            Debug.Log($"컷 씬 진행중 이따 신호 보내세요");    
+            //Debug.Log($"컷 씬 진행중 이따 신호 보내세요");    
             return;
         }
-        Debug.Log($"컷 씬 시작");    
+        //Debug.Log($"컷 씬 시작");    
         this.mainSceneId = mainSceneId;
         this.chapterId = chapterId;
         StartCoroutine(CutSceneFadeOut());
@@ -57,7 +57,7 @@ public class MainCutSceneManager : BaseManager<MainCutSceneManager>
     private void CutSceneStart()
     {
         
-        Debug.Log($"메인{mainSceneId}, 챕터{chapterId} 컷 씬 시작");
+        //Debug.Log($"메인{mainSceneId}, 챕터{chapterId} 컷 씬 시작");
         fadeBgTransform.gameObject.SetActive(false);
         Bg.gameObject.SetActive(true);
         var mainScene = timeLineManager.GetChild(mainSceneId-1);
@@ -71,7 +71,7 @@ public class MainCutSceneManager : BaseManager<MainCutSceneManager>
     public void CutSceneEndSignal()
     {
         
-        Debug.Log($"메인{mainSceneId}컷 씬 종료됨");
+        //Debug.Log($"메인{mainSceneId}컷 씬 종료됨");
         var mainScene = timeLineManager.GetChild(mainSceneId-1);
         mainScene.gameObject.SetActive(false);
         for(int i = 0; i < timeLineManager.GetChild(mainSceneId-1).childCount; i++)//혹시 모를 초기화

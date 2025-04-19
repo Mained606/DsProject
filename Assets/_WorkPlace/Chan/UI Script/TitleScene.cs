@@ -259,12 +259,12 @@ public class TitleScene : MonoBehaviour
         switch (buttonIndex)
         {
             case 0: // 새 게임 버튼
-                Debug.Log("새 게임 시작");
+                //Debug.Log("새 게임 시작");
                 // 저장 데이터 삭제
                 if (SaveManager.Instance != null)
                 {
                     SaveManager.Instance.ResetSaveData();
-                    Debug.Log("기존 저장 데이터가 삭제되었습니다.");
+                    //Debug.Log("기존 저장 데이터가 삭제되었습니다.");
                 }
                 saveSystem.StartNewGame();
                 break;
@@ -272,7 +272,7 @@ public class TitleScene : MonoBehaviour
             case 1: // 계속하기 버튼
                 if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
                 {
-                    Debug.Log("저장된 게임 불러오기");
+                    //Debug.Log("저장된 게임 불러오기");
                     saveSystem.LoadSavedGame();
                 }
                 else
@@ -282,12 +282,12 @@ public class TitleScene : MonoBehaviour
                 break;
                 
             case 2: // 설정 버튼
-                Debug.Log("설정 메뉴 열기");
+                //Debug.Log("설정 메뉴 열기");
                 // 설정 메뉴 관련 코드
                 break;
                 
             case 3: // 종료 버튼
-                Debug.Log("게임 종료");
+                //Debug.Log("게임 종료");
                 #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
                 #else
@@ -296,7 +296,7 @@ public class TitleScene : MonoBehaviour
                 break;
                 
             default:
-                Debug.Log($"버튼 {buttonIndex} 클릭됨");
+                //Debug.Log($"버튼 {buttonIndex} 클릭됨");
                 break;
         }
     }

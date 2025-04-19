@@ -22,7 +22,7 @@ public class ItemSkillManager : BaseManager<ItemSkillManager>
         {
             if (ItemEffectManager.Instance.WeaponManager.CurrentWeaponObject == null)
             {
-                Debug.Log("CurrentWeaponObject = null");
+                //Debug.Log("CurrentWeaponObject = null");
                 return null;
             }
 

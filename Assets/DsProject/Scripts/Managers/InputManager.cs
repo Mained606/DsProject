@@ -137,14 +137,14 @@ public class InputManager : BaseManager<InputManager>
             // UI를 활성화
             uiActiveStates[actionName] = true;
             GameStateMachine.Instance.ChangeState(targetState);
-            Debug.Log($"{actionName} UI 활성화됨.");
+            //Debug.Log($"{actionName} UI 활성화됨.");
         }
         else
         {
             // UI를 비활성화하고 Play 상태로 복귀
             uiActiveStates[actionName] = false;
             GameStateMachine.Instance.ChangeState(GameSystemState.Play);
-            Debug.Log($"{actionName} UI 비활성화됨.");
+            //Debug.Log($"{actionName} UI 비활성화됨.");
         }
     }
 
@@ -166,13 +166,13 @@ public class InputManager : BaseManager<InputManager>
             }
             
             GameStateMachine.Instance.ChangeState(GameSystemState.Play);
-            Debug.Log("ESC로 Play 상태로 복귀.");
+            //Debug.Log("ESC로 Play 상태로 복귀.");
         }
         // 그 외의 상태에서는 MainMenu로 전환
         else if (currentState != GameSystemState.MainMenu)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("ESC로 MainMenu 상태로 전환.");
+            //Debug.Log("ESC로 MainMenu 상태로 전환.");
         }
     }
 
@@ -190,7 +190,7 @@ public class InputManager : BaseManager<InputManager>
             else
             {
                 InputActions.actions[actionName].Disable();
-                // Debug.Log($"InputAction {actionName} Disabled");
+                // //Debug.Log($"InputAction {actionName} Disabled");
             }
         }
         else
@@ -266,7 +266,7 @@ public class InputManager : BaseManager<InputManager>
     {
         if (Input.GetKeyDown(KeyCode.I))
         {
-            Debug.Log("I키 입력 확인");
+            //Debug.Log("I키 입력 확인");
             ToggleInventoryState();
         }
         if (Input.GetKeyDown(KeyCode.Q))

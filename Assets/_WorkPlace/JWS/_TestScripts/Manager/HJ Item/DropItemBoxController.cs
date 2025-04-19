@@ -21,7 +21,7 @@ public class DropItemBoxController : MonoBehaviour
             // 드롭될 아이템이 없으면 아이템 박스 삭제
             if (actualDropItemIds.Count == 0)
             {
-                Debug.Log("확률 계산 결과 드롭될 아이템이 없어 아이템 박스를 제거합니다.");
+                //Debug.Log("확률 계산 결과 드롭될 아이템이 없어 아이템 박스를 제거합니다.");
                 Destroy(gameObject);
                 return;
             }
@@ -56,11 +56,11 @@ public class DropItemBoxController : MonoBehaviour
             {
                 // 확률에 성공하면 드롭될 아이템 리스트에 추가
                 actualDropItemIds.Add(dropItem.itemId);
-                Debug.Log($"랜덤 드롭 계산: {dropItem.itemId} 획득 성공! (확률: {dropItem.dropChance}%, 주사위: {randomValue})");
+                //Debug.Log($"랜덤 드롭 계산: {dropItem.itemId} 획득 성공! (확률: {dropItem.dropChance}%, 주사위: {randomValue})");
             }
             else
             {
-                Debug.Log($"랜덤 드롭 계산: {dropItem.itemId} 획득 실패 (확률: {dropItem.dropChance}%, 주사위: {randomValue})");
+                //Debug.Log($"랜덤 드롭 계산: {dropItem.itemId} 획득 실패 (확률: {dropItem.dropChance}%, 주사위: {randomValue})");
             }
         }
     }
@@ -74,7 +74,7 @@ public class DropItemBoxController : MonoBehaviour
         foreach (var itemId in actualDropItemIds)
         {
             ItemManager.Instance.AddItemLogic(itemId);
-            Debug.Log($"아이템 박스에서 {itemId} 획득!");
+            //Debug.Log($"아이템 박스에서 {itemId} 획득!");
         }
 
         Destroy(gameObject); // 박스 삭제

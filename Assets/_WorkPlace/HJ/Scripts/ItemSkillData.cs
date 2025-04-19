@@ -50,7 +50,7 @@ public class ItemSkill
         ItemStat itemStat = item.itemStat;
         if (itemStat == null)
         {
-            Debug.Log("아이템스탯 null");
+            //Debug.Log("아이템스탯 null");
             return;
         }
 

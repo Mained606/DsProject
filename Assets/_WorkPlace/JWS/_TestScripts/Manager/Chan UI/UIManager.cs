@@ -453,7 +453,7 @@ public class UIManager : BaseManager<UIManager>
             {
                 Destroy(child.gameObject);
             }
-            Debug.Log("[UIManager] 활성 퀘스트가 없어 UI 요소를 모두 제거했습니다.");
+            //Debug.Log("[UIManager] 활성 퀘스트가 없어 UI 요소를 모두 제거했습니다.");
         }
     }
 
@@ -536,7 +536,7 @@ public class UIManager : BaseManager<UIManager>
                 if (!QuestManager.QuestConditionPoint.ContainsKey(foundNPC.id) && foundNPC.currentNPC != null)
                 {
                     QuestManager.QuestConditionPoint[foundNPC.id] = foundNPC.currentNPC.transform;
-                    Debug.Log($"[UIManager] 퀘스트 {quest.id}의 지급자 {foundNPC.name}(ID: {foundNPC.id})를 QuestConditionPoint에 등록했습니다.");
+                    //Debug.Log($"[UIManager] 퀘스트 {quest.id}의 지급자 {foundNPC.name}(ID: {foundNPC.id})를 QuestConditionPoint에 등록했습니다.");
                 }
                 
                 // 현재 NPC 게임오브젝트가 없으면 씬에서 찾아보기
@@ -547,7 +547,7 @@ public class UIManager : BaseManager<UIManager>
                     if (npcObj != null)
                     {
                         QuestManager.QuestConditionPoint[foundNPC.id] = npcObj.transform;
-                        Debug.Log($"[UIManager] GameObject.Find로 {foundNPC.name}(ID: {foundNPC.id})를 찾아 QuestConditionPoint에 등록했습니다.");
+                        //Debug.Log($"[UIManager] GameObject.Find로 {foundNPC.name}(ID: {foundNPC.id})를 찾아 QuestConditionPoint에 등록했습니다.");
                     }
                     else
                     {
@@ -556,7 +556,7 @@ public class UIManager : BaseManager<UIManager>
                         if (npcObj != null)
                         {
                             QuestManager.QuestConditionPoint[foundNPC.id] = npcObj.transform;
-                            Debug.Log($"[UIManager] GameObject.Find로 {foundNPC.name}을 찾아 QuestConditionPoint에 등록했습니다.");
+                            //Debug.Log($"[UIManager] GameObject.Find로 {foundNPC.name}을 찾아 QuestConditionPoint에 등록했습니다.");
                         }
                         else
                         {
@@ -567,7 +567,7 @@ public class UIManager : BaseManager<UIManager>
                                 if (npc.name.Contains(foundNPC.name) || npc.name.Contains(foundNPC.id))
                                 {
                                     QuestManager.QuestConditionPoint[foundNPC.id] = npc.transform;
-                                    Debug.Log($"[UIManager] 태그를 통해 {foundNPC.name}을 찾아 QuestConditionPoint에 등록했습니다.");
+                                    //Debug.Log($"[UIManager] 태그를 통해 {foundNPC.name}을 찾아 QuestConditionPoint에 등록했습니다.");
                                     break;
                                 }
                             }
