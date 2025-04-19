@@ -231,7 +231,25 @@ public class Item : ISheetData
             }
             else
             {
-                statInfo = $"\n<b><color=#FFD700>[요리 효과]</color></b>\n\n아이템 정보를 불러올 수 없습니다.";
+                // 아이템 정보가 null인 경우 원본 아이템에서 정보를 가져옴
+                Item originalItem = ItemManager.Instance?.GetItemById(id);
+                if (originalItem != null && originalItem.itemStat != null)
+                {
+                    if (originalItem.itemStat.HealHp > 0) recovery += $"체력 회복: <color=#00FF00>+{originalItem.itemStat.HealHp}</color>    ";
+                    if (originalItem.itemStat.HealMp > 0) recovery += $"마나 회복: <color=#00BFFF>+{originalItem.itemStat.HealMp}</color>";
+                    
+                    string buffText = originalItem.itemStat.HasBuffStat() ? originalItem.itemStat.GetEffectDescription() : "";
+                    string durationText = originalItem.effect != null && originalItem.effect.duration > 0 ? 
+                        $"\n지속시간: <color=#FFD700>{originalItem.effect.duration}초</color>" : "";
+        
+                    statInfo = $"\n<b><color=#FFD700>[요리 효과]</color></b>\n\n";
+                    if (!string.IsNullOrEmpty(recovery)) statInfo += recovery + "\n";
+                    if (!string.IsNullOrEmpty(buffText)) statInfo += $"버프 효과: {buffText}{durationText}";
+                }
+                else
+                {
+                    statInfo = $"\n<b><color=#FFD700>[요리 효과]</color></b>\n\n아이템 정보를 불러올 수 없습니다.";
+                }
             }
         }
 

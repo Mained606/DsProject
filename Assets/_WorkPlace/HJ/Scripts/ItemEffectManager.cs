@@ -293,6 +293,24 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
                 effectiveStat = originalItem.itemStat;
                 useOriginalItem = true;
                 Debug.Log($"[ApplyDishEffect] 원본 아이템 데이터를 사용하여 요리 효과 적용: {item.name}");
+                
+                // 현재 아이템의 스탯도 업데이트
+                if (item.itemStat == null)
+                {
+                    item.itemStat = originalItem.itemStat.Clone();
+                }
+                else
+                {
+                    // HealHp와 HealMp 값만 복사
+                    item.itemStat.HealHp = originalItem.itemStat.HealHp;
+                    item.itemStat.HealMp = originalItem.itemStat.HealMp;
+                }
+                
+                // 이펙트 정보도 복사
+                if (item.effect == null && originalItem.effect != null)
+                {
+                    item.effect = originalItem.effect.Clone();
+                }
             }
         }
 

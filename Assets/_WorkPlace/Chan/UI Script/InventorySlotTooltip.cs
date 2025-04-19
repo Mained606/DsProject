@@ -159,7 +159,27 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
 
             string nameColor = currentItem.GetGradeColor(currentItem.grade);
             textPoint[1].text = $"<color={nameColor}>{currentItem.name}</color>";
-            textPoint[2].text = currentItem.ToStringTMPro();
+            
+            if (currentItem.type == ItemType.요리 && 
+                (currentItem.itemStat == null || (currentItem.itemStat.HealHp <= 0 && currentItem.itemStat.HealMp <= 0)))
+            {
+                Item originalItem = ItemManager.Instance?.GetItemById(currentItem.id);
+                if (originalItem != null && originalItem.itemStat != null)
+                {
+                    Item tempItem = currentItem.Clone();
+                    tempItem.itemStat = originalItem.itemStat.Clone();
+                    tempItem.effect = originalItem.effect?.Clone() ?? tempItem.effect;
+                    textPoint[2].text = tempItem.ToStringTMPro();
+                }
+                else
+                {
+                    textPoint[2].text = currentItem.ToStringTMPro();
+                }
+            }
+            else
+            {
+                textPoint[2].text = currentItem.ToStringTMPro();
+            }
         }
 
         if (currentItem.itemSkill != null)
