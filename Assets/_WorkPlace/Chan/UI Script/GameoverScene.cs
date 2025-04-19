@@ -23,6 +23,26 @@ public class GameoverScene : MonoBehaviour
         // 버튼 개수에 따라 이 배열 늘리면 됨
     };
 
+    private void OnEnable()
+    {
+        // 씬 로드 이벤트에 리스너 등록
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        // 씬 로드 이벤트에서 리스너 제거
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // 씬 로드 시 호출되는 메서드
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 씬 로드 시 커서 상태 초기화
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
     private void Start()
     {
         buttons = Buttons.GetComponentsInChildren<Button>(true);
@@ -73,6 +93,13 @@ public class GameoverScene : MonoBehaviour
 
     private void RestartGame()
     {
+        TimerManager.Instance.ResumeGame();
+        GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+
+        // 커서 상태 명시적 설정 - 씬 전환 전에 커서를 보이게 하고 언락함
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         // 세이브 데이터 존재 여부 확인
         if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
         {
@@ -111,6 +138,13 @@ public class GameoverScene : MonoBehaviour
 
     private void GoToTitleScene()
     {
+        TimerManager.Instance.ResumeGame();
+        GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+        
+        // 커서 상태 명시적 설정 - 씬 전환 전에 커서를 보이게 하고 언락함
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        
         // 타이틀 씬으로 이동
         SaveSystemInitializer saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
         if (saveSystem != null)

@@ -52,10 +52,28 @@ public class SaveSystemInitializer : MonoBehaviour
                 saveManagerObj.AddComponent<SaveManager>();
                 DontDestroyOnLoad(saveManagerObj);
             }
+            
+            // 타이틀 씬에서는 항상 커서가 보이도록 설정
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
         // 게임 씬에서는 필요에 따라 저장 데이터 로드
         else
         {
+            // 이전 상태가 게임 오버였을 경우 커서 잠금 상태 해제
+            if (GameStateMachine.Instance != null && 
+                GameStateMachine.Instance.CurrentState == GameSystemState.GameOver)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+            // 일반 게임 씬에서는 기본 상태로 설정
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            
             LoadGameIfNeeded();
         }
     }

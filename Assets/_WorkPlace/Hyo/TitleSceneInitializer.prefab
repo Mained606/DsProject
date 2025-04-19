@@ -45,4 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   saveManagerPrefab: {fileID: 2229886083851142150, guid: c66254f2df6f84ed69fbb0819ea13774, type: 3}
-  titleSceneUI: {fileID: 978044955491488068, guid: 395675615ba57e847863aa3d6a4ab529, type: 3}
+  titleSceneUI: {fileID: 0}
