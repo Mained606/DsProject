@@ -98,6 +98,12 @@ public class DropZone : MonoBehaviour, IDropHandler
     {
         if (currentItem == null || cooldown?.IsRunning == true) return;
 
+        // cooldown이 null인 경우 초기화
+        if (cooldown == null)
+        {
+            cooldown = new BasicTimer(10f);
+        }
+
         ItemManager.Instance.UseItem(currentItem);
         TimerManager.Instance.StartTimer(cooldown);
 
