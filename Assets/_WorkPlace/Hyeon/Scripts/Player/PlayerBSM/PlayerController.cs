@@ -64,7 +64,7 @@ namespace JWSTEST
         {
             // 플레이어 사망 처리 및 게임오버 UI 활성화
             GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
-            Debug.Log("플레이어 사망: 게임오버 UI 활성화");
+            //Debug.Log("플레이어 사망: 게임오버 UI 활성화");
             
             // 모든 입력 비활성화
             InputManager.Instance.SetAllInputs(false);

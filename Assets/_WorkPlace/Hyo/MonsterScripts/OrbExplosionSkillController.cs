@@ -49,7 +49,7 @@ public class OrbExplosionSkillController : MonoBehaviour
         // 플레이어 태그("Player")를 가진 오브젝트인지 확인합니다.
         if (other.CompareTag("Player"))
         {
-            Debug.Log(other.name + "플레이어에게 닿음");
+            //Debug.Log(other.name + "플레이어에게 닿음");
             // 플레이어의 CharacterData를 가져옵니다.
             CharacterData playerData = CharacterManager.PlayerCharacterData;
             if (playerData == null)

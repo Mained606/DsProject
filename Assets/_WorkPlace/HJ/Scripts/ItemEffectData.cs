@@ -19,7 +19,7 @@ public class ItemEffect
         if (isAlreadyInitialize)
             return;
 
-        Debug.Log($"{item.name} 아이템 이펙트 초기화");
+        //Debug.Log($"{item.name} 아이템 이펙트 초기화");
 
         SetEffectTypeByItemType(item);
         SetItemSize(item);
@@ -142,7 +142,7 @@ public class ItemEffect
     {
         if (!sizeAmount.TryGetValue(item.effect.itemSize, out int effectAmount))
         {
-            Debug.Log($"{item.effect.itemSize}에 대한 {effectAmount} 값이 없음");
+            //Debug.Log($"{item.effect.itemSize}에 대한 {effectAmount} 값이 없음");
             return;
         }
 
@@ -155,7 +155,7 @@ public class ItemEffect
     {
         if (!sizeAmountDuration.TryGetValue(item.effect.itemSize, out MultiValue effectAmountDuration))
         {
-            Debug.Log($"{item.grade}에 대한 효과량, 지속시간 값이 없음");
+            //Debug.Log($"{item.grade}에 대한 효과량, 지속시간 값이 없음");
             return;
         }
 
@@ -169,7 +169,7 @@ public class ItemEffect
     {
         if (!gradeBonusPercentage.TryGetValue(item.grade, out float bonusPercentage))
         {
-            Debug.Log($"{item.grade} 등급에 대한 보너스 값이 없습니다.");
+            //Debug.Log($"{item.grade} 등급에 대한 보너스 값이 없습니다.");
             return;
         }
 
@@ -209,7 +209,7 @@ public class ItemEffect
                 effectParticle = Resources.Load<GameObject>("Particles/BuffEffect");
                 break;
             default:
-                Debug.Log($"아이템타입의 이펙트 프리팹 없음");
+                //Debug.Log($"아이템타입의 이펙트 프리팹 없음");
                 break;
         }
     }

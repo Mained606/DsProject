@@ -6,6 +6,6 @@ public class Skill_Fire : Skills
     //{
     //    base.ActivateSkill(user);
 
-    //    Debug.Log("Skill_Fire");
+    //    //Debug.Log("Skill_Fire");
     //}
 }

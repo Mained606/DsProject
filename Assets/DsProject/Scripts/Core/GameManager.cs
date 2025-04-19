@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
             
             if (isMainQuest1001Completed)
             {
-                Debug.Log("[GameManager] 메인퀘스트 1_1001이 이미 완료되었으므로 메모를 표시하지 않습니다.");
+                //Debug.Log("[GameManager] 메인퀘스트 1_1001이 이미 완료되었으므로 메모를 표시하지 않습니다.");
             }
         }
         
@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
             EditorUtility.SetDirty(asset);
         }
         AssetDatabase.SaveAssets();
-        Debug.Log("모든 ScriptableObject 자동 저장 완료.");
+        //Debug.Log("모든 ScriptableObject 자동 저장 완료.");
 #endif
     }
 
@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        Debug.Log($"GameManager 초기화 완료. 총 필요 매니저 수: {totalManagers}");
+        //Debug.Log($"GameManager 초기화 완료. 총 필요 매니저 수: {totalManagers}");
 
         ////////////////////////////////////////////////////////////
         //  플레이어 이동 범위를 Terrain안으로 고정하기
@@ -108,7 +108,7 @@ public class GameManager : MonoBehaviour
         if (!readyManagers.Contains(managerName))
         {
             readyManagers.Add(managerName);
-            Debug.Log($"{managerName} 준비 완료 ({readyManagers.Count}/{totalManagers})");
+            //Debug.Log($"{managerName} 준비 완료 ({readyManagers.Count}/{totalManagers})");
 
             if (readyManagers.Count == totalManagers)
             {
@@ -120,7 +120,7 @@ public class GameManager : MonoBehaviour
     //모든 매니저가 준비되었을 때 호출되는 후속 작업
     private void OnAllManagersReady()
     {
-        Debug.Log("모든 매니저가 준비 완료되었습니다. 게임 시작!");
+        //Debug.Log("모든 매니저가 준비 완료되었습니다. 게임 시작!");
         allManagersReady = true;
         OnAllManagersReadyEvent?.Invoke();
         //GameStateMachine.Instance.ChangeState(GameSystemState.MainQuestPlay);

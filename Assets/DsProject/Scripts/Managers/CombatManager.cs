@@ -39,7 +39,7 @@ public class CombatManager : BaseManager<CombatManager>
         }
         else
         {
-            Debug.Log($"현재 대상 타입: {actualDefender.characterType}");
+            //Debug.Log($"현재 대상 타입: {actualDefender.characterType}");
             // 공격 대상이 보스인지 확인
             GameStateMachine.Instance.ChangeState(actualDefender.characterType == CharacterType.Boss
                 ? GameSystemState.BossBattle
@@ -56,7 +56,7 @@ public class CombatManager : BaseManager<CombatManager>
 
         if (actualDefender == null || actualDefender.currentHp <= 0)
         {
-            // Debug.Log(actualDefender.currentHp);
+            // //Debug.Log(actualDefender.currentHp);
             Debug.LogWarning($"{actualDefender.characterName}는 이미 사망했습니다.");
             return;
         }
@@ -67,7 +67,7 @@ public class CombatManager : BaseManager<CombatManager>
             // 회피율 적용
             if (Random.value < actualDefender.dodgeChance)
             {
-                Debug.Log($"{actualDefender.characterName}는 공격을 회피했습니다.");
+                //Debug.Log($"{actualDefender.characterName}는 공격을 회피했습니다.");
                 return; // 공격이 회피되어 데미지 없음
             }
             
@@ -77,7 +77,7 @@ public class CombatManager : BaseManager<CombatManager>
                 // 방패 블록 확률이 적용되는 경우
                 if (Random.value < actualDefender.blockChance)
                 {
-                    Debug.Log($"{actualDefender.characterName}는 방패로 공격을 차단했습니다!");
+                    //Debug.Log($"{actualDefender.characterName}는 방패로 공격을 차단했습니다!");
                     return; // 방패 차단
                 }
             }
@@ -143,7 +143,7 @@ public class CombatManager : BaseManager<CombatManager>
                 weaponEffectActive = ItemSkillManager.Instance.IsActive;
                 if (!weaponEffectActive)
                 {
-                    Debug.Log("무기 효과가 비활성화 상태입니다. 땅 속성 데미지 증가가 적용되지 않습니다.");
+                    //Debug.Log("무기 효과가 비활성화 상태입니다. 땅 속성 데미지 증가가 적용되지 않습니다.");
                 }
             }
             
@@ -184,19 +184,19 @@ public class CombatManager : BaseManager<CombatManager>
             }
             
             damage = Mathf.RoundToInt(damage * earthBuffMultiplier);
-            Debug.Log($"땅 속성 데미지 증가 효과: {earthBuffMultiplier}배 증가");
+            //Debug.Log($"땅 속성 데미지 증가 효과: {earthBuffMultiplier}배 증가");
         }
         
         // 최종 데미지에 속성 배율 적용
         damage = Mathf.RoundToInt(damage * elementalMultiplier);
         
-        Debug.Log($"공격자 속성: {attackerEffectiveAttribute} / 방어자 속성: {defenderEffectiveAttribute} / 속성 배율: {elementalMultiplier}");
+        //Debug.Log($"공격자 속성: {attackerEffectiveAttribute} / 방어자 속성: {defenderEffectiveAttribute} / 속성 배율: {elementalMultiplier}");
         
         // 크리티컬 데미지 배율 적용
         if (isCritical)
         {
             damage *= actualAttacker.criticalDamage;
-            Debug.Log($"{actualAttacker.characterName}가 크리티컬 히트를 발생시켰습니다!");
+            //Debug.Log($"{actualAttacker.characterName}가 크리티컬 히트를 발생시켰습니다!");
         }
         
         // 최소 데미지는 0으로 처리
@@ -294,25 +294,25 @@ public class CombatManager : BaseManager<CombatManager>
             else if (debuffType != ElementalAttribute.None)
             {
                 // 몬스터의 경우 새로운 통합 시스템 사용
-                Debug.Log($"속성 효과 적용: {debuffType}, 지속시간 {debuffDuration}초, 수치 {debuffValue}");
+                //Debug.Log($"속성 효과 적용: {debuffType}, 지속시간 {debuffDuration}초, 수치 {debuffValue}");
 
                 switch (debuffType)
                 {
                     case ElementalAttribute.Fire:
-                        Debug.Log($"화상 효과 적용: 지속시간 {debuffDuration}초, 매 초마다 최대 체력의 {debuffValue}% 피해");
+                        //Debug.Log($"화상 효과 적용: 지속시간 {debuffDuration}초, 매 초마다 최대 체력의 {debuffValue}% 피해");
                         actualDefender.ApplyFireBurnEffect(debuffDuration, debuffValue);
                         break;
                     case ElementalAttribute.Water:
-                        Debug.Log($"이동속도 감소 효과 적용: 지속시간 {debuffDuration}초, 이동속도 {debuffValue}% 감소");
+                        //Debug.Log($"이동속도 감소 효과 적용: 지속시간 {debuffDuration}초, 이동속도 {debuffValue}% 감소");
                         actualDefender.ApplyWaterSlowEffect(debuffDuration, debuffValue);
                         break;
                     case ElementalAttribute.Electric:
-                        Debug.Log($"스턴 효과 적용: 지속시간 {debuffDuration}초");
+                        //Debug.Log($"스턴 효과 적용: 지속시간 {debuffDuration}초");
                         actualDefender.ApplyElectricStunEffect(debuffDuration);
                         break;
                     case ElementalAttribute.Earth:
                         // 보스가 땅 속성 스킬을 사용하면 자신에게 데미지 증가 효과
-                        Debug.Log($"땅 속성 데미지 증가 효과 적용: 지속시간 {debuffDuration}초, 데미지 {debuffValue}% 증가");
+                        //Debug.Log($"땅 속성 데미지 증가 효과 적용: 지속시간 {debuffDuration}초, 데미지 {debuffValue}% 증가");
                         actualAttacker.ApplyEarthDamageEffect(debuffDuration, debuffValue);
                         break;
                 }
@@ -350,7 +350,7 @@ public class CombatManager : BaseManager<CombatManager>
         // 회피율 적용 (타겟이 회피하면 공격하지 않음)
         if (Random.value < targetData.dodgeChance)
         {
-            Debug.Log($"{targetData.characterName}는 공격을 회피했습니다.");
+            //Debug.Log($"{targetData.characterName}는 공격을 회피했습니다.");
             return;
         }
 
@@ -359,7 +359,7 @@ public class CombatManager : BaseManager<CombatManager>
         {
             if (Random.value < targetData.blockChance)
             {
-                Debug.Log($"{targetData.characterName}는 방패로 공격을 차단했습니다!");
+                //Debug.Log($"{targetData.characterName}는 방패로 공격을 차단했습니다!");
                 return; // 방패 차단
             }
         }
@@ -389,14 +389,14 @@ public class CombatManager : BaseManager<CombatManager>
         
         float attributeMultiplier = AttributeCalculator.GetMultiplier(dragonData.dragonAttribute, targetData.attribute);
         damage *= attributeMultiplier;
-        Debug.Log($"드래곤 공격자 속성: {dragonData.dragonAttribute} / 방어자 속성: {targetData.attribute} / 속성 배율: {attributeMultiplier}");
+        //Debug.Log($"드래곤 공격자 속성: {dragonData.dragonAttribute} / 방어자 속성: {targetData.attribute} / 속성 배율: {attributeMultiplier}");
 
         // 크리티컬 체크: 드래곤의 크리티컬 확률
         bool isCritical = Random.value < dragonData.criticalChance;
         if (isCritical)
         {
             damage *= dragonData.criticalDamage;
-            Debug.Log($"{dragonData.characterName}가 크리티컬 히트를 발생시켰습니다!");
+            //Debug.Log($"{dragonData.characterName}가 크리티컬 히트를 발생시켰습니다!");
         }
 
         // 최소 데미지는 0으로 설정
@@ -411,8 +411,8 @@ public class CombatManager : BaseManager<CombatManager>
         // UI에 데미지 표시
         UIManager.DisplayPopupText(finalDamage.ToString(), targetPosition, MessageTag.적_피해);
 
-        // Debug.Log($"{dragonData.characterName}가 {targetData.characterName}에게 {finalDamage}의 데미지를 입혔습니다.");
-        // Debug.Log($"{targetData.characterName}의 체력이 {targetData.currentHp} 만큼 남았습니다.");
+        // //Debug.Log($"{dragonData.characterName}가 {targetData.characterName}에게 {finalDamage}의 데미지를 입혔습니다.");
+        // //Debug.Log($"{targetData.characterName}의 체력이 {targetData.currentHp} 만큼 남았습니다.");
 
         // 대상이 사망했는지 확인
         if (targetData.currentHp <= 0)
@@ -434,7 +434,7 @@ public class CombatManager : BaseManager<CombatManager>
                 return;
             }
             HandleDefeated(actualDefender, defenderTransform);
-            // Debug.Log(actualAttacker.ToStringForTMPro());
+            // //Debug.Log(actualAttacker.ToStringForTMPro());
             QuestManager.Instance.UpdateQuestProgress(QuestConditionType.Kill, actualDefender.characterName, 1);
         }
     }

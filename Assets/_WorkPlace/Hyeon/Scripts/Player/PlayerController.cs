@@ -238,7 +238,7 @@ public class PlayerController : MonoBehaviour
             walkSpeed = playerData.moveSpeed;
             sprintSpeed = walkSpeed * 2;
             // 2025-01-27 HYO 캐릭터 데이터 변수명 변경으로 speed -> moveSpeed로 수정 및 스탯 확인용 ToString 디버그 호출
-            Debug.Log(playerData.ToStringForTMPro());
+            //Debug.Log(playerData.ToStringForTMPro());
             //-----------------------------------------------------------------
         }
     }
@@ -353,7 +353,7 @@ public class PlayerController : MonoBehaviour
         float damage = (fallDistance - fallDamageThreshold) * fallDamageMultiplier;
         damage = Mathf.Max(0, damage);
         playerData.TakeDamage((int)damage);
-        Debug.Log($"낙하 데미지: {(int)damage}");
+        //Debug.Log($"낙하 데미지: {(int)damage}");
     }
 
     public bool AnimFinishCheck()
@@ -507,7 +507,7 @@ public class PlayerController : MonoBehaviour
     private void StartClimbing(Vector3 climbStartPosition)
     {
         if (isClimb) return;
-        Debug.Log("StartClimbing");
+        //Debug.Log("StartClimbing");
         //SetState(PlayerState.Climb);
         isClimb = true;
         isFreefall = false;
@@ -535,7 +535,7 @@ public class PlayerController : MonoBehaviour
             //if (topEdgeHeight < climbEndThreshold)
             //{
             //    EndClimbing(true); // 절벽 끝까지 올라간 경우
-            //    Debug.Log("성공적으로 절벽 끝 도달");
+            //    //Debug.Log("성공적으로 절벽 끝 도달");
             //}
             if (isGrounded)
             {
@@ -546,14 +546,14 @@ public class PlayerController : MonoBehaviour
         {
             // 옆벽 검사
             EndClimbing(true);
-            Debug.Log("성공적으로 절벽 끝 도달");
+            //Debug.Log("성공적으로 절벽 끝 도달");
             //Debug.DrawLine(rayOrigin + Vector3.up * climbEndCheckOffset, transform.forward * detectionRange, Color.blue);
         }
     }
 
     private void EndClimbing(bool successful)
     {
-        Debug.Log("EndClimbing");
+        //Debug.Log("EndClimbing");
         if (successful)
         {
             isClimb = false;
@@ -570,7 +570,7 @@ public class PlayerController : MonoBehaviour
         {
             isClimb = false;
             playerAnimator.SetBool("Climb", false);
-            Debug.Log("절벽타기 취소됨");
+            //Debug.Log("절벽타기 취소됨");
             //CanWeaponSwitch = true;
 
             //weapon.SwitchWeapon(-1);
@@ -717,7 +717,7 @@ public class PlayerController : MonoBehaviour
         
         if(isAlreadyStunned)
         {
-            Debug.Log("[PlayerController] 플레이어가 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
+            //Debug.Log("[PlayerController] 플레이어가 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
             return;
         }
         

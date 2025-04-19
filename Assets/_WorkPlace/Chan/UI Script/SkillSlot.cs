@@ -64,7 +64,7 @@ public class SkillSlot : MonoBehaviour, IDropHandler
         {
             return;
         }
-        Debug.Log($"[SkillSlot] SkillDrag 감지됨: {dragItem.SkillData.skillName}");
+        //Debug.Log($"[SkillSlot] SkillDrag 감지됨: {dragItem.SkillData.skillName}");
         SkillQuickSlotUI.Instance.AssignSkillToSlot(dragItem.SkillData, dragItem.Icon, slotIndex);
     }
 

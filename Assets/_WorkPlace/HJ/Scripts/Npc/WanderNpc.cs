@@ -156,11 +156,11 @@ public class WanderNpc : MonoBehaviour
             {
                 if (Time.time - lastConversationTime < conversationCoolTime)
                 {
-                    Debug.Log($"{transform.name} 대화 쿨타임 중");
+                    //Debug.Log($"{transform.name} 대화 쿨타임 중");
                     return;
                 }
 
-                Debug.Log($"{transform.name} npc 만남");
+                //Debug.Log($"{transform.name} npc 만남");
                 targetNpc = other.transform;
                 StartConversation();
             }
@@ -171,13 +171,13 @@ public class WanderNpc : MonoBehaviour
     {
         if (other.CompareTag("TownNPC"))
         {
-            Debug.Log($"{transform.name} npc 헤어짐");
+            //Debug.Log($"{transform.name} npc 헤어짐");
             targetNpc = null;
             StopConversation();
 
             if (isSittingTalking && !IsCloseNpcs(transform.position, minNpcDistance))
             {
-                Debug.Log($"{transform.name} 대화중인 npc 떠남");
+                //Debug.Log($"{transform.name} 대화중인 npc 떠남");
                 Bench bench = GetCurrentBench();
 
                 if (sittingTalkingCoroutine != null)

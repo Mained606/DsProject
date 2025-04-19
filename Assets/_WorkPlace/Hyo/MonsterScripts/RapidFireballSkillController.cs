@@ -17,7 +17,7 @@ public class RapidFireballSkillController : MonoBehaviour
     }
     private void OnParticleCollision(GameObject other)
     {
-        Debug.Log("보스 래피드 파이어 시작");
+        //Debug.Log("보스 래피드 파이어 시작");
         
         if(other.gameObject.layer == LayerMask.NameToLayer("Ds Player"))
         {
@@ -25,7 +25,7 @@ public class RapidFireballSkillController : MonoBehaviour
             
             CombatManager.Instance.ProcessAttack(CharacterManager.PlayerCharacterData, bossData, other.transform, false, true, skills, true, skills.attribute, skills.debuffDuration, skills.debuffValue );
             currentHit++;
-            Debug.Log("보스 래피드 파이어 Hit" + currentHit);
+            //Debug.Log("보스 래피드 파이어 Hit" + currentHit);
         }
     }
     

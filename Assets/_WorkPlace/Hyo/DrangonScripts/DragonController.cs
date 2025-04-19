@@ -720,7 +720,7 @@ public class DragonController : MonoBehaviour
         if (!ultimateCooldown.IsRunning)
         {
             // 현재 구현되지 않음 - 이후 구현 예정
-            Debug.Log("[드래곤] 궁극기 발동!");
+            //Debug.Log("[드래곤] 궁극기 발동!");
             
             // 궁극기 로직 (예: 주변 모든 적에게 광역 공격)
             // 다음 업데이트에서 구현 예정
@@ -789,7 +789,7 @@ public class DragonController : MonoBehaviour
                 if (stateMachine != null)
                 {
                     stateMachine.UpdateAnimator(animator);
-                    Debug.Log("[DragonController] 애니메이터 참조 업데이트 완료");
+                    //Debug.Log("[DragonController] 애니메이터 참조 업데이트 완료");
                 }
             }
             
@@ -861,7 +861,7 @@ public class DragonController : MonoBehaviour
         
         UpdateDragonModel();
         
-        Debug.Log($"드래곤이 {dragonData.evolutionStage} 단계로 진화했습니다!");
+        //Debug.Log($"드래곤이 {dragonData.evolutionStage} 단계로 진화했습니다!");
     }
     
     // 오프셋 업데이트 메서드 추가
@@ -922,7 +922,7 @@ public class DragonController : MonoBehaviour
         if (foundFirePoint != null)
         {
             firePoint = foundFirePoint;
-            Debug.Log($"FirePoint 설정 완료: {firePoint.name}");
+            //Debug.Log($"FirePoint 설정 완료: {firePoint.name}");
         }
         else
         {
@@ -970,7 +970,7 @@ public class DragonController : MonoBehaviour
         GameObject newFirePoint = new GameObject("FirePoint");
         newFirePoint.transform.SetParent(currentModelInstance.transform);
         newFirePoint.transform.localPosition = new Vector3(0, 0.5f, 1f);
-        Debug.Log("새로운 FirePoint 생성됨");
+        //Debug.Log("새로운 FirePoint 생성됨");
         return newFirePoint.transform;
     }
     #endregion
@@ -1271,7 +1271,7 @@ public class DragonController : MonoBehaviour
         }
         
         // 궁극기 이펙트 표시 (이후 구현)
-        Debug.Log("[드래곤] 궁극기 발동!");
+        //Debug.Log("[드래곤] 궁극기 발동!");
     }
     
     /// <summary>

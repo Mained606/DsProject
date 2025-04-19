@@ -255,7 +255,7 @@ public class BaseBossAI : MonoBehaviour
         Vector3 movement = direction * movementSpeed * Time.deltaTime;
 
         // CharacterController의 Move 메서드를 사용
-        Debug.Log("보스 이동중");
+        //Debug.Log("보스 이동중");
 
         characterController.Move(movement);
 
@@ -349,7 +349,7 @@ public class BaseBossAI : MonoBehaviour
 
     protected virtual IEnumerator RoaringSequence()
     {
-        Debug.Log("로어링 시작");
+        //Debug.Log("로어링 시작");
         animator.SetTrigger(IsRoaring);
         yield return new WaitForSeconds(roarDuration);
         SetState(BossState.Chasing);
@@ -502,7 +502,7 @@ public class BaseBossAI : MonoBehaviour
         isPerformingSpecialMove = false;
         isRotating = true;
         UIManager.Instance.BossHudDisplay(false);
-        Debug.Log("보스가 사망했습니다.");
+        //Debug.Log("보스가 사망했습니다.");
     }
     
     public virtual void SetDeadState(bool pooling)
@@ -608,7 +608,7 @@ public class BaseBossAI : MonoBehaviour
     // 지정된 시간 후 스턴에서 회복
     protected virtual IEnumerator RecoverFromStun(float duration)
     {
-        Debug.Log($"{gameObject.name} 보스 스턴 지속시간: {duration}초");
+        //Debug.Log($"{gameObject.name} 보스 스턴 지속시간: {duration}초");
         
         // 스턴 상태 적용
         isStunned = true;
@@ -655,7 +655,7 @@ public class BaseBossAI : MonoBehaviour
             SetState(BossState.Idle);
         }
         
-        Debug.Log($"{gameObject.name} 보스 스턴에서 회복됨");
+        //Debug.Log($"{gameObject.name} 보스 스턴에서 회복됨");
     }
     
     // 외부에서 스턴 적용을 위한 공개 메서드
@@ -664,7 +664,7 @@ public class BaseBossAI : MonoBehaviour
         // 이미 스턴 상태인 경우 무시
         if (isStunned)
         {
-            Debug.Log($"[BaseBossAI] {gameObject.name} 보스는 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
+            //Debug.Log($"[BaseBossAI] {gameObject.name} 보스는 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
             return;
         }
         
@@ -678,7 +678,7 @@ public class BaseBossAI : MonoBehaviour
         SetState(BossState.Stun);
         StartCoroutine(RecoverFromStun(actualDuration));
         
-        Debug.Log($"{gameObject.name} 보스에게 {actualDuration}초 스턴 적용");
+        //Debug.Log($"{gameObject.name} 보스에게 {actualDuration}초 스턴 적용");
     }
 
     // 스턴 상태를 초기화하는 메서드
@@ -698,7 +698,7 @@ public class BaseBossAI : MonoBehaviour
                 SetState(BossState.Idle);
             }
             
-            Debug.Log($"{gameObject.name} 보스 스턴 초기화 완료");
+            //Debug.Log($"{gameObject.name} 보스 스턴 초기화 완료");
         }
     }
 }

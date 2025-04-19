@@ -126,14 +126,14 @@ public class CompassIndicater : MonoBehaviour
 
         if (Instance.targets.Contains(newTarget))
         {
-            // Debug.Log($"[CompassIndicater] 타겟 '{newTarget.name}'는 이미 콤파스에 등록되어 있습니다.");
+            // //Debug.Log($"[CompassIndicater] 타겟 '{newTarget.name}'는 이미 콤파스에 등록되어 있습니다.");
             return;
         }
 
         Instance.targets.Add(newTarget);
         RectTransform newMarker = Instantiate(Instance.markerPrefab, Instance.compassBar);
         Instance.activeMarkers.Add(newMarker);
-        Debug.Log($"[CompassIndicater] 새 타겟 '{newTarget.name}'를 콤파스에 추가했습니다.");
+        //Debug.Log($"[CompassIndicater] 새 타겟 '{newTarget.name}'를 콤파스에 추가했습니다.");
     }
 
     public static void RemoveTarget(Transform target)
@@ -159,7 +159,7 @@ public class CompassIndicater : MonoBehaviour
                     Destroy(marker.gameObject);
                 }
                 Instance.activeMarkers.RemoveAt(targetIndex);
-                Debug.Log($"[CompassIndicater] 타겟 '{target.name}'를 콤파스에서 제거했습니다.");
+                //Debug.Log($"[CompassIndicater] 타겟 '{target.name}'를 콤파스에서 제거했습니다.");
             }
             else
             {
@@ -169,7 +169,7 @@ public class CompassIndicater : MonoBehaviour
         }
         else
         {
-            Debug.Log($"[CompassIndicater] 타겟 '{target.name}'는 콤파스에 등록되어 있지 않습니다.");
+            //Debug.Log($"[CompassIndicater] 타겟 '{target.name}'는 콤파스에 등록되어 있지 않습니다.");
         }
     }
     
@@ -194,7 +194,7 @@ public class CompassIndicater : MonoBehaviour
             Instance.activeMarkers.Add(newMarker);
         }
         
-        Debug.Log("[CompassIndicater] 모든 마커를 재설정했습니다.");
+        //Debug.Log("[CompassIndicater] 모든 마커를 재설정했습니다.");
     }
 
     public static void ClearAllTargets()

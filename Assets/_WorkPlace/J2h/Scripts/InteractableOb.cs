@@ -14,7 +14,7 @@ public abstract class InteractableOb : MonoBehaviour
         if(toolTag == "Axe")
         {
             hitCount++;
-            Debug.Log($"현재 타격 수: {hitCount}/{maxHits}");
+            //Debug.Log($"현재 타격 수: {hitCount}/{maxHits}");
 
             if (hitCount >= maxHits)
             {
@@ -26,7 +26,7 @@ public abstract class InteractableOb : MonoBehaviour
 
     protected virtual void DestroyObject()
     {
-        Debug.Log($"{gameObject.name}이(가) 부서졌습니다!");
+        //Debug.Log($"{gameObject.name}이(가) 부서졌습니다!");
         Destroy(gameObject);
     }
 

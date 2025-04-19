@@ -25,7 +25,7 @@ public class InventoryManager : BaseManager<InventoryManager>
     //public void SetSelectedItem(Item item)
     //{
     //    selectedItem = item;
-    //    Debug.Log($"selectedItem: {selectedItem.name}");
+    //    //Debug.Log($"selectedItem: {selectedItem.name}");
     //}
 
     ////03.12 HJ 추가
@@ -33,7 +33,7 @@ public class InventoryManager : BaseManager<InventoryManager>
     //{
     //    if (selectedItem == null) return;
     //    selectedItem = null;
-    //    Debug.Log("selectedItem 리셋");
+    //    //Debug.Log("selectedItem 리셋");
     //}
     //
 
@@ -233,7 +233,7 @@ public class InventoryManager : BaseManager<InventoryManager>
             string gradeColor = item.GetGradeColor(item.grade);
             inventoryText += $"- <b><color={gradeColor}>{item.name}</color></b> (ID: <i>{item.id}</i>, <color=#00FF00>수량: {item.quantity}</color>)\n";
         }
-        Debug.Log(inventoryText);
+        //Debug.Log(inventoryText);
     }
 
     public static List<Item> GetSlotItem(EquipmentSlot slot)

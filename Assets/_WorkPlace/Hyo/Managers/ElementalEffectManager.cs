@@ -20,8 +20,8 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
     protected override void Awake()
     {
         base.Awake(); // 부모 구현을 호출하여 Instance 설정
-        Debug.Log("ElementalEffectManager 초기화됨");
-        Debug.Log($"ElementalEffectManager Awake 호출됨, Instance: {Instance != null}");
+        //Debug.Log("ElementalEffectManager 초기화됨");
+        //Debug.Log($"ElementalEffectManager Awake 호출됨, Instance: {Instance != null}");
     }
     
     // 다른 스크립트에서 ElementalEffectManager 얻기 위한 헬퍼 메서드
@@ -31,10 +31,10 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
         {
             GameObject managerObject = new GameObject("ElementalEffectManager");
             managerObject.AddComponent<ElementalEffectManager>();
-            Debug.Log("ElementalEffectManager 자동 생성됨");
-            Debug.Log($"ElementalEffectManager.EnsureExists 호출됨, Instance 이전: {Instance != null}");
+            //Debug.Log("ElementalEffectManager 자동 생성됨");
+            //Debug.Log($"ElementalEffectManager.EnsureExists 호출됨, Instance 이전: {Instance != null}");
             DontDestroyOnLoad(managerObject);
-            Debug.Log($"ElementalEffectManager.EnsureExists 객체 생성 후, Instance: {Instance != null}");
+            //Debug.Log($"ElementalEffectManager.EnsureExists 객체 생성 후, Instance: {Instance != null}");
         }
     }
     
@@ -62,7 +62,7 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
             {
                 // 무기 효과가 비활성화되었으므로 땅 속성 효과 제거
                 RemoveEffect(earthEffect);
-                Debug.Log("무기 효과 비활성화로 인해 땅 속성 효과가 자동 제거되었습니다.");
+                //Debug.Log("무기 효과 비활성화로 인해 땅 속성 효과가 자동 제거되었습니다.");
             }
         }
     }
@@ -84,11 +84,11 @@ public class ElementalEffectManager : BaseManager<ElementalEffectManager>
             // 효과 종류에 따라 메시지 조정
             if (newEffect is ElectricStunEffect)
             {
-                Debug.Log($"{newEffect.Target.characterName}에게 이미 스턴 효과가 적용되어 있어 새 스턴 효과를 무시합니다. 남은 지속시간: {existingEffect.CurrentDuration:F1}초");
+                //Debug.Log($"{newEffect.Target.characterName}에게 이미 스턴 효과가 적용되어 있어 새 스턴 효과를 무시합니다. 남은 지속시간: {existingEffect.CurrentDuration:F1}초");
             }
             else
             {
-                Debug.Log($"{newEffect.Target.characterName}에게 이미 {newEffect.GetType().Name} 효과가 적용되어 있어 새 효과를 무시합니다. 남은 지속시간: {existingEffect.CurrentDuration:F1}초");
+                //Debug.Log($"{newEffect.Target.characterName}에게 이미 {newEffect.GetType().Name} 효과가 적용되어 있어 새 효과를 무시합니다. 남은 지속시간: {existingEffect.CurrentDuration:F1}초");
             }
             return false; // 추가 실패 (중복)
         }

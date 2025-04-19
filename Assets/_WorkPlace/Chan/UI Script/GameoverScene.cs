@@ -103,7 +103,7 @@ public class GameoverScene : MonoBehaviour
         // 세이브 데이터 존재 여부 확인
         if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
         {
-            Debug.Log("저장된 게임 데이터가 있습니다. 메인 씬을 재로드하여 저장된 게임을 불러옵니다.");
+            //Debug.Log("저장된 게임 데이터가 있습니다. 메인 씬을 재로드하여 저장된 게임을 불러옵니다.");
             
             // UI 창 비활성화
             // gameObject.SetActive(false);
@@ -116,7 +116,7 @@ public class GameoverScene : MonoBehaviour
         }
         else
         {
-            Debug.Log("저장된 게임 데이터가 없습니다. 새 게임을 시작합니다.");
+            //Debug.Log("저장된 게임 데이터가 없습니다. 새 게임을 시작합니다.");
             
             // UI 창 비활성화
             // gameObject.SetActive(false);

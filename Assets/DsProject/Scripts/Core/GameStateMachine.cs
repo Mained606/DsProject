@@ -41,7 +41,7 @@ public class GameStateMachine : MonoBehaviour
         
         if (!forceTrigger && CurrentState == newState)
         {
-            // Debug.Log($"이미 상태가 {newState} 입니다.");
+            // //Debug.Log($"이미 상태가 {newState} 입니다.");
             return;
         }
 
@@ -62,7 +62,7 @@ public class GameStateMachine : MonoBehaviour
        
         #endregion
 
-        Debug.Log($"게임 상태 변경: {CurrentState} → {newState}");
+        //Debug.Log($"게임 상태 변경: {CurrentState} → {newState}");
         CurrentState = newState;
         // 상태가 InventoryChange일 때는 UI 닫기 로직을 수행하지 않음
         if (newState != GameSystemState.InventoryChange && newState != GameSystemState.InfoMessage)

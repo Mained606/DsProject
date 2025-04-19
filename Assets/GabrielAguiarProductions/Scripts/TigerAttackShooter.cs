@@ -39,7 +39,7 @@ public class TigerAttackShooter : MonoBehaviour
         }
         else
         {
-            Debug.Log("B");
+            //Debug.Log("B");
             InstantiateProjectileAtFirePoint();
         }
     }

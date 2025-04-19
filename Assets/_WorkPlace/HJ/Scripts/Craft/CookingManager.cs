@@ -69,12 +69,12 @@ public class CookingManager : CraftManager
             }
         }
 
-        Debug.Log($"extraIngredients.Count: {extraIngredients.Count}");
+        //Debug.Log($"extraIngredients.Count: {extraIngredients.Count}");
 
         //버프 지속시간 설정
         totalItem.effect.duration = CalculateDishDuration(recipe, extraIngredients, maxDuration);
 
-        Debug.Log($"Calculated Duration: {totalItem.effect.duration}");
+        //Debug.Log($"Calculated Duration: {totalItem.effect.duration}");
 
         //추가되는 재료가 있을 때만
         if (extraIngredients.Count > 0)
@@ -143,19 +143,19 @@ public class CookingManager : CraftManager
     //요리 버프 지속시간 설정
     private float CalculateDishDuration(Recipe recipe, List<string> extraIngredients, float maxDuration)
     {
-        Debug.Log("요리 지속시간 설정 함수 실행됨!");
+        //Debug.Log("요리 지속시간 설정 함수 실행됨!");
 
         float totalDuration = recipe.baseDuration;
-        Debug.Log($"초기 지속시간: {totalDuration}");
+        //Debug.Log($"초기 지속시간: {totalDuration}");
 
         foreach (string ingredient in extraIngredients)
         {
             float bonus = ItemManager.Instance.GetItemById(ingredient).itemStat.durationBonus;
             totalDuration += bonus;
-            Debug.Log($"보너스 지속시간 : {bonus}");
+            //Debug.Log($"보너스 지속시간 : {bonus}");
         }
 
-        Debug.Log($"최종 지속시간: {totalDuration}");
+        //Debug.Log($"최종 지속시간: {totalDuration}");
         return Mathf.Clamp(totalDuration, recipe.baseDuration, maxDuration);
     }
 
@@ -187,7 +187,7 @@ public class CookingManager : CraftManager
         LastCraftedItemName = cookedDish.name;
         InventoryManager.Instance.AddItemLogic(cookedDish);
 
-        Debug.Log("제작 성공 인벤토리에 추가: " + cookedDish.id);
+        //Debug.Log("제작 성공 인벤토리에 추가: " + cookedDish.id);
     }
 
     protected override void FailedCrafting()
@@ -196,7 +196,7 @@ public class CookingManager : CraftManager
         LastCraftedItemName = null;
         InventoryManager.Instance.AddItemLogic(failedDish);
 
-        Debug.Log("요리 실패");
+        //Debug.Log("요리 실패");
     }
 
 }

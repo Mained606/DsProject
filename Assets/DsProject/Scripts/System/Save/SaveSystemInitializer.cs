@@ -143,7 +143,7 @@ public class SaveSystemInitializer : MonoBehaviour
                 {
                     // 아이템 강화 수치 초기화
                     item.ResetEnhancement();
-                    Debug.Log($"인벤토리 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
+                    //Debug.Log($"인벤토리 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
                 }
             }
             
@@ -162,12 +162,12 @@ public class SaveSystemInitializer : MonoBehaviour
                     {
                         // 아이템 강화 수치 초기화
                         item.ResetEnhancement();
-                        Debug.Log($"장착 중인 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
+                        //Debug.Log($"장착 중인 아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
                     }
                 }
             }
             
-            Debug.Log("인벤토리 및 장착 아이템의 강화 수치가 초기화되었습니다.");
+            //Debug.Log("인벤토리 및 장착 아이템의 강화 수치가 초기화되었습니다.");
         }
         else
         {

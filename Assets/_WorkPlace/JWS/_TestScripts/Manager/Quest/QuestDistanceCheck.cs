@@ -22,7 +22,7 @@ public class QuestDistanceCheck : MonoBehaviour
         if (quest != null && questGiverTransform != null)
         {
             CompassIndicater.RemoveTarget(questGiverTransform);
-            Debug.Log($"[QuestDistanceCheck] OnDisable: 콤파스에서 '{questGiverTransform.name}' 제거");
+            //Debug.Log($"[QuestDistanceCheck] OnDisable: 콤파스에서 '{questGiverTransform.name}' 제거");
         }
     }
 
@@ -32,7 +32,7 @@ public class QuestDistanceCheck : MonoBehaviour
         if (quest != null && questGiverTransform != null)
         {
             CompassIndicater.RemoveTarget(questGiverTransform);
-            Debug.Log($"[QuestDistanceCheck] OnDestroy: 콤파스에서 '{questGiverTransform.name}' 제거");
+            //Debug.Log($"[QuestDistanceCheck] OnDestroy: 콤파스에서 '{questGiverTransform.name}' 제거");
         }
     }
 
@@ -44,7 +44,7 @@ public class QuestDistanceCheck : MonoBehaviour
             if (questGiverTransform != null)
             {
                 CompassIndicater.RemoveTarget(questGiverTransform);
-                Debug.Log($"[QuestDistanceCheck] SetQuest: 이전 타겟 '{questGiverTransform.name}' 콤파스에서 제거");
+                //Debug.Log($"[QuestDistanceCheck] SetQuest: 이전 타겟 '{questGiverTransform.name}' 콤파스에서 제거");
             }
             CompassIndicater.ClearAllTargets();
         }
@@ -55,7 +55,7 @@ public class QuestDistanceCheck : MonoBehaviour
         // 퀘스트가 이미 완료된 경우 콤파스에 추가하지 않음
         if (quest.isCompleted)
         {
-            Debug.Log($"[QuestDistanceCheck] SetQuest: 퀘스트 '{quest.id}'가 이미 완료되어 콤파스에 추가하지 않음");
+            //Debug.Log($"[QuestDistanceCheck] SetQuest: 퀘스트 '{quest.id}'가 이미 완료되어 콤파스에 추가하지 않음");
             return;
         }
         
@@ -68,7 +68,7 @@ public class QuestDistanceCheck : MonoBehaviour
                 if (npc.name == quest.questGiver)
                 {
                     questGiverTransform = QuestManager.GetQuestConditionPoint(npc.id);
-                    Debug.Log($"[QuestDistanceCheck] 서브퀘스트 NPC 찾음: {quest.questGiver}, Transform: {(questGiverTransform != null ? "찾음" : "null")}");
+                    //Debug.Log($"[QuestDistanceCheck] 서브퀘스트 NPC 찾음: {quest.questGiver}, Transform: {(questGiverTransform != null ? "찾음" : "null")}");
                     break;
                 }
             }
@@ -81,7 +81,7 @@ public class QuestDistanceCheck : MonoBehaviour
                     if (npc.name == quest.questGiver)
                     {
                         questGiverTransform = QuestManager.GetQuestConditionPoint(npc.id);
-                        Debug.Log($"[QuestDistanceCheck] 일반 NPC 찾음: {quest.questGiver}, Transform: {(questGiverTransform != null ? "찾음" : "null")}");
+                        //Debug.Log($"[QuestDistanceCheck] 일반 NPC 찾음: {quest.questGiver}, Transform: {(questGiverTransform != null ? "찾음" : "null")}");
                         break;
                     }
                 }
@@ -95,7 +95,7 @@ public class QuestDistanceCheck : MonoBehaviour
                 if (npcObj != null)
                 {
                     questGiverTransform = npcObj.transform;
-                    Debug.Log($"[QuestDistanceCheck] GameObject.Find로 NPC 찾음: {quest.questGiver}");
+                    //Debug.Log($"[QuestDistanceCheck] GameObject.Find로 NPC 찾음: {quest.questGiver}");
                 }
                 else
                 {
@@ -106,7 +106,7 @@ public class QuestDistanceCheck : MonoBehaviour
                         if (npc.name.Contains(quest.questGiver))
                         {
                             questGiverTransform = npc.transform;
-                            Debug.Log($"[QuestDistanceCheck] Tag로 NPC 찾음: {quest.questGiver}");
+                            //Debug.Log($"[QuestDistanceCheck] Tag로 NPC 찾음: {quest.questGiver}");
                             break;
                         }
                     }
@@ -117,7 +117,7 @@ public class QuestDistanceCheck : MonoBehaviour
             if (questGiverTransform != null && !quest.isCompleted)
             {
                 CompassIndicater.AddTarget(questGiverTransform);
-                Debug.Log($"[QuestDistanceCheck] 콤파스에 {quest.questGiver} 추가됨");
+                //Debug.Log($"[QuestDistanceCheck] 콤파스에 {quest.questGiver} 추가됨");
             }
             else
             {
@@ -127,7 +127,7 @@ public class QuestDistanceCheck : MonoBehaviour
                 }
                 else if (quest.isCompleted)
                 {
-                    Debug.Log($"[QuestDistanceCheck] 퀘스트 '{quest.id}'가 완료되어 {quest.questGiver}를 콤파스에 추가하지 않음");
+                    //Debug.Log($"[QuestDistanceCheck] 퀘스트 '{quest.id}'가 완료되어 {quest.questGiver}를 콤파스에 추가하지 않음");
                 }
             }
         }
@@ -147,7 +147,7 @@ public class QuestDistanceCheck : MonoBehaviour
         {
             CompassIndicater.RemoveTarget(questGiverTransform);
             questGiverTransform = null;
-            Debug.Log($"[QuestDistanceCheck] Update: 퀘스트 '{quest.id}'가 완료되어 콤파스에서 타겟 제거");
+            //Debug.Log($"[QuestDistanceCheck] Update: 퀘스트 '{quest.id}'가 완료되어 콤파스에서 타겟 제거");
         }
 
         string questDescription = $"{mainColor}{quest.description}</color>";

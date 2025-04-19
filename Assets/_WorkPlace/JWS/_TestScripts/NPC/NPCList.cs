@@ -20,7 +20,7 @@ public class NPCList : ScriptableObject
 #if UNITY_EDITOR
         EditorUtility.SetDirty(this);
         AssetDatabase.SaveAssets();
-        Debug.Log($"{name} 자동 저장됨.");
+        // //Debug.Log($"{name} 자동 저장됨.");
 #endif
     }
 }

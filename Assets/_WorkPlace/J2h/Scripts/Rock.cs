@@ -18,7 +18,7 @@ public class Rock : InteractableOb
 
         if (toolTag == "Pickaxe") // 곡괭이로 타격
         {
-            Debug.Log("곡괭이로 돌을 때림!");
+            //Debug.Log("곡괭이로 돌을 때림!");
         }
 
         // 타격 후, 아이템 드롭 및 오브젝트 파괴는 부모 클래스에서 처리

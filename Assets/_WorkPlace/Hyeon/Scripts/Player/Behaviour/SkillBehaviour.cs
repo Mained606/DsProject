@@ -89,7 +89,7 @@ public class SkillBehaviour : IBehaviour
         //        }
         //        else
         //        {
-        //            Debug.Log($"스킬 사용 불가: {skillName} (마나 부족 또는 쿨타임 중)");
+        //            //Debug.Log($"스킬 사용 불가: {skillName} (마나 부족 또는 쿨타임 중)");
         //        }
         //    }
         //}
@@ -105,7 +105,7 @@ public class SkillBehaviour : IBehaviour
             }
             else
             {
-                Debug.Log($"{useSkillIndex + 1}번 퀵슬롯에 스킬이 등록되지 않았습니다.");
+                //Debug.Log($"{useSkillIndex + 1}번 퀵슬롯에 스킬이 등록되지 않았습니다.");
                 return;
             }
         }

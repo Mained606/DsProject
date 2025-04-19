@@ -77,7 +77,7 @@ public class Skills : ISheetData
         
         // 디버그 로그
         string skillTypeStr = skillType == SkillType.Support ? "버프" : skillType.ToString();
-        Debug.Log($"[Skills:{skillName}] 초기화 - 유형:{skillTypeStr}, 데미지:{damage}, 쿨타임:{cooldown}초, 지속시간:{buffDuration}초");
+        // //Debug.Log($"[Skills:{skillName}] 초기화 - 유형:{skillTypeStr}, 데미지:{damage}, 쿨타임:{cooldown}초, 지속시간:{buffDuration}초");
     }
 
     // 스킬 지속시간: 애니메이션 길이가 있다면 해당 길이 반환, 없으면 기본값 1.0f
@@ -147,7 +147,7 @@ public class Skills : ISheetData
         skillWeight = SkillManager.Instance.GetSkillWeights(EntityType.Player, skillName);
         if(skillWeight == null)
         {
-            Debug.Log("스킬 가중치가 null");
+            //Debug.Log("스킬 가중치가 null");
             return;
         }
 
@@ -228,7 +228,7 @@ public class Skills : ISheetData
         // 쿨다운 타이머 초기화
         cooldownTimer = new BasicTimer(cooldown);
 
-        Debug.Log($"[Skills] {skillName} 데이터 로드 완료!");
+        //Debug.Log($"[Skills] {skillName} 데이터 로드 완료!");
     }
 
     #region 03.17 C

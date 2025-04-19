@@ -94,7 +94,7 @@ public class TestStatUP : MonoBehaviour
     {
         if(playerData.AdjustTempStat(statType, delta))
         {
-            Debug.Log("버튼 클릭");
+            //Debug.Log("버튼 클릭");
             UpdateUI();
 
             int previewStrength = playerData.GetPreviewStat(StatType.Strength);
@@ -136,7 +136,7 @@ public class TestStatUP : MonoBehaviour
     {
        if( playerData.AdjustTempSkill(skill, delta))
        {
-           Debug.Log("버튼 클릭");
+           //Debug.Log("버튼 클릭");
            UpdateUI();
 
             int previewSkillLevel = playerData.GetPreviewSkillLevel(skill);

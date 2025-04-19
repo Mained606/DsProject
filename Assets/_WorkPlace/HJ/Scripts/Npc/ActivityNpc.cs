@@ -383,7 +383,7 @@ public class ActivityNpc : MonoBehaviour
                 return;
             }
 
-            Debug.Log("비어있는 벤치 없음");
+            //Debug.Log("비어있는 벤치 없음");
         }
         else if(npcController.npcType == NpcType.Wander)
         {
@@ -432,7 +432,7 @@ public class ActivityNpc : MonoBehaviour
         }
         else
         {
-            Debug.Log("범위내에 다른 npc 없음");
+            //Debug.Log("범위내에 다른 npc 없음");
         }
     }
 
@@ -838,7 +838,7 @@ public class ActivityNpc : MonoBehaviour
 
         if (monster != null && IsInshight(monster))
         {
-            Debug.Log($"{transform.name}이 {monster.name} 감지함");
+            //Debug.Log($"{transform.name}이 {monster.name} 감지함");
             IsNearMonster = true;
             StopCurrentAction();
             RunAway(monster);

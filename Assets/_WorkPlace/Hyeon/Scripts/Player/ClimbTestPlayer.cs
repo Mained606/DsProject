@@ -146,7 +146,7 @@ public class ClimbTestPlayer : MonoBehaviour
 
         if(Physics.Raycast(origin, dir, out hit, dis))
         {
-            Debug.Log("return false");
+            //Debug.Log("return false");
             return false;
         }
 

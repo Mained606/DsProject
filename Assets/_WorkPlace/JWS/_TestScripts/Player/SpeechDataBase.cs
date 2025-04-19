@@ -104,6 +104,6 @@ public class SpeechDataBase : ScriptableObject
         });
 
         BuildDictionary();
-        Debug.Log("스피치 데이터 초기화 했습니다.");
+        //Debug.Log("스피치 데이터 초기화 했습니다.");
     }
 }

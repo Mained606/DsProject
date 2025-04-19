@@ -83,7 +83,7 @@ public class SavePointPrefabCreator : Editor
         // 생성된 오브젝트 선택
         Selection.activeGameObject = savePointObj;
         
-        Debug.Log("저장 포인트가 생성되었습니다.");
+        //Debug.Log("저장 포인트가 생성되었습니다.");
     }
 }
 

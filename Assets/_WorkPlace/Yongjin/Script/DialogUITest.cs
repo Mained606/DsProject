@@ -67,7 +67,7 @@ public class DialogUITest : MonoBehaviour
         typingCoroutine = null;
         if(currentNPCDesaIndex >= dialogueList.Count)
         {
-            Debug.Log("스킵 끝");
+            //Debug.Log("스킵 끝");
             DialogueExit();
         }
         else
