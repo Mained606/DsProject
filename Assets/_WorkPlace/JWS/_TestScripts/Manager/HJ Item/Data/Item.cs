@@ -215,15 +215,24 @@ public class Item : ISheetData
         else if (type == ItemType.요리)
         {
             string recovery = "";
-            if (itemStat.HealHp > 0) recovery += $"체력 회복: <color=#00FF00>+{itemStat.HealHp}</color>    ";
-            if (itemStat.HealMp > 0) recovery += $"마나 회복: <color=#00BFFF>+{itemStat.HealMp}</color>";
-
-            string buffText = itemStat.HasBuffStat() ? itemStat.GetEffectDescription() : "";
-            string durationText = effect.duration > 0 ? $"\n지속시간: <color=#FFD700>{effect.duration}초</color>" : "";
-
-            statInfo = $"\n<b><color=#FFD700>[요리 효과]</color></b>\n\n";  // ⬅ 공백 추가됨
-            if (!string.IsNullOrEmpty(recovery)) statInfo += recovery + "\n";
-            if (!string.IsNullOrEmpty(buffText)) statInfo += $"버프 효과: {buffText}{durationText}";
+            
+            // null 체크 추가
+            if (itemStat != null)
+            {
+                if (itemStat.HealHp > 0) recovery += $"체력 회복: <color=#00FF00>+{itemStat.HealHp}</color>    ";
+                if (itemStat.HealMp > 0) recovery += $"마나 회복: <color=#00BFFF>+{itemStat.HealMp}</color>";
+                
+                string buffText = itemStat.HasBuffStat() ? itemStat.GetEffectDescription() : "";
+                string durationText = effect != null && effect.duration > 0 ? $"\n지속시간: <color=#FFD700>{effect.duration}초</color>" : "";
+    
+                statInfo = $"\n<b><color=#FFD700>[요리 효과]</color></b>\n\n";  // ⬅ 공백 추가됨
+                if (!string.IsNullOrEmpty(recovery)) statInfo += recovery + "\n";
+                if (!string.IsNullOrEmpty(buffText)) statInfo += $"버프 효과: {buffText}{durationText}";
+            }
+            else
+            {
+                statInfo = $"\n<b><color=#FFD700>[요리 효과]</color></b>\n\n아이템 정보를 불러올 수 없습니다.";
+            }
         }
 
         // 최종 문자열 조합
@@ -249,6 +258,21 @@ public class Item : ISheetData
     {
         if (oldItem == null || oldItem.itemStat == null || this.itemStat == null)
             return ToStringTMPro(); // 예외처리
+
+        // itemStat이 null인 경우 추가 처리
+        if (this.itemStat == null)
+        {
+            // 원본 아이템에서 스탯 가져오기 시도
+            Item originalItem = ItemManager.Instance.GetItemById(this.id);
+            if (originalItem != null && originalItem.itemStat != null)
+            {
+                this.itemStat = originalItem.itemStat.Clone();
+            }
+            else
+            {
+                return ToStringTMPro(); // 그래도 null이면 기본 메서드 사용
+            }
+        }
 
         ItemStat prev = oldItem.itemStat;
         ItemStat now = this.itemStat;

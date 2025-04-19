@@ -1,274 +1,6 @@
-//using System.Collections.Generic;
-//using UnityEngine;
-//using System.Collections;
-
-//public class ItemEffectManager : BaseManager<ItemEffectManager>
-//{
-//    #region Variables
-//    //테스트 확인용 임시변수
-//    [SerializeField] private Item equippedWeapon;
-//    [SerializeField] private Item equippedAccessory;
-//    // private Dictionary<EquipmentSlot, Item> equippedArmors = new Dictionary<EquipmentSlot, Item>();
-//    private Dictionary<EquipmentSlot, Item> equippedItems = new Dictionary<EquipmentSlot, Item>();
-
-//    [SerializeField] private float effectParticleDuration = 2f;                 //아이템 이펙트 파티클 재생시간
-//    [SerializeField] private Vector3 particlePositionOffset = new Vector3();    //파티클 위치 오프셋
-
-//    private PlayerData Player
-//    {
-//        get { return CharacterManager.PlayerCharacterData; }
-//        set { CharacterManager.PlayerCharacterData = value; }
-//    }
-//    #endregion
-
-
-//    //아이템 사용 효과 적용
-//    public void ApplyItemEffect(Item item, int quantity = 1)
-//    {
-//        switch(item.type)
-//        {
-//            case ItemType.소모품:
-//                ApplyConsumableEffect(item, quantity);
-//                break;
-//            case ItemType.무기:
-//            case ItemType.방어구:
-//            case ItemType.장신구:
-//                ApplyEquipmentEffect(item);
-//            break;
-//            default:
-//                Debug.Log($"아이템타입 {item.type}의 효과 없음");
-//            break;
-//        }
-//    }
-
-//    //아이템 장착 해제
-//    public void UnequipmentEffect(Item item)
-//    {
-//        if (InventoryManager.Instance.GetRemainingInventory() <= 0)
-//            return;
-
-//        if(item.type == ItemType.무기)
-//        {
-//            if(equippedWeapon == item)
-//            {
-//                UpdatePlayerStats(item.itemStat, -1);
-//                equippedWeapon = null;
-//                Debug.Log($"{item.name} 무기 해제");
-//            }
-//        }
-//        else if(item.type == ItemType.장신구)
-//        {
-//            if(equippedAccessory == item)
-//            {
-//                UpdatePlayerStats(item.itemStat, -1);
-//                equippedAccessory = null;
-//                Debug.Log($"{item.name} 장신구 해제");
-//            }
-//        }
-//        else if(item.type == ItemType.방어구)
-//        {
-//            if(equippedItems.TryGetValue(item.equipmentSlot, out Item equippedItem))
-//            {
-//                if(equippedItem == item)
-//                {
-//                    UpdatePlayerStats(item.itemStat, -1);
-//                    equippedItems.Remove(item.equipmentSlot);
-//                    Debug.Log($"{item.name} 방어구를 {item.equipmentSlot}에서 해제");
-//                }
-//            }
-//            else
-//            {
-//                Debug.Log("장착된 방어구 찾을 수 없음");
-//            }
-//        }
-//    }
-
-
-//    #region Private Method
-//    //소모품 효과
-//    private void ApplyConsumableEffect(Item item, int quantity = 1)
-//    {
-//        if (item.consumableType == ConsumableType.체력포션)
-//        {
-//            Player.currentHp = Mathf.Min(Player.maxHp, (Player.currentHp + item.effectAmount * quantity));
-//            Debug.Log($"{item.name}을 사용하여 체력 {item.effectAmount}만큼 회복");
-//        }
-//        else if (item.consumableType == ConsumableType.마나포션)
-//        {
-//            Player.currentMp = Mathf.Min(Player.maxMp, (Player.currentMp + item.effectAmount * quantity));
-//            Debug.Log($"{item.name}을 사용하여 마나 {item.effectAmount}만큼 회복");
-//        }
-//        else if(item.consumableType == ConsumableType.버프)
-//        {
-//            ApplyBuff(item, item.effect.duration, quantity);
-//            Debug.Log($"{item.name}을 사용하여 버프 적용");
-//        }
-
-//        PlayParticle(item);
-//        // InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
-//    }
-
-//    //장착 아이템 효과
-//    private void ApplyEquipmentEffect(Item item)
-//    {
-//        if (item.itemStat != null)
-//        {
-//            bool isEquipped = false;
-
-//            if (item.type == ItemType.무기)
-//            {
-//                if (item.weaponType == WeaponType.한손무기)
-//                {
-//                    if (equippedWeapon != null)
-//                    {
-//                        Debug.Log($"이미 무기가 장착되어 있음, {equippedWeapon.name} 장착해제");
-//                        UpdatePlayerStats(equippedWeapon.itemStat, -1);
-//                    }
-
-//                    equippedWeapon = item;
-//                    Debug.Log($"{item.name} 무기 장착");
-//                    isEquipped = true;
-//                }
-//                else if (item.weaponType == WeaponType.양손무기)
-//                {
-//                    if (equippedWeapon != null)
-//                    {
-//                        Debug.Log($"이미 무기가 장착되어 있음, {equippedWeapon.name} 장착해제");
-//                        UpdatePlayerStats(equippedWeapon.itemStat, -1);
-//                        equippedWeapon = null;
-//                    }
-
-//                    if (equippedItems.TryGetValue(EquipmentSlot.방패, out Item equippedItem))
-//                    {
-//                        Debug.Log($"방패가 장착되어 있음, {equippedItem.name} 장착해제");
-//                        UpdatePlayerStats(equippedItem.itemStat, -1);
-//                        equippedItems.Remove(EquipmentSlot.방패);
-//                    }
-
-//                    equippedWeapon = item;
-//                    Debug.Log($"{item.name} 무기 장착");
-//                    isEquipped = true;
-//                }
-//            }
-//            else if(item.type == ItemType.장신구)
-//            {
-//                if(equippedAccessory != null)
-//                {
-//                    Debug.Log($"이미 장신구가 장착되어 있음, {equippedAccessory.name} 장착해제");
-//                    UpdatePlayerStats(equippedAccessory.itemStat, -1);
-//                }
-//                equippedAccessory = item;
-//                Debug.Log($"{item.name} 장신구 장착");
-//                isEquipped = true;
-//            }
-//            else if (item.type == ItemType.방어구)
-//            {
-//                if (item.equipmentSlot == EquipmentSlot.방패 && equippedWeapon != null && equippedWeapon.weaponType == WeaponType.양손무기)
-//                {
-//                    Debug.Log($"무기 슬롯에 양손무기가 장착되어 있음, {equippedWeapon.name} 장착 해제");
-//                    UpdatePlayerStats(equippedWeapon.itemStat, -1);
-//                    equippedWeapon = null;
-//                }
-
-//                if (equippedItems.TryGetValue(item.equipmentSlot, out Item equippedItem))
-//                {
-//                    Debug.Log($"{item.equipmentSlot} 슬롯에 이미 방어구가 장착되어 있음, {equippedItem.name} 장착 해제");
-//                    UpdatePlayerStats(equippedItem.itemStat, -1);
-//                }
-
-//                equippedItems[item.equipmentSlot] = item;
-//                Debug.Log($"{item.name} 방어구를 {item.equipmentSlot} 슬롯에 장착");
-//                isEquipped = true;
-//            }
-//            else
-//            {
-//                Debug.Log("장착할 수 없는 아이템");
-//                return;
-//            }
-
-//            if (isEquipped)
-//            {
-//                UpdatePlayerStats(item.itemStat, 1);
-//                PlayParticle(item);
-//            }
-//        }        
-//    }
-
-//    //버프 아이템 효과
-//    private void ApplyBuff(Item item, float duration, int quantity = 1)
-//    {
-//        //버프아이템 효과 적용
-//        UpdatePlayerStats(item.itemStat, item.effectAmount);
-
-//        Debug.Log($"{item.name} 버프 아이템 사용, 효과량: {item.effectAmount}");
-
-//        //버프 지속시간
-//        StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
-//    }
-
-//    //플레이어 스탯 업데이트
-//    private void UpdatePlayerStats(ItemStat stat, int multiplier)
-//    {
-//        Player.strength += stat.Strength * multiplier;
-//        //Player.dexterity += stat.Dexterity * multiplier;
-//        Player.intelligence += stat.Intelligence * multiplier;
-//        Player.vitality += stat.Vitality * multiplier;
-//        //Player.luck += stat.Luck * multiplier;
-//
-//        Player.maxHp += stat.MaxHealth * multiplier;
-//        Player.maxMp += stat.MaxMana * multiplier;
-//        Player.physicalDamage += stat.PhysicalAttack * multiplier;
-//        Player.magicDamage += stat.MagicAttack * multiplier;
-//        Player.physicalDefense += stat.PhysicalDefense * multiplier;
-//        Player.magicDefense += stat.MagicDefense * multiplier;
-//
-//        Player.criticalChance += stat.CriticalChance * multiplier;
-//        Player.attackSpeed += stat.AttackSpeed * multiplier;
-//        //Player.evasion += stat.Evasion * multiplier;
-//
-//        Debug.Log($"플레이어 스탯: {stat.Strength * multiplier}");
-//    }
-
-//    //버프 지속시간 처리
-//    private IEnumerator RemoveBuffAfterDuration(Item item, float duration, int amount)
-//    {
-//        yield return new WaitForSeconds(duration);
-
-//        //버프 스탯 해제
-//        UpdatePlayerStats(item.itemStat, -amount);
-//        Debug.Log($"{item.name} 버프 효과 해제, 효과량 {amount}");
-//    }
-
-//    private void PlayParticle(Item item)
-//    {
-//        if (item.effect.effectParticle != null)
-//        {
-//            GameObject itemEffectGo = Instantiate(item.effect.effectParticle, GameManager.playerTransform.position + particlePositionOffset, Quaternion.identity);
-
-//            itemEffectGo.transform.SetParent(GameManager.playerTransform);
-//            Destroy(itemEffectGo, effectParticleDuration);
-//        }
-//    }
-//    #endregion
-
-//    protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
-//    {
-
-//    }
-//}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// JWS 수정                                                                                                            ///  
-/// 2025.01.27 17:20 인벤토리에서 더블클릭으로 무기 장착 시스템 완성                                                    ///  
-/// 이후 클릭이 아닌 소켓을 이용할때도 그대로 이용만 하면 됨.                                                           ///
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-
 
 public class ItemEffectManager : BaseManager<ItemEffectManager>
 {
@@ -287,7 +19,6 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     {
         get { return weaponManager; }
     }
-
 
     private PlayerData Player
     {
@@ -388,19 +119,64 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
     private void ApplyConsumableEffect(Item item, int quantity = 1)
     {
+        // 아이템 효과나 스탯이 null인 경우 원본 아이템 찾기
+        ItemStat effectiveStat = item.itemStat;
+        float effectiveAmount = item.effectAmount;
+        float effectiveDuration = item.effect?.duration ?? 0;
+        bool useOriginalItem = false;
+        
+        // 문제가 있는 경우 원본 아이템 데이터베이스에서 아이템 찾기
+        if ((item.effect == null || effectiveAmount <= 0 || 
+            (item.consumableType == ConsumableType.버프 && effectiveStat == null)))
+        {
+            Item originalItem = ItemManager.Instance.GetItemById(item.id);
+            if (originalItem != null)
+            {
+                effectiveStat = originalItem.itemStat;
+                effectiveAmount = originalItem.effectAmount;
+                effectiveDuration = originalItem.effect?.duration ?? 0;
+                useOriginalItem = true;
+                Debug.Log($"[ApplyConsumableEffect] 원본 아이템 데이터를 사용하여 소모품 효과 적용: {item.name}");
+            }
+        }
+        
+        // 아직도 효과가 없으면 반환
+        if ((item.consumableType == ConsumableType.버프 && effectiveStat == null) ||
+            ((item.consumableType == ConsumableType.체력포션 || item.consumableType == ConsumableType.마나포션) && effectiveAmount <= 0))
+        {
+            Debug.LogWarning($"[ApplyConsumableEffect] 소모품 {item.name}의 효과를 적용할 수 없습니다.");
+            return;
+        }
+
+        // 실제 효과 적용
         if (item.consumableType == ConsumableType.체력포션)
         {
-            Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + item.effectAmount * quantity);
-            Debug.Log($"{item.name}을 사용하여 체력 {item.effectAmount}만큼 회복");
+            int healAmount = Mathf.RoundToInt(effectiveAmount * quantity);
+            int originalHp = Player.currentHp;
+            Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + healAmount);
+            int actualHealed = Player.currentHp - originalHp;
+            
+            Debug.Log($"{item.name}을 사용하여 체력 {healAmount}만큼 회복 시도. 실제 회복량: {actualHealed} (현재 체력: {Player.currentHp}/{Player.maxHp})");
         }
         else if (item.consumableType == ConsumableType.마나포션)
         {
-            Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + item.effectAmount * quantity);
-            Debug.Log($"{item.name}을 사용하여 마나 {item.effectAmount}만큼 회복");
+            Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + Mathf.RoundToInt(effectiveAmount * quantity));
+            Debug.Log($"{item.name}을 사용하여 마나 {effectiveAmount}만큼 회복");
         }
         else if (item.consumableType == ConsumableType.버프)
         {
-            ApplyBuff(item, item.effect.duration, quantity);
+            if (useOriginalItem)
+            {
+                // 임시 아이템 생성하여 버프 적용
+                Item tempItem = item.Clone();
+                tempItem.itemStat = effectiveStat;
+                tempItem.effect.duration = effectiveDuration;
+                ApplyBuff(tempItem, effectiveDuration, quantity);
+            }
+            else
+            {
+                ApplyBuff(item, item.effect.duration, quantity);
+            }
             Debug.Log($"{item.name}을 사용하여 버프 적용");
         }
 
@@ -446,6 +222,23 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         ItemStat itemStat = item.itemStat;
         float duration = item.effect.duration;
 
+        // 만약 itemStat이 null이면 원본 아이템에서 가져옴
+        if (itemStat == null)
+        {
+            Item originalItem = ItemManager.Instance.GetItemById(item.id);
+            if (originalItem != null && originalItem.itemStat != null)
+            {
+                itemStat = originalItem.itemStat;
+                duration = originalItem.effect.duration;
+                Debug.Log($"[ApplyBuff] 원본 아이템 데이터를 사용하여 버프 적용: {item.name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[ApplyBuff] 아이템 {item.name}의 스탯이 null이고, 원본 아이템도 찾을 수 없습니다.");
+                return;
+            }
+        }
+
         ApplyStatBuff(BuffType.Basic, "Strength", itemStat.Strength, duration);
         ApplyStatBuff(BuffType.Basic, "Dexterity", itemStat.Dexterity, duration);
         ApplyStatBuff(BuffType.Basic, "Intelligence", itemStat.Intelligence, duration);
@@ -484,25 +277,62 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     }
 
     //HJ 03.06 추가
+    //중복 사용 불가능(요리)
     private void ApplyDishEffect(Item item)
     {
-        if (item.itemStat == null) return;
+        // 아이템 스탯이 null이거나 HealHp/HealMp가 0인 경우, 원본 아이템 데이터 참조
+        ItemStat effectiveStat = item.itemStat;
+        bool useOriginalItem = false;
+        
+        // 문제가 있는 경우 원본 아이템 데이터베이스에서 아이템 찾기
+        if (effectiveStat == null || (effectiveStat.HealHp <= 0 && effectiveStat.HealMp <= 0 && !effectiveStat.HasBuffStat()))
+        {
+            Item originalItem = ItemManager.Instance.GetItemById(item.id);
+            if (originalItem != null && originalItem.itemStat != null)
+            {
+                effectiveStat = originalItem.itemStat;
+                useOriginalItem = true;
+                Debug.Log($"[ApplyDishEffect] 원본 아이템 데이터를 사용하여 요리 효과 적용: {item.name}");
+            }
+        }
 
-        if (item.itemStat.HasBuffStat())
+        // 아직도 스탯이 null이면 반환
+        if (effectiveStat == null)
+        {
+            Debug.LogWarning($"[ApplyDishEffect] 요리 아이템 {item.name}의 스탯이 null입니다. 효과를 적용할 수 없습니다.");
+            return;
+        }
+
+        // 버프 효과 적용
+        if (useOriginalItem)
+        {
+            // 원본 아이템의 버프 효과 적용
+            if (effectiveStat.HasBuffStat())
+            {
+                // 임시 아이템 생성하여 버프 적용
+                Item tempItem = item.Clone();
+                tempItem.itemStat = effectiveStat;
+                tempItem.effect = item.effect?.Clone() ?? new ItemEffect();
+                ApplyBuff(tempItem);
+            }
+        }
+        else if (effectiveStat.HasBuffStat())
         {
             ApplyBuff(item);
         }
 
-        if (item.itemStat.HealHp > 0)
+        // 체력 회복 효과 적용
+        if (effectiveStat.HealHp > 0)
         {
-            Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + item.itemStat.HealHp);
-            Debug.Log($"{item.name}을 사용하여 체력 {item.itemStat.HealHp}만큼 회복");
+            Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + effectiveStat.HealHp);
+            Debug.Log($"{item.name}을 사용하여 체력 {effectiveStat.HealHp}만큼 회복");
         }
 
-        if (item.itemStat.HealMp > 0)
+        // 마나 회복 효과 적용
+        if (effectiveStat.HealMp > 0)
         {
-            Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + item.itemStat.HealMp);
-            Debug.Log($"{item.name}을 사용하여 마나 {item.itemStat.HealMp}만큼 회복");
+            Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + effectiveStat.HealMp);
+            Debug.Log($"{item.name}을 사용하여 마나 {effectiveStat.HealMp}만큼 회복");
         }
 
         PlayParticle(item);
@@ -913,4 +743,5 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     {
     }
 }
+
 

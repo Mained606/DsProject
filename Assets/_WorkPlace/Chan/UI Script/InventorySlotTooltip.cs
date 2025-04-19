@@ -148,6 +148,13 @@ public class InventorySlotTooltip : MonoBehaviour, IPointerEnterHandler, IPointe
         if (!isEquireSlot)
         {
             InventorytooltipWindow.SetActive(true);
+            
+            if (currentItem == null)
+            {
+                InventorytooltipWindow.SetActive(false);
+                return;
+            }
+            
             ItemImage.sprite = currentItem.sprite;
 
             string nameColor = currentItem.GetGradeColor(currentItem.grade);

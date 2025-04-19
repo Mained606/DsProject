@@ -213,6 +213,19 @@ public class ItemEffect
                 break;
         }
     }
+
+    // 복제 메서드 추가
+    public ItemEffect Clone()
+    {
+        return new ItemEffect
+        {
+            effectType = this.effectType,
+            itemSize = this.itemSize,
+            duration = this.duration,
+            effectParticle = this.effectParticle,
+            isAlreadyInitialize = this.isAlreadyInitialize
+        };
+    }
 }
 
 public class ActiveBuff
