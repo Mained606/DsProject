@@ -267,6 +267,21 @@ public enum BuffType
 {
     Basic,  //힘, 민접, 지능, 활력
     Combat, //최대체력, 최대마나, 물리공격력, 마법공격력, 물리방어력, 마법방어력
-    Support //치명타확률, 공격속도, 회피율
+    Support, //치명타확률, 공격속도, 회피율
+    
+    // 요리 버프 타입 (각 스탯 별로 분리)
+    Dish_Strength,
+    Dish_Dexterity,
+    Dish_Intelligence,
+    Dish_Vitality,
+    Dish_MaxHealth,
+    Dish_MaxMana,
+    Dish_PhysicalAttack,
+    Dish_MagicAttack,
+    Dish_PhysicalDefense,
+    Dish_MagicDefense,
+    Dish_CriticalChance,
+    Dish_Evasion,
+    Dish_AttackSpeed
 }
 

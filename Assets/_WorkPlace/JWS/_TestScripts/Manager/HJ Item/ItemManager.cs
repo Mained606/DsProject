@@ -205,6 +205,9 @@ public class ItemManager : BaseManager<ItemManager>
         }
         UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 아이템 {quantity}개 사용", MessageTag.아이템_사용);
         InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
+        
+        // 퀵슬롯 수량 업데이트
+        InventoryManager.Instance.UpdateQuickSlotQuantity();
 
         // TODO
         // 아이템 사용 효과 적용 (예: 체력 회복 등) 효과 구현연결
@@ -227,6 +230,9 @@ public class ItemManager : BaseManager<ItemManager>
         }
         UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 아이템 {quantity}개 버림", MessageTag.아이템_버림);
         InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
+        
+        // 퀵슬롯 수량 업데이트
+        InventoryManager.Instance.UpdateQuickSlotQuantity();
 
         // TODO
         // 추가 드롭 연출(필요 시)
@@ -246,6 +252,7 @@ public class ItemManager : BaseManager<ItemManager>
         if (InventoryManager.Instance.CanAddInventoryItem(buyItem.id, quantity) && CharacterManager.PlayerCharacterData.UseGold(amount))
         {
             AddItemLogic(buyItem.id, quantity);
+            InventoryManager.Instance.UpdateQuickSlotQuantity(); // 퀵슬롯 수량 업데이트
         }
     }
 
@@ -262,6 +269,7 @@ public class ItemManager : BaseManager<ItemManager>
         Debug.LogWarning($"판매 : {valueReductionRate}, {quantity}, {amount}");
         CharacterManager.PlayerCharacterData.AddGold(amount);
         InventoryManager.Instance.RemoveItemLogic(selltem.id, quantity);
+        InventoryManager.Instance.UpdateQuickSlotQuantity(); // 퀵슬롯 수량 업데이트
     }
 
     public Sprite GetItemSprite(string spriteName)

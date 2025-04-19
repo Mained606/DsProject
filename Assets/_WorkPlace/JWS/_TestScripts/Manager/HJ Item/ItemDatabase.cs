@@ -62,7 +62,7 @@ public class ItemList : ScriptableObject
             else if (item.type == ItemType.요리)
             {
                 item.maxStack = 1;
-                item.isStackable = false;
+                // item.isStackable = false; // 중첩 가능 여부는 인스펙터 설정을 유지하도록 주석 처리
                 item.effect.Initialize(item);
             }
 #if UNITY_EDITOR
