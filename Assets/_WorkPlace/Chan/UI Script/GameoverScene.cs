@@ -79,7 +79,7 @@ public class GameoverScene : MonoBehaviour
             Debug.Log("저장된 게임 데이터가 있습니다. 메인 씬을 재로드하여 저장된 게임을 불러옵니다.");
             
             // UI 창 비활성화
-            gameObject.SetActive(false);
+            // gameObject.SetActive(false);
             
             // 현재 씬 재로드
             Scene currentScene = SceneManager.GetActiveScene();
@@ -92,7 +92,7 @@ public class GameoverScene : MonoBehaviour
             Debug.Log("저장된 게임 데이터가 없습니다. 새 게임을 시작합니다.");
             
             // UI 창 비활성화
-            gameObject.SetActive(false);
+            // gameObject.SetActive(false);
             
             // SaveSystemInitializer를 찾아서 새 게임 시작
             SaveSystemInitializer saveSystem = FindFirstObjectByType<SaveSystemInitializer>();

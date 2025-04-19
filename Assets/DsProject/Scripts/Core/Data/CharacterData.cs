@@ -1118,7 +1118,7 @@ public class MonsterData : CharacterData
         int goldReward)
         : base(name, characterType, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, attribute)
     {
-        this.dropItems = new List<string>(dropItems);
+        this.dropItems = dropItems != null ? new List<string>(dropItems) : new List<string>();
         this.experienceReward = experienceReward;
         this.goldReward = goldReward;
     }
@@ -1140,20 +1140,23 @@ public class MonsterData : CharacterData
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
             this.attribute,
-            new List<string>(this.dropItems), // 드롭 아이템 복사
+            this.dropItems != null ? new List<string>(this.dropItems) : new List<string>(), // null 체크 추가
             this.experienceReward,
             this.goldReward
         );
         
         clone.isRandomDrop = this.isRandomDrop;
         clone.randomDropItems = new List<DropItemChance>();
-        foreach (var item in this.randomDropItems)
+        if (this.randomDropItems != null) // null 체크 추가
         {
-            clone.randomDropItems.Add(new DropItemChance 
-            { 
-                itemId = item.itemId, 
-                dropChance = item.dropChance 
-            });
+            foreach (var item in this.randomDropItems)
+            {
+                clone.randomDropItems.Add(new DropItemChance 
+                { 
+                    itemId = item.itemId, 
+                    dropChance = item.dropChance 
+                });
+            }
         }
 
         return clone;
@@ -1216,7 +1219,14 @@ public class MonsterData : CharacterData
         isRandomDrop = row.Count > 12 && bool.TryParse(row[12].ToString(), out bool randomDrop) ? randomDrop : true;
         
         // 드롭 아이템 목록 처리 (쉼표로 구분된 아이템 리스트)
-        dropItems = row[11].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (row[11] != null && !string.IsNullOrEmpty(row[11].ToString()))
+        {
+            dropItems = row[11].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+        else
+        {
+            dropItems = new List<string>();
+        }
         
         // 랜덤 드롭 아이템과 확률 (형식: itemId:확률,itemId:확률,...)
         randomDropItems.Clear();
@@ -1266,7 +1276,7 @@ public class BossData : MonsterData
         : base(name, characterType, prefab, strength, vitality, agility, intelligence, speed, attackSpeed,
             attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, attribute, dropItems, experienceReward, goldReward)
     {
-        SpecialSkills = new List<string>(specialSkills);
+        SpecialSkills = specialSkills != null ? new List<string>(specialSkills) : new List<string>();
     }
     
     public void AddSkill(string skill) => SpecialSkills.Add(skill);
@@ -1289,10 +1299,10 @@ public class BossData : MonsterData
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
             this.attribute,
-            new List<string>(this.dropItems), // 드롭 아이템 복사
+            this.dropItems != null ? new List<string>(this.dropItems) : new List<string>(), // null 체크 추가
             this.experienceReward,
             this.goldReward,
-            new List<string>(this.SpecialSkills) // 특수 스킬 복사
+            this.SpecialSkills != null ? new List<string>(this.SpecialSkills) : new List<string>() // null 체크 추가
         );
         return clone;
     }
@@ -1318,7 +1328,14 @@ public class BossData : MonsterData
         if (row.Count < 14) throw new Exception("보스 데이터 부족");
 
         // 보스의 특수 스킬 (쉼표로 구분된 스킬 리스트)
-        SpecialSkills = row[12].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (row[12] != null && !string.IsNullOrEmpty(row[12].ToString()))
+        {
+            SpecialSkills = row[12].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+        else
+        {
+            SpecialSkills = new List<string>();
+        }
     }
 }
 
