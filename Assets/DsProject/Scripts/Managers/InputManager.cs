@@ -86,11 +86,11 @@ public class InputManager : BaseManager<InputManager>
             GameStateMachine.Instance.ChangeState(targetState);
             Debug.Log($"{targetState} 상태로 전환됨.");
         }
-        else
-        {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
-        }
+        // else
+        // {
+        //     GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
+        //     Debug.Log("MainMenu 상태로 복귀됨.");
+        // }
     }
 
     private void OnMainMenu(InputAction.CallbackContext context)
