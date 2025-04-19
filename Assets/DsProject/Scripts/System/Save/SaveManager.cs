@@ -612,6 +612,45 @@ public class SaveManager : MonoBehaviour
                 // 기본 정보 저장
                 saveData.dragonData.level = dragonData.bondLevel;
                 
+                // 진화 단계 저장
+                saveData.dragonData.evolutionStage = (int)dragonData.evolutionStage;
+                
+                // 기본 스탯들 저장
+                saveData.dragonData.strength = dragonData.strength;
+                saveData.dragonData.agility = dragonData.agility;
+                saveData.dragonData.vitality = dragonData.vitality;
+                saveData.dragonData.intelligence = dragonData.intelligence;
+                
+                // 이동 및 공격 관련 스탯 저장
+                saveData.dragonData.speed = dragonData.speed;
+                saveData.dragonData.attackSpeed = dragonData.attackSpeed;
+                saveData.dragonData.attackRange = dragonData.attackRange;
+                
+                // 경험치 관련 정보 저장
+                saveData.dragonData.bondExperience = dragonData.bondExperience;
+                saveData.dragonData.requiredExpToNextLevel = dragonData.RequiredExpToNextLevel;
+                
+                // 계산된 스탯들 저장
+                saveData.dragonData.physicalDamage = dragonData.physicalDamage;
+                saveData.dragonData.magicDamage = dragonData.magicDamage;
+                saveData.dragonData.criticalChance = dragonData.criticalChance;
+                saveData.dragonData.criticalDamage = dragonData.criticalDamage;
+                
+                // 원소 속성 저장
+                saveData.dragonData.dragonAttribute = (int)dragonData.dragonAttribute;
+                
+                // 스탯 배율 저장
+                if (dragonData.statModifier != null) {
+                    saveData.dragonData.strengthMultiplier = dragonData.statModifier.strengthMultiplier;
+                    saveData.dragonData.agilityMultiplier = dragonData.statModifier.agilityMultiplier;
+                    saveData.dragonData.intelligenceMultiplier = dragonData.statModifier.intelligenceMultiplier;
+                } else {
+                    // 기본값 설정
+                    saveData.dragonData.strengthMultiplier = 1.5f;
+                    saveData.dragonData.agilityMultiplier = 0.01f;
+                    saveData.dragonData.intelligenceMultiplier = 1.5f;
+                }
+                
                 // 언락된 능력 저장
                 saveData.dragonData.unlockedAbilities.Clear();
                 // DragonData의 unlockedAbilities 필드가 존재한다면 아래 코드를 유지
@@ -1129,15 +1168,48 @@ public class SaveManager : MonoBehaviour
             StartCoroutine(DelayedActivation(GameManager.DragonTransform.gameObject, saveData.dragonData.isActive));
             
             // DragonData 참조 가져오기
-            DragonData dragon = CharacterManager.DragonData;
-            if (dragon == null)
+            DragonData dragonData = CharacterManager.DragonData;
+            if (dragonData == null)
             {
                 Debug.LogError("CharacterManager.DragonData가 null입니다.");
                 return;
             }
             
             // 기본 정보 복원
-            dragon.bondLevel = saveData.dragonData.level;
+            dragonData.bondLevel = saveData.dragonData.level;
+            
+            // 진화 단계 복원
+            if (saveData.dragonData.evolutionStage >= 0) {
+                dragonData.SetEvolutionStage((DragonEvolutionStage)saveData.dragonData.evolutionStage);
+            }
+            
+            // 기본 스탯들 복원
+            dragonData.strength = saveData.dragonData.strength;
+            dragonData.agility = saveData.dragonData.agility;
+            dragonData.vitality = saveData.dragonData.vitality;
+            dragonData.intelligence = saveData.dragonData.intelligence;
+            
+            // 이동 및 공격 관련 스탯 복원
+            dragonData.speed = saveData.dragonData.speed;
+            dragonData.attackSpeed = saveData.dragonData.attackSpeed;
+            dragonData.attackRange = saveData.dragonData.attackRange;
+            
+            // 경험치 관련 정보 복원
+            dragonData.bondExperience = saveData.dragonData.bondExperience;
+            
+            // 원소 속성 복원
+            dragonData.dragonAttribute = (ElementalAttribute)saveData.dragonData.dragonAttribute;
+            
+            // 스탯 배율 복원
+            if (dragonData.statModifier == null) {
+                dragonData.statModifier = new DragonStatModifier();
+            }
+            dragonData.statModifier.strengthMultiplier = saveData.dragonData.strengthMultiplier;
+            dragonData.statModifier.agilityMultiplier = saveData.dragonData.agilityMultiplier;
+            dragonData.statModifier.intelligenceMultiplier = saveData.dragonData.intelligenceMultiplier;
+            
+            // 파생 스탯들 업데이트
+            dragonData.UpdateDerivedStats();
             
             // 언락된 능력들 로그 출력
             foreach (var ability in saveData.dragonData.unlockedAbilities)

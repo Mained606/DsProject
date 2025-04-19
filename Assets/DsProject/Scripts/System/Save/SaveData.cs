@@ -151,6 +151,36 @@ namespace DsProject.Scripts.System.Save
             public List<string> unlockedAbilities = new List<string>();
             public bool isUnlocked;
             public bool isActive;
+            public int evolutionStage; // 추가: 드래곤 진화 단계 (0: Baby, 1: Young, 2: Adult)
+            
+            // 기본 스탯들
+            public int strength;       // 힘
+            public int agility;        // 민첩
+            public int vitality;       // 건강
+            public int intelligence;   // 지능
+            
+            // 이동 및 공격 관련 스탯
+            public float speed;        // 이동 속도
+            public float attackSpeed;  // 공격 속도
+            public float attackRange;  // 기본 공격 범위
+            
+            // 경험치 관련
+            public int bondExperience;          // 유대 경험치
+            public int requiredExpToNextLevel;  // 다음 레벨 필요 경험치
+            
+            // 계산된 스탯들
+            public int physicalDamage;   // 물리 공격력
+            public int magicDamage;      // 마법 공격력
+            public float criticalChance;  // 크리티컬 확률
+            public float criticalDamage;  // 크리티컬 데미지 배율
+            
+            // 원소 속성
+            public int dragonAttribute;  // 드래곤 속성 (0: None, 1: Fire, 2: Water, ...)
+            
+            // 스탯 배율 (DragonStatModifier 직접 저장은 복잡하므로 개별 값으로 저장)
+            public float strengthMultiplier;      // 힘 배율
+            public float agilityMultiplier;       // 민첩 배율
+            public float intelligenceMultiplier;  // 지능 배율
         }
         
         [Serializable]
