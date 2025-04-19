@@ -66,7 +66,7 @@ public class UIManager : BaseManager<UIManager>
     public static SkillQuickSlotUI SkillsQuickSlot;
     public static EnhanceUI EnhanceUI;
     // ========== 250312 SH 추가 ==========
-
+    public static GameoverScene GameOverUI;
     private Coroutine infoMessageCoroutine; // 코루틴 추가부분
 
     protected override void OnEnable()
@@ -99,6 +99,7 @@ public class UIManager : BaseManager<UIManager>
         CookingUI = cookingUI.GetComponent<CookingUI>();
         SkillUI = skillUI.GetComponent<SkillUI>();
         EnhanceUI = enhanceUI.GetComponent<EnhanceUI>();
+        GameOverUI = gameOverUI_1.GetComponent<GameoverScene>();
     }
 
     private void InitializeUIStateMap()
@@ -112,7 +113,8 @@ public class UIManager : BaseManager<UIManager>
             { GameSystemState.DialogueState, dialogWindow },
             { GameSystemState.Cook, cookingUI },
             { GameSystemState.Skill, skillUI },
-            { GameSystemState.Enhance,enhanceUI}
+            { GameSystemState.Enhance,enhanceUI},
+            { GameSystemState.GameOver, gameOverUI_1 }
         };
     }
 
@@ -300,6 +302,16 @@ public class UIManager : BaseManager<UIManager>
         skillQuickSlot.SetActive(true);
         quickSlot.SetActive(true);
     }
+
+
+    // 게임오버 UI를 토글하는 메서드
+    public void ToggleGameOverUI()
+    {
+        ToggleUIWindow(GameSystemState.GameOver);
+        skillQuickSlot.SetActive(false);
+        quickSlot.SetActive(false);
+    }
+    
 
     #region 04.01 기존 메서드
     /*public void ToggleinfoMessageWindow(string message)
@@ -788,25 +800,6 @@ public class UIManager : BaseManager<UIManager>
         else
         {
             InputManager.Instance.SetGameplayInputsEnabled(true);
-        }
-    }
-
-    // 게임오버 UI를 토글하는 메서드
-    public void ToggleGameOverUI()
-    {
-        // HUD UI 비활성화
-        if (mainCanvas != null) mainCanvas.SetActive(false);
-        if (mainTitleButton != null) mainTitleButton.SetActive(false);
-        if (quickSlot != null) quickSlot.SetActive(false);
-        if (skillQuickSlot != null) skillQuickSlot.SetActive(false);
-        
-        // 게임오버 UI 활성화
-        if (gameOverUI_1 != null) 
-        {
-            gameOverUI_1.SetActive(true);
-            
-            // 마우스 커서 활성화
-            CameraManager.CursorLock();
         }
     }
 
