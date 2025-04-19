@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class MonsterAnimSounds : MonoBehaviour
 {
+    [Header("Locomotion")]
     [SerializeField] private AudioClip footstep;
     [SerializeField] private float footstepVol = 0.2f;
     [SerializeField] private AudioClip attack;
@@ -10,6 +11,15 @@ public class MonsterAnimSounds : MonoBehaviour
     [SerializeField] private float hitVol = 0.2f;
     [SerializeField] private AudioClip dead;
     [SerializeField] private float deadVol = 0.2f;
+
+    [Header("Boss")]
+    [SerializeField] private AudioClip jump;
+    [SerializeField] private float jumpVol = 0.2f;
+    [SerializeField] private AudioClip skill;
+    [SerializeField] private float skillVol = 0.2f;
+    [SerializeField] private AudioClip roaring;
+    [SerializeField] private float roaringVol = 0.2f;
+
     public void MonsterFootstep()
     {
         if (footstep == null) return;
@@ -32,5 +42,23 @@ public class MonsterAnimSounds : MonoBehaviour
     {
         if (dead == null) return;
         SoundManager.Instance.PlayClipAtPoint(dead.name, transform.position, deadVol, false);
+    }
+
+    public void BossJumpSound()
+    {
+        if (jump == null) return;
+        SoundManager.Instance.PlayClipAtPoint(jump.name, transform.position, jumpVol, false);
+    }
+
+    public void BossSkillSound()
+    {
+        if (skill == null) return;
+        SoundManager.Instance.PlayClipAtPoint(skill.name, transform.position, skillVol, false);
+    }
+
+    public void RoaringSound()
+    {
+        if (roaring == null) return;
+        SoundManager.Instance.PlayClipAtPoint(roaring.name, transform.position, roaringVol, false);
     }
 }
