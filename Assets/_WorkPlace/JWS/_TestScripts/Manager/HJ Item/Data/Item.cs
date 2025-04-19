@@ -97,7 +97,8 @@ public class Item : ISheetData
         }
         else if(type == ItemType.요리)
         {
-            this.isStackable = false;
+            // 요리 타입에 대한 isStackable 강제 설정 제거
+            // 인스펙터에서 설정한 값을 유지하도록 함
         }
     }
 
