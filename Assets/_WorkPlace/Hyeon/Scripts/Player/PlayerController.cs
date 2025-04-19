@@ -780,11 +780,16 @@ public class PlayerController : MonoBehaviour
     {
         if (playerData.currentHp <= 0)
         {
-            Debug.Log("Player Death");
             InputManager.Instance.SetAllInputs(false);
 
             playerAnimator.SetBool("Death", true);
-            isDeath = true;
+
+            if(!isDeath)
+            {
+                isDeath = true;
+                GameStateMachine.Instance.ChangeState(GameSystemState.GameOver);
+            }
+            
         }
     }
 

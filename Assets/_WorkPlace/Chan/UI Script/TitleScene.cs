@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class TitleScene : MonoBehaviour
 {
@@ -15,8 +16,40 @@ public class TitleScene : MonoBehaviour
     // SaveSystemInitializer 참조 추가
     private SaveSystemInitializer saveSystem;
 
+    private void OnEnable()
+    {
+        // 씬 로드 이벤트에 리스너 등록
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        // 활성화 시 즉시 커서 상태 설정
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private void OnDisable()
+    {
+        // 씬 로드 이벤트에서 리스너 제거
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // 씬 로드 시 호출되는 메서드
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 이 스크립트가 타이틀 씬에 있을 때만 실행
+        if (scene.name.Contains("Title") || scene.name == "TitleScene")
+        {
+            // 씬 로드 시 커서 상태 초기화
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
     private void Start()
     {
+        // 타이틀 씬 시작 시 항상 커서가 보이도록 설정
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        
         buttons = Buttons.GetComponentsInChildren<Button>(true);
         int buttonCount = buttons.Length;
 

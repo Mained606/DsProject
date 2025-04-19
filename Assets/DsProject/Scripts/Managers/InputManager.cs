@@ -62,7 +62,8 @@ public class InputManager : BaseManager<InputManager>
             { "StatusUI", GameSystemState.StatusUI },
             { "Cook", GameSystemState.Cook },
             { "Skill", GameSystemState.Skill },
-            {"Enhance", GameSystemState.Enhance}
+            {"Enhance", GameSystemState.Enhance},
+            // {"GameOver", GameSystemState.GameOver}
         };
 
         foreach (var actionPair in actionStateMap)
@@ -187,9 +188,10 @@ public class InputManager : BaseManager<InputManager>
             || state == GameSystemState.Craft
             || state == GameSystemState.Cook
             || state == GameSystemState.Skill
-              || state == GameSystemState.Enhance
+            || state == GameSystemState.Enhance
             || state == GameSystemState.PetInteraction
-            || state == GameSystemState.Event;
+            || state == GameSystemState.Event
+            || state == GameSystemState.GameOver;
     }
 }
 

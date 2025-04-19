@@ -20,6 +20,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject interactTextUI;
     [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
+    [SerializeField] private GameObject gameOverUI_1; // 게임오버 UI
     
     [SerializeField] private GameObject infoMessageWindow;
     [SerializeField] private Button infoMessageCloseButton; // 04.01 테스트용
@@ -65,7 +66,7 @@ public class UIManager : BaseManager<UIManager>
     public static SkillQuickSlotUI SkillsQuickSlot;
     public static EnhanceUI EnhanceUI;
     // ========== 250312 SH 추가 ==========
-
+    public static GameoverScene GameOverUI;
     private Coroutine infoMessageCoroutine; // 코루틴 추가부분
 
     protected override void OnEnable()
@@ -98,6 +99,7 @@ public class UIManager : BaseManager<UIManager>
         CookingUI = cookingUI.GetComponent<CookingUI>();
         SkillUI = skillUI.GetComponent<SkillUI>();
         EnhanceUI = enhanceUI.GetComponent<EnhanceUI>();
+        GameOverUI = gameOverUI_1.GetComponent<GameoverScene>();
     }
 
     private void InitializeUIStateMap()
@@ -111,7 +113,8 @@ public class UIManager : BaseManager<UIManager>
             { GameSystemState.DialogueState, dialogWindow },
             { GameSystemState.Cook, cookingUI },
             { GameSystemState.Skill, skillUI },
-            { GameSystemState.Enhance,enhanceUI}
+            { GameSystemState.Enhance,enhanceUI},
+            { GameSystemState.GameOver, gameOverUI_1 }
         };
     }
 
@@ -133,6 +136,7 @@ public class UIManager : BaseManager<UIManager>
         cookingUI.SetActive(false);
         skillUI.SetActive(false);
         enhanceUI.SetActive(false);
+        gameOverUI_1.SetActive(false); // 게임오버 UI 초기화
     }
 
     private void Update()
@@ -298,6 +302,16 @@ public class UIManager : BaseManager<UIManager>
         skillQuickSlot.SetActive(true);
         quickSlot.SetActive(true);
     }
+
+
+    // 게임오버 UI를 토글하는 메서드
+    public void ToggleGameOverUI()
+    {
+        ToggleUIWindow(GameSystemState.GameOver);
+        skillQuickSlot.SetActive(false);
+        quickSlot.SetActive(false);
+    }
+    
 
     #region 04.01 기존 메서드
     /*public void ToggleinfoMessageWindow(string message)
@@ -772,6 +786,9 @@ public class UIManager : BaseManager<UIManager>
                 break;
             case GameSystemState.Enhance:
                 ToggleEnhanceUIWindow();
+                break;
+            case GameSystemState.GameOver:
+                ToggleGameOverUI();
                 break;
         }
         
