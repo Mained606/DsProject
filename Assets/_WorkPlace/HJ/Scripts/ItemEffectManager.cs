@@ -282,6 +282,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     {
         // 아이템 스탯이 null이거나 HealHp/HealMp가 0인 경우, 원본 아이템 데이터 참조
         ItemStat effectiveStat = item.itemStat;
+        float effectiveDuration = item.effect?.duration ?? 0;
         bool useOriginalItem = false;
         
         // 문제가 있는 경우 원본 아이템 데이터베이스에서 아이템 찾기
@@ -291,6 +292,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             if (originalItem != null && originalItem.itemStat != null)
             {
                 effectiveStat = originalItem.itemStat;
+                effectiveDuration = originalItem.effect?.duration ?? 0;
                 useOriginalItem = true;
                 Debug.Log($"[ApplyDishEffect] 원본 아이템 데이터를 사용하여 요리 효과 적용: {item.name}");
                 
@@ -321,36 +323,72 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             return;
         }
 
-        // 버프 효과 적용
-        if (useOriginalItem)
+        // 스탯 버프 효과가 있는 경우 Duration 시간만큼 지속되는 버프 적용
+        if (effectiveStat.HasBuffStat())
         {
-            // 원본 아이템의 버프 효과 적용
-            if (effectiveStat.HasBuffStat())
+            if (effectiveDuration <= 0)
             {
-                // 임시 아이템 생성하여 버프 적용
-                Item tempItem = item.Clone();
-                tempItem.itemStat = effectiveStat;
-                tempItem.effect = item.effect?.Clone() ?? new ItemEffect();
-                ApplyBuff(tempItem);
+                Debug.LogWarning($"[ApplyDishEffect] 요리 아이템 {item.name}의 지속시간이 유효하지 않습니다: {effectiveDuration}");
+                effectiveDuration = 10f; // 기본값 설정
             }
-        }
-        else if (effectiveStat.HasBuffStat())
-        {
-            ApplyBuff(item);
+            
+            // 기본 스탯 버프 적용
+            if (effectiveStat.Strength > 0)
+                ApplyStatBuff(BuffType.Dish_Strength, "Strength", effectiveStat.Strength, effectiveDuration);
+            
+            if (effectiveStat.Dexterity > 0)
+                ApplyStatBuff(BuffType.Dish_Dexterity, "Dexterity", effectiveStat.Dexterity, effectiveDuration);
+            
+            if (effectiveStat.Intelligence > 0)
+                ApplyStatBuff(BuffType.Dish_Intelligence, "Intelligence", effectiveStat.Intelligence, effectiveDuration);
+            
+            if (effectiveStat.Vitality > 0)
+                ApplyStatBuff(BuffType.Dish_Vitality, "Vitality", effectiveStat.Vitality, effectiveDuration);
+            
+            // 전투 스탯 버프 적용
+            if (effectiveStat.MaxHealth > 0)
+                ApplyStatBuff(BuffType.Dish_MaxHealth, "MaxHealth", effectiveStat.MaxHealth, effectiveDuration);
+            
+            if (effectiveStat.MaxMana > 0)
+                ApplyStatBuff(BuffType.Dish_MaxMana, "MaxMana", effectiveStat.MaxMana, effectiveDuration);
+            
+            if (effectiveStat.PhysicalAttack > 0)
+                ApplyStatBuff(BuffType.Dish_PhysicalAttack, "PhysicalAttack", effectiveStat.PhysicalAttack, effectiveDuration);
+            
+            if (effectiveStat.MagicAttack > 0)
+                ApplyStatBuff(BuffType.Dish_MagicAttack, "MagicAttack", effectiveStat.MagicAttack, effectiveDuration);
+            
+            if (effectiveStat.PhysicalDefense > 0)
+                ApplyStatBuff(BuffType.Dish_PhysicalDefense, "PhysicalDefense", effectiveStat.PhysicalDefense, effectiveDuration);
+            
+            if (effectiveStat.MagicDefense > 0)
+                ApplyStatBuff(BuffType.Dish_MagicDefense, "MagicDefense", effectiveStat.MagicDefense, effectiveDuration);
+                
+            if (effectiveStat.CriticalChance > 0)
+                ApplyStatBuff(BuffType.Dish_CriticalChance, "CriticalChance", effectiveStat.CriticalChance, effectiveDuration);
+                
+            if (effectiveStat.Evasion > 0)
+                ApplyStatBuff(BuffType.Dish_Evasion, "Evasion", effectiveStat.Evasion, effectiveDuration);
+                
+            if (effectiveStat.AttackSpeed > 0)
+                ApplyStatBuff(BuffType.Dish_AttackSpeed, "AttackSpeed", effectiveStat.AttackSpeed, effectiveDuration);
         }
 
-        // 체력 회복 효과 적용
+        // 체력 및 마나 회복은 즉시 적용 (Duration과 무관)
         if (effectiveStat.HealHp > 0)
         {
+            int originalHp = Player.currentHp;
             Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + effectiveStat.HealHp);
-            Debug.Log($"{item.name}을 사용하여 체력 {effectiveStat.HealHp}만큼 회복");
+            int healedAmount = Player.currentHp - originalHp;
+            Debug.Log($"{item.name}을 사용하여 체력 {healedAmount}만큼 회복 (원래 회복량: {effectiveStat.HealHp})");
         }
 
-        // 마나 회복 효과 적용
         if (effectiveStat.HealMp > 0)
         {
+            int originalMp = Player.currentMp;
             Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + effectiveStat.HealMp);
-            Debug.Log($"{item.name}을 사용하여 마나 {effectiveStat.HealMp}만큼 회복");
+            int healedAmount = Player.currentMp - originalMp;
+            Debug.Log($"{item.name}을 사용하여 마나 {healedAmount}만큼 회복 (원래 회복량: {effectiveStat.HealMp})");
         }
 
         PlayParticle(item);
