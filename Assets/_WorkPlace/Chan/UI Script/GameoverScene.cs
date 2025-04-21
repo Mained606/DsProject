@@ -105,6 +105,13 @@ public class GameoverScene : MonoBehaviour
         {
             //Debug.Log("저장된 게임 데이터가 있습니다. 메인 씬을 재로드하여 저장된 게임을 불러옵니다.");
             
+            // 새 게임이 아님을 표시
+            SaveSystemInitializer saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
+            if (saveSystem != null)
+            {
+                SaveSystemInitializer.isNewGame = false;
+            }
+            
             // UI 창 비활성화
             // gameObject.SetActive(false);
             
