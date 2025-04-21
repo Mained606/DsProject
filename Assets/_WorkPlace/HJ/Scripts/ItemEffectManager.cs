@@ -88,10 +88,10 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         {
             //HJ 03.07 추가
             ItemSkillManager.Instance.UnequipReset(item);
-            UpdatePlayerStats(item.itemStat, -1);
+            if(item.itemStat != null) UpdatePlayerStats(item.itemStat, -1);
             equippedItems[item.equipmentSlot] = null;
             item.isEquired = false;
-            if (item.equipmentSlot == EquipmentSlot.손) weaponManager.EquipWeapon(null);
+            if (item.equipmentSlot == EquipmentSlot.손 && item.type == ItemType.무기) weaponManager.EquipWeapon(null);
             //Debug.Log($"{item.name}을 {item.equipmentSlot}에서 해제");
         }
     }
@@ -185,7 +185,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
 
     private void ApplyEquipmentEffect(Item item)
     {
-        if (item.itemStat == null) return;        
+        //if (item.itemStat == null) return;        
 
         // 기존 아이템 해제
         if (equippedItems[item.equipmentSlot] != null)
@@ -197,7 +197,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         // 새로운 아이템 장착
         equippedItems[item.equipmentSlot] = item;
         item.isEquired = true;
-        UpdatePlayerStats(item.itemStat, 1);
+        if(item.itemStat != null) UpdatePlayerStats(item.itemStat, 1);
         PlayParticle(item);
         if (item.equipmentSlot == EquipmentSlot.손 && item.type == ItemType.무기) weaponManager.EquipWeapon(item);
         //Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
