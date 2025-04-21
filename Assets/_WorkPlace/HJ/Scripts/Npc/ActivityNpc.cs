@@ -213,11 +213,7 @@ public class ActivityNpc : MonoBehaviour
             }            
             else if(!IsTalking && !activityNpc.IsNearMonster && !IsNearMonster)
             {
-                if (Time.time - lastConversationTime < conversationCoolTime)
-                {
-                    StartCoroutine(DoAction());
-                    return;
-                }
+                if (Time.time - lastConversationTime < conversationCoolTime) return;
 
                 if (targetNpc) targetNpc = null;
                 isStart = false;
