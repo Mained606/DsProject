@@ -1484,16 +1484,16 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6847506254371132336}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b3329584d248c641a097367c66555a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wingSound: {fileID: 8300000, guid: f059f51c270dd6d479ad8b8338a7079f, type: 3}
+  wingSound: {fileID: 8300000, guid: e3a800dd7d4428d4c95db6e6c6260156, type: 3}
   wingVol: 1
-  mileeSound: {fileID: 8300000, guid: c0aa87eb803daab448b2eeb14bb1dc3f, type: 3}
+  mileeSound: {fileID: 8300000, guid: 7ef0d3e7240a1ae44991aff2381c7c72, type: 3}
   mileeVol: 1
-  fireballSound: {fileID: 8300000, guid: 49365b3021f7bd44cbc24829cdf743f5, type: 3}
+  fireballSound: {fileID: 8300000, guid: 8e221ad1869bcaf46bc528933a55726f, type: 3}
   fireballVol: 1
 --- !u!1 &6947217215586214734
 GameObject:

@@ -1206,7 +1206,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3823346425895248888}
   - component: {fileID: 6724665616564672886}
-  - component: {fileID: 317526874234933190}
+  - component: {fileID: 773774640986848622}
   m_Layer: 6
   m_Name: Tiger Drago Toon Big 1
   m_TagString: Dragon
@@ -1253,7 +1253,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &317526874234933190
+--- !u!114 &773774640986848622
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1269,6 +1269,14 @@ MonoBehaviour:
   wingVol: 1
   mileeSound: {fileID: 0}
   mileeVol: 1
+  fireballSound: {fileID: 0}
+  fireballVol: 1
+  octaWingSound: {fileID: 0}
+  octaWingVol: 1
+  octaMileeSound: {fileID: 0}
+  octaMileeVol: 1
+  octaFireballSound: {fileID: 0}
+  octaFireballVol: 1
 --- !u!1 &6410742353010975809
 GameObject:
   m_ObjectHideFlags: 0

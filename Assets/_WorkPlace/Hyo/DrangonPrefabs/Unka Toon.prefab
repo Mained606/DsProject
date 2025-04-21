@@ -986,7 +986,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8900839488063163997}
   - component: {fileID: 7658771770816546790}
-  - component: {fileID: 4137015566560960129}
+  - component: {fileID: -1932663381348874263}
   m_Layer: 6
   m_Name: Unka Toon
   m_TagString: Dragon
@@ -1033,7 +1033,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &4137015566560960129
+--- !u!114 &-1932663381348874263
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1049,6 +1049,14 @@ MonoBehaviour:
   wingVol: 1
   mileeSound: {fileID: 0}
   mileeVol: 1
+  fireballSound: {fileID: 0}
+  fireballVol: 1
+  octaWingSound: {fileID: 0}
+  octaWingVol: 1
+  octaMileeSound: {fileID: 0}
+  octaMileeVol: 1
+  octaFireballSound: {fileID: 0}
+  octaFireballVol: 1
 --- !u!1 &2896815737219122307
 GameObject:
   m_ObjectHideFlags: 0

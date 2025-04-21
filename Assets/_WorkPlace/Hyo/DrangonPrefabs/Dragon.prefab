@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1478377865561093195}
   - component: {fileID: 8450997723151421220}
   - component: {fileID: 3073744886478622823}
+  - component: {fileID: 5168957503829441475}
   m_Layer: 0
   m_Name: Dragon
   m_TagString: Untagged
@@ -214,3 +215,27 @@ MonoBehaviour:
   saveActivationState: 1
   savePosition: 1
   saveRotation: 1
+--- !u!114 &5168957503829441475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3118469530045523962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b3329584d248c641a097367c66555a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wingSound: {fileID: 8300000, guid: e3a800dd7d4428d4c95db6e6c6260156, type: 3}
+  wingVol: 1
+  mileeSound: {fileID: 8300000, guid: 7ef0d3e7240a1ae44991aff2381c7c72, type: 3}
+  mileeVol: 1
+  fireballSound: {fileID: 8300000, guid: 8e221ad1869bcaf46bc528933a55726f, type: 3}
+  fireballVol: 1
+  octaWingSound: {fileID: 8300000, guid: e3a800dd7d4428d4c95db6e6c6260156, type: 3}
+  octaWingVol: 1
+  octaMileeSound: {fileID: 8300000, guid: 7ef0d3e7240a1ae44991aff2381c7c72, type: 3}
+  octaMileeVol: 1
+  octaFireballSound: {fileID: 8300000, guid: 8e221ad1869bcaf46bc528933a55726f, type: 3}
+  octaFireballVol: 1
