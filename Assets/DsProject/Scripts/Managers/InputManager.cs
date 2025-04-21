@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class InputManager : BaseManager<InputManager>
 { 
@@ -19,6 +20,23 @@ public class InputManager : BaseManager<InputManager>
         "PlayerSkill_1", "PlayerSkill_2", "PlayerSkill_3","PlayerSkill_4", "Interact"
     };
 
+    // UI 활성화 상태를 추적하는 딕셔너리
+    private Dictionary<string, bool> uiActiveStates = new Dictionary<string, bool>();
+
+    // UI GameObject 참조를 저장하는 딕셔너리
+    private Dictionary<string, GameObject> uiObjects = new Dictionary<string, GameObject>();
+
+    // UI 액션과 GameSystemState 매핑
+    private Dictionary<string, GameSystemState> actionStateMap = new Dictionary<string, GameSystemState>
+    {
+        { "Inventory", GameSystemState.Inventory },
+        { "Quest", GameSystemState.QuestReview },
+        { "StatusUI", GameSystemState.StatusUI },
+        { "Cook", GameSystemState.Cook },
+        { "Skill", GameSystemState.Skill },
+        { "Enhance", GameSystemState.Enhance }
+    };
+
     protected override void Awake()
     {
         base.Awake();
@@ -26,6 +44,7 @@ public class InputManager : BaseManager<InputManager>
 
         InputInitialize();
         RegisterUIActionCallbacks();
+        InitializeUIStates();
     }
 
     private void Update()
@@ -52,43 +71,80 @@ public class InputManager : BaseManager<InputManager>
         }
     }
 
+    private void InitializeUIStates()
+    {
+        // UI 상태 초기화
+        foreach (var actionName in actionStateMap.Keys)
+        {
+            uiActiveStates[actionName] = false;
+        }
+
+        // 씬 로드 시 초기화를 위해 이벤트 구독
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 씬 로드 시 모든 UI 상태 초기화
+        ResetUIStates();
+    }
+
+    private void ResetUIStates()
+    {
+        // 모든 UI 상태 초기화
+        foreach (var actionName in actionStateMap.Keys)
+        {
+            uiActiveStates[actionName] = false;
+        }
+        
+        // 게임 상태를 Play로 설정
+        if (GameStateMachine.Instance != null)
+        {
+            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 이벤트 구독 해제
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
     private void RegisterUIActionCallbacks()
     {
-        // UI 키 연결 - 딕셔너리와 델리게이트를 활용하여 중복 코드 제거
-        var actionStateMap = new Dictionary<string, GameSystemState>
-        {
-            { "Inventory", GameSystemState.Inventory },
-            { "Quest", GameSystemState.QuestReview },
-            { "StatusUI", GameSystemState.StatusUI },
-            { "Cook", GameSystemState.Cook },
-            { "Skill", GameSystemState.Skill },
-            {"Enhance", GameSystemState.Enhance}
-        };
-
+        // UI 키 연결 - 토글 방식으로 변경
         foreach (var actionPair in actionStateMap)
         {
             string actionName = actionPair.Key;
-            GameSystemState targetState = actionPair.Value;
+            // 로컬 변수에 액션 이름 복사 (클로저 문제 방지)
+            string currentAction = actionName;
             
-            InputActions.actions[actionName].performed += context => ToggleUIState(targetState);
+            InputActions.actions[actionName].performed += context => ToggleUI(currentAction);
         }
 
         // ESC 키는 특별하게 처리
         InputActions.actions["ESC"].performed += OnMainMenu;
     }
 
-    // UI 상태 전환을 처리하는 공통 메서드
-    private void ToggleUIState(GameSystemState targetState)
+    // 새로운 UI 토글 방식 구현
+    private void ToggleUI(string actionName)
     {
-        if (GameStateMachine.Instance.CurrentState != targetState)
+        GameSystemState targetState = actionStateMap[actionName];
+        bool isCurrentlyActive = uiActiveStates[actionName];
+
+        if (!isCurrentlyActive)
         {
+            // UI를 활성화
+            uiActiveStates[actionName] = true;
             GameStateMachine.Instance.ChangeState(targetState);
-            Debug.Log($"{targetState} 상태로 전환됨.");
+            //Debug.Log($"{actionName} UI 활성화됨.");
         }
         else
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("MainMenu 상태로 복귀됨.");
+            // UI를 비활성화하고 Play 상태로 복귀
+            uiActiveStates[actionName] = false;
+            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+            //Debug.Log($"{actionName} UI 비활성화됨.");
         }
     }
 
@@ -99,14 +155,24 @@ public class InputManager : BaseManager<InputManager>
         // UI 관련 상태인 경우 Play 상태로 복귀
         if (IsUIRelatedState(currentState))
         {
+            // 현재 활성화된 UI 상태 찾아서 비활성화
+            foreach (var pair in actionStateMap)
+            {
+                if (pair.Value == currentState)
+                {
+                    uiActiveStates[pair.Key] = false;
+                    break;
+                }
+            }
+            
             GameStateMachine.Instance.ChangeState(GameSystemState.Play);
-            Debug.Log("ESC로 Play 상태로 복귀.");
+            //Debug.Log("ESC로 Play 상태로 복귀.");
         }
         // 그 외의 상태에서는 MainMenu로 전환
         else if (currentState != GameSystemState.MainMenu)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-            Debug.Log("ESC로 MainMenu 상태로 전환.");
+            //Debug.Log("ESC로 MainMenu 상태로 전환.");
         }
     }
 
@@ -124,7 +190,7 @@ public class InputManager : BaseManager<InputManager>
             else
             {
                 InputActions.actions[actionName].Disable();
-                // Debug.Log($"InputAction {actionName} Disabled");
+                // //Debug.Log($"InputAction {actionName} Disabled");
             }
         }
         else
@@ -187,9 +253,10 @@ public class InputManager : BaseManager<InputManager>
             || state == GameSystemState.Craft
             || state == GameSystemState.Cook
             || state == GameSystemState.Skill
-              || state == GameSystemState.Enhance
+            || state == GameSystemState.Enhance
             || state == GameSystemState.PetInteraction
-            || state == GameSystemState.Event;
+            || state == GameSystemState.Event
+            || state == GameSystemState.GameOver;
     }
 }
 
@@ -199,7 +266,7 @@ public class InputManager : BaseManager<InputManager>
     {
         if (Input.GetKeyDown(KeyCode.I))
         {
-            Debug.Log("I키 입력 확인");
+            //Debug.Log("I키 입력 확인");
             ToggleInventoryState();
         }
         if (Input.GetKeyDown(KeyCode.Q))

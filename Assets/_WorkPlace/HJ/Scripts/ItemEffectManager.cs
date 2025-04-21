@@ -62,7 +62,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
                 break;
 
             default:
-                Debug.Log($"아이템 타입 {item.type}의 효과 없음");
+                //Debug.Log($"아이템 타입 {item.type}의 효과 없음");
                 break;
         }
     }
@@ -92,7 +92,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             equippedItems[item.equipmentSlot] = null;
             item.isEquired = false;
             if (item.equipmentSlot == EquipmentSlot.손) weaponManager.EquipWeapon(null);
-            Debug.Log($"{item.name}을 {item.equipmentSlot}에서 해제");
+            //Debug.Log($"{item.name}을 {item.equipmentSlot}에서 해제");
         }
     }
 
@@ -114,7 +114,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
                 equippedItems[slot] = null;
             }
         }
-        Debug.Log("장비 슬롯 초기화 완료");
+        //Debug.Log("장비 슬롯 초기화 완료");
     }
 
     private void ApplyConsumableEffect(Item item, int quantity = 1)
@@ -136,7 +136,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
                 effectiveAmount = originalItem.effectAmount;
                 effectiveDuration = originalItem.effect?.duration ?? 0;
                 useOriginalItem = true;
-                Debug.Log($"[ApplyConsumableEffect] 원본 아이템 데이터를 사용하여 소모품 효과 적용: {item.name}");
+                //Debug.Log($"[ApplyConsumableEffect] 원본 아이템 데이터를 사용하여 소모품 효과 적용: {item.name}");
             }
         }
         
@@ -156,12 +156,12 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + healAmount);
             int actualHealed = Player.currentHp - originalHp;
             
-            Debug.Log($"{item.name}을 사용하여 체력 {healAmount}만큼 회복 시도. 실제 회복량: {actualHealed} (현재 체력: {Player.currentHp}/{Player.maxHp})");
+            //Debug.Log($"{item.name}을 사용하여 체력 {healAmount}만큼 회복 시도. 실제 회복량: {actualHealed} (현재 체력: {Player.currentHp}/{Player.maxHp})");
         }
         else if (item.consumableType == ConsumableType.마나포션)
         {
             Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + Mathf.RoundToInt(effectiveAmount * quantity));
-            Debug.Log($"{item.name}을 사용하여 마나 {effectiveAmount}만큼 회복");
+            //Debug.Log($"{item.name}을 사용하여 마나 {effectiveAmount}만큼 회복");
         }
         else if (item.consumableType == ConsumableType.버프)
         {
@@ -177,7 +177,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             {
                 ApplyBuff(item, item.effect.duration, quantity);
             }
-            Debug.Log($"{item.name}을 사용하여 버프 적용");
+            //Debug.Log($"{item.name}을 사용하여 버프 적용");
         }
 
         PlayParticle(item);
@@ -190,7 +190,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         // 기존 아이템 해제
         if (equippedItems[item.equipmentSlot] != null)
         {
-            Debug.Log($"{item.equipmentSlot}에 장착된 {equippedItems[item.equipmentSlot].name} 해제");
+            //Debug.Log($"{item.equipmentSlot}에 장착된 {equippedItems[item.equipmentSlot].name} 해제");
             UnequipmentEffect(equippedItems[item.equipmentSlot]);
         }
 
@@ -200,7 +200,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         UpdatePlayerStats(item.itemStat, 1);
         PlayParticle(item);
         if (item.equipmentSlot == EquipmentSlot.손) weaponManager.EquipWeapon(item);
-        Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
+        //Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
 
         //HJ 03.07 추가
         ItemSkillManager.Instance.EquipReset(item);
@@ -210,7 +210,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     private void ApplyBuff(Item item, float duration, int quantity = 1)
     {
         UpdatePlayerStats(item.itemStat, item.effectAmount);
-        Debug.Log($"{item.name} 버프 아이템 사용, 효과량: {item.effectAmount}");
+        //Debug.Log($"{item.name} 버프 아이템 사용, 효과량: {item.effectAmount}");
 
         StartCoroutine(RemoveBuffAfterDuration(item, duration * quantity, item.effectAmount));
     }
@@ -230,7 +230,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             {
                 itemStat = originalItem.itemStat;
                 duration = originalItem.effect.duration;
-                Debug.Log($"[ApplyBuff] 원본 아이템 데이터를 사용하여 버프 적용: {item.name}");
+                //Debug.Log($"[ApplyBuff] 원본 아이템 데이터를 사용하여 버프 적용: {item.name}");
             }
             else
             {
@@ -267,7 +267,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             if(activeCoroutines.ContainsKey(buffType))
             {
                 StopCoroutine(activeCoroutines[buffType]);
-                Debug.Log($"코루틴 종료: {buffType}");
+                //Debug.Log($"코루틴 종료: {buffType}");
             }
         }
 
@@ -282,6 +282,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
     {
         // 아이템 스탯이 null이거나 HealHp/HealMp가 0인 경우, 원본 아이템 데이터 참조
         ItemStat effectiveStat = item.itemStat;
+        float effectiveDuration = item.effect?.duration ?? 0;
         bool useOriginalItem = false;
         
         // 문제가 있는 경우 원본 아이템 데이터베이스에서 아이템 찾기
@@ -291,8 +292,9 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             if (originalItem != null && originalItem.itemStat != null)
             {
                 effectiveStat = originalItem.itemStat;
+                effectiveDuration = originalItem.effect?.duration ?? 0;
                 useOriginalItem = true;
-                Debug.Log($"[ApplyDishEffect] 원본 아이템 데이터를 사용하여 요리 효과 적용: {item.name}");
+                //Debug.Log($"[ApplyDishEffect] 원본 아이템 데이터를 사용하여 요리 효과 적용: {item.name}");
                 
                 // 현재 아이템의 스탯도 업데이트
                 if (item.itemStat == null)
@@ -321,36 +323,72 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
             return;
         }
 
-        // 버프 효과 적용
-        if (useOriginalItem)
+        // 스탯 버프 효과가 있는 경우 Duration 시간만큼 지속되는 버프 적용
+        if (effectiveStat.HasBuffStat())
         {
-            // 원본 아이템의 버프 효과 적용
-            if (effectiveStat.HasBuffStat())
+            if (effectiveDuration <= 0)
             {
-                // 임시 아이템 생성하여 버프 적용
-                Item tempItem = item.Clone();
-                tempItem.itemStat = effectiveStat;
-                tempItem.effect = item.effect?.Clone() ?? new ItemEffect();
-                ApplyBuff(tempItem);
+                Debug.LogWarning($"[ApplyDishEffect] 요리 아이템 {item.name}의 지속시간이 유효하지 않습니다: {effectiveDuration}");
+                effectiveDuration = 10f; // 기본값 설정
             }
-        }
-        else if (effectiveStat.HasBuffStat())
-        {
-            ApplyBuff(item);
+            
+            // 기본 스탯 버프 적용
+            if (effectiveStat.Strength > 0)
+                ApplyStatBuff(BuffType.Dish_Strength, "Strength", effectiveStat.Strength, effectiveDuration);
+            
+            if (effectiveStat.Dexterity > 0)
+                ApplyStatBuff(BuffType.Dish_Dexterity, "Dexterity", effectiveStat.Dexterity, effectiveDuration);
+            
+            if (effectiveStat.Intelligence > 0)
+                ApplyStatBuff(BuffType.Dish_Intelligence, "Intelligence", effectiveStat.Intelligence, effectiveDuration);
+            
+            if (effectiveStat.Vitality > 0)
+                ApplyStatBuff(BuffType.Dish_Vitality, "Vitality", effectiveStat.Vitality, effectiveDuration);
+            
+            // 전투 스탯 버프 적용
+            if (effectiveStat.MaxHealth > 0)
+                ApplyStatBuff(BuffType.Dish_MaxHealth, "MaxHealth", effectiveStat.MaxHealth, effectiveDuration);
+            
+            if (effectiveStat.MaxMana > 0)
+                ApplyStatBuff(BuffType.Dish_MaxMana, "MaxMana", effectiveStat.MaxMana, effectiveDuration);
+            
+            if (effectiveStat.PhysicalAttack > 0)
+                ApplyStatBuff(BuffType.Dish_PhysicalAttack, "PhysicalAttack", effectiveStat.PhysicalAttack, effectiveDuration);
+            
+            if (effectiveStat.MagicAttack > 0)
+                ApplyStatBuff(BuffType.Dish_MagicAttack, "MagicAttack", effectiveStat.MagicAttack, effectiveDuration);
+            
+            if (effectiveStat.PhysicalDefense > 0)
+                ApplyStatBuff(BuffType.Dish_PhysicalDefense, "PhysicalDefense", effectiveStat.PhysicalDefense, effectiveDuration);
+            
+            if (effectiveStat.MagicDefense > 0)
+                ApplyStatBuff(BuffType.Dish_MagicDefense, "MagicDefense", effectiveStat.MagicDefense, effectiveDuration);
+                
+            if (effectiveStat.CriticalChance > 0)
+                ApplyStatBuff(BuffType.Dish_CriticalChance, "CriticalChance", effectiveStat.CriticalChance, effectiveDuration);
+                
+            if (effectiveStat.Evasion > 0)
+                ApplyStatBuff(BuffType.Dish_Evasion, "Evasion", effectiveStat.Evasion, effectiveDuration);
+                
+            if (effectiveStat.AttackSpeed > 0)
+                ApplyStatBuff(BuffType.Dish_AttackSpeed, "AttackSpeed", effectiveStat.AttackSpeed, effectiveDuration);
         }
 
-        // 체력 회복 효과 적용
+        // 체력 및 마나 회복은 즉시 적용 (Duration과 무관)
         if (effectiveStat.HealHp > 0)
         {
+            int originalHp = Player.currentHp;
             Player.currentHp = Mathf.Min(Player.maxHp, Player.currentHp + effectiveStat.HealHp);
-            Debug.Log($"{item.name}을 사용하여 체력 {effectiveStat.HealHp}만큼 회복");
+            int healedAmount = Player.currentHp - originalHp;
+            //Debug.Log($"{item.name}을 사용하여 체력 {healedAmount}만큼 회복 (원래 회복량: {effectiveStat.HealHp})");
         }
 
-        // 마나 회복 효과 적용
         if (effectiveStat.HealMp > 0)
         {
+            int originalMp = Player.currentMp;
             Player.currentMp = Mathf.Min(Player.maxMp, Player.currentMp + effectiveStat.HealMp);
-            Debug.Log($"{item.name}을 사용하여 마나 {effectiveStat.HealMp}만큼 회복");
+            int healedAmount = Player.currentMp - originalMp;
+            //Debug.Log($"{item.name}을 사용하여 마나 {healedAmount}만큼 회복 (원래 회복량: {effectiveStat.HealMp})");
         }
 
         PlayParticle(item);
@@ -715,7 +753,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         // 버프 스탯 해제
         UpdatePlayerStats(item.itemStat, -amount);
         
-        Debug.Log($"{item.name} 버프 효과 해제, 효과량 {amount}");
+        //Debug.Log($"{item.name} 버프 효과 해제, 효과량 {amount}");
     }
 
     //HJ 03.06 추가
@@ -726,7 +764,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         // 버프 효과 제거
         UpdatePlayerStats(statName, -value, 1);
         
-        Debug.Log($"{buffType} 버프 효과 해제");
+        //Debug.Log($"{buffType} 버프 효과 해제");
         
         // 액티브 버프 딕셔너리에서 제거
         if (activeBuffs.ContainsKey(buffType))

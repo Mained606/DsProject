@@ -83,7 +83,7 @@ public class DragonStateMachine
             {
                 currentState.EnterState(dragon, this, animator);
                 // 디버그 로그
-                Debug.Log($"[DragonFSM] 상태 전환: {typeof(T).Name}");
+                //Debug.Log($"[DragonFSM] 상태 전환: {typeof(T).Name}");
             }
             catch (System.Exception e)
             {

@@ -89,12 +89,12 @@ public class EarthDamageEffect : ElementalEffect
     
     protected override void OnEffectApplied()
     {
-        Debug.Log($"{Target.characterName}에 땅 속성 데미지 증가 효과 적용: {damageIncreasePercent}% 증가, {Duration}초 지속");
+        //Debug.Log($"{Target.characterName}에 땅 속성 데미지 증가 효과 적용: {damageIncreasePercent}% 증가, {Duration}초 지속");
     }
     
     public override void Remove()
     {
-        Debug.Log($"{Target.characterName}의 땅 속성 데미지 증가 효과 종료");
+        //Debug.Log($"{Target.characterName}의 땅 속성 데미지 증가 효과 종료");
         if (ElementalEffectManager.Instance != null)
         {
             ElementalEffectManager.Instance.RemoveEffect(this);
@@ -123,12 +123,12 @@ public class FireBurnEffect : ElementalEffect
     
     protected override void OnEffectApplied()
     {
-        Debug.Log($"{Target.characterName}에 화상 효과 적용: 매초 최대 체력의 {damagePercent}% 피해, {Duration}초 지속");
+        //Debug.Log($"{Target.characterName}에 화상 효과 적용: 매초 최대 체력의 {damagePercent}% 피해, {Duration}초 지속");
     }
     
     public override void Remove()
     {
-        Debug.Log($"{Target.characterName}의 화상 효과 종료");
+        //Debug.Log($"{Target.characterName}의 화상 효과 종료");
         if (ElementalEffectManager.Instance != null)
         {
             ElementalEffectManager.Instance.RemoveEffect(this);
@@ -205,7 +205,7 @@ public class WaterSlowEffect : ElementalEffect
         Target.moveSpeed = Mathf.Max(0, originalSpeed - reductionAmount);
         Target.UpdateSpeed(Target.moveSpeed);
         
-        Debug.Log($"{Target.characterName}에 이동속도 감소 효과 적용: {speedReduction}% 감소, {Duration}초 지속");
+        //Debug.Log($"{Target.characterName}에 이동속도 감소 효과 적용: {speedReduction}% 감소, {Duration}초 지속");
     }
     
     public override void Remove()
@@ -213,7 +213,7 @@ public class WaterSlowEffect : ElementalEffect
         Target.moveSpeed = originalSpeed;
         Target.UpdateSpeed(Target.moveSpeed);
         
-        Debug.Log($"{Target.characterName}의 이동속도 감소 효과 종료");
+        //Debug.Log($"{Target.characterName}의 이동속도 감소 효과 종료");
         if (ElementalEffectManager.Instance != null)
         {
             ElementalEffectManager.Instance.RemoveEffect(this);
@@ -265,7 +265,7 @@ public class ElectricStunEffect : ElementalEffect
             }
         }
 
-        Debug.Log($"{Target.characterName}에 스턴 효과 적용: {Duration}초 지속");
+        //Debug.Log($"{Target.characterName}에 스턴 효과 적용: {Duration}초 지속");
     }
     
     public override void Remove()
@@ -294,7 +294,7 @@ public class ElectricStunEffect : ElementalEffect
         
         // 플레이어인 경우 (PlayerController의 스턴 코루틴이 자동으로 해제되므로 추가 작업 필요 없음)
         
-        Debug.Log($"{Target.characterName}의 스턴 효과 종료");
+        //Debug.Log($"{Target.characterName}의 스턴 효과 종료");
         if (ElementalEffectManager.Instance != null)
         {
             ElementalEffectManager.Instance.RemoveEffect(this);

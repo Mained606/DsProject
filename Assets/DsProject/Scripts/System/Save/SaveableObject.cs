@@ -82,7 +82,7 @@ namespace DsProject.Scripts.System.Save
                 existingInfo.rotation = transform.rotation;
             }
             
-            Debug.Log($"저장 가능 오브젝트 '{gameObject.name}' (ID: {objectId}) 상태 저장 (활성화: {gameObject.activeSelf})");
+            //Debug.Log($"저장 가능 오브젝트 '{gameObject.name}' (ID: {objectId}) 상태 저장 (활성화: {gameObject.activeSelf})");
         }
         
         /// <summary>
@@ -102,7 +102,7 @@ namespace DsProject.Scripts.System.Save
                     if (saveActivationState)
                     {
                         gameObject.SetActive(objectInfo.isActive);
-                        Debug.Log($"저장 가능 오브젝트 '{gameObject.name}' (ID: {objectId}) 활성화 상태를 {objectInfo.isActive}로 설정");
+                        //Debug.Log($"저장 가능 오브젝트 '{gameObject.name}' (ID: {objectId}) 활성화 상태를 {objectInfo.isActive}로 설정");
                     }
                     
                     // 위치 복원

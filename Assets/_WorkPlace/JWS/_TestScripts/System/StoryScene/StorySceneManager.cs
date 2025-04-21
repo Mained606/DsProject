@@ -54,7 +54,7 @@ public class StorySceneManager : MonoBehaviour
 
     private void SetState(StoryState newState)
     {
-        Debug.Log($"스토리 상태 변경: {currentState} -> {newState}");
+        //Debug.Log($"스토리 상태 변경: {currentState} -> {newState}");
         currentState = newState;
     }
 
@@ -295,7 +295,7 @@ public class StorySceneManager : MonoBehaviour
     private void OnStoryComplete()
     {
         currentCorutine = null;
-        Debug.Log("스토리씬이 끝났습니다.");
+        //Debug.Log("스토리씬이 끝났습니다.");
         //SceneManager.LoadScene("NextScene");
     }
     #endregion

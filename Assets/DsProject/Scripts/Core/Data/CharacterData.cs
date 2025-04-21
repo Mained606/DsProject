@@ -287,7 +287,7 @@ public class CharacterData : ISheetData
         // 동적 데이터 재계산
         UpdateDerivedStats();
 
-        Debug.Log($"Character data reset. Level: {level}, HP: {currentHp}/{maxHp}, 물리 데미지: {oldPhysicalDamage}->{physicalDamage} (장비보너스: {equipmentPhysicalBonus}), 마법 데미지: {oldMagicDamage}->{magicDamage} (장비보너스: {equipmentMagicBonus})");
+        //Debug.Log($"Character data reset. Level: {level}, HP: {currentHp}/{maxHp}, 물리 데미지: {oldPhysicalDamage}->{physicalDamage} (장비보너스: {equipmentPhysicalBonus}), 마법 데미지: {oldMagicDamage}->{magicDamage} (장비보너스: {equipmentMagicBonus})");
     }
 
     // 파생 스탯 계산
@@ -410,7 +410,7 @@ public class CharacterData : ISheetData
         staminaCurrent = stamina;
 
         // 디버깅 로그
-        Debug.Log($"레벨업! 현재 레벨: {level}, 남은 경험치: {currentExperience}");
+        //Debug.Log($"레벨업! 현재 레벨: {level}, 남은 경험치: {currentExperience}");
         
         AwardLevelUpPoints();
 
@@ -737,7 +737,7 @@ public class CharacterData : ISheetData
         // 장비 변경 후 스탯 재계산
         UpdateDerivedStats();
         
-        Debug.Log($"[SetEquipmentBonuses] 장비 보너스 설정: 물리={physicalBonus}, 마법={magicBonus}, 적용 후 데미지: 물리={physicalDamage}, 마법={magicDamage}");
+        //Debug.Log($"[SetEquipmentBonuses] 장비 보너스 설정: 물리={physicalBonus}, 마법={magicBonus}, 적용 후 데미지: 물리={physicalDamage}, 마법={magicDamage}");
     }
 
     // 모든 장비 보너스를 한번에 설정하는 확장된 메서드
@@ -775,7 +775,7 @@ public class CharacterData : ISheetData
         // 장비 변경 후 스탯 재계산
         UpdateDerivedStats();
         
-        Debug.Log($"[SetAllEquipmentBonuses] 모든 장비 보너스 설정 완료. 4대 스탯 보너스: 힘={strengthBonus}, 민첩={agilityBonus}, 체력={vitalityBonus}, 지능={intelligenceBonus}");
+        //Debug.Log($"[SetAllEquipmentBonuses] 모든 장비 보너스 설정 완료. 4대 스탯 보너스: 힘={strengthBonus}, 민첩={agilityBonus}, 체력={vitalityBonus}, 지능={intelligenceBonus}");
     }
     
     // 장비 보너스 초기화 메서드
@@ -801,7 +801,7 @@ public class CharacterData : ISheetData
         // 장비 보너스 초기화 후 스탯 재계산
         UpdateDerivedStats();
         
-        Debug.Log("모든 장비 보너스가 초기화되었습니다.");
+        //Debug.Log("모든 장비 보너스가 초기화되었습니다.");
     }
 }
 
@@ -1028,7 +1028,7 @@ public class PlayerData : CharacterData
         if (amount < 0) return;
         gold += amount;
         UIManager.Instance.PickUpItemTextDisplay?.AddItem($"{amount}골드를 획득했습니다.", ItemManager.Instance.GetItemSprite("금화"));
-        Debug.Log($"골드 추가: {amount}, 현재 골드: {gold}");
+        //Debug.Log($"골드 추가: {amount}, 현재 골드: {gold}");
     }
 
     public bool UseGold(int amount)
@@ -1039,7 +1039,7 @@ public class PlayerData : CharacterData
             return false;
         }
         gold -= amount;
-        Debug.Log($"골드 사용: {amount}, 남은 골드: {gold}");
+        //Debug.Log($"골드 사용: {amount}, 남은 골드: {gold}");
         return true;
     }
     
@@ -1118,7 +1118,7 @@ public class MonsterData : CharacterData
         int goldReward)
         : base(name, characterType, prefab, strength, agility, vitality, intelligence, null, speed, attackSpeed, attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, attribute)
     {
-        this.dropItems = new List<string>(dropItems);
+        this.dropItems = dropItems != null ? new List<string>(dropItems) : new List<string>();
         this.experienceReward = experienceReward;
         this.goldReward = goldReward;
     }
@@ -1140,20 +1140,23 @@ public class MonsterData : CharacterData
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
             this.attribute,
-            new List<string>(this.dropItems), // 드롭 아이템 복사
+            this.dropItems != null ? new List<string>(this.dropItems) : new List<string>(), // null 체크 추가
             this.experienceReward,
             this.goldReward
         );
         
         clone.isRandomDrop = this.isRandomDrop;
         clone.randomDropItems = new List<DropItemChance>();
-        foreach (var item in this.randomDropItems)
+        if (this.randomDropItems != null) // null 체크 추가
         {
-            clone.randomDropItems.Add(new DropItemChance 
-            { 
-                itemId = item.itemId, 
-                dropChance = item.dropChance 
-            });
+            foreach (var item in this.randomDropItems)
+            {
+                clone.randomDropItems.Add(new DropItemChance 
+                { 
+                    itemId = item.itemId, 
+                    dropChance = item.dropChance 
+                });
+            }
         }
 
         return clone;
@@ -1216,7 +1219,14 @@ public class MonsterData : CharacterData
         isRandomDrop = row.Count > 12 && bool.TryParse(row[12].ToString(), out bool randomDrop) ? randomDrop : true;
         
         // 드롭 아이템 목록 처리 (쉼표로 구분된 아이템 리스트)
-        dropItems = row[11].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (row[11] != null && !string.IsNullOrEmpty(row[11].ToString()))
+        {
+            dropItems = row[11].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+        else
+        {
+            dropItems = new List<string>();
+        }
         
         // 랜덤 드롭 아이템과 확률 (형식: itemId:확률,itemId:확률,...)
         randomDropItems.Clear();
@@ -1266,7 +1276,7 @@ public class BossData : MonsterData
         : base(name, characterType, prefab, strength, vitality, agility, intelligence, speed, attackSpeed,
             attackRange, stamina, staminaRecoveryRate, mpRecoveryRate, attribute, dropItems, experienceReward, goldReward)
     {
-        SpecialSkills = new List<string>(specialSkills);
+        SpecialSkills = specialSkills != null ? new List<string>(specialSkills) : new List<string>();
     }
     
     public void AddSkill(string skill) => SpecialSkills.Add(skill);
@@ -1289,10 +1299,10 @@ public class BossData : MonsterData
             this.staminaRecoveryRate,
             this.mpRecoveryRate,
             this.attribute,
-            new List<string>(this.dropItems), // 드롭 아이템 복사
+            this.dropItems != null ? new List<string>(this.dropItems) : new List<string>(), // null 체크 추가
             this.experienceReward,
             this.goldReward,
-            new List<string>(this.SpecialSkills) // 특수 스킬 복사
+            this.SpecialSkills != null ? new List<string>(this.SpecialSkills) : new List<string>() // null 체크 추가
         );
         return clone;
     }
@@ -1318,7 +1328,14 @@ public class BossData : MonsterData
         if (row.Count < 14) throw new Exception("보스 데이터 부족");
 
         // 보스의 특수 스킬 (쉼표로 구분된 스킬 리스트)
-        SpecialSkills = row[12].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        if (row[12] != null && !string.IsNullOrEmpty(row[12].ToString()))
+        {
+            SpecialSkills = row[12].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+        else
+        {
+            SpecialSkills = new List<string>();
+        }
     }
 }
 
@@ -1419,7 +1436,7 @@ public class DragonData
         if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
         {
             maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
-            Debug.Log("Constructor: maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
+            //Debug.Log("Constructor: maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
         }
 
         // 물리 데미지와 마법 데미지 계산
@@ -1449,7 +1466,7 @@ public class DragonData
         if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
         {
             maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
-            Debug.Log("Initialize: maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
+            //Debug.Log("Initialize: maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
         }
         
         // 유대 레벨 초기화
@@ -1499,13 +1516,13 @@ public class DragonData
     {
         if (amount < 0) return;
         
-        Debug.Log($"evolutionStage = {(int)evolutionStage} / maxLevelPerStage.Length = {maxLevelPerStage.Length}");
+        //Debug.Log($"evolutionStage = {(int)evolutionStage} / maxLevelPerStage.Length = {maxLevelPerStage.Length}");
         
         // maxLevelPerStage 배열이 비어있거나 null이면 기본값으로 초기화
         if (maxLevelPerStage == null || maxLevelPerStage.Length == 0)
         {
             maxLevelPerStage = new int[] { 15, 30, 50 }; // 기본값으로 초기화
-            Debug.Log("maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
+            //Debug.Log("maxLevelPerStage가 비어있어 기본값으로 초기화되었습니다: [15, 30, 50]");
         }
         
         // 현재 진화 단계의 최대 레벨 체크 (안전하게 처리)
@@ -1516,12 +1533,12 @@ public class DragonData
         // 이미 최대 레벨이면 경험치 획득 중지
         if (bondLevel >= maxLevel)
         {
-            Debug.Log($"{characterName}이(가) 현재 진화 단계({evolutionStage})의 최대 레벨({maxLevel})에 도달했습니다. 더 이상 레벨업할 수 없습니다.");
+            //Debug.Log($"{characterName}이(가) 현재 진화 단계({evolutionStage})의 최대 레벨({maxLevel})에 도달했습니다. 더 이상 레벨업할 수 없습니다.");
             return;
         }
         
         bondExperience += amount;
-        Debug.Log($"{characterName}이(가) {amount}의 유대 경험치를 획득했습니다. 현재 경험치: {bondExperience}/{RequiredExpToNextLevel}");
+        //Debug.Log($"{characterName}이(가) {amount}의 유대 경험치를 획득했습니다. 현재 경험치: {bondExperience}/{RequiredExpToNextLevel}");
         
         // 레벨업 체크
         while (bondExperience >= RequiredExpToNextLevel)
@@ -1535,7 +1552,7 @@ public class DragonData
                 if (bondLevel >= maxLevel)
                 {
                     bondExperience = 0;
-                    Debug.Log($"{characterName}이(가) 현재 진화 단계의 최대 레벨({maxLevel})에 도달했습니다!");
+                    //Debug.Log($"{characterName}이(가) 현재 진화 단계의 최대 레벨({maxLevel})에 도달했습니다!");
                     break;
                 }
             }
@@ -1563,7 +1580,7 @@ public class DragonData
         intelligence++;
         
         UpdateDerivedStats();
-        Debug.Log($"{characterName}의 유대 레벨이 {bondLevel}로 상승했습니다!");
+        //Debug.Log($"{characterName}의 유대 레벨이 {bondLevel}로 상승했습니다!");
         
         // 다음 레벨업에 필요한 경험치 업데이트
         RequiredExpToNextLevel = CalculateExperienceToLevelUp(bondLevel);
@@ -1584,7 +1601,7 @@ public class DragonData
         // 이미 최종 진화 단계라면 진화 불가
         if (evolutionStage == DragonEvolutionStage.Adult)
         {
-            Debug.Log($"{characterName}은(는) 이미 최종 진화 단계에 도달했습니다.");
+            //Debug.Log($"{characterName}은(는) 이미 최종 진화 단계에 도달했습니다.");
             return false;
         }
         
@@ -1625,7 +1642,7 @@ public class DragonData
         // 이벤트 발생 - 컨트롤러에게 알림
         OnDragonEvolution?.Invoke(evolutionStage);
         
-        Debug.Log($"{characterName}(이)가 {evolutionStage}단계로 진화했습니다!");
+        //Debug.Log($"{characterName}(이)가 {evolutionStage}단계로 진화했습니다!");
         return true;
     }
 
@@ -1667,7 +1684,7 @@ public class DragonData
         // 이벤트 발생
         OnDragonEvolution?.Invoke(stage);
         
-        Debug.Log($"드래곤 진화 단계가 {oldStage}에서 {stage}로 변경되었습니다.");
+        //Debug.Log($"드래곤 진화 단계가 {oldStage}에서 {stage}로 변경되었습니다.");
         return true;
     }
     

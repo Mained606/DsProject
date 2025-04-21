@@ -62,6 +62,6 @@ public class SpawnData : ISheetData
         // 기본적으로 트리거 조건을 null로 설정 (게임 내에서 조건 할당 필요)
         triggerCondition = null;
 
-        Debug.Log($"[SpawnData] {spwanName} 데이터 로드 완료!");
+        //Debug.Log($"[SpawnData] {spwanName} 데이터 로드 완료!");
     }
 }

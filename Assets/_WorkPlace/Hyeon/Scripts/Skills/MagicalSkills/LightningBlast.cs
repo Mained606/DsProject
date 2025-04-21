@@ -31,7 +31,7 @@ public class LightningBlast : MonoBehaviour
         //down = Physics.Raycast(spawnPosition, Vector3.down, out RaycastHit downHit, 10f, layer);
         if (Physics.Raycast(spawnPosition, -transform.up, out RaycastHit downHit, layer))
         {
-            Debug.Log("downHit 위치 보정");
+            //Debug.Log("downHit 위치 보정");
             spawnPosition.y = downHit.point.y; // offset 더하기
             transform.position = spawnPosition;
             return;
@@ -39,7 +39,7 @@ public class LightningBlast : MonoBehaviour
         //up = Physics.Raycast(spawnPosition, Vector3.up, out RaycastHit upHit, 10f, layer);
         if (Physics.Raycast(spawnPosition, transform.up, out RaycastHit upHit, layer))
         {
-            Debug.Log("upHit 위치 보정");
+            //Debug.Log("upHit 위치 보정");
             spawnPosition.y = upHit.point.y;
             transform.position = spawnPosition;
             return;

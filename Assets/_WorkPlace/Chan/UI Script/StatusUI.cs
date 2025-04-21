@@ -91,7 +91,7 @@ public class StatusUI : MonoBehaviour
 
     private void AddButtonListeners()
     {
-        Debug.Log("[AddButtonListeners 호출됨]");
+        //Debug.Log("[AddButtonListeners 호출됨]");
         playerTabButton?.onClick.AddListener(() => OnTabClick(CharType.Player));
         dragonTabButton?.onClick.AddListener(() => OnTabClick(CharType.Dragon));
         confirmButton?.onClick.AddListener(OnClickConfirm);

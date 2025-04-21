@@ -32,11 +32,11 @@ public class ShopUI : MonoBehaviour
 
     private void OnEnable()
     {
-        Debug.Log("[디버그] ShopUI OnEnable 호출됨");
+        //Debug.Log("[디버그] ShopUI OnEnable 호출됨");
         AddButtonListeners();
         PlusButton.onClick.AddListener(() =>
         {
-            Debug.Log($"[디버그] 현재 아이템 수량: {currentInfoItem.quantity}, 현재 선택 수량: {sellQuantity}");
+            //Debug.Log($"[디버그] 현재 아이템 수량: {currentInfoItem.quantity}, 현재 선택 수량: {sellQuantity}");
             if (sellQuantity < currentInfoItem.quantity)
                 sellQuantity++;
             warningText.text = $"{sellQuantity}";

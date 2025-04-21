@@ -72,7 +72,7 @@ public class PlayerBehaviourManager : BaseManager<PlayerBehaviourManager>
             for (int i = activeBehaviours.Count - 1; i >= 0; i--)
             {
                 activeBehaviours[i].Execute();
-                // Debug.Log($"{activeBehaviours[i]} 가능");
+                // //Debug.Log($"{activeBehaviours[i]} 가능");
             }
         }
 

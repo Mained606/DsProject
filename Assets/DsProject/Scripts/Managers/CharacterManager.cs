@@ -164,7 +164,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         PlayerCharacterData.attribute = ElementalAttribute.None;
 
         playercharacterData.InitializeStats();
-        // Debug.Log(PlayerCharacterData.ToStringForTMPro());
+        // //Debug.Log(PlayerCharacterData.ToStringForTMPro());
     }
     
     public void InitialDragon()
@@ -203,7 +203,7 @@ public class CharacterManager : BaseManager<CharacterManager>
             Debug.LogWarning("드래곤 초기화 중 플레이어 스탯이 변경되어 원래 값으로 복원되었습니다.");
         }
         
-        Debug.Log("드래곤 초기화 완료: " + dragonData.characterName);
+        //Debug.Log("드래곤 초기화 완료: " + dragonData.characterName);
     }
 
     // 특정 인덱스의 캐릭터 반환 (플레이어 또는 몬스터)
@@ -231,7 +231,7 @@ public class CharacterManager : BaseManager<CharacterManager>
     {
         // 템플릿에서 이름에 해당하는 캐릭터 데이터 검색
         MonsterData template = characterTemplates.monsters.Find(c => c.characterName == Name);
-        // Debug.Log(template.ToStringForTMPro() + "몬스터 생성 전 스텟");
+        // //Debug.Log(template.ToStringForTMPro() + "몬스터 생성 전 스텟");
 
         // 템플릿을 메모리에서 복제 (독립적인 인스턴스 생성)
         MonsterData cloned = template.Clone();
@@ -247,7 +247,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         // 리스트에 복제된 캐릭터 추가 (필요 시)
         characterList.Add(cloned);
 
-        Debug.Log($"캐릭터 템플릿 '{cloned.characterName}' 생성 완료.");
+        // //Debug.Log($"캐릭터 템플릿 '{cloned.characterName}' 생성 완료.");
         return cloned;
     }
     
@@ -265,7 +265,7 @@ public class CharacterManager : BaseManager<CharacterManager>
     
             // 몬스터 생성
             SpawnMonster(monsterName, spawnPosition);
-            Debug.Log($"몬스터 '{monsterName}' 스폰 위치: {spawnPosition}");
+            // //Debug.Log($"몬스터 '{monsterName}' 스폰 위치: {spawnPosition}");
         }
     }
 
@@ -276,7 +276,7 @@ public class CharacterManager : BaseManager<CharacterManager>
 
         if (monster != null)
         {
-            Debug.Log($"몬스터 '{monster.characterName}' 생성 완료. 스폰 위치: {spawnPosition}");
+            //Debug.Log($"몬스터 '{monster.characterName}' 생성 완료. 스폰 위치: {spawnPosition}");
             GameObject monsterInstance = Instantiate(monster.characterPrefab, spawnPosition, Quaternion.identity);
             // 생성된 인스턴스를 MonsterData에 연결
             monster.instance = monsterInstance;
@@ -349,13 +349,13 @@ public class CharacterManager : BaseManager<CharacterManager>
                 if (monsterAI != null)
                 {
                     monsterAI.SetDeadState(true);
-                    Debug.Log("몬스터 사망처리");
+                    //Debug.Log("몬스터 사망처리");
                 }
             }
             else
             {
                 monsterAI.SetDeadState(false); // 부모가 없으면 파괴
-                Debug.Log("몬스터 사망처리 파괴");
+                //Debug.Log("몬스터 사망처리 파괴");
             }
         }
 
@@ -371,7 +371,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         GameObject itemBox = ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), monster, false);
         if (itemBox == null)
         {
-            Debug.Log($"{monster.characterName}에서 드롭할 아이템이 없어 아이템 박스가 생성되지 않았습니다.");
+            //Debug.Log($"{monster.characterName}에서 드롭할 아이템이 없어 아이템 박스가 생성되지 않았습니다.");
         }
         
         characterList.Remove(monster);
@@ -390,13 +390,13 @@ public class CharacterManager : BaseManager<CharacterManager>
                 if (baseAI != null)
                 {
                     baseAI.SetDeadState(true);
-                    Debug.Log("캐릭터매니저 보스 사망처리");
+                    //Debug.Log("캐릭터매니저 보스 사망처리");
                 }
             }
             else
             {
                 baseAI.SetDeadState(false); // 부모가 없으면 파괴
-                Debug.Log("캐릭터매니저 보스 사망처리 파괴");
+                //Debug.Log("캐릭터매니저 보스 사망처리 파괴");
             }
         }
 
@@ -412,7 +412,7 @@ public class CharacterManager : BaseManager<CharacterManager>
         GameObject itemBox = ItemManager.Instance.SpawnItemBox(position + new Vector3(0, 1f, 0), boss, true);
         if (itemBox == null)
         {
-            Debug.Log($"{boss.characterName}에서 드롭할 아이템이 없어 아이템 박스가 생성되지 않았습니다.");
+            //Debug.Log($"{boss.characterName}에서 드롭할 아이템이 없어 아이템 박스가 생성되지 않았습니다.");
         }
         
         // 보스 리스트에서 제거

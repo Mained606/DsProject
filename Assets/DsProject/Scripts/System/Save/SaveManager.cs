@@ -56,7 +56,7 @@ public class SaveManager : MonoBehaviour
         if (isPlayerInSavePoint && Input.GetKeyDown(KeyCode.F) && currentSavePoint != null)
         {
             SaveGame(currentSavePoint.savePointId);
-            Debug.Log("게임 세이브 완료!");
+            //Debug.Log("게임 세이브 완료!");
         }
     }
     
@@ -117,7 +117,7 @@ public class SaveManager : MonoBehaviour
             // 저장 이벤트 발생
             OnGameSaved?.Invoke(saveData);
             
-            Debug.Log($"게임이 성공적으로 저장되었습니다: {savePath}");
+            //Debug.Log($"게임이 성공적으로 저장되었습니다: {savePath}");
         }
         catch (Exception e)
         {
@@ -136,7 +136,7 @@ public class SaveManager : MonoBehaviour
             // 저장 파일이 존재하는지 확인
             if (!File.Exists(savePath))
             {
-                Debug.Log("저장된 게임을 찾을 수 없습니다.");
+                //Debug.Log("저장된 게임을 찾을 수 없습니다.");
                 return false;
             }
             
@@ -162,7 +162,7 @@ public class SaveManager : MonoBehaviour
             // 로드 이벤트 발생
             OnGameLoaded?.Invoke(saveData);
             
-            Debug.Log($"게임이 성공적으로 로드되었습니다. (저장일시: {saveData.saveDate})");
+            //Debug.Log($"게임이 성공적으로 로드되었습니다. (저장일시: {saveData.saveDate})");
             return true;
         }
         catch (Exception e)
@@ -259,7 +259,7 @@ public class SaveManager : MonoBehaviour
             // SkillManager.Instance를 사용하여 활성화된 버프 목록을 가져온 후
             // saveData.playerData.activeBuffs 리스트에 저장
             
-            Debug.Log("플레이어 데이터가 성공적으로 저장되었습니다.");
+            //Debug.Log("플레이어 데이터가 성공적으로 저장되었습니다.");
         }
         catch (Exception e) {
             Debug.LogWarning($"플레이어 데이터 저장 중 오류: {e.Message}");
@@ -351,13 +351,13 @@ public class SaveManager : MonoBehaviour
                                 itemLevel = item.itemSkill != null ? item.itemSkill.Level : 0
                             };
                             saveData.inventoryData.quickSlotItems.Add(itemInfo);
-                            Debug.Log($"퀵슬롯 {i}에 등록된 아이템 '{item.id}'을 저장했습니다.");
+                            //Debug.Log($"퀵슬롯 {i}에 등록된 아이템 '{item.id}'을 저장했습니다.");
                         }
                     }
                 }
             }
             
-            Debug.Log("인벤토리 데이터가 성공적으로 저장되었습니다.");
+            //Debug.Log("인벤토리 데이터가 성공적으로 저장되었습니다.");
         }
         catch (Exception e)
         {
@@ -393,7 +393,7 @@ public class SaveManager : MonoBehaviour
                                 level = skill.skillLevel 
                             });
                             
-                            Debug.Log($"스킬 '{skill.skillName}' (레벨 {skill.skillLevel})을 저장했습니다.");
+                            //Debug.Log($"스킬 '{skill.skillName}' (레벨 {skill.skillLevel})을 저장했습니다.");
                         }
                     }
                 }
@@ -410,7 +410,7 @@ public class SaveManager : MonoBehaviour
                         {
                             // 스킬 ID 저장 (스킬 이름 사용)
                             saveData.skillData.quickSlotSkills.Add(skill.skillName);
-                            Debug.Log($"퀵슬롯 {i}에 등록된 스킬 '{skill.skillName}'을 저장했습니다.");
+                            //Debug.Log($"퀵슬롯 {i}에 등록된 스킬 '{skill.skillName}'을 저장했습니다.");
                         }
                         else
                         {
@@ -420,7 +420,7 @@ public class SaveManager : MonoBehaviour
                     }
                 }
                 
-                Debug.Log($"스킬 데이터가 성공적으로 저장되었습니다. 총 {saveData.skillData.unlockedSkills.Count}개의 스킬.");
+                //Debug.Log($"스킬 데이터가 성공적으로 저장되었습니다. 총 {saveData.skillData.unlockedSkills.Count}개의 스킬.");
             }
             else
             {
@@ -474,7 +474,7 @@ public class SaveManager : MonoBehaviour
                                 }
                             }
                             
-                            Debug.Log($"스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원됨");
+                            //Debug.Log($"스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원됨");
                             break; // 스킬을 찾았으므로 다음 스킬로 넘어감
                         }
                     }
@@ -510,15 +510,15 @@ public class SaveManager : MonoBehaviour
                                 
                                 // 퀵슬롯에 스킬 할당
                                 UIManager.SkillsQuickSlot.AssignSkillToSlot(skill, icon, i);
-                                Debug.Log($"퀵슬롯 {i}에 스킬 '{skill.skillName}'을 복원했습니다.");
+                                //Debug.Log($"퀵슬롯 {i}에 스킬 '{skill.skillName}'을 복원했습니다.");
                             }
                         }
                     }
                     
-                    Debug.Log("스킬 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
+                    //Debug.Log("스킬 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
                 }
                 
-                Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");
+                //Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");
             }
             else
             {
@@ -576,7 +576,7 @@ public class SaveManager : MonoBehaviour
                     }
                 }
                 
-                Debug.Log("퀘스트 데이터가 성공적으로 저장되었습니다.");
+                //Debug.Log("퀘스트 데이터가 성공적으로 저장되었습니다.");
             }
             else
             {
@@ -612,6 +612,45 @@ public class SaveManager : MonoBehaviour
                 // 기본 정보 저장
                 saveData.dragonData.level = dragonData.bondLevel;
                 
+                // 진화 단계 저장
+                saveData.dragonData.evolutionStage = (int)dragonData.evolutionStage;
+                
+                // 기본 스탯들 저장
+                saveData.dragonData.strength = dragonData.strength;
+                saveData.dragonData.agility = dragonData.agility;
+                saveData.dragonData.vitality = dragonData.vitality;
+                saveData.dragonData.intelligence = dragonData.intelligence;
+                
+                // 이동 및 공격 관련 스탯 저장
+                saveData.dragonData.speed = dragonData.speed;
+                saveData.dragonData.attackSpeed = dragonData.attackSpeed;
+                saveData.dragonData.attackRange = dragonData.attackRange;
+                
+                // 경험치 관련 정보 저장
+                saveData.dragonData.bondExperience = dragonData.bondExperience;
+                saveData.dragonData.requiredExpToNextLevel = dragonData.RequiredExpToNextLevel;
+                
+                // 계산된 스탯들 저장
+                saveData.dragonData.physicalDamage = dragonData.physicalDamage;
+                saveData.dragonData.magicDamage = dragonData.magicDamage;
+                saveData.dragonData.criticalChance = dragonData.criticalChance;
+                saveData.dragonData.criticalDamage = dragonData.criticalDamage;
+                
+                // 원소 속성 저장
+                saveData.dragonData.dragonAttribute = (int)dragonData.dragonAttribute;
+                
+                // 스탯 배율 저장
+                if (dragonData.statModifier != null) {
+                    saveData.dragonData.strengthMultiplier = dragonData.statModifier.strengthMultiplier;
+                    saveData.dragonData.agilityMultiplier = dragonData.statModifier.agilityMultiplier;
+                    saveData.dragonData.intelligenceMultiplier = dragonData.statModifier.intelligenceMultiplier;
+                } else {
+                    // 기본값 설정
+                    saveData.dragonData.strengthMultiplier = 1.5f;
+                    saveData.dragonData.agilityMultiplier = 0.01f;
+                    saveData.dragonData.intelligenceMultiplier = 1.5f;
+                }
+                
                 // 언락된 능력 저장
                 saveData.dragonData.unlockedAbilities.Clear();
                 // DragonData의 unlockedAbilities 필드가 존재한다면 아래 코드를 유지
@@ -619,7 +658,7 @@ public class SaveManager : MonoBehaviour
                 saveData.dragonData.unlockedAbilities.Add("BasicAttack");
             }
             
-            Debug.Log($"용 데이터가 성공적으로 저장되었습니다. 활성화 상태: {saveData.dragonData.isActive}");
+            //Debug.Log($"용 데이터가 성공적으로 저장되었습니다. 활성화 상태: {saveData.dragonData.isActive}");
         }
         catch (Exception e) {
             Debug.LogWarning($"용 데이터 저장 중 오류: {e.Message}");
@@ -631,7 +670,7 @@ public class SaveManager : MonoBehaviour
     {
         if (saveData.saveableObjects == null || saveData.saveableObjects.objects == null)
         {
-            Debug.Log("저장된 오브젝트 데이터가 없습니다.");
+            //Debug.Log("저장된 오브젝트 데이터가 없습니다.");
             return;
         }
         
@@ -639,14 +678,14 @@ public class SaveManager : MonoBehaviour
         // (비활성화된 오브젝트도 찾기 위해 Resources.FindObjectsOfTypeAll 사용)
         SaveableObject[] saveableObjects = Resources.FindObjectsOfTypeAll<SaveableObject>();
         
-        Debug.Log($"씬에서 {saveableObjects.Length}개의 SaveableObject 컴포넌트를 찾았습니다.");
+        //Debug.Log($"씬에서 {saveableObjects.Length}개의 SaveableObject 컴포넌트를 찾았습니다.");
         
         // ID로 활성화 상태와 위치를 저장할 수 있는 오브젝트를 찾고 일괄 저장 이벤트 발생
         foreach (var saveableObject in saveableObjects)
         {
             // 각 SaveableObject는 자신의 OnGameSaved 핸들러에서 자신의 상태를 저장함
             // 여기서는 추가적인 작업 필요 없음
-            Debug.Log($"SaveableObject: {saveableObject.gameObject.name} (ID: {saveableObject.objectId})");
+            //Debug.Log($"SaveableObject: {saveableObject.gameObject.name} (ID: {saveableObject.objectId})");
         }
     }
     
@@ -659,7 +698,7 @@ public class SaveManager : MonoBehaviour
         if (obj != null)
         {
             obj.SetActive(activate);
-            Debug.Log($"오브젝트 '{obj.name}'의 활성화 상태를 {activate}로 설정했습니다.");
+            //Debug.Log($"오브젝트 '{obj.name}'의 활성화 상태를 {activate}로 설정했습니다.");
         }
     }
     
@@ -688,7 +727,7 @@ public class SaveManager : MonoBehaviour
                 controller.gameObject.SetActive(false);
             }
             
-            Debug.Log("Dragon 모델 업데이트 완료");
+            //Debug.Log("Dragon 모델 업데이트 완료");
         }
     }
     
@@ -747,7 +786,7 @@ public class SaveManager : MonoBehaviour
             // saveData.playerData.activeBuffs 리스트에서 버프 정보를 가져와서
             // SkillManager.Instance를 사용하여 버프 적용 및 지속시간 설정
             
-            Debug.Log("플레이어 데이터가 성공적으로 적용되었습니다.");
+            //Debug.Log("플레이어 데이터가 성공적으로 적용되었습니다.");
         }
         catch (Exception e) {
             Debug.LogWarning($"플레이어 데이터 적용 중 오류: {e.Message}");
@@ -799,7 +838,7 @@ public class SaveManager : MonoBehaviour
                                     }
                                 }
                                 
-                                Debug.Log($"아이템 '{item.name}' (레벨: {item.itemSkill.Level})의 파생 스탯이 업데이트되었습니다.");
+                                //Debug.Log($"아이템 '{item.name}' (레벨: {item.itemSkill.Level})의 파생 스탯이 업데이트되었습니다.");
                             }
                         }
                         
@@ -821,7 +860,7 @@ public class SaveManager : MonoBehaviour
                             // 인벤토리에 있는 아이템을 직접 장착
                             // 이미 강화 수치가 적용되어 있으므로 추가 설정 필요 없음
                             ItemEffectManager.Instance.ApplyItemEffect(weaponInInventory);
-                            Debug.Log($"무기 장착: {weaponInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {weaponInInventory.itemSkill?.Level ?? 0})");
+                            //Debug.Log($"무기 장착: {weaponInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {weaponInInventory.itemSkill?.Level ?? 0})");
                         }
                         else
                         {
@@ -851,7 +890,7 @@ public class SaveManager : MonoBehaviour
                                 }
                                 
                                 ItemEffectManager.Instance.ApplyItemEffect(weapon);
-                                Debug.Log($"무기 장착: {weapon.name} (새로 생성한 아이템, 레벨: {weapon.itemSkill?.Level ?? 0})");
+                                //Debug.Log($"무기 장착: {weapon.name} (새로 생성한 아이템, 레벨: {weapon.itemSkill?.Level ?? 0})");
                             }
                         }
                     }
@@ -866,7 +905,7 @@ public class SaveManager : MonoBehaviour
                         {
                             // 인벤토리에 있는 아이템을 직접 장착
                             ItemEffectManager.Instance.ApplyItemEffect(armorInInventory);
-                            Debug.Log($"방어구 장착: {armorInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {armorInInventory.itemSkill?.Level ?? 0})");
+                            //Debug.Log($"방어구 장착: {armorInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {armorInInventory.itemSkill?.Level ?? 0})");
                         }
                         else
                         {
@@ -896,7 +935,7 @@ public class SaveManager : MonoBehaviour
                                 }
                                 
                                 ItemEffectManager.Instance.ApplyItemEffect(armor);
-                                Debug.Log($"방어구 장착: {armor.name} (새로 생성한 아이템, 레벨: {armor.itemSkill?.Level ?? 0})");
+                                //Debug.Log($"방어구 장착: {armor.name} (새로 생성한 아이템, 레벨: {armor.itemSkill?.Level ?? 0})");
                             }
                         }
                     }
@@ -911,7 +950,7 @@ public class SaveManager : MonoBehaviour
                         {
                             // 인벤토리에 있는 아이템을 직접 장착
                             ItemEffectManager.Instance.ApplyItemEffect(accessoryInInventory);
-                            Debug.Log($"액세서리 장착: {accessoryInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {accessoryInInventory.itemSkill?.Level ?? 0})");
+                            //Debug.Log($"액세서리 장착: {accessoryInInventory.name} (인벤토리에서 직접 찾은 아이템, 레벨: {accessoryInInventory.itemSkill?.Level ?? 0})");
                         }
                         else
                         {
@@ -941,7 +980,7 @@ public class SaveManager : MonoBehaviour
                                 }
                                 
                                 ItemEffectManager.Instance.ApplyItemEffect(accessory);
-                                Debug.Log($"액세서리 장착: {accessory.name} (새로 생성한 아이템, 레벨: {accessory.itemSkill?.Level ?? 0})");
+                                //Debug.Log($"액세서리 장착: {accessory.name} (새로 생성한 아이템, 레벨: {accessory.itemSkill?.Level ?? 0})");
                             }
                         }
                     }
@@ -966,18 +1005,18 @@ public class SaveManager : MonoBehaviour
                             {
                                 // 퀵슬롯에 아이템 할당
                                 slots[itemInfo.slotIndex].SetItem(item);
-                                Debug.Log($"퀵슬롯 {itemInfo.slotIndex}에 아이템 '{item.name}'을 복원했습니다.");
+                                //Debug.Log($"퀵슬롯 {itemInfo.slotIndex}에 아이템 '{item.name}'을 복원했습니다.");
                             }
                         }
                     }
                     
-                    Debug.Log("아이템 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
+                    //Debug.Log("아이템 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
                 }
                 
                 // UI 갱신
                 UIManager.Instance.InventoryUpdate();
                 
-                Debug.Log("인벤토리 데이터가 성공적으로 적용되었습니다.");
+                //Debug.Log("인벤토리 데이터가 성공적으로 적용되었습니다.");
             }
             else
             {
@@ -1013,7 +1052,7 @@ public class SaveManager : MonoBehaviour
                         // 메인퀘스트이면서 이미 완료된 퀘스트인 경우 추가하지 않음
                         if (isMainQuest && isAlreadyCompleted)
                         {
-                            Debug.Log($"[SaveManager] 완료된 메인퀘스트 '{quest.name}'({quest.id})는 QuestDatabase에 추가하지 않습니다.");
+                            //Debug.Log($"[SaveManager] 완료된 메인퀘스트 '{quest.name}'({quest.id})는 QuestDatabase에 추가하지 않습니다.");
                             continue;
                         }
                         
@@ -1064,7 +1103,7 @@ public class SaveManager : MonoBehaviour
                 
                 // 활성 퀘스트 상태 로그
                 int activeCount = QuestManager.QuestDatabase.Count;
-                Debug.Log($"퀘스트 데이터가 성공적으로 적용되었습니다. 활성 퀘스트: {activeCount}개");
+                //Debug.Log($"퀘스트 데이터가 성공적으로 적용되었습니다. 활성 퀘스트: {activeCount}개");
             }
             else
             {
@@ -1090,7 +1129,7 @@ public class SaveManager : MonoBehaviour
                 
                 if (dragons.Length > 0)
                 {
-                    Debug.Log($"씬에서 Dragon을 찾았습니다. 총 {dragons.Length}개");
+                    //Debug.Log($"씬에서 Dragon을 찾았습니다. 총 {dragons.Length}개");
                     GameManager.DragonTransform = dragons[0].transform;
                 }
                 else
@@ -1103,7 +1142,7 @@ public class SaveManager : MonoBehaviour
                     {
                         var dragonInstance = Instantiate(dragonPrefab);
                         GameManager.DragonTransform = dragonInstance.transform;
-                        Debug.Log("Dragon 프리팹을 인스턴스화했습니다.");
+                        //Debug.Log("Dragon 프리팹을 인스턴스화했습니다.");
                     }
                     else
                     {
@@ -1129,20 +1168,53 @@ public class SaveManager : MonoBehaviour
             StartCoroutine(DelayedActivation(GameManager.DragonTransform.gameObject, saveData.dragonData.isActive));
             
             // DragonData 참조 가져오기
-            DragonData dragon = CharacterManager.DragonData;
-            if (dragon == null)
+            DragonData dragonData = CharacterManager.DragonData;
+            if (dragonData == null)
             {
                 Debug.LogError("CharacterManager.DragonData가 null입니다.");
                 return;
             }
             
             // 기본 정보 복원
-            dragon.bondLevel = saveData.dragonData.level;
+            dragonData.bondLevel = saveData.dragonData.level;
+            
+            // 진화 단계 복원
+            if (saveData.dragonData.evolutionStage >= 0) {
+                dragonData.SetEvolutionStage((DragonEvolutionStage)saveData.dragonData.evolutionStage);
+            }
+            
+            // 기본 스탯들 복원
+            dragonData.strength = saveData.dragonData.strength;
+            dragonData.agility = saveData.dragonData.agility;
+            dragonData.vitality = saveData.dragonData.vitality;
+            dragonData.intelligence = saveData.dragonData.intelligence;
+            
+            // 이동 및 공격 관련 스탯 복원
+            dragonData.speed = saveData.dragonData.speed;
+            dragonData.attackSpeed = saveData.dragonData.attackSpeed;
+            dragonData.attackRange = saveData.dragonData.attackRange;
+            
+            // 경험치 관련 정보 복원
+            dragonData.bondExperience = saveData.dragonData.bondExperience;
+            
+            // 원소 속성 복원
+            dragonData.dragonAttribute = (ElementalAttribute)saveData.dragonData.dragonAttribute;
+            
+            // 스탯 배율 복원
+            if (dragonData.statModifier == null) {
+                dragonData.statModifier = new DragonStatModifier();
+            }
+            dragonData.statModifier.strengthMultiplier = saveData.dragonData.strengthMultiplier;
+            dragonData.statModifier.agilityMultiplier = saveData.dragonData.agilityMultiplier;
+            dragonData.statModifier.intelligenceMultiplier = saveData.dragonData.intelligenceMultiplier;
+            
+            // 파생 스탯들 업데이트
+            dragonData.UpdateDerivedStats();
             
             // 언락된 능력들 로그 출력
             foreach (var ability in saveData.dragonData.unlockedAbilities)
             {
-                Debug.Log($"드래곤 능력 로드: {ability}");
+                //Debug.Log($"드래곤 능력 로드: {ability}");
             }
             
             // 드래곤 모델 업데이트 로직
@@ -1152,7 +1224,7 @@ public class SaveManager : MonoBehaviour
                 StartCoroutine(DelayedDragonUpdate(dragonController));
             }
             
-            Debug.Log($"용 데이터가 성공적으로 적용되었습니다. 활성화 상태: {saveData.dragonData.isActive}");
+            //Debug.Log($"용 데이터가 성공적으로 적용되었습니다. 활성화 상태: {saveData.dragonData.isActive}");
         }
         catch (Exception e) {
             Debug.LogWarning($"용 데이터 적용 중 오류: {e.Message}");
@@ -1164,7 +1236,7 @@ public class SaveManager : MonoBehaviour
     {
         if (saveData.saveableObjects == null || saveData.saveableObjects.objects == null)
         {
-            Debug.Log("저장된 오브젝트 데이터가 없습니다.");
+            //Debug.Log("저장된 오브젝트 데이터가 없습니다.");
             return;
         }
         
@@ -1172,14 +1244,14 @@ public class SaveManager : MonoBehaviour
         // (비활성화된 오브젝트도 찾기 위해 Resources.FindObjectsOfTypeAll 사용)
         SaveableObject[] saveableObjects = Resources.FindObjectsOfTypeAll<SaveableObject>();
         
-        Debug.Log($"씬에서 {saveableObjects.Length}개의 SaveableObject 컴포넌트를 찾았습니다.");
+        //Debug.Log($"씬에서 {saveableObjects.Length}개의 SaveableObject 컴포넌트를 찾았습니다.");
         
         // ID로 활성화 상태와 위치를 복원할 수 있는 오브젝트를 찾고 일괄 로드 이벤트 발생
         foreach (var saveableObject in saveableObjects)
         {
             // 각 SaveableObject는 자신의 OnGameLoaded 핸들러에서 자신의 상태를 복원함
             // 여기서는 추가적인 작업 필요 없음
-            Debug.Log($"SaveableObject: {saveableObject.gameObject.name} (ID: {saveableObject.objectId})");
+            //Debug.Log($"SaveableObject: {saveableObject.gameObject.name} (ID: {saveableObject.objectId})");
         }
     }
     
@@ -1191,7 +1263,7 @@ public class SaveManager : MonoBehaviour
         if (File.Exists(savePath))
         {
             File.Delete(savePath);
-            Debug.Log("저장 데이터가 초기화되었습니다.");
+            //Debug.Log("저장 데이터가 초기화되었습니다.");
         }
         
         // 스킬 초기화 로직 수정
@@ -1199,7 +1271,7 @@ public class SaveManager : MonoBehaviour
         {
             // 새로운 메서드 사용
             SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
-            Debug.Log("스킬 언락 상태가 초기화되었습니다.");
+            //Debug.Log("스킬 언락 상태가 초기화되었습니다.");
         }
         
         currentSaveData = null;

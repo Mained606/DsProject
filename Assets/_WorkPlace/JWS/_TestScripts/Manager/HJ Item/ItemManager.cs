@@ -173,7 +173,7 @@ public class ItemManager : BaseManager<ItemManager>
         if (item != null)
         {
             InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
-            Debug.Log($"[ItemManager] 아이템 '{item.name}' {quantity}개 제거 완료");
+            //Debug.Log($"[ItemManager] 아이템 '{item.name}' {quantity}개 제거 완료");
         }
         else
         {
@@ -205,6 +205,9 @@ public class ItemManager : BaseManager<ItemManager>
         }
         UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 아이템 {quantity}개 사용", MessageTag.아이템_사용);
         InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
+        
+        // 퀵슬롯 수량 업데이트
+        InventoryManager.Instance.UpdateQuickSlotQuantity();
 
         // TODO
         // 아이템 사용 효과 적용 (예: 체력 회복 등) 효과 구현연결
@@ -227,6 +230,9 @@ public class ItemManager : BaseManager<ItemManager>
         }
         UIManager.SystemGameMessage($"[InventoryManager] '{item.name}' 아이템 {quantity}개 버림", MessageTag.아이템_버림);
         InventoryManager.Instance.RemoveItemLogic(item.id, quantity);
+        
+        // 퀵슬롯 수량 업데이트
+        InventoryManager.Instance.UpdateQuickSlotQuantity();
 
         // TODO
         // 추가 드롭 연출(필요 시)
@@ -237,7 +243,7 @@ public class ItemManager : BaseManager<ItemManager>
     public void PurchaseItem(Item buyItem, int quantity = 1)
     {
         int amount = buyItem.costValue * quantity;
-        Debug.Log("플레이어 : " + amount + " , " + buyItem.costValue + " , " + quantity);
+        //Debug.Log("플레이어 : " + amount + " , " + buyItem.costValue + " , " + quantity);
         if (CharacterManager.PlayerCharacterData.gold < amount)
         {
             GameStateMachine.Instance.ChangeState(GameSystemState.InfoMessage, "보유한 금액 부족합니다.", true);
@@ -246,6 +252,7 @@ public class ItemManager : BaseManager<ItemManager>
         if (InventoryManager.Instance.CanAddInventoryItem(buyItem.id, quantity) && CharacterManager.PlayerCharacterData.UseGold(amount))
         {
             AddItemLogic(buyItem.id, quantity);
+            InventoryManager.Instance.UpdateQuickSlotQuantity(); // 퀵슬롯 수량 업데이트
         }
     }
 
@@ -262,6 +269,7 @@ public class ItemManager : BaseManager<ItemManager>
         Debug.LogWarning($"판매 : {valueReductionRate}, {quantity}, {amount}");
         CharacterManager.PlayerCharacterData.AddGold(amount);
         InventoryManager.Instance.RemoveItemLogic(selltem.id, quantity);
+        InventoryManager.Instance.UpdateQuickSlotQuantity(); // 퀵슬롯 수량 업데이트
     }
 
     public Sprite GetItemSprite(string spriteName)
@@ -292,12 +300,12 @@ public class ItemManager : BaseManager<ItemManager>
         // 드롭될 아이템이 없는 경우 아이템 박스를 생성하지 않음
         if (monsterData.isRandomDrop && monsterData.randomDropItems.Count == 0)
         {
-            Debug.Log("랜덤 드롭 아이템이 없어 아이템 박스를 생성하지 않습니다.");
+            //Debug.Log("랜덤 드롭 아이템이 없어 아이템 박스를 생성하지 않습니다.");
             return null;
         }
         else if (!monsterData.isRandomDrop && monsterData.dropItems.Count == 0)
         {
-            Debug.Log("고정 드롭 아이템이 없어 아이템 박스를 생성하지 않습니다.");
+            //Debug.Log("고정 드롭 아이템이 없어 아이템 박스를 생성하지 않습니다.");
             return null;
         }
         
@@ -311,13 +319,13 @@ public class ItemManager : BaseManager<ItemManager>
         {
             // 랜덤 드롭 설정
             dropController.randomDropItems = new List<MonsterData.DropItemChance>(monsterData.randomDropItems);
-            Debug.Log($"랜덤 드롭 아이템 박스 생성: {monsterData.randomDropItems.Count}개 아이템 후보");
+            //Debug.Log($"랜덤 드롭 아이템 박스 생성: {monsterData.randomDropItems.Count}개 아이템 후보");
         }
         else
         {
             // 고정 드롭 설정
             dropController.dropItemIds = new List<string>(monsterData.dropItems);
-            Debug.Log($"고정 드롭 아이템 박스 생성: {monsterData.dropItems.Count}개 아이템");
+            //Debug.Log($"고정 드롭 아이템 박스 생성: {monsterData.dropItems.Count}개 아이템");
         }
         
         return itemBox;
@@ -368,10 +376,10 @@ public class ItemManager : BaseManager<ItemManager>
             // 초기화된 상태를 딕셔너리에 저장
             itemEnhancementData[item.id] = new ItemEnhancementInfo(0, item.itemStat?.Clone());
             
-            Debug.Log($"아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
+            //Debug.Log($"아이템 '{item.id}'의 강화 수치가 초기화되었습니다.");
         }
         
-        Debug.Log("모든 아이템 인스턴스가 초기화되었습니다.");
+        //Debug.Log("모든 아이템 인스턴스가 초기화되었습니다.");
     }
 
     protected override void HandleGameStateChange(global::GameSystemState newState, object additionalData)
@@ -380,7 +388,7 @@ public class ItemManager : BaseManager<ItemManager>
         if (newState == GameSystemState.Play || newState == GameSystemState.MainQuestPlay)
         {
             ResetAllItemInstances();
-            Debug.Log("게임 시작: 모든 아이템이 초기화되었습니다.");
+            //Debug.Log("게임 시작: 모든 아이템이 초기화되었습니다.");
         }
     }
 }

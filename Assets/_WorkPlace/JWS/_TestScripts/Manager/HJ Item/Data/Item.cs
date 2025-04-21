@@ -97,7 +97,8 @@ public class Item : ISheetData
         }
         else if(type == ItemType.요리)
         {
-            this.isStackable = false;
+            // 요리 타입에 대한 isStackable 강제 설정 제거
+            // 인스펙터에서 설정한 값을 유지하도록 함
         }
     }
 
@@ -437,7 +438,7 @@ public class Item : ISheetData
             durability = new Durability(int.TryParse(row[31].ToString(), out int dura) ? dura : 100);
         }
 
-        Debug.Log($"[Item] {name} 데이터 로드 완료!");
+        //Debug.Log($"[Item] {name} 데이터 로드 완료!");
     }
 }
 
@@ -606,7 +607,7 @@ public class ItemStat
         PhysicalDefense = float.TryParse(row[8].ToString(), out float pdef) ? pdef : 0f;
         MagicDefense = float.TryParse(row[9].ToString(), out float mdef) ? mdef : 0f;
 
-        Debug.Log("[ItemStat] 아이템 스탯 데이터 로드 완료!");
+        //Debug.Log("[ItemStat] 아이템 스탯 데이터 로드 완료!");
     }
 }
 

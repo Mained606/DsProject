@@ -22,7 +22,7 @@ public class GroundSlash : MonoBehaviour
             StartCoroutine(SlowDown());
         }
         else
-            Debug.Log("No Rigidbody");
+            //Debug.Log("No Rigidbody");
 
         Destroy(gameObject, destroyDelay);
     }

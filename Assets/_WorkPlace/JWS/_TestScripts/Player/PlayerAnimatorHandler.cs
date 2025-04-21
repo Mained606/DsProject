@@ -167,10 +167,10 @@ public class PlayerAnimatorHandler : MonoBehaviour
 
     private void OnAnimatorIK(int layerIndex)
     {
-        Debug.Log("들어왔나?");
+        //Debug.Log("들어왔나?");
         if (animator == null ) return;
 
-        Debug.Log("들어왔나?");
+        //Debug.Log("들어왔나?");
         if (isLookAt && lookAtTarget != null)
         {
             animator.SetLookAtWeight(headIKWeight, 0.5f, 0.6f, 0.8f, 0.5f);

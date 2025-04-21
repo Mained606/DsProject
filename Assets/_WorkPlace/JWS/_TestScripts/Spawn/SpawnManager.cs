@@ -89,7 +89,7 @@ public class SpawnManager : MonoBehaviour
                 bossSpawnerList.Add(newSpawner);
                 break;
         }
-        Debug.Log($"스폰 데이터 '{spawnData.spwanName}'에서 새로운 스포너 생성.");
+        // //Debug.Log($"스폰 데이터 '{spawnData.spwanName}'에서 새로운 스포너 생성.");
     }
 
     private void Update()
@@ -188,7 +188,7 @@ public class SpawnManager : MonoBehaviour
                 {
                     spawnnerLists.spawnMonsterDataLists.Add(nPCSpawner.SpawnData);
                 }
-                Debug.Log($"NPCSpawner '{nPCSpawner.SpawnData.spwanName}'가 SpawnManager에 등록되었습니다.");
+                // //Debug.Log($"NPCSpawner '{nPCSpawner.SpawnData.spwanName}'가 SpawnManager에 등록되었습니다.");
                 break;
             case SpawnnerType.Npc:
                 if (!npcSpawnerList.Contains(nPCSpawner))
@@ -199,7 +199,7 @@ public class SpawnManager : MonoBehaviour
                 {
                     spawnnerLists.spawnNPCDataLists.Add(nPCSpawner.SpawnData);
                 }
-                Debug.Log($"NPCSpawner '{nPCSpawner.SpawnData.spwanName}'가 SpawnManager에 등록되었습니다.");
+                // //Debug.Log($"NPCSpawner '{nPCSpawner.SpawnData.spwanName}'가 SpawnManager에 등록되었습니다.");
                 break;
             case SpawnnerType.Boss:
                 if (!bossSpawnerList.Contains(nPCSpawner))
@@ -210,7 +210,7 @@ public class SpawnManager : MonoBehaviour
                 {
                     spawnnerLists.spawnBossDataLists.Add(nPCSpawner.SpawnData);
                 }
-                Debug.Log($"NPCSpawner '{nPCSpawner.SpawnData.spwanName}'가 SpawnManager에 등록되었습니다.");
+                // //Debug.Log($"NPCSpawner '{nPCSpawner.SpawnData.spwanName}'가 SpawnManager에 등록되었습니다.");
                 break;
             case SpawnnerType.None:
                 break;

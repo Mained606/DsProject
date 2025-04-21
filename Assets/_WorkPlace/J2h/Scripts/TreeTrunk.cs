@@ -16,7 +16,7 @@ public class TreeTrunk : InteractableOb
 
         if (toolTag == "Axe") // 도끼로 타격
         {
-            Debug.Log("도끼로 돌을 때림!");
+            //Debug.Log("도끼로 돌을 때림!");
         }
 
 

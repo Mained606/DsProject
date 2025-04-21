@@ -64,7 +64,7 @@ public class GoogleSheetsManager : MonoBehaviour
         await Task.WhenAll(loadTasks);
         isCompleteLoad = true;
 
-        Debug.Log("모든 데이터 로드 완료!");
+        //Debug.Log("모든 데이터 로드 완료!");
     }
 /*
     public async Task SaveAllData()
@@ -82,7 +82,7 @@ public class GoogleSheetsManager : MonoBehaviour
         }
 
         await Task.WhenAll(saveTasks);
-        Debug.Log("모든 데이터 저장 완료!");
+        //Debug.Log("모든 데이터 저장 완료!");
     }
 
     public async Task SaveData(DataTypeList dataType)
@@ -145,7 +145,7 @@ public class GoogleSheetsManager : MonoBehaviour
         try
         {
             await request.ExecuteAsync();
-            Debug.Log($"[{sheetName}] 데이터 저장 완료 ({dataList.Count}개)");
+            //Debug.Log($"[{sheetName}] 데이터 저장 완료 ({dataList.Count}개)");
         }
         catch (Exception ex)
         {
@@ -159,32 +159,32 @@ public class GoogleSheetsManager : MonoBehaviour
         {
             case DataTypeList.CharacterList:
                 List<CharacterData> characters = await LoadSheetData<CharacterData>("CharacterList");
-                Debug.Log($"캐릭터 데이터 {characters.Count}개 로드 완료");
+                //Debug.Log($"캐릭터 데이터 {characters.Count}개 로드 완료");
                 break;
 
             case DataTypeList.ItemList:
                 List<Item> items = await LoadSheetData<Item>("ItemList");
-                Debug.Log($"아이템 데이터 {items.Count}개 로드 완료");
+                //Debug.Log($"아이템 데이터 {items.Count}개 로드 완료");
                 break;
 
             case DataTypeList.QuestList:
                 List<Quest> quests = await LoadSheetData<Quest>("QuestList");
-                Debug.Log($"퀘스트 데이터 {quests.Count}개 로드 완료");
+                //Debug.Log($"퀘스트 데이터 {quests.Count}개 로드 완료");
                 break;
 
             case DataTypeList.NPCList:
                 List<NPCData> npcs = await LoadSheetData<NPCData>("NPCList");
-                Debug.Log($"NPC 데이터 {npcs.Count}개 로드 완료");
+                //Debug.Log($"NPC 데이터 {npcs.Count}개 로드 완료");
                 break;
 
             case DataTypeList.SkillList:
                 List<Skills> skills = await LoadSheetData<Skills>("SkillList");
-                Debug.Log($"스킬 데이터 {skills.Count}개 로드 완료");
+                //Debug.Log($"스킬 데이터 {skills.Count}개 로드 완료");
                 break;
 
             case DataTypeList.SpawnList:
                 List<SpawnData> spawns = await LoadSheetData<SpawnData>("SpawnList");
-                Debug.Log($"스폰 데이터 {spawns.Count}개 로드 완료");
+                //Debug.Log($"스폰 데이터 {spawns.Count}개 로드 완료");
                 break;
 
             default:

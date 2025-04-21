@@ -194,7 +194,7 @@ public class NPCData : ISheetData
             interactionEffect = Resources.Load<ParticleSystem>($"Effects/NPC/{effectName}");
         }
 
-        Debug.Log($"[NPCData] {name} 데이터 로드 완료!");
+        //Debug.Log($"[NPCData] {name} 데이터 로드 완료!");
     }
 }
 

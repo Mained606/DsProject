@@ -19,7 +19,7 @@ public class DragonEvolver : MonoBehaviour
         }
 
         // 초기화 확인 로그
-        Debug.Log("DragonEvolver 초기화 완료: CharacterManager와 DragonData가 정상적으로 존재합니다.");
+        //Debug.Log("DragonEvolver 초기화 완료: CharacterManager와 DragonData가 정상적으로 존재합니다.");
     }
 
     public void EvolveDragon()
@@ -38,7 +38,7 @@ public class DragonEvolver : MonoBehaviour
         }
 
         bool success = CharacterManager.DragonData.Evolve();
-        Debug.Log($"드래곤 진화 시도 결과: {(success ? "성공" : "실패")}");
+        //Debug.Log($"드래곤 진화 시도 결과: {(success ? "성공" : "실패")}");
     }
 
     public void AddDragonExp(int amount = 100)
@@ -58,6 +58,6 @@ public class DragonEvolver : MonoBehaviour
 
         // 이제 안전하게 경험치 추가 가능
         CharacterManager.DragonData.AddBondExperience(amount);
-        Debug.Log($"드래곤 경험치 {amount} 추가 완료");
+        //Debug.Log($"드래곤 경험치 {amount} 추가 완료");
     }
 }

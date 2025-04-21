@@ -703,7 +703,7 @@ public class BaseMonsterAI : MonoBehaviour
         // 이미 스턴 상태인 경우 무시
         if (isStunned)
         {
-            Debug.Log($"[BaseMonsterAI] {gameObject.name}은(는) 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
+            //Debug.Log($"[BaseMonsterAI] {gameObject.name}은(는) 이미 스턴 상태입니다. 중복 스턴을 무시합니다.");
             return;
         }
         
@@ -733,7 +733,7 @@ public class BaseMonsterAI : MonoBehaviour
     {
         // 지정된 지속시간이 없으면 기본값 사용
         float actualDuration = duration > -1 ? duration : stunDuration;
-        Debug.Log($"{gameObject.name} 스턴 지속시간: {actualDuration}초");
+        //Debug.Log($"{gameObject.name} 스턴 지속시간: {actualDuration}초");
         
         // 스턴 상태 적용
         isStunned = true;
@@ -780,7 +780,7 @@ public class BaseMonsterAI : MonoBehaviour
             SetState(AIState.Patrolling);
         }
         
-        Debug.Log($"{gameObject.name} 스턴에서 회복됨");
+        //Debug.Log($"{gameObject.name} 스턴에서 회복됨");
     }
 
     protected virtual IEnumerator SwitchStateAfterDelay(AIState newState, float delay)
@@ -905,7 +905,7 @@ public class BaseMonsterAI : MonoBehaviour
                 SetState(AIState.Patrolling);
             }
             
-            Debug.Log($"{gameObject.name} 스턴 해제 및 상태 전환");
+            //Debug.Log($"{gameObject.name} 스턴 해제 및 상태 전환");
         }
     }
 }

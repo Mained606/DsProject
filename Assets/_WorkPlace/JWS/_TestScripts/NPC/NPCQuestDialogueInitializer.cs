@@ -53,12 +53,12 @@ public class NPCQuestDialogueInitializer : MonoBehaviour
                     if (!npcData.relatedQuestIds.Contains(dialogueInfo.questId))
                     {
                         npcData.relatedQuestIds.Add(dialogueInfo.questId);
-                        Debug.Log($"관련 퀘스트 목록에 {dialogueInfo.questId} 추가됨 (NPC: {dialogueInfo.npcId})");
+                        //Debug.Log($"관련 퀘스트 목록에 {dialogueInfo.questId} 추가됨 (NPC: {dialogueInfo.npcId})");
                     }
                 }
             }
             
-            Debug.Log($"NPC {dialogueInfo.npcId}의 퀘스트 {dialogueInfo.questId} 대화 초기화 완료");
+            //Debug.Log($"NPC {dialogueInfo.npcId}의 퀘스트 {dialogueInfo.questId} 대화 초기화 완료");
         }
     }
     
@@ -81,10 +81,10 @@ public class NPCQuestDialogueInitializer : MonoBehaviour
             if (!npcData.relatedQuestIds.Contains(questId))
             {
                 npcData.relatedQuestIds.Add(questId);
-                Debug.Log($"관련 퀘스트 목록에 {questId} 추가됨 (NPC: {npcId})");
+                //Debug.Log($"관련 퀘스트 목록에 {questId} 추가됨 (NPC: {npcId})");
             }
         }
         
-        Debug.Log($"NPC {npcId}의 퀘스트 {questId} 대화 업데이트 완료");
+        //Debug.Log($"NPC {npcId}의 퀘스트 {questId} 대화 업데이트 완료");
     }
 } 

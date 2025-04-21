@@ -10,13 +10,13 @@
 //        if(InputManager.InputActions.actions["SkillUI"].triggered)
 //        {
 //            ItemEffectManager.Instance.ApplyItemEffect(InventoryManager.InventoryList[0]);
-//            Debug.Log("K");
+//            //Debug.Log("K");
 //        }
 
 //        if (InputManager.InputActions.actions["ESC"].triggered)
 //        {
 //            ItemManager.Instance.AddItemLogic(test);
-//            Debug.Log("ESC");
+//            //Debug.Log("ESC");
 //        }
 
 //        if(InputManager.InputActions.actions["Interact"].triggered)
@@ -24,11 +24,11 @@
 //            Item item = ItemEffectManager.Instance.GetEquippedItem(EquipmentSlot.손);
 //            if(item != null)
 //            {
-//                Debug.Log(item.id);
+//                //Debug.Log(item.id);
 //            }
 //            else
 //            {
-//                Debug.Log("장착되어 있지 않음");
+//                //Debug.Log("장착되어 있지 않음");
 //            }
 //        }
 //    }

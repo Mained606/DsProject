@@ -83,7 +83,7 @@ public class InventoryUI : MonoBehaviour
         switch (currentButtonIndex)
         {
             case 7:
-                Debug.Log("제거 처리로직 필요");
+                //Debug.Log("제거 처리로직 필요");
                 break;
 
             case 8:
@@ -91,7 +91,7 @@ public class InventoryUI : MonoBehaviour
                 break;
 
             case 9:
-                Debug.Log("장착 처리로직 필요");
+                //Debug.Log("장착 처리로직 필요");
                 break;
 
             default:

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class TitleScene : MonoBehaviour
 {
@@ -15,8 +16,40 @@ public class TitleScene : MonoBehaviour
     // SaveSystemInitializer 참조 추가
     private SaveSystemInitializer saveSystem;
 
+    private void OnEnable()
+    {
+        // 씬 로드 이벤트에 리스너 등록
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        // 활성화 시 즉시 커서 상태 설정
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    private void OnDisable()
+    {
+        // 씬 로드 이벤트에서 리스너 제거
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // 씬 로드 시 호출되는 메서드
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 이 스크립트가 타이틀 씬에 있을 때만 실행
+        if (scene.name.Contains("Title") || scene.name == "TitleScene")
+        {
+            // 씬 로드 시 커서 상태 초기화
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
     private void Start()
     {
+        // 타이틀 씬 시작 시 항상 커서가 보이도록 설정
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        
         buttons = Buttons.GetComponentsInChildren<Button>(true);
         int buttonCount = buttons.Length;
 
@@ -117,11 +150,10 @@ public class TitleScene : MonoBehaviour
         {
             for (int i = 0; i < buttonSideImages[index].Length; i++)
             {
-                var img = buttonSideImages[index][i];
                 if (fadeCoroutines[index][i] != null)
                     StopCoroutine(fadeCoroutines[index][i]);
 
-                fadeCoroutines[index][i] = StartCoroutine(FadeInOut(img, 1.5f));
+                fadeCoroutines[index][i] = StartCoroutine(FadeInOnce(buttonSideImages[index][i]));
             }
         });
         trigger.triggers.Add(enterEntry);
@@ -143,31 +175,65 @@ public class TitleScene : MonoBehaviour
         trigger.triggers.Add(exitEntry);
     }
 
+    private IEnumerator FadeInOnce(Image img, float duration = 0.3f)
+    {
+        float elapsed = 0f;
+        float targetAlpha = 1f; // ✅ 이제 1까지
+
+        while (elapsed < duration)
+        {
+            float alpha = Mathf.Lerp(0f, targetAlpha, elapsed / duration);
+            SetAlpha(img, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        SetAlpha(img, targetAlpha); // 완전하게 1로 고정
+    }
+
+    private IEnumerator FadeClickFeedback(TextMeshProUGUI text, float duration = 0.2f)
+    {
+        if (text == null) yield break;
+
+        float elapsed = 0f;
+        float originalAlpha = text.color.a;
+        float midAlpha = originalAlpha * 0.5f;
+
+        // 0.5로 서서히 감소
+        while (elapsed < duration / 2f)
+        {
+            float alpha = Mathf.Lerp(originalAlpha, midAlpha, elapsed / (duration / 2f));
+            text.color = new Color(text.color.r, text.color.g, text.color.b, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 0.5 → 원래대로 복구
+        elapsed = 0f;
+        while (elapsed < duration / 2f)
+        {
+            float alpha = Mathf.Lerp(midAlpha, originalAlpha, elapsed / (duration / 2f));
+            text.color = new Color(text.color.r, text.color.g, text.color.b, alpha);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        text.color = new Color(text.color.r, text.color.g, text.color.b, originalAlpha);
+    }
+
     private void AddClickListener(Button button, int index)
     {
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() =>
         {
-            // 1. 모든 버튼 텍스트 복원
-            for (int i = 0; i < buttons.Length; i++)
+            // 1. 텍스트 피드백
+            var text = button.GetComponentInChildren<TextMeshProUGUI>();
+            if (text != null)
             {
-                if (i == index) continue;
-
-                var otherText = buttons[i].GetComponentInChildren<TextMeshProUGUI>();
-                if (otherText != null)
-                {
-                    Color c = otherText.color;
-                    c.a = 1f;
-                    otherText.color = c;
-                }
+                StartCoroutine(FadeClickFeedback(text));
             }
 
-            // 2. 현재 버튼 텍스트 페이드
-            var text = button.GetComponentInChildren<TextMeshProUGUI>();
-            if (text != null && text.color.a > 0.95f)
-                StartCoroutine(FadeOutText(text));
-
-            // 3. 현재 버튼 이미지 즉시 제거
+            // 2. 사이드 이미지 제거
             for (int i = 0; i < buttonSideImages[index].Length; i++)
             {
                 if (fadeCoroutines[index][i] != null)
@@ -178,12 +244,12 @@ public class TitleScene : MonoBehaviour
 
                 SetAlpha(buttonSideImages[index][i], 0f);
             }
-            
-            // 4. 버튼 액션 실행
+
+            // 3. 버튼 액션 실행
             ExecuteButtonAction(index);
         });
     }
-    
+
     // 버튼 인덱스에 따른 동작 실행
     private void ExecuteButtonAction(int buttonIndex)
     {
@@ -193,12 +259,12 @@ public class TitleScene : MonoBehaviour
         switch (buttonIndex)
         {
             case 0: // 새 게임 버튼
-                Debug.Log("새 게임 시작");
+                //Debug.Log("새 게임 시작");
                 // 저장 데이터 삭제
                 if (SaveManager.Instance != null)
                 {
                     SaveManager.Instance.ResetSaveData();
-                    Debug.Log("기존 저장 데이터가 삭제되었습니다.");
+                    //Debug.Log("기존 저장 데이터가 삭제되었습니다.");
                 }
                 saveSystem.StartNewGame();
                 break;
@@ -206,7 +272,7 @@ public class TitleScene : MonoBehaviour
             case 1: // 계속하기 버튼
                 if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
                 {
-                    Debug.Log("저장된 게임 불러오기");
+                    //Debug.Log("저장된 게임 불러오기");
                     saveSystem.LoadSavedGame();
                 }
                 else
@@ -216,12 +282,12 @@ public class TitleScene : MonoBehaviour
                 break;
                 
             case 2: // 설정 버튼
-                Debug.Log("설정 메뉴 열기");
+                //Debug.Log("설정 메뉴 열기");
                 // 설정 메뉴 관련 코드
                 break;
                 
             case 3: // 종료 버튼
-                Debug.Log("게임 종료");
+                //Debug.Log("게임 종료");
                 #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
                 #else
@@ -230,24 +296,10 @@ public class TitleScene : MonoBehaviour
                 break;
                 
             default:
-                Debug.Log($"버튼 {buttonIndex} 클릭됨");
+                //Debug.Log($"버튼 {buttonIndex} 클릭됨");
                 break;
         }
     }
 
-    private IEnumerator FadeOutText(TextMeshProUGUI text, float duration = 1.5f)
-    {
-        float elapsed = 0f;
-        Color originalColor = text.color;
-
-        while (elapsed < duration)
-        {
-            float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
-            text.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        text.color = new Color(originalColor.r, originalColor.g, originalColor.b, 0f);
-    }
+   
 }
