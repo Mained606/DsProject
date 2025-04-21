@@ -145,7 +145,7 @@ public class InputManager : BaseManager<InputManager>
         {
             // UI를 비활성화하고 Play 상태로 복귀
             uiActiveStates[actionName] = false;
-            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+            GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
             //Debug.Log($"{actionName} UI 비활성화됨.");
         }
     }
