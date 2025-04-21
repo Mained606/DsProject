@@ -49,7 +49,7 @@ public class NpcController : MonoBehaviour
     void OnFootStep(AnimationEvent animationEvent)
     {
         float distance = Vector3.Distance(GameManager.playerTransform.position, transform.position);
-        if (distance <= 10f)
+        if (distance <= 50f)
         {
             SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
         }

@@ -8,8 +8,7 @@ public class PlayerAniAction : MonoBehaviour
     [SerializeField] private LayerMask layer;
     void OnFootstep(AnimationEvent animationEvent)
     {
-
-        SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 10f, false);
+        SoundManager.Instance.PlayClipAtPoint("Ellen_Footsteps_Earth_Run_02", transform.position, 50f, false);
 
     }
 
