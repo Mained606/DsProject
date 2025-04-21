@@ -10,6 +10,7 @@ public class CompassIndicater : MonoBehaviour
     [SerializeField] private List<Transform> targets;
     [SerializeField] private List<RectTransform> activeMarkers = new List<RectTransform>();
     private Transform player;
+    private PlayerController controller;
     private RectTransform[] compassMarkers;
     private float compassWidth = 1600f;
 
@@ -34,13 +35,14 @@ public class CompassIndicater : MonoBehaviour
     void Start()
     {
         player = GameManager.playerTransform;
+        controller = player.GetComponent<PlayerController>();
         SetupMarkers();
         InitializeTargetMarkers();
     }
 
     void Update()
     {
-        if (targets == null || targets.Count == 0) return;
+        //if (targets == null || targets.Count == 0) return;
         UpdateMarkers();
         UpdateTargetMarkers();
     }
@@ -67,11 +69,12 @@ public class CompassIndicater : MonoBehaviour
 
     void UpdateMarkers()
     {
-        float playerRotationY = player.eulerAngles.y;
+        //float playerRotationY = player.eulerAngles.y;
+        float cameraRotationY = controller.cameraTransform.eulerAngles.y;
 
         for (int i = 0; i < compassMarkers.Length; i++)
         {
-            float angleOffset = (i * (360f / compassMarkers.Length)) - playerRotationY;
+            float angleOffset = (i * (360f / compassMarkers.Length)) - cameraRotationY;
             float normalizedOffset = angleOffset / 360f;
             float markerX = normalizedOffset * compassWidth;
             markerX = Mathf.Repeat(markerX + compassWidth / 2, compassWidth) - compassWidth / 2;
@@ -87,10 +90,11 @@ public class CompassIndicater : MonoBehaviour
             Transform target = targets[i];
             RectTransform marker = activeMarkers[i];
 
-            Vector3 directionToTarget = target.position - player.position;
+            //Vector3 directionToTarget = target.position - player.position;
+            Vector3 directionToTarget = (target.position - player.position).normalized;
             float distance = Vector3.Distance(target.position, player.position);
             float targetAngle = Mathf.Atan2(directionToTarget.x, directionToTarget.z) * Mathf.Rad2Deg;
-            float relativeAngle = Mathf.DeltaAngle(player.eulerAngles.y, targetAngle);
+            float relativeAngle = Mathf.DeltaAngle(controller.cameraTransform.eulerAngles.y, targetAngle);
 
             float markerX = (relativeAngle / 360f) * compassWidth;
 
