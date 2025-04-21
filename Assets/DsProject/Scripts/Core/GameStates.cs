@@ -19,6 +19,7 @@ public enum GameSystemState
     Skill,
     Enhance,
     Event,
+    Option,
     Shopping,         // 쇼핑
     PetInteraction,   // 펫 상호작용
     Training,         // 훈련 모드
