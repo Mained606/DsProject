@@ -122,11 +122,17 @@ MonoBehaviour:
   footstep: {fileID: 8300000, guid: caea0473496fb8c46acfc9722ed4af43, type: 3}
   footstepVol: 0.1
   attack: {fileID: 8300000, guid: 4ed1f4cb3d3804e4c9d814d43dd7e23a, type: 3}
-  attackVol: 0.3
+  attackVol: 0.2
   hit: {fileID: 0}
   hitVol: 1
   dead: {fileID: 8300000, guid: fd479431aec7b6047b17824678a5cd65, type: 3}
   deadVol: 0.5
+  jump: {fileID: 0}
+  jumpVol: 0.2
+  skill: {fileID: 0}
+  skillVol: 0.2
+  roaring: {fileID: 0}
+  roaringVol: 0.2
 --- !u!1 &1643898645384686
 GameObject:
   m_ObjectHideFlags: 0
