@@ -48,8 +48,8 @@ public class OptionUI : MonoBehaviour
                 break;
 
             case 2:
-                gameObject.SetActive(false);
                 GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
+                gameObject.SetActive(false);
                 break;
 
             default:

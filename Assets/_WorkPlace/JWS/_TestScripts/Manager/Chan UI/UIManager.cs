@@ -312,8 +312,6 @@ public class UIManager : BaseManager<UIManager>
     public void ToggleOptionUIwindow()
     {
         ToggleUIWindow(GameSystemState.Option);
-        skillQuickSlot.SetActive(false);
-        quickSlot.SetActive(false);
     }
 
 
