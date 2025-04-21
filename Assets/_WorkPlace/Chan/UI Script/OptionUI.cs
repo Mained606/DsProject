@@ -7,7 +7,6 @@ public class OptionUI : MonoBehaviour
 {
     [SerializeField] private GameObject Buttons;
     private Button[] buttons;
-    [SerializeField] private string titleSceneName = "TitleScene";
 
     private void Start()
     {
@@ -35,7 +34,7 @@ public class OptionUI : MonoBehaviour
         switch (buttonIndex)
         {
             case 0:
-                SceneManager.LoadScene(titleSceneName);
+                GoToTitleScene();
                 break;
 
             case 1: // 종료 버튼
@@ -48,8 +47,8 @@ public class OptionUI : MonoBehaviour
                 break;
 
             case 2:
+                UIManager.Instance.ToggleOptionUIwindow(); // OptionUI 상태 정상 정리
                 GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
-                gameObject.SetActive(false);
                 break;
 
             default:
@@ -57,5 +56,24 @@ public class OptionUI : MonoBehaviour
                 break;
         }
     }
+    private void GoToTitleScene()
+    {
+        TimerManager.Instance.ResumeGame();
+        GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
 
+        // 커서 상태 명시적 설정 - 씬 전환 전에 커서를 보이게 하고 언락함
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        // 타이틀 씬으로 이동
+        SaveSystemInitializer saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
+        if (saveSystem != null)
+        {
+            SceneManager.LoadScene(saveSystem.titleSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene("TitleScene");
+        }
+    }
 }
