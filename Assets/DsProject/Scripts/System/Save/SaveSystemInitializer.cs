@@ -7,6 +7,9 @@ public class SaveSystemInitializer : MonoBehaviour
 {
     private static SaveSystemInitializer instance;
     
+    // 새 게임인지 여부를 나타내는 플래그 추가
+    public static bool isNewGame = false;
+    
     [Header("세이브 시스템 설정")]
     [Tooltip("타이틀 씬 이름")]
     public string titleSceneName = "TitleScene";
@@ -92,17 +95,27 @@ public class SaveSystemInitializer : MonoBehaviour
         // SaveManager가 초기화되어 있는지 확인
         if (SaveManager.Instance != null)
         {
-            // 저장 데이터가 있다면 로드
-            if (SaveManager.Instance.HasSaveData())
+            // 새 게임이 아니고 저장 데이터가 있는 경우에만 로드
+            if (!isNewGame && SaveManager.Instance.HasSaveData())
             {
+                Debug.Log($"[SaveSystemInitializer] 저장된 게임 데이터를 로드합니다. (isNewGame: {isNewGame})");
                 SaveManager.Instance.LoadGame();
             }
+            else
+            {
+                Debug.Log($"[SaveSystemInitializer] 게임 데이터를 로드하지 않습니다. (isNewGame: {isNewGame}, HasSaveData: {SaveManager.Instance.HasSaveData()})");
+            }
+            // 새 게임이 시작된 후에는 플래그 초기화
+            isNewGame = false;
         }
     }
     
     // 게임 시작 (새 게임)
     public void StartNewGame()
     {
+        // 새 게임 플래그 설정
+        isNewGame = true;
+        
         // 저장 데이터 초기화
         if (SaveManager.Instance != null)
         {
@@ -189,14 +202,14 @@ public class SaveSystemInitializer : MonoBehaviour
         }
     }
     
-    // 게임 로드 (저장된 게임 불러오기)
+    // 저장된 게임 로드
     public void LoadSavedGame()
     {
-        // 저장 데이터가 있는지 확인
-        if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
-        {
-            // 메인 게임 씬 로드
-            SceneManager.LoadScene(mainGameSceneName);
-        }
+        // 새 게임이 아님을 표시
+        isNewGame = false;
+        Debug.Log("[SaveSystemInitializer] LoadSavedGame 호출됨 - isNewGame = false로 설정");
+        
+        // 메인 게임 씬 로드
+        SceneManager.LoadScene(mainGameSceneName);
     }
 } 

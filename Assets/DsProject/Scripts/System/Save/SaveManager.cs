@@ -136,9 +136,11 @@ public class SaveManager : MonoBehaviour
             // 저장 파일이 존재하는지 확인
             if (!File.Exists(savePath))
             {
-                //Debug.Log("저장된 게임을 찾을 수 없습니다.");
+                Debug.Log("[SaveManager] 저장된 게임을 찾을 수 없습니다.");
                 return false;
             }
+            
+            Debug.Log("[SaveManager] 저장 파일 발견: " + savePath);
             
             // 파일에서 데이터 읽기
             string jsonData = File.ReadAllText(savePath);
@@ -149,12 +151,14 @@ public class SaveManager : MonoBehaviour
             // 데이터 검증
             if (saveData == null)
             {
-                Debug.LogError("저장 데이터를 로드할 수 없습니다.");
+                Debug.LogError("[SaveManager] 저장 데이터를 로드할 수 없습니다.");
                 return false;
             }
             
             // 현재 저장 데이터 설정
             currentSaveData = saveData;
+            
+            Debug.Log("[SaveManager] 저장 데이터 로드 시작 (저장일시: " + saveData.saveDate + ")");
             
             // 플레이어 및 게임 상태 복원
             ApplySaveData(saveData);
@@ -162,12 +166,12 @@ public class SaveManager : MonoBehaviour
             // 로드 이벤트 발생
             OnGameLoaded?.Invoke(saveData);
             
-            //Debug.Log($"게임이 성공적으로 로드되었습니다. (저장일시: {saveData.saveDate})");
+            Debug.Log("[SaveManager] 게임이 성공적으로 로드되었습니다.");
             return true;
         }
         catch (Exception e)
         {
-            Debug.LogError($"게임 로드 중 오류 발생: {e.Message}");
+            Debug.LogError($"[SaveManager] 게임 로드 중 오류 발생: {e.Message}\n{e.StackTrace}");
             return false;
         }
     }
@@ -372,6 +376,7 @@ public class SaveManager : MonoBehaviour
         {
             if (SkillManager.Instance != null)
             {
+                Debug.Log("[SaveManager] 스킬 데이터 저장 시작");
                 // 습득한 스킬 목록 저장
                 saveData.skillData.unlockedSkills.Clear();
                 
@@ -393,7 +398,7 @@ public class SaveManager : MonoBehaviour
                                 level = skill.skillLevel 
                             });
                             
-                            //Debug.Log($"스킬 '{skill.skillName}' (레벨 {skill.skillLevel})을 저장했습니다.");
+                            Debug.Log($"[SaveManager] 스킬 저장: '{skill.skillName}' (레벨 {skill.skillLevel})");
                         }
                     }
                 }
@@ -410,7 +415,7 @@ public class SaveManager : MonoBehaviour
                         {
                             // 스킬 ID 저장 (스킬 이름 사용)
                             saveData.skillData.quickSlotSkills.Add(skill.skillName);
-                            //Debug.Log($"퀵슬롯 {i}에 등록된 스킬 '{skill.skillName}'을 저장했습니다.");
+                            Debug.Log($"[SaveManager] 퀵슬롯 {i}에 등록된 스킬 '{skill.skillName}' 저장");
                         }
                         else
                         {
@@ -420,16 +425,16 @@ public class SaveManager : MonoBehaviour
                     }
                 }
                 
-                //Debug.Log($"스킬 데이터가 성공적으로 저장되었습니다. 총 {saveData.skillData.unlockedSkills.Count}개의 스킬.");
+                Debug.Log($"[SaveManager] 스킬 데이터 저장 완료. 총 {saveData.skillData.unlockedSkills.Count}개의 스킬 저장됨");
             }
             else
             {
-                Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬을 저장할 수 없습니다.");
+                Debug.LogWarning("[SaveManager] SkillManager.Instance가 null입니다. 스킬을 저장할 수 없습니다.");
             }
         }
         catch (Exception e)
         {
-            Debug.LogWarning($"스킬 데이터 저장 중 오류: {e.Message}");
+            Debug.LogWarning($"[SaveManager] 스킬 데이터 저장 중 오류: {e.Message}");
         }
     }
     
@@ -440,18 +445,26 @@ public class SaveManager : MonoBehaviour
         {
             if (SkillManager.Instance != null)
             {
+                Debug.Log("[SaveManager] 스킬 데이터 적용 시작");
+                // 세이브 데이터가 있을 때는 초기화하지 않고 바로 적용
                 // 먼저 모든 플레이어 스킬을 잠금 상태로 초기화
-                SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
+                // SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
                 
                 // 저장된 스킬 데이터 적용
                 foreach (var skillInfo in saveData.skillData.unlockedSkills)
                 {
+                    Debug.Log($"[SaveManager] 저장된 스킬 데이터 찾기: '{skillInfo.skillId}' (레벨 {skillInfo.level})");
+                    
                     // SkillManager에서 스킬 찾기
+                    bool skillFound = false;
                     foreach (var entry in SkillManager.SkillList)
                     {
                         // 스킬 ID 대신 스킬 이름으로 비교 (ID 매핑이 필요하면 추가 로직 구현 필요)
                         if (entry.Key.Item2 == skillInfo.skillId)
                         {
+                            skillFound = true;
+                            Debug.Log($"[SaveManager] 스킬 '{skillInfo.skillId}' 찾음. SkillManager에서 언락 상태 설정");
+                            
                             // 새로운 메서드로 언락 상태 설정
                             SkillManager.Instance.SetSkillUnlockState(entry.Key.Item1, entry.Key.Item2, true);
                             
@@ -463,6 +476,8 @@ public class SaveManager : MonoBehaviour
                             // 현재 레벨과 다르면 레벨 업데이트
                             if (skill.skillLevel != levelToRestore)
                             {
+                                Debug.Log($"[SaveManager] 스킬 '{skill.skillName}'의 레벨을 1에서 {levelToRestore}로 업데이트");
+                                
                                 // 레벨 1부터 시작해서 목표 레벨까지 하나씩 올림 (가중치 적용을 위해)
                                 skill.skillLevel = 1;
                                 skill.Initialize(); // 먼저 초기화
@@ -474,9 +489,14 @@ public class SaveManager : MonoBehaviour
                                 }
                             }
                             
-                            //Debug.Log($"스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원됨");
+                            Debug.Log($"[SaveManager] 스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원 완료");
                             break; // 스킬을 찾았으므로 다음 스킬로 넘어감
                         }
+                    }
+                    
+                    if (!skillFound)
+                    {
+                        Debug.LogWarning($"[SaveManager] 스킬 '{skillInfo.skillId}'를 SkillManager에서 찾을 수 없습니다.");
                     }
                 }
                 
@@ -485,6 +505,7 @@ public class SaveManager : MonoBehaviour
                 {
                     // 먼저 모든 슬롯 초기화
                     UIManager.SkillsQuickSlot.ClearAllSlots();
+                    Debug.Log("[SaveManager] 스킬 퀵슬롯 초기화");
                     
                     // 저장된 스킬 슬롯 복원
                     for (int i = 0; i < saveData.skillData.quickSlotSkills.Count; i++)
@@ -492,6 +513,8 @@ public class SaveManager : MonoBehaviour
                         string skillId = saveData.skillData.quickSlotSkills[i];
                         if (!string.IsNullOrEmpty(skillId))
                         {
+                            Debug.Log($"[SaveManager] 퀵슬롯 {i}에 스킬 '{skillId}' 복원 시도");
+                            
                             // SkillManager에서 스킬 찾기
                             Skills skill = null;
                             foreach (var entry in SkillManager.SkillList)
@@ -510,24 +533,28 @@ public class SaveManager : MonoBehaviour
                                 
                                 // 퀵슬롯에 스킬 할당
                                 UIManager.SkillsQuickSlot.AssignSkillToSlot(skill, icon, i);
-                                //Debug.Log($"퀵슬롯 {i}에 스킬 '{skill.skillName}'을 복원했습니다.");
+                                Debug.Log($"[SaveManager] 퀵슬롯 {i}에 스킬 '{skill.skillName}' 복원 완료");
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"[SaveManager] 퀵슬롯용 스킬 '{skillId}'를 SkillManager에서 찾을 수 없습니다.");
                             }
                         }
                     }
                     
-                    //Debug.Log("스킬 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
+                    Debug.Log("[SaveManager] 스킬 퀵슬롯 데이터 복원 완료");
                 }
                 
-                //Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");
+                Debug.Log("[SaveManager] 스킬 데이터 적용 완료");
             }
             else
             {
-                Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
+                Debug.LogWarning("[SaveManager] SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
             }
         }
         catch (Exception e)
         {
-            Debug.LogWarning($"스킬 데이터 적용 중 오류: {e.Message}");
+            Debug.LogWarning($"[SaveManager] 스킬 데이터 적용 중 오류: {e.Message}\n{e.StackTrace}");
         }
     }
     

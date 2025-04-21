@@ -274,12 +274,12 @@ public class TitleScene : MonoBehaviour
             case 1: // 계속하기 버튼
                 if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
                 {
-                    //Debug.Log("저장된 게임 불러오기");
+                    Debug.Log("[TitleScene] 저장된 게임 불러오기 시작. isNewGame = false로 설정합니다.");
                     saveSystem.LoadSavedGame();
                 }
                 else
                 {
-                    Debug.LogWarning("저장된 게임이 없습니다.");
+                    Debug.LogWarning("[TitleScene] 저장된 게임이 없습니다.");
                 }
                 break;
                 
