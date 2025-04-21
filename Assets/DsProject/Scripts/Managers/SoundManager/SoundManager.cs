@@ -41,8 +41,10 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private int initialPoolSize = 10;
 
     private AudioSource MainMusicSource;
-    private List<AudioSource> _AudioSource;
+    //private List<AudioSource> _AudioSource;
+    //private Queue<AudioSource> _AudioUnusedQueue = new Queue<AudioSource>();
     private Queue<AudioSource> _AudioUnusedQueue = new Queue<AudioSource>();
+    private List<GameObject> _AudioSourceObjects = new List<GameObject>();
     private Dictionary<string, AudioClip> _loadedAudioClips = new Dictionary<string, AudioClip>();
     private Dictionary<string, AudioClip> _loadedMainMusicClips = new Dictionary<string, AudioClip>();
     private float previousMusicVolume;
@@ -84,8 +86,9 @@ public class SoundManager : MonoBehaviour
     {
         PlayingCheck();
         CheckVolumes();
-        if (_isMute) SetMute("MasterVolume", true);
-        else SetMute("MasterVolume", false);
+        SetMute("MasterVolume", _isMute);
+        //if (_isMute) SetMute("MasterVolume", true);
+        //else SetMute("MasterVolume", false);
     }
 
     private void PlayMainMusic(bool isPlay)
@@ -123,11 +126,16 @@ public class SoundManager : MonoBehaviour
 
     private void InitailizeAudioSource()
     {
-        _AudioSource = new List<AudioSource>();
+        GameObject poolParent = new GameObject("AudioSourcePool");
+        poolParent.transform.SetParent(this.transform);
+        //_AudioSource = new List<AudioSource>();
 
-        while (_AudioSource.Count < initialPoolSize)
+        for (int i = 0; i < initialPoolSize; i++)
         {
-            AudioSource audioSource = AudioSourceAdd();
+            GameObject obj = new GameObject($"AudioSource_{i}");
+            obj.transform.SetParent(poolParent.transform);
+            AudioSource audioSource = obj.AddComponent<AudioSource>(); //AudioSourceAdd();
+
             audioSource.playOnAwake = false;
             audioSource.loop = false;
             audioSource.mute = false;
@@ -137,12 +145,16 @@ public class SoundManager : MonoBehaviour
             audioSource.spatialBlend = 1f;          // 3D 사운드 활성화
             audioSource.dopplerLevel = 1f;         // 도플러 효과 설정
             audioSource.spread = 360f;             // 소리 확산 각도
-            audioSource.minDistance = 1f;          // 최대 음량이 들리는 최소 거리
-            audioSource.maxDistance = 5f;         // 소리가 사라지는 최대 거리
-            audioSource.rolloffMode = AudioRolloffMode.Logarithmic; // 감쇠 설정
+            audioSource.minDistance = 15f;          // 최대 음량이 들리는 최소 거리
+            audioSource.maxDistance = 50f;         // 소리가 사라지는 최대 거리
+            audioSource.rolloffMode = AudioRolloffMode.Linear; // 감쇠 설정
             audioSource.outputAudioMixerGroup = _SoundEffect; // 믹서 그룹
+
+            _AudioSourceObjects.Add(obj);
+            //obj.SetActive(false);
+            _AudioUnusedQueue.Enqueue(audioSource);
         }
-        _AudioUnusedQueue = new Queue<AudioSource>(_AudioSource);
+        //_AudioUnusedQueue = new Queue<AudioSource>(_AudioSource);
     }
 
     //private void UpdateAudioListenerPosition()
@@ -181,27 +193,34 @@ public class SoundManager : MonoBehaviour
 
     private AudioSource GetAvailableSource()
     {
-        AudioSource newSource = _AudioUnusedQueue.Count > 0 ? _AudioUnusedQueue.Dequeue() : AudioSourceAdd();
-        newSource.enabled = true;
-        return newSource;
+        if(_AudioUnusedQueue.Count > 0)
+        {
+            AudioSource source = _AudioUnusedQueue.Dequeue();
+            source.gameObject.SetActive(true);
+            return source;
+        }
+        //Debug.LogWarning("오디오 소스 풀이 부족합니다.");
+        //AudioSource newSource = _AudioUnusedQueue.Count > 0 ? _AudioUnusedQueue.Dequeue() : AudioSourceAdd();
+        //newSource.enabled = true;
+        return null;
     }
 
     private void ReturnSourceToQueue(AudioSource source)
     {
         source.Stop();
         source.clip = null;
-        source.enabled = false;
+        //source.enabled = false;
         _AudioUnusedQueue.Enqueue(source);
     }
 
-    private AudioSource AudioSourceAdd()
-    {
-        GameObject _obj = transform.GetChild(0).gameObject;
-        AudioSource newSource = _obj.AddComponent<AudioSource>();
-        newSource.enabled = false;
-        _AudioSource.Add(newSource);
-        return newSource;
-    }
+    //private AudioSource AudioSourceAdd()
+    //{
+    //    GameObject _obj = transform.GetChild(0).gameObject;
+    //    AudioSource newSource = _obj.AddComponent<AudioSource>();
+    //    newSource.enabled = false;
+    //    _AudioSource.Add(newSource);
+    //    return newSource;
+    //}
 
     public void PlayClip(string clipKey, float speed = 1f)
     {
@@ -230,6 +249,8 @@ public class SoundManager : MonoBehaviour
         if (_loadedAudioClips.TryGetValue(clipKey, out var clip))
         {
             AudioSource source = GetAvailableSource();
+            if (source == null) return;
+
             source.transform.position = position;
             source.clip = clip;
             source.volume = volume;
