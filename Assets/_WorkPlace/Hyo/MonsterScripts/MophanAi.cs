@@ -93,6 +93,7 @@ public class MophanAI : BaseBossAI
                 yield return new WaitForSeconds(roarDuration);
                 // ROARING 후 플레이어를 향해 회전
                 yield return StartCoroutine(RotateTowardsPlayerSmoothly());
+                animator.SetTrigger(IsJumping);
                 isPerformingSpecialMove = true;
                 yield return StartCoroutine(PerformJump(selectedSkill));
                 isPerformingSpecialMove = false;
