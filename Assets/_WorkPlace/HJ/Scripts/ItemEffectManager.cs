@@ -199,7 +199,7 @@ public class ItemEffectManager : BaseManager<ItemEffectManager>
         item.isEquired = true;
         UpdatePlayerStats(item.itemStat, 1);
         PlayParticle(item);
-        if (item.equipmentSlot == EquipmentSlot.손) weaponManager.EquipWeapon(item);
+        if (item.equipmentSlot == EquipmentSlot.손 && item.type == ItemType.무기) weaponManager.EquipWeapon(item);
         //Debug.Log($"{item.name}을 {item.equipmentSlot}에 장착");
 
         //HJ 03.07 추가
