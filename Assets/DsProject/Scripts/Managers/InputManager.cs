@@ -12,7 +12,7 @@ public class InputManager : BaseManager<InputManager>
     private Dictionary<string, bool> inputStates = new Dictionary<string, bool>();
 
     // UI 관련 액션 이름 저장
-    private readonly string[] uiActions = new string[] { "Inventory", "Quest", "StatusUI", "ESC", "Enhance", "Cook", "Skill" };
+    private readonly string[] uiActions = new string[] { "Inventory", "Quest", "StatusUI", "ESC", "Enhance", "Cook", "Skill", "OptionUI" };
     
     // 플레이어 이동 및 전투 관련 액션 이름
     private readonly string[] gameplayActions = new string[] { 
@@ -34,7 +34,9 @@ public class InputManager : BaseManager<InputManager>
         { "StatusUI", GameSystemState.StatusUI },
         { "Cook", GameSystemState.Cook },
         { "Skill", GameSystemState.Skill },
-        { "Enhance", GameSystemState.Enhance }
+        { "Enhance", GameSystemState.Enhance },
+        { "OptionUI", GameSystemState.Option }
+
     };
 
     protected override void Awake()
@@ -255,6 +257,7 @@ public class InputManager : BaseManager<InputManager>
             || state == GameSystemState.Skill
             || state == GameSystemState.Enhance
             || state == GameSystemState.PetInteraction
+            || state == GameSystemState.Option
             || state == GameSystemState.Event
             || state == GameSystemState.GameOver;
     }
