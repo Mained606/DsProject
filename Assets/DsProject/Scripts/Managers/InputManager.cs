@@ -102,7 +102,7 @@ public class InputManager : BaseManager<InputManager>
         // 게임 상태를 Play로 설정
         if (GameStateMachine.Instance != null)
         {
-            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+            GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
         }
     }
 
@@ -167,7 +167,7 @@ public class InputManager : BaseManager<InputManager>
                 }
             }
             
-            GameStateMachine.Instance.ChangeState(GameSystemState.Play);
+            GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
             //Debug.Log("ESC로 Play 상태로 복귀.");
         }
         // 그 외의 상태에서는 MainMenu로 전환
