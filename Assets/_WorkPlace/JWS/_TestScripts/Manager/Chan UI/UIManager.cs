@@ -20,6 +20,7 @@ public class UIManager : BaseManager<UIManager>
     [SerializeField] private GameObject interactTextUI;
     [SerializeField] private GameObject historyLog;
     [SerializeField] private GameObject historyWindow;
+    [SerializeField] private GameObject optionUI;
     [SerializeField] private GameObject gameOverUI_1; // 게임오버 UI
     
     [SerializeField] private GameObject infoMessageWindow;
@@ -66,7 +67,10 @@ public class UIManager : BaseManager<UIManager>
     public static SkillQuickSlotUI SkillsQuickSlot;
     public static EnhanceUI EnhanceUI;
     // ========== 250312 SH 추가 ==========
+
     public static GameoverScene GameOverUI;
+    public static OptionUI OptionUI;
+
     private Coroutine infoMessageCoroutine; // 코루틴 추가부분
 
     protected override void OnEnable()
@@ -99,6 +103,7 @@ public class UIManager : BaseManager<UIManager>
         CookingUI = cookingUI.GetComponent<CookingUI>();
         SkillUI = skillUI.GetComponent<SkillUI>();
         EnhanceUI = enhanceUI.GetComponent<EnhanceUI>();
+        OptionUI = optionUI.GetComponent<OptionUI>();
         GameOverUI = gameOverUI_1.GetComponent<GameoverScene>();
     }
 
@@ -114,6 +119,7 @@ public class UIManager : BaseManager<UIManager>
             { GameSystemState.Cook, cookingUI },
             { GameSystemState.Skill, skillUI },
             { GameSystemState.Enhance,enhanceUI},
+             { GameSystemState.Option,optionUI},
             { GameSystemState.GameOver, gameOverUI_1 }
         };
     }
@@ -136,6 +142,7 @@ public class UIManager : BaseManager<UIManager>
         cookingUI.SetActive(false);
         skillUI.SetActive(false);
         enhanceUI.SetActive(false);
+        optionUI.SetActive(false);
         gameOverUI_1.SetActive(false); // 게임오버 UI 초기화
     }
 
@@ -301,6 +308,10 @@ public class UIManager : BaseManager<UIManager>
         ToggleUIWindow(GameSystemState.Skill);
         skillQuickSlot.SetActive(true);
         quickSlot.SetActive(true);
+    }
+    public void ToggleOptionUIwindow()
+    {
+        ToggleUIWindow(GameSystemState.Option);
     }
 
 
@@ -787,10 +798,13 @@ public class UIManager : BaseManager<UIManager>
             case GameSystemState.Enhance:
                 ToggleEnhanceUIWindow();
                 break;
-            case GameSystemState.GameOver:
-                ToggleGameOverUI();
+            case GameSystemState.Option:
+                ToggleOptionUIwindow();
                 break;
-        }
+            case GameSystemState.GameOver:
+                    ToggleGameOverUI();
+                    break;
+                }
         
         // InputManager에게 UI 상태 변경 알림
         if (isUIState)
