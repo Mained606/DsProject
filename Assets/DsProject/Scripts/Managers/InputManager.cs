@@ -12,7 +12,7 @@ public class InputManager : BaseManager<InputManager>
     private Dictionary<string, bool> inputStates = new Dictionary<string, bool>();
 
     // UI 관련 액션 이름 저장
-    private readonly string[] uiActions = new string[] { "Inventory", "Quest", "StatusUI", "ESC", "Enhance", "Cook", "Skill,OptionUI" };
+    private readonly string[] uiActions = new string[] { "Inventory", "Quest", "StatusUI", "ESC", "Enhance", "Cook", "Skill", "OptionUI" };
     
     // 플레이어 이동 및 전투 관련 액션 이름
     private readonly string[] gameplayActions = new string[] { 

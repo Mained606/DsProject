@@ -12,7 +12,9 @@ public class TitleScene : MonoBehaviour
     private Button[] buttons;
     private Image[][] buttonSideImages;
     private Coroutine[][] fadeCoroutines;
-    
+
+    [SerializeField] private GameObject Option;
+
     // SaveSystemInitializer 참조 추가
     private SaveSystemInitializer saveSystem;
 
@@ -282,7 +284,7 @@ public class TitleScene : MonoBehaviour
                 break;
                 
             case 2: // 설정 버튼
-                //Debug.Log("설정 메뉴 열기");
+                Option.SetActive(true);
                 // 설정 메뉴 관련 코드
                 break;
                 
@@ -300,6 +302,9 @@ public class TitleScene : MonoBehaviour
                 break;
         }
     }
-
+    public void opDown()
+    {
+        Option.SetActive(false);
+    }
    
 }

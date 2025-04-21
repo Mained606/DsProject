@@ -201,9 +201,7 @@ public class UIManager : BaseManager<UIManager>
             NPCData npcData = additionalData as NPCData;
             if (npcData != null) ShopUI.SetShopInfo(npcData);
         }
-        
-        
-        
+
         // 메인 캔버스 및 관련 UI 상태 업데이트
         UpdateMainCanvasState(activateUI, uiState);
         
