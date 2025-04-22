@@ -746,7 +746,7 @@ public class QuestManager : BaseManager<QuestManager>
             
             ActivateGameObject("용", false);
 
-            //player.unlockGlide = true;
+            player.unlockGlide = true;
         }
 
         if(questId == "1_2001")
