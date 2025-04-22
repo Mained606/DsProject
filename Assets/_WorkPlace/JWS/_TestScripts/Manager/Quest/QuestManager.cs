@@ -817,7 +817,7 @@ public class QuestManager : BaseManager<QuestManager>
             player.unlockGlide = true;
 
             //올려치기
-            UnlockSkill("UpperAttack");
+            UnlockSkill("BlazeScatter");
         }
 
         if (questId == "1_2004")
