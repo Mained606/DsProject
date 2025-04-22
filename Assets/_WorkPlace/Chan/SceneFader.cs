@@ -5,106 +5,87 @@ using UnityEngine.SceneManagement;
 
 public class SceneFader : MonoBehaviour
 {
-    #region Variable
-
-    // Fader 이미지
     public Image image;
-    public AnimationCurve curve;
-    public AnimationCurve outcurve;
-    #endregion
 
-    private void Start()
+    private void Awake()
     {
-        // 초기화: 시작시 화면을 검정색으로 시작
-        image.color = new Color(0f, 0f, 0f, 1f);
+        image.color = new Color(0f, 0f, 0f, 1f); // 시작은 검정
         FromFade(2f);
     }
 
     public void FromFade(float delayTime = 0f)
     {
-        // 씬 시작시 페이드 인 효과 
         StartCoroutine(FadeIn(delayTime));
+        Debug.Log("페이더 시작");
     }
 
     IEnumerator FadeIn(float delayTime)
     {
         if (delayTime > 0f)
-        {
             yield return new WaitForSeconds(delayTime);
 
-        }
+        float duration = 1f;
+        float t = 0f;
 
-        // 1초 동안 이미지의 알파값이 a 1->0으로
-
-        float t = 1;
-
-        while (t > 0)
+        while (t < duration)
         {
-            t -= Time.deltaTime;
-            float a = curve.Evaluate(t);
-            image.color = new Color(0f, 0f, 0f, a); // (r ,g ,b 는 검은색)
-
-            yield return 0f;
+            t += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, t / duration); // 1 → 0
+            image.color = new Color(0f, 0f, 0f, alpha);
+            yield return null;
         }
+
+        image.color = new Color(0f, 0f, 0f, 0f); // 완전 투명 보정
     }
 
     public void FadeTo(string sceneName)
     {
-        StartCoroutine(FadeOut(sceneName));
+        StartCoroutine(FadeOutAndLoad(sceneName));
     }
 
     public void FadeTo(int sceneNumber)
     {
-        StartCoroutine(FadeOut(sceneNumber));
+        StartCoroutine(FadeOutAndLoad(sceneNumber));
     }
 
-    IEnumerator FadeOut(int sceneNumber)
+    IEnumerator FadeOutAndLoad(string sceneName)
     {
-        //1초동안 image a 0-> 1
-        float t = 0f;
+        yield return FadeOut(1f);
+        SceneManager.LoadScene(sceneName);
+    }
 
-        while (t < 1f)
+    IEnumerator FadeOutAndLoad(int sceneNumber)
+    {
+        yield return FadeOut(1f);
+        SceneManager.LoadScene(sceneNumber);
+    }
+
+    public IEnumerator FadeOut(float duration = 1f)
+    {
+        float t = 0f;
+        while (t < duration)
         {
             t += Time.deltaTime;
-            float a = curve.Evaluate(t);
-            image.color = new Color(0f, 0f, 0f, a);
-            yield return 0f;
+            float alpha = Mathf.Lerp(0f, 1f, t / duration); // 0 → 1
+            image.color = new Color(0f, 0f, 0f, alpha);
+            yield return null;
         }
 
-        //다음씬 로드
-        SceneManager.LoadScene(sceneNumber);
+        image.color = new Color(0f, 0f, 0f, 1f); // 완전 불투명 보정
     }
 
     public IEnumerator FadeOutOnly(float duration = 1f)
     {
         float t = 0f;
-
-        while (t < 1f)
+        while (t < duration)
         {
             t += Time.deltaTime;
-            float a = outcurve.Evaluate(t);
-            image.color = new Color(0f, 0f, 0f, a);
+            float alpha = Mathf.Lerp(0f, 1f, t / duration); // 밝음 → 어둠
+            image.color = new Color(0f, 0f, 0f, alpha);
             yield return null;
         }
 
-        // 마지막 보정
-        image.color = new Color(0f, 0f, 0f, 1f);
+        image.color = new Color(0f, 0f, 0f, 1f); // 완전 어둡게 고정
     }
 
-    IEnumerator FadeOut(string sceneName)
-    {
-        // 1초동안 image a 0-> 1
-        float t = 0f;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime;
-            float a = curve.Evaluate(t);
-            image.color = new Color(0f, 0f, 0f, a);
-            yield return null;
-        }
-
-        //다음씬 로드
-        SceneManager.LoadScene(sceneName);
-    }
 }

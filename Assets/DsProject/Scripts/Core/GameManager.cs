@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
 
     //=========================
     [SerializeField] private GameObject memo;
+    [SerializeField] private SceneFader fader;
     //=========================
 
     private void Start()
