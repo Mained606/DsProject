@@ -144,7 +144,7 @@ public class CompassIndicater : MonoBehaviour
     {
         if (Instance == null)
         {
-            Debug.LogError("[CompassIndicater] Instance가 null입니다. RemoveTarget을 호출할 수 없습니다.");
+            //Debug.LogError("[CompassIndicater] Instance가 null입니다. RemoveTarget을 호출할 수 없습니다.");
             return;
         }
 
