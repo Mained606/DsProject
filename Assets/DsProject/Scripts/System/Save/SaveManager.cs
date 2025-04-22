@@ -265,6 +265,9 @@ public class SaveManager : MonoBehaviour
             saveData.playerData.physicalDamageBuffMultiplier = playerData.physicalDamageBuffMultiplier;
             saveData.playerData.magicDamageBuffMultiplier = playerData.magicDamageBuffMultiplier;
             
+            // 글라이딩 잠금 해제 상태 저장
+            saveData.playerData.unlockGlide = playerController.unlockGlide;
+            
             // TODO: 버프 지속시간과 쿨타임 정보를 저장하는 코드를 구현
             // SkillManager.Instance를 사용하여 활성화된 버프 목록을 가져온 후
             // saveData.playerData.activeBuffs 리스트에 저장
@@ -837,6 +840,9 @@ public class SaveManager : MonoBehaviour
             playerData.physicalDamageBuffMultiplier = saveData.playerData.physicalDamageBuffMultiplier;
             playerData.magicDamageBuffMultiplier = saveData.playerData.magicDamageBuffMultiplier;
             
+            // 글라이딩 잠금 해제 상태 복원
+            playerController.unlockGlide = saveData.playerData.unlockGlide;
+            
             // TODO: 버프 지속시간과 쿨타임 정보를 복원하는 코드를 구현
             // saveData.playerData.activeBuffs 리스트에서 버프 정보를 가져와서
             // SkillManager.Instance를 사용하여 버프 적용 및 지속시간 설정
@@ -1269,7 +1275,10 @@ public class SaveManager : MonoBehaviour
                     $"기본스탯(힘:{dragonData.strength}, 민첩:{dragonData.agility}, " +
                     $"체력:{dragonData.vitality}, 지능:{dragonData.intelligence}), " +
                     $"파생스탯(물리공격력:{dragonData.physicalDamage}, 마법공격력:{dragonData.magicDamage}, " +
-                    $"치명타확률:{dragonData.criticalChance}, 치명타데미지:{dragonData.criticalDamage})");
+                    $"치명타확률:{dragonData.criticalChance}, 치명타데미지:{dragonData.criticalDamage}), " +
+                    $"스탯배율(힘:{dragonData.statModifier?.strengthMultiplier ?? 1.5f}, " +
+                    $"민첩:{dragonData.statModifier?.agilityMultiplier ?? 0.01f}, " +
+                    $"지능:{dragonData.statModifier?.intelligenceMultiplier ?? 1.5f})");
                 
                 return; // 초기화 후 메서드 종료
             }

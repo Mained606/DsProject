@@ -68,6 +68,9 @@ namespace DsProject.Scripts.System.Save
             public float physicalDamageBuffMultiplier;
             public float magicDamageBuffMultiplier;
             
+            // 글라이딩 기능 잠금 해제 상태
+            public bool unlockGlide;
+            
             // 버프 지속시간 정보를 저장할 리스트
             public List<BuffSaveData> activeBuffs = new List<BuffSaveData>();
         }
