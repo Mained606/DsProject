@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class TitleStatusUI : MonoBehaviour
 {
+    [SerializeField] private Image[] fillbars; 
+    [SerializeField] private TextMeshProUGUI[] valueTexts;
 
     private void Update()
     {
@@ -19,33 +21,15 @@ public class TitleStatusUI : MonoBehaviour
 
     private void UpdateStatusBar()
     {
-        float result = 0f;
-        for (int i = 0; i < transform.GetChild(0).childCount; i++)
-        {
-            TextMeshProUGUI amount = transform.GetChild(0).GetChild(i).GetComponentInChildren<TextMeshProUGUI>();
-            Image fillbar = amount.transform.parent.GetComponent<Image>();
-            switch (i)
-            {
-                case 0:
-                    amount.text = $"{CharacterManager.PlayerCharacterData.currentHp.ToString("F0")} / {CharacterManager.PlayerCharacterData.maxHp}";
-                    result = (float)CharacterManager.PlayerCharacterData.currentHp /
-                             (float)CharacterManager.PlayerCharacterData.maxHp;
-                    fillbar.fillAmount = result;
-                    
-                    break;
-                case 1:
-                    amount.text = $"{CharacterManager.PlayerCharacterData.currentMp.ToString("F0")} / {CharacterManager.PlayerCharacterData.maxMp}";
-                    result = (float)CharacterManager.PlayerCharacterData.currentMp /
-                             (float)CharacterManager.PlayerCharacterData.maxMp;
-                    fillbar.fillAmount = result;
-                    break;
-                case 2:
-                    amount.text = $"{CharacterManager.PlayerCharacterData.staminaCurrent.ToString("F0")} / {CharacterManager.PlayerCharacterData.stamina}";
-                    result = (float)CharacterManager.PlayerCharacterData.staminaCurrent /
-                             (float)CharacterManager.PlayerCharacterData.stamina;
-                    fillbar.fillAmount = result;
-                    break;
-            }
-        }
+        if (fillbars.Length < 3) return;
+
+        valueTexts[0].text = $"{CharacterManager.PlayerCharacterData.currentHp:F0} / {CharacterManager.PlayerCharacterData.maxHp}";
+        fillbars[0].fillAmount = (float)CharacterManager.PlayerCharacterData.currentHp / CharacterManager.PlayerCharacterData.maxHp;
+
+        valueTexts[1].text = $"{CharacterManager.PlayerCharacterData.currentMp:F0} / {CharacterManager.PlayerCharacterData.maxMp}";
+        fillbars[1].fillAmount = (float)CharacterManager.PlayerCharacterData.currentMp / CharacterManager.PlayerCharacterData.maxMp;
+
+        valueTexts[2].text = $"{CharacterManager.PlayerCharacterData.staminaCurrent:F0} / {CharacterManager.PlayerCharacterData.stamina}";
+        fillbars[2].fillAmount = (float)CharacterManager.PlayerCharacterData.staminaCurrent / CharacterManager.PlayerCharacterData.stamina;
     }
 }
