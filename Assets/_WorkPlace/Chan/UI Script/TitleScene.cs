@@ -246,7 +246,7 @@ public class TitleScene : MonoBehaviour
             case 0:
                 if (SaveManager.Instance != null)
                     SaveManager.Instance.ResetSaveData();
-                saveSystem.StartNewGame();
+                StartCoroutine(FadeThenStartNewGame());
                 break;
 
             case 1:
@@ -278,5 +278,11 @@ public class TitleScene : MonoBehaviour
     public void opDown()
     {
         Option.SetActive(false);
+    }
+    private IEnumerator FadeThenStartNewGame()
+    {
+        yield return fader.FadeOutOnly(1f);
+        yield return new WaitForSeconds(1f);
+        saveSystem.StartNewGame();
     }
 }
