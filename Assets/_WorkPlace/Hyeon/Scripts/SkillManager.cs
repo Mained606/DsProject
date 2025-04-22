@@ -83,6 +83,8 @@ public class SkillManager : BaseManager<SkillManager>
     protected override void Awake()
     {
         base.Awake();
+        // Debug.Log("[SkillManager] Awake 호출됨");
+        
         // 직렬화되지 않는 변수들 초기화
         skillList = new Dictionary<(EntityType, string), Skills>();
         skillWeightList = new Dictionary<(EntityType, string), SkillWeights>();
@@ -99,6 +101,7 @@ public class SkillManager : BaseManager<SkillManager>
     protected override void Start()
     {
         base.Start();
+        // Debug.Log("[SkillManager] Start 호출됨");
         animator = GameManager.playerTransform.GetComponent<PlayerController>().PlayerAnimator;
         UpdateCurrentMana();
     }
@@ -111,16 +114,21 @@ public class SkillManager : BaseManager<SkillManager>
 
     private void InitializeSkillDictionary()
     {
+        // Debug.Log("[SkillManager] 스킬 딕셔너리 초기화 시작");
         RegisterSkills(EntityType.Player, skillDatabase.playerSkills);
         RegisterSkillWeights(EntityType.Player, skillWeightDatabase.playerSkillWeights);
         RegisterSkills(EntityType.Dragon, skillDatabase.dragonSkills);
         RegisterSkillWeights(EntityType.Dragon, skillWeightDatabase.dragonSkillWeights);
         RegisterSkills(EntityType.Boss, skillDatabase.bossSkills);
         RegisterSkillWeights(EntityType.Boss, skillWeightDatabase.bossSkillWeights);
+        // Debug.Log($"[SkillManager] 스킬 딕셔너리 초기화 완료: 플레이어 스킬 {skillDatabase.playerSkills.Count}개, 드래곤 스킬 {skillDatabase.dragonSkills.Count}개, 보스 스킬 {skillDatabase.bossSkills.Count}개");
     }
 
     private void RegisterSkills(EntityType entityType, List<Skills> skills)
     {
+        // Debug.Log($"[SkillManager] {entityType} 스킬 등록 시작 (총 {skills.Count}개)");
+        int registerCount = 0;
+        
         foreach (var skill in skills)
         {
             var key = (entityType, skill.skillName);
@@ -130,9 +138,12 @@ public class SkillManager : BaseManager<SkillManager>
                 // 초기 언락 상태를 별도의 딕셔너리에 저장
                 skillUnlockState[key] = skill.unLockSkill;
                 skill.Initialize();
-                // //Debug.Log($"[SkillManager] 스킬 등록: {entityType}-{skill.skillName}, 지속시간: {skill.buffDuration}초, 쿨타임: {skill.cooldown}초");
+                registerCount++;
+                // Debug.Log($"[SkillManager] 스킬 등록: {entityType}-{skill.skillName}, 지속시간: {skill.buffDuration}초, 쿨타임: {skill.cooldown}초, 초기 언락 상태: {skill.unLockSkill}");
             }
         }
+        
+        // Debug.Log($"[SkillManager] {entityType} 스킬 등록 완료 (총 {registerCount}개)");
     }
 
     private void RegisterSkillWeights(EntityType entityType, List<SkillWeights> skillWeights)
@@ -179,7 +190,7 @@ public class SkillManager : BaseManager<SkillManager>
         Skills skill = GetSkill(entityType, skillName);
         if (skill == null)
         {
-            Debug.LogError($"[ActivateSkill] 스킬을 찾을 수 없음: {skillName}");
+            // Debug.LogError($"[ActivateSkill] 스킬을 찾을 수 없음: {skillName}");
             return;
         }
 
@@ -979,12 +990,18 @@ public class SkillManager : BaseManager<SkillManager>
         if (skillList.TryGetValue(key, out Skills skill))
         {
             skill.unLockSkill = unlocked;
+            // Debug.Log($"[SkillManager] 스킬 '{skillName}' 언락 상태 변경: {unlocked}, 레벨: {skill.skillLevel}");
+        }
+        else
+        {
+            Debug.LogWarning($"[SkillManager] 스킬 '{skillName}'를 찾을 수 없어 언락 상태를 변경할 수 없습니다.");
         }
     }
     
     // 모든 플레이어 스킬 언락 상태 초기화
     public void ResetAllPlayerSkillUnlockStates()
     {
+        Debug.Log("[SkillManager] ResetAllPlayerSkillUnlockStates 호출됨");
         int resetCount = 0;
         foreach (var entry in skillList)
         {
@@ -995,15 +1012,17 @@ public class SkillManager : BaseManager<SkillManager>
                 entry.Value.unLockSkill = false;
                 entry.Value.skillLevel = 1;
                 entry.Value.Initialize();
+                // Debug.Log($"[SkillManager] 플레이어 스킬 초기화: '{entry.Key.Item2}', 언락 상태: {entry.Value.unLockSkill}, 레벨: {entry.Value.skillLevel}");
                 resetCount++;
             }
         }
-        //Debug.Log($"총 {resetCount}개의 플레이어 스킬 언락 상태가 초기화되었습니다.");
+        // Debug.Log($"[SkillManager] 총 {resetCount}개의 플레이어 스킬 언락 상태가 초기화되었습니다.");
     }
 
     // 모든 스킬 초기화 메서드 (게임 시작 시 호출)
     public void ResetAllSkills()
     {
+        // Debug.Log("[SkillManager] ResetAllSkills 호출됨");
         int resetCount = 0;
         
         // 모든 쿨다운 타이머 초기화
@@ -1052,16 +1071,26 @@ public class SkillManager : BaseManager<SkillManager>
             resetCount++;
         }
         
-        //Debug.Log($"총 {resetCount}개의 스킬이 초기화되었습니다.");
+        // Debug.Log($"[SkillManager] 총 {resetCount}개의 스킬이 초기화되었습니다.");
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)
     {
-        // 게임 시작 시 모든 스킬 초기화
+        Debug.Log($"[SkillManager] 게임 상태 변경: {newState}");
+        
+        // 게임 시작 시 모든 스킬 초기화 (새 게임인 경우에만)
         if (newState == GameSystemState.Play || newState == GameSystemState.MainQuestPlay)
         {
-            ResetAllSkills();
-            //Debug.Log("게임 시작: 모든 스킬이 초기화되었습니다.");
+            // SaveSystemInitializer에서 isNewGame 플래그 확인
+            if (SaveSystemInitializer.isNewGame)
+            {
+                // Debug.Log("[SkillManager] 새 게임이므로 모든 스킬 초기화");
+                ResetAllSkills();
+            }
+            else
+            {
+                Debug.Log("[SkillManager] 저장된 게임을 로드하므로 스킬 초기화하지 않음");
+            }
         }
     }
 }

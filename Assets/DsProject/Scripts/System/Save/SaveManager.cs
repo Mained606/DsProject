@@ -136,9 +136,11 @@ public class SaveManager : MonoBehaviour
             // 저장 파일이 존재하는지 확인
             if (!File.Exists(savePath))
             {
-                //Debug.Log("저장된 게임을 찾을 수 없습니다.");
+                Debug.Log("[SaveManager] 저장된 게임을 찾을 수 없습니다.");
                 return false;
             }
+            
+            Debug.Log("[SaveManager] 저장 파일 발견: " + savePath);
             
             // 파일에서 데이터 읽기
             string jsonData = File.ReadAllText(savePath);
@@ -149,32 +151,40 @@ public class SaveManager : MonoBehaviour
             // 데이터 검증
             if (saveData == null)
             {
-                Debug.LogError("저장 데이터를 로드할 수 없습니다.");
+                Debug.LogError("[SaveManager] 저장 데이터를 로드할 수 없습니다.");
                 return false;
             }
             
             // 현재 저장 데이터 설정
             currentSaveData = saveData;
             
-            // 플레이어 및 게임 상태 복원
-            ApplySaveData(saveData);
+            Debug.Log("[SaveManager] 저장 데이터 로드 시작 (저장일시: " + saveData.saveDate + ")");
+            
+            // SaveSystemInitializer.isNewGame 값 확인 및 로그 출력
+            Debug.Log($"[SaveManager] 로드 시 SaveSystemInitializer.isNewGame 값: {SaveSystemInitializer.isNewGame}");
+            
+            // 플레이어 및 게임 상태 복원 (SaveSystemInitializer.isNewGame 값을 직접 전달)
+            ApplySaveData(saveData, SaveSystemInitializer.isNewGame);
             
             // 로드 이벤트 발생
             OnGameLoaded?.Invoke(saveData);
             
-            //Debug.Log($"게임이 성공적으로 로드되었습니다. (저장일시: {saveData.saveDate})");
+            Debug.Log("[SaveManager] 게임이 성공적으로 로드되었습니다.");
             return true;
         }
         catch (Exception e)
         {
-            Debug.LogError($"게임 로드 중 오류 발생: {e.Message}");
+            Debug.LogError($"[SaveManager] 게임 로드 중 오류 발생: {e.Message}\n{e.StackTrace}");
             return false;
         }
     }
     
     // 저장 데이터 적용
-    private void ApplySaveData(SaveData saveData)
+    private void ApplySaveData(SaveData saveData, bool isNewGame = false)
     {
+        // isNewGame 값 로그 출력
+        Debug.Log($"[SaveManager] ApplySaveData 호출 - isNewGame: {isNewGame}");
+        
         // GameManager가 초기화되어 있는지 확인
         if (GameManager.playerTransform == null)
         {
@@ -195,7 +205,7 @@ public class SaveManager : MonoBehaviour
         ApplyQuestData(saveData);
         
         // 용 데이터 적용
-        ApplyDragonData(saveData);
+        ApplyDragonData(saveData, isNewGame);
         
         // 저장 가능한 오브젝트들의 상태 로드
         LoadSaveableObjects(saveData);
@@ -254,6 +264,9 @@ public class SaveManager : MonoBehaviour
             saveData.playerData.hpBuffBonus = playerData.hpBuffBonus;
             saveData.playerData.physicalDamageBuffMultiplier = playerData.physicalDamageBuffMultiplier;
             saveData.playerData.magicDamageBuffMultiplier = playerData.magicDamageBuffMultiplier;
+            
+            // 글라이딩 잠금 해제 상태 저장
+            saveData.playerData.unlockGlide = playerController.unlockGlide;
             
             // TODO: 버프 지속시간과 쿨타임 정보를 저장하는 코드를 구현
             // SkillManager.Instance를 사용하여 활성화된 버프 목록을 가져온 후
@@ -372,6 +385,7 @@ public class SaveManager : MonoBehaviour
         {
             if (SkillManager.Instance != null)
             {
+                Debug.Log("[SaveManager] 스킬 데이터 저장 시작");
                 // 습득한 스킬 목록 저장
                 saveData.skillData.unlockedSkills.Clear();
                 
@@ -393,7 +407,7 @@ public class SaveManager : MonoBehaviour
                                 level = skill.skillLevel 
                             });
                             
-                            //Debug.Log($"스킬 '{skill.skillName}' (레벨 {skill.skillLevel})을 저장했습니다.");
+                            Debug.Log($"[SaveManager] 스킬 저장: '{skill.skillName}' (레벨 {skill.skillLevel})");
                         }
                     }
                 }
@@ -410,7 +424,7 @@ public class SaveManager : MonoBehaviour
                         {
                             // 스킬 ID 저장 (스킬 이름 사용)
                             saveData.skillData.quickSlotSkills.Add(skill.skillName);
-                            //Debug.Log($"퀵슬롯 {i}에 등록된 스킬 '{skill.skillName}'을 저장했습니다.");
+                            Debug.Log($"[SaveManager] 퀵슬롯 {i}에 등록된 스킬 '{skill.skillName}' 저장");
                         }
                         else
                         {
@@ -420,16 +434,16 @@ public class SaveManager : MonoBehaviour
                     }
                 }
                 
-                //Debug.Log($"스킬 데이터가 성공적으로 저장되었습니다. 총 {saveData.skillData.unlockedSkills.Count}개의 스킬.");
+                Debug.Log($"[SaveManager] 스킬 데이터 저장 완료. 총 {saveData.skillData.unlockedSkills.Count}개의 스킬 저장됨");
             }
             else
             {
-                Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬을 저장할 수 없습니다.");
+                Debug.LogWarning("[SaveManager] SkillManager.Instance가 null입니다. 스킬을 저장할 수 없습니다.");
             }
         }
         catch (Exception e)
         {
-            Debug.LogWarning($"스킬 데이터 저장 중 오류: {e.Message}");
+            Debug.LogWarning($"[SaveManager] 스킬 데이터 저장 중 오류: {e.Message}");
         }
     }
     
@@ -440,18 +454,26 @@ public class SaveManager : MonoBehaviour
         {
             if (SkillManager.Instance != null)
             {
+                Debug.Log("[SaveManager] 스킬 데이터 적용 시작");
+                // 세이브 데이터가 있을 때는 초기화하지 않고 바로 적용
                 // 먼저 모든 플레이어 스킬을 잠금 상태로 초기화
-                SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
+                // SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
                 
                 // 저장된 스킬 데이터 적용
                 foreach (var skillInfo in saveData.skillData.unlockedSkills)
                 {
+                    Debug.Log($"[SaveManager] 저장된 스킬 데이터 찾기: '{skillInfo.skillId}' (레벨 {skillInfo.level})");
+                    
                     // SkillManager에서 스킬 찾기
+                    bool skillFound = false;
                     foreach (var entry in SkillManager.SkillList)
                     {
                         // 스킬 ID 대신 스킬 이름으로 비교 (ID 매핑이 필요하면 추가 로직 구현 필요)
                         if (entry.Key.Item2 == skillInfo.skillId)
                         {
+                            skillFound = true;
+                            Debug.Log($"[SaveManager] 스킬 '{skillInfo.skillId}' 찾음. SkillManager에서 언락 상태 설정");
+                            
                             // 새로운 메서드로 언락 상태 설정
                             SkillManager.Instance.SetSkillUnlockState(entry.Key.Item1, entry.Key.Item2, true);
                             
@@ -463,6 +485,8 @@ public class SaveManager : MonoBehaviour
                             // 현재 레벨과 다르면 레벨 업데이트
                             if (skill.skillLevel != levelToRestore)
                             {
+                                Debug.Log($"[SaveManager] 스킬 '{skill.skillName}'의 레벨을 1에서 {levelToRestore}로 업데이트");
+                                
                                 // 레벨 1부터 시작해서 목표 레벨까지 하나씩 올림 (가중치 적용을 위해)
                                 skill.skillLevel = 1;
                                 skill.Initialize(); // 먼저 초기화
@@ -474,9 +498,14 @@ public class SaveManager : MonoBehaviour
                                 }
                             }
                             
-                            //Debug.Log($"스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원됨");
+                            Debug.Log($"[SaveManager] 스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원 완료");
                             break; // 스킬을 찾았으므로 다음 스킬로 넘어감
                         }
+                    }
+                    
+                    if (!skillFound)
+                    {
+                        Debug.LogWarning($"[SaveManager] 스킬 '{skillInfo.skillId}'를 SkillManager에서 찾을 수 없습니다.");
                     }
                 }
                 
@@ -485,6 +514,7 @@ public class SaveManager : MonoBehaviour
                 {
                     // 먼저 모든 슬롯 초기화
                     UIManager.SkillsQuickSlot.ClearAllSlots();
+                    Debug.Log("[SaveManager] 스킬 퀵슬롯 초기화");
                     
                     // 저장된 스킬 슬롯 복원
                     for (int i = 0; i < saveData.skillData.quickSlotSkills.Count; i++)
@@ -492,6 +522,8 @@ public class SaveManager : MonoBehaviour
                         string skillId = saveData.skillData.quickSlotSkills[i];
                         if (!string.IsNullOrEmpty(skillId))
                         {
+                            Debug.Log($"[SaveManager] 퀵슬롯 {i}에 스킬 '{skillId}' 복원 시도");
+                            
                             // SkillManager에서 스킬 찾기
                             Skills skill = null;
                             foreach (var entry in SkillManager.SkillList)
@@ -510,24 +542,28 @@ public class SaveManager : MonoBehaviour
                                 
                                 // 퀵슬롯에 스킬 할당
                                 UIManager.SkillsQuickSlot.AssignSkillToSlot(skill, icon, i);
-                                //Debug.Log($"퀵슬롯 {i}에 스킬 '{skill.skillName}'을 복원했습니다.");
+                                Debug.Log($"[SaveManager] 퀵슬롯 {i}에 스킬 '{skill.skillName}' 복원 완료");
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"[SaveManager] 퀵슬롯용 스킬 '{skillId}'를 SkillManager에서 찾을 수 없습니다.");
                             }
                         }
                     }
                     
-                    //Debug.Log("스킬 퀵슬롯 데이터가 성공적으로 복원되었습니다.");
+                    Debug.Log("[SaveManager] 스킬 퀵슬롯 데이터 복원 완료");
                 }
                 
-                //Debug.Log("스킬 데이터가 성공적으로 적용되었습니다.");
+                Debug.Log("[SaveManager] 스킬 데이터 적용 완료");
             }
             else
             {
-                Debug.LogWarning("SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
+                Debug.LogWarning("[SaveManager] SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
             }
         }
         catch (Exception e)
         {
-            Debug.LogWarning($"스킬 데이터 적용 중 오류: {e.Message}");
+            Debug.LogWarning($"[SaveManager] 스킬 데이터 적용 중 오류: {e.Message}\n{e.StackTrace}");
         }
     }
     
@@ -592,18 +628,26 @@ public class SaveManager : MonoBehaviour
     // 용 데이터 저장
     private void SaveDragonData(SaveData saveData)
     {
-        if (GameManager.DragonTransform == null) return;
-        
-        // 드래곤 컨트롤러 가져오기
-        DragonController dragonController = GameManager.DragonTransform.GetComponent<DragonController>();
-        if (dragonController == null) return;
-        
-        // 위치 및 회전 정보 저장
-        saveData.dragonData.position = GameManager.DragonTransform.position;
-        saveData.dragonData.rotation = GameManager.DragonTransform.rotation;
-        
-        // 활성화 상태 저장
-        saveData.dragonData.isActive = GameManager.DragonTransform.gameObject.activeSelf;
+        // 드래곤 Transform이 존재하는 경우에만 위치, 회전, 활성화 상태 저장
+        if (GameManager.DragonTransform != null)
+        {
+            saveData.dragonData.position = GameManager.DragonTransform.position;
+            saveData.dragonData.rotation = GameManager.DragonTransform.rotation;
+            saveData.dragonData.isActive = GameManager.DragonTransform.gameObject.activeSelf;
+        }
+        else
+        {
+            // 드래곤이 없는 경우 기본값 또는 마지막으로 저장된 위치 유지
+            Debug.Log("[SaveManager] DragonTransform이 null입니다. 위치와 회전 정보는 이전 값을 유지합니다.");
+            
+            // 이전에 저장된 위치가 있으면 그대로 유지, 없으면 기본값 설정
+            if (currentSaveData != null && currentSaveData.dragonData != null)
+            {
+                saveData.dragonData.position = currentSaveData.dragonData.position;
+                saveData.dragonData.rotation = currentSaveData.dragonData.rotation;
+                saveData.dragonData.isActive = false; // 드래곤이 없으므로 비활성 상태로 저장
+            }
+        }
         
         try {
             DragonData dragonData = CharacterManager.DragonData;
@@ -656,9 +700,23 @@ public class SaveManager : MonoBehaviour
                 // DragonData의 unlockedAbilities 필드가 존재한다면 아래 코드를 유지
                 // 그렇지 않으면 필요한 능력들을 직접 저장
                 saveData.dragonData.unlockedAbilities.Add("BasicAttack");
+                
+                // 저장되는 드래곤 데이터 디버그 로그 추가
+                Debug.Log($"[SaveManager] 드래곤 데이터 저장: " +
+                    $"Lv.{dragonData.bondLevel}, " +
+                    $"진화단계:{dragonData.evolutionStage}, " +
+                    $"기본스탯(힘:{dragonData.strength}, 민첩:{dragonData.agility}, " +
+                    $"체력:{dragonData.vitality}, 지능:{dragonData.intelligence}), " +
+                    $"파생스탯(물리공격력:{dragonData.physicalDamage}, 마법공격력:{dragonData.magicDamage}, " +
+                    $"치명타확률:{dragonData.criticalChance}, 치명타데미지:{dragonData.criticalDamage}), " +
+                    $"스탯배율(힘:{dragonData.statModifier?.strengthMultiplier ?? 1.5f}, " +
+                    $"민첩:{dragonData.statModifier?.agilityMultiplier ?? 0.01f}, " +
+                    $"지능:{dragonData.statModifier?.intelligenceMultiplier ?? 1.5f})");
             }
-            
-            //Debug.Log($"용 데이터가 성공적으로 저장되었습니다. 활성화 상태: {saveData.dragonData.isActive}");
+            else
+            {
+                Debug.LogWarning("[SaveManager] CharacterManager.DragonData가 null입니다. 드래곤 데이터를 저장할 수 없습니다.");
+            }
         }
         catch (Exception e) {
             Debug.LogWarning($"용 데이터 저장 중 오류: {e.Message}");
@@ -781,6 +839,9 @@ public class SaveManager : MonoBehaviour
             playerData.hpBuffBonus = saveData.playerData.hpBuffBonus;
             playerData.physicalDamageBuffMultiplier = saveData.playerData.physicalDamageBuffMultiplier;
             playerData.magicDamageBuffMultiplier = saveData.playerData.magicDamageBuffMultiplier;
+            
+            // 글라이딩 잠금 해제 상태 복원
+            playerController.unlockGlide = saveData.playerData.unlockGlide;
             
             // TODO: 버프 지속시간과 쿨타임 정보를 복원하는 코드를 구현
             // saveData.playerData.activeBuffs 리스트에서 버프 정보를 가져와서
@@ -1117,24 +1178,41 @@ public class SaveManager : MonoBehaviour
     }
     
     // 용 데이터 적용
-    private void ApplyDragonData(SaveData saveData)
+    private void ApplyDragonData(SaveData saveData, bool isNewGame = false)
     {
+        // isNewGame 값 로그 출력
+        Debug.Log($"[SaveManager] ApplyDragonData 호출 - isNewGame: {isNewGame}, SaveSystemInitializer.isNewGame: {SaveSystemInitializer.isNewGame}");
+        
         try {
+            // DragonData 참조 먼저 가져오기 (필수)
+            DragonData dragonData = CharacterManager.DragonData;
+            if (dragonData == null)
+            {
+                Debug.LogError("[SaveManager] CharacterManager.DragonData가 null입니다. 드래곤 데이터를 로드할 수 없습니다.");
+                return; // DragonData는 필수이므로 없으면 종료
+            }
+            
+            // 드래곤 Transform과 Controller 찾기
+            bool dragonTransformFound = false;
+            DragonController dragonController = null;
+            
             if (GameManager.DragonTransform == null)
             {
-                Debug.LogWarning("Dragon Transform이 null입니다. 씬에서 Dragon을 찾는 중...");
+                Debug.LogWarning("[SaveManager] Dragon Transform이 null입니다. 씬에서 Dragon을 찾는 중...");
                 
                 // 씬에서 Dragon 찾기 시도 (활성화 상태와 관계없이 찾기)
                 var dragons = Resources.FindObjectsOfTypeAll<DragonController>();
                 
                 if (dragons.Length > 0)
                 {
-                    //Debug.Log($"씬에서 Dragon을 찾았습니다. 총 {dragons.Length}개");
                     GameManager.DragonTransform = dragons[0].transform;
+                    dragonController = dragons[0];
+                    dragonTransformFound = true;
+                    Debug.Log($"[SaveManager] 씬에서 Dragon을 찾았습니다. 총 {dragons.Length}개");
                 }
                 else
                 {
-                    Debug.LogError("씬에서 Dragon을 찾을 수 없습니다.");
+                    Debug.LogWarning("[SaveManager] 씬에서 Dragon을 찾을 수 없습니다. Dragon 프리팹을 로드 시도...");
                     
                     // Dragon 프리팹을 Resources 폴더에서 찾아 인스턴스화 시도
                     var dragonPrefab = Resources.Load<GameObject>("Prefabs/Dragon");
@@ -1142,40 +1220,99 @@ public class SaveManager : MonoBehaviour
                     {
                         var dragonInstance = Instantiate(dragonPrefab);
                         GameManager.DragonTransform = dragonInstance.transform;
-                        //Debug.Log("Dragon 프리팹을 인스턴스화했습니다.");
+                        dragonController = dragonInstance.GetComponent<DragonController>();
+                        dragonTransformFound = true;
+                        
+                        // 퀘스트 클리어 여부에 따라 활성화 상태 설정 (기본: 비활성화)
+                        dragonInstance.SetActive(false);
+                        Debug.Log("[SaveManager] Dragon 프리팹을 인스턴스화했습니다. 기본 비활성화 상태로 설정합니다.");
                     }
                     else
                     {
-                        Debug.LogError("Dragon 프리팹을 찾을 수 없습니다.");
-                        return;
+                        Debug.LogWarning("[SaveManager] Dragon 프리팹을 찾을 수 없습니다. 드래곤 데이터만 로드합니다.");
+                        // 프리팹을 찾지 못해도 데이터는 계속 로드
                     }
                 }
             }
-            
-            // 용 컨트롤러 가져오기
-            DragonController dragonController = GameManager.DragonTransform.GetComponent<DragonController>();
-            if (dragonController == null)
+            else
             {
-                Debug.LogError("Dragon 오브젝트에 DragonController 컴포넌트가 없습니다.");
-                return;
+                dragonTransformFound = true;
+                dragonController = GameManager.DragonTransform.GetComponent<DragonController>();
+                if (dragonController == null)
+                {
+                    Debug.LogWarning("[SaveManager] Dragon 오브젝트에 DragonController 컴포넌트가 없습니다.");
+                }
             }
             
-            // 위치 및 회전 복원
-            GameManager.DragonTransform.position = saveData.dragonData.position;
-            GameManager.DragonTransform.rotation = saveData.dragonData.rotation;
-            
-            // 활성화 상태 복원 (코루틴으로 지연 적용)
-            StartCoroutine(DelayedActivation(GameManager.DragonTransform.gameObject, saveData.dragonData.isActive));
-            
-            // DragonData 참조 가져오기
-            DragonData dragonData = CharacterManager.DragonData;
-            if (dragonData == null)
+            // 새 게임인 경우 드래곤 스탯 초기화
+            if (isNewGame)
             {
-                Debug.LogError("CharacterManager.DragonData가 null입니다.");
-                return;
+                Debug.Log("[SaveManager] 새 게임 시작: 드래곤 스탯을 초기화합니다.");
+                
+                // CharacterManager의 InitialDragon 메서드 호출하여 드래곤 초기화
+                if (CharacterManager.Instance != null)
+                {
+                    CharacterManager.Instance.InitialDragon();
+                    Debug.Log("[SaveManager] CharacterManager.InitialDragon() 메서드로 드래곤 초기화 완료");
+                }
+                else
+                {
+                    // CharacterManager 인스턴스가 없는 경우 직접 초기화
+                    dragonData.Initialize();
+                    Debug.Log("[SaveManager] dragonData.Initialize() 메서드로 드래곤 초기화 완료");
+                }
+                
+                // 드래곤 모델 업데이트 (Transform이 있는 경우에만)
+                if (dragonTransformFound && dragonController != null)
+                {
+                    StartCoroutine(DelayedDragonUpdate(dragonController));
+                }
+                
+                // 초기화된 드래곤 데이터 디버그 로그 출력
+                Debug.Log($"[SaveManager] 드래곤 데이터 초기화: " +
+                    $"Lv.{dragonData.bondLevel}, " +
+                    $"진화단계:{dragonData.evolutionStage}, " +
+                    $"기본스탯(힘:{dragonData.strength}, 민첩:{dragonData.agility}, " +
+                    $"체력:{dragonData.vitality}, 지능:{dragonData.intelligence}), " +
+                    $"파생스탯(물리공격력:{dragonData.physicalDamage}, 마법공격력:{dragonData.magicDamage}, " +
+                    $"치명타확률:{dragonData.criticalChance}, 치명타데미지:{dragonData.criticalDamage}), " +
+                    $"스탯배율(힘:{dragonData.statModifier?.strengthMultiplier ?? 1.5f}, " +
+                    $"민첩:{dragonData.statModifier?.agilityMultiplier ?? 0.01f}, " +
+                    $"지능:{dragonData.statModifier?.intelligenceMultiplier ?? 1.5f})");
+                
+                return; // 초기화 후 메서드 종료
             }
             
-            // 기본 정보 복원
+            // 드래곤 Transform이 있는 경우에만 위치, 회전, 활성화 상태 적용
+            if (dragonTransformFound && GameManager.DragonTransform != null)
+            {
+                // 위치 및 회전 복원
+                GameManager.DragonTransform.position = saveData.dragonData.position;
+                GameManager.DragonTransform.rotation = saveData.dragonData.rotation;
+                
+                // 활성화 상태 복원 (코루틴으로 지연 적용)
+                StartCoroutine(DelayedActivation(GameManager.DragonTransform.gameObject, saveData.dragonData.isActive));
+                
+                Debug.Log($"[SaveManager] 드래곤 위치/회전/활성화 상태를 복원했습니다. 활성화 상태: {saveData.dragonData.isActive}");
+            }
+            else
+            {
+                Debug.LogWarning("[SaveManager] 드래곤 Transform을 찾을 수 없어 위치/회전/활성화 상태를 복원하지 않습니다.");
+            }
+            
+            // 저장된 드래곤 데이터 값(세이브 데이터) 디버그 로그 출력
+            Debug.Log($"[SaveManager] 저장된 드래곤 데이터: " +
+                $"Lv.{saveData.dragonData.level}, " +
+                $"진화단계:{saveData.dragonData.evolutionStage}, " +
+                $"기본스탯(힘:{saveData.dragonData.strength}, 민첩:{saveData.dragonData.agility}, " +
+                $"체력:{saveData.dragonData.vitality}, 지능:{saveData.dragonData.intelligence}), " +
+                $"파생스탯(물리공격력:{saveData.dragonData.physicalDamage}, 마법공격력:{saveData.dragonData.magicDamage}, " +
+                $"치명타확률:{saveData.dragonData.criticalChance}, 치명타데미지:{saveData.dragonData.criticalDamage}), " +
+                $"스탯배율(힘:{saveData.dragonData.strengthMultiplier}, " + 
+                $"민첩:{saveData.dragonData.agilityMultiplier}, " +
+                $"지능:{saveData.dragonData.intelligenceMultiplier})");
+            
+            // 기본 정보 복원 (Transform 유무와 관계없이 데이터는 항상 로드)
             dragonData.bondLevel = saveData.dragonData.level;
             
             // 진화 단계 복원
@@ -1208,8 +1345,23 @@ public class SaveManager : MonoBehaviour
             dragonData.statModifier.agilityMultiplier = saveData.dragonData.agilityMultiplier;
             dragonData.statModifier.intelligenceMultiplier = saveData.dragonData.intelligenceMultiplier;
             
-            // 파생 스탯들 업데이트
-            dragonData.UpdateDerivedStats();
+            // 저장된 파생 스탯 값을 직접 할당
+            dragonData.physicalDamage = saveData.dragonData.physicalDamage;
+            dragonData.magicDamage = saveData.dragonData.magicDamage;
+            dragonData.criticalChance = saveData.dragonData.criticalChance;
+            dragonData.criticalDamage = saveData.dragonData.criticalDamage;
+            
+            // 로드된 드래곤 데이터(적용 후) 디버그 로그 출력
+            Debug.Log($"[SaveManager] 드래곤 데이터 로드 완료: " +
+                $"Lv.{dragonData.bondLevel}, " +
+                $"진화단계:{dragonData.evolutionStage}, " +
+                $"기본스탯(힘:{dragonData.strength}, 민첩:{dragonData.agility}, " +
+                $"체력:{dragonData.vitality}, 지능:{dragonData.intelligence}), " +
+                $"파생스탯(물리공격력:{dragonData.physicalDamage}, 마법공격력:{dragonData.magicDamage}, " +
+                $"치명타확률:{dragonData.criticalChance}, 치명타데미지:{dragonData.criticalDamage}), " +
+                $"스탯배율(힘:{dragonData.statModifier.strengthMultiplier}, " +
+                $"민첩:{dragonData.statModifier.agilityMultiplier}, " +
+                $"지능:{dragonData.statModifier.intelligenceMultiplier})");
             
             // 언락된 능력들 로그 출력
             foreach (var ability in saveData.dragonData.unlockedAbilities)
@@ -1217,17 +1369,15 @@ public class SaveManager : MonoBehaviour
                 //Debug.Log($"드래곤 능력 로드: {ability}");
             }
             
-            // 드래곤 모델 업데이트 로직
-            if (dragonController != null)
+            // 드래곤 모델 업데이트 로직 (Transform과 Controller가 있는 경우에만)
+            if (dragonTransformFound && dragonController != null)
             {
                 // 활성화 상태에 관계없이 드래곤 모델 업데이트 시도
                 StartCoroutine(DelayedDragonUpdate(dragonController));
             }
-            
-            //Debug.Log($"용 데이터가 성공적으로 적용되었습니다. 활성화 상태: {saveData.dragonData.isActive}");
         }
         catch (Exception e) {
-            Debug.LogWarning($"용 데이터 적용 중 오류: {e.Message}");
+            Debug.LogWarning($"용 데이터 적용 중 오류: {e.Message}\n{e.StackTrace}");
         }
     }
     
