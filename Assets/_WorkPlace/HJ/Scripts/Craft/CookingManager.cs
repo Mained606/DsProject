@@ -171,11 +171,15 @@ public class CookingManager : CraftManager
     private Item FailedDish()
     {
         Item failedDish = ItemManager.Instance.GetItemById(failedDishId).Clone();
-        ItemStat failedStat = failedDish.itemStat.Clone();
 
-        for (int i = 0; i < selectedIngredients.Count - 1; i++)
+        if(failedDish.itemStat != null)
         {
-            failedDish.itemStat = failedDish.itemStat.AddStats(failedDish.itemStat, failedStat);
+            ItemStat failedStat = failedDish.itemStat.Clone();
+
+            for (int i = 0; i < selectedIngredients.Count - 1; i++)
+            {
+                failedDish.itemStat = failedDish.itemStat.AddStats(failedDish.itemStat, failedStat);
+            }
         }
 
         return failedDish;
