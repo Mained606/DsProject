@@ -46,10 +46,10 @@ public class OptionUI : MonoBehaviour
                 #endif
                 break;
 
-            case 2:
+          /*  case 2:
                 UIManager.Instance.ToggleOptionUIwindow(); // OptionUI 상태 정상 정리
                 GameStateMachine.Instance.ChangeState(GameSystemState.Exploration);
-                break;
+                break;*/
 
             default:
                 //Debug.Log($"버튼 {buttonIndex} 클릭됨");
