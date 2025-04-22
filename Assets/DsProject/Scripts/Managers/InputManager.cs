@@ -258,7 +258,7 @@ public class InputManager : BaseManager<InputManager>
             || state == GameSystemState.Enhance
             || state == GameSystemState.PetInteraction
             || state == GameSystemState.Option
-            || state == GameSystemState.Event
+        //    || state == GameSystemState.Event
             || state == GameSystemState.GameOver;
     }
 }

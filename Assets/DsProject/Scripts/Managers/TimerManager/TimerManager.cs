@@ -67,7 +67,7 @@ public class TimerManager : BaseManager<TimerManager>
             PauseGame();
         }
         else if (newState == GameSystemState.Play || newState == GameSystemState.Exploration || 
-                 newState == GameSystemState.Combat || newState == GameSystemState.BossBattle || newState == GameSystemState.MainMenu)
+                 newState == GameSystemState.Combat || newState == GameSystemState.BossBattle || newState == GameSystemState.MainMenu || newState == GameSystemState.Event)
         {
             // 게임 플레이 상태로 돌아갈 경우 게임 재개
             ResumeGame();

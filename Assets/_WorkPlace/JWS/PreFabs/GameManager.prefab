@@ -389,6 +389,7 @@ GameObject:
   - component: {fileID: 8252969194192692553}
   - component: {fileID: 4765288004588897935}
   - component: {fileID: 1523963967402295036}
+  - component: {fileID: 6472157781342916524}
   m_Layer: 0
   m_Name: QuestManager
   m_TagString: Untagged
@@ -559,6 +560,23 @@ MonoBehaviour:
     - "\uC232 \uC18D\uC758 \uC774\uC0C1\uD55C \uBB3C\uAC74\uC740 \uD655\uC778\uD574\uBD24\uC5B4?"
     completeDialogues:
     - "\uC55E\uC73C\uB85C \uC798 \uBD80\uD0C1\uD574"
+--- !u!114 &6472157781342916524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2881707320073850653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7badd21a4b4814f49bfe0a19deb4da8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dragonEgg: {fileID: 0}
+  dragonNPC: {fileID: 0}
+  playerDragon: {fileID: 0}
+  initDelay: 0.5
+  debugMode: 0
 --- !u!1 &3107391844861314812
 GameObject:
   m_ObjectHideFlags: 0
@@ -1069,6 +1087,7 @@ MonoBehaviour:
   interactTextUI: {fileID: 0}
   historyLog: {fileID: 0}
   historyWindow: {fileID: 0}
+  optionUI: {fileID: 0}
   gameOverUI_1: {fileID: 0}
   infoMessageWindow: {fileID: 0}
   infoMessageCloseButton: {fileID: 0}
@@ -1143,6 +1162,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   totalManagers: 1
   memo: {fileID: 0}
+  fader: {fileID: 3152837621364014442, guid: c3673ec741ac73342b1dc17d7646655a, type: 3}
 --- !u!114 &4132014792383948691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1166,7 +1186,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3581484004234617012, guid: 03740ceb27f68484185c66087382d24e, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3581484004234617012, guid: 03740ceb27f68484185c66087382d24e, type: 3}
       propertyPath: idleCursorImage
