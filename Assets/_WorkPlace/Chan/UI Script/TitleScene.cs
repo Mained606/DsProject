@@ -14,6 +14,7 @@ public class TitleScene : MonoBehaviour
     private Coroutine[][] fadeCoroutines;
 
     [SerializeField] private GameObject Option;
+    [SerializeField] private SceneFader fader;
 
     // SaveSystemInitializer 참조 추가
     private SaveSystemInitializer saveSystem;
@@ -268,7 +269,9 @@ public class TitleScene : MonoBehaviour
                     SaveManager.Instance.ResetSaveData();
                     //Debug.Log("기존 저장 데이터가 삭제되었습니다.");
                 }
-                saveSystem.StartNewGame();
+
+                StartCoroutine(FadeThenStartNewGame());
+
                 break;
                 
             case 1: // 계속하기 버튼
@@ -306,5 +309,11 @@ public class TitleScene : MonoBehaviour
     {
         Option.SetActive(false);
     }
-   
+
+    private IEnumerator FadeThenStartNewGame()
+    {
+        yield return StartCoroutine(fader.FadeOutOnly(1f));
+        yield return new WaitForSeconds(2f);
+        saveSystem.StartNewGame();
+    }
 }
