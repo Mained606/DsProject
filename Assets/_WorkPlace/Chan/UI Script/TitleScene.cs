@@ -270,7 +270,7 @@ public class TitleScene : MonoBehaviour
                     //Debug.Log("기존 저장 데이터가 삭제되었습니다.");
                 }
 
-                saveSystem.StartNewGame();
+                StartCoroutine(FadeThenStartNewGame());
 
                 break;
                 
@@ -310,10 +310,10 @@ public class TitleScene : MonoBehaviour
         Option.SetActive(false);
     }
 
-   /* private IEnumerator FadeThenStartNewGame()
+    private IEnumerator FadeThenStartNewGame()
     {
         yield return StartCoroutine(fader.FadeOutOnly(1f));
-        yield return new WaitForSeconds(5f);                
-        saveSystem.StartNewGame();                        
-    }*/
+        yield return new WaitForSeconds(2f);
+        saveSystem.StartNewGame();
+    }
 }

@@ -10,6 +10,7 @@ public class SceneFader : MonoBehaviour
     // Fader 이미지
     public Image image;
     public AnimationCurve curve;
+    public AnimationCurve outcurve;
     #endregion
 
     private void Start()
@@ -81,7 +82,7 @@ public class SceneFader : MonoBehaviour
         while (t < 1f)
         {
             t += Time.deltaTime;
-            float a = curve.Evaluate(t);
+            float a = outcurve.Evaluate(t);
             image.color = new Color(0f, 0f, 0f, a);
             yield return null;
         }
