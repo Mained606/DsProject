@@ -117,10 +117,10 @@ public class CameraManager : BaseManager<CameraManager>
             return;
         }
 
-        if (Input.GetKeyUp(KeyCode.F9))
+      /*  if (Input.GetKeyUp(KeyCode.F9))
         {
             StartTransition(orbitTarget, CameraTransitionType.Normal);
-        }
+        }*/
 
         if (preTransitionType != currentTransitionType)
         {

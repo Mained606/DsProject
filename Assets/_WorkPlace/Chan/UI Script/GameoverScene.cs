@@ -10,7 +10,7 @@ public class GameoverScene : MonoBehaviour
 {
     [SerializeField] private GameObject Buttons;                   // 버튼 부모
     [SerializeField] private TextMeshProUGUI Description; // 설명 텍스트
-
+    [SerializeField] private SceneFader fader;
     private Button[] buttons;
     private Image[] hoverImages;
     private Coroutine[] fadeCoroutines;
@@ -95,7 +95,7 @@ public class GameoverScene : MonoBehaviour
     {
         TimerManager.Instance.ResumeGame();
         GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-
+        fader.FadeOutOnly(2f);
         // 커서 상태 명시적 설정 - 씬 전환 전에 커서를 보이게 하고 언락함
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -147,7 +147,7 @@ public class GameoverScene : MonoBehaviour
     {
         TimerManager.Instance.ResumeGame();
         GameStateMachine.Instance.ChangeState(GameSystemState.MainMenu);
-        
+        fader.FadeOutOnly(2f);
         // 커서 상태 명시적 설정 - 씬 전환 전에 커서를 보이게 하고 언락함
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -234,4 +234,5 @@ public class GameoverScene : MonoBehaviour
         });
         trigger.triggers.Add(exitEntry);
     }
+
 }
