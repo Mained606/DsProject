@@ -88,9 +88,12 @@ public class CookingManager : CraftManager
                 extraStat = extraStat == null ? extra.itemStat.Clone() : extraStat.AddStats(extraStat, extra.itemStat);
             }
 
-            //스탯 총합 계산
-            totalStat = totalStat.AddStats(totalStat, extraStat);
-            totalItem.itemStat = totalStat;
+            if(totalStat != null)
+            {
+                //스탯 총합 계산
+                totalStat = totalStat.AddStats(totalStat, extraStat);
+                totalItem.itemStat = totalStat;
+            }
 
             //아이템 id, 설명 수정
             EditId(totalItem, ingredientsCount);
