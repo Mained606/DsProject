@@ -723,6 +723,18 @@ public class QuestManager : BaseManager<QuestManager>
             ActivateDragonEgg();
         }
 
+        if (questId == "1_1003")
+        {
+            // 용의알 비활성화
+            if(dragonEgg != null)
+            {
+                dragonEgg.SetActive(false);
+            }
+            
+            // 용(NPC) 활성화
+            ActivateGameObject("용", true);
+        }
+
         if (questId == "1_1004")
         {
             // 1. 스킬 언락
@@ -734,7 +746,7 @@ public class QuestManager : BaseManager<QuestManager>
             
             ActivateGameObject("용", false);
 
-            //player.unlockGlide = true;
+            player.unlockGlide = true;
         }
 
         if(questId == "1_2001")

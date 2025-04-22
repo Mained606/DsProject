@@ -45,8 +45,12 @@ public class DropItemEggStrawBerry : MonoBehaviour
         if(itemName == "용의알")
         {
             questObject.SetActive(true);
+            this.gameObject.SetActive(false);
         }
-        Destroy(gameObject);
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private bool IsNearPlayer()

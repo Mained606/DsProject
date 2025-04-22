@@ -65,14 +65,17 @@ public class OptionUI : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // 타이틀 씬으로 이동
+        // 새 게임이 아님을 명시적으로 표시
         SaveSystemInitializer saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
         if (saveSystem != null)
         {
+            SaveSystemInitializer.isNewGame = false;
+            Debug.Log("[OptionUI] 타이틀로 돌아갑니다. isNewGame = false로 설정했습니다.");
             SceneManager.LoadScene(saveSystem.titleSceneName);
         }
         else
         {
+            Debug.LogWarning("[OptionUI] SaveSystemInitializer를 찾을 수 없습니다.");
             SceneManager.LoadScene("TitleScene");
         }
     }
