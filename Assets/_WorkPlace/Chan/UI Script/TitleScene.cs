@@ -13,35 +13,30 @@ public class TitleScene : MonoBehaviour
     private Image[][] buttonSideImages;
     private Coroutine[][] fadeCoroutines;
 
+    private TextMeshProUGUI[] buttonTexts;
+    private Color[] originalTextColors;
+
     [SerializeField] private GameObject Option;
     [SerializeField] private SceneFader fader;
 
-    // SaveSystemInitializer 참조 추가
     private SaveSystemInitializer saveSystem;
 
     private void OnEnable()
     {
-        // 씬 로드 이벤트에 리스너 등록
         SceneManager.sceneLoaded += OnSceneLoaded;
-        
-        // 활성화 시 즉시 커서 상태 설정
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
     private void OnDisable()
     {
-        // 씬 로드 이벤트에서 리스너 제거
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // 씬 로드 시 호출되는 메서드
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 이 스크립트가 타이틀 씬에 있을 때만 실행
         if (scene.name.Contains("Title") || scene.name == "TitleScene")
         {
-            // 씬 로드 시 커서 상태 초기화
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
@@ -49,17 +44,17 @@ public class TitleScene : MonoBehaviour
 
     private void Start()
     {
-        // 타이틀 씬 시작 시 항상 커서가 보이도록 설정
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-        
+
         buttons = Buttons.GetComponentsInChildren<Button>(true);
         int buttonCount = buttons.Length;
 
         buttonSideImages = new Image[buttonCount][];
         fadeCoroutines = new Coroutine[buttonCount][];
-        
-        // SaveSystemInitializer 찾기 또는 생성
+        buttonTexts = new TextMeshProUGUI[buttonCount];
+        originalTextColors = new Color[buttonCount];
+
         saveSystem = FindFirstObjectByType<SaveSystemInitializer>();
         if (saveSystem == null)
         {
@@ -69,7 +64,6 @@ public class TitleScene : MonoBehaviour
 
         for (int i = 0; i < buttonCount; i++)
         {
-            // 텍스트 제외한 이미지 수집
             var allImages = buttons[i].GetComponentsInChildren<Image>(true);
             List<Image> sideImgs = new();
 
@@ -88,37 +82,40 @@ public class TitleScene : MonoBehaviour
             {
                 SetAlpha(img, 0f);
             }
+
+            buttonTexts[i] = buttons[i].GetComponentInChildren<TextMeshProUGUI>();
+            if (buttonTexts[i] != null)
+            {
+                Color original = buttonTexts[i].color;
+                if (!buttons[i].interactable)
+                    original.a = 0.5f; // 비활성화 상태면 반투명으로 저장
+                originalTextColors[i] = original;
+            }
         }
 
-        // 트리거 및 클릭 리스너 분리 실행
         for (int i = 0; i < buttonCount; i++)
         {
             AddEventTriggers(buttons[i].gameObject, i);
             AddClickListener(buttons[i], i);
         }
-        
-        // 저장된 게임 데이터 확인 및 계속하기 버튼 활성화 설정
+
         UpdateContinueButtonState();
     }
-    
-    // 저장된 게임 데이터 유무에 따라 계속하기 버튼 상태 업데이트
+
     public void UpdateContinueButtonState()
     {
         bool hasSaveData = SaveManager.Instance != null && SaveManager.Instance.HasSaveData();
-        
-        // 계속하기 버튼 찾기 (버튼의 이름이나 인덱스에 따라 수정 필요)
-        // 예시: 두 번째 버튼이 계속하기라면
         if (buttons.Length >= 2)
         {
             buttons[1].interactable = hasSaveData;
-            
-            // 저장 데이터가 없을 경우 비활성화된 상태 표시
             TextMeshProUGUI buttonText = buttons[1].GetComponentInChildren<TextMeshProUGUI>();
             if (buttonText != null)
             {
-                buttonText.color = hasSaveData ? 
-                    new Color(buttonText.color.r, buttonText.color.g, buttonText.color.b, 1f) : 
+                buttonText.color = hasSaveData ?
+                    new Color(buttonText.color.r, buttonText.color.g, buttonText.color.b, 1f) :
                     new Color(buttonText.color.r, buttonText.color.g, buttonText.color.b, 0.5f);
+
+                originalTextColors[1] = buttonText.color; // 복원용 색도 갱신
             }
         }
     }
@@ -129,18 +126,6 @@ public class TitleScene : MonoBehaviour
         Color c = img.color;
         c.a = alpha;
         img.color = c;
-    }
-
-    private IEnumerator FadeInOut(Image img, float duration)
-    {
-        float time = 0f;
-        while (true)
-        {
-            time += Time.deltaTime;
-            float alpha = Mathf.PingPong(time, duration) / duration;
-            SetAlpha(img, alpha);
-            yield return null;
-        }
     }
 
     private void AddEventTriggers(GameObject obj, int index)
@@ -158,6 +143,9 @@ public class TitleScene : MonoBehaviour
 
                 fadeCoroutines[index][i] = StartCoroutine(FadeInOnce(buttonSideImages[index][i]));
             }
+
+            if (buttonTexts[index] != null)
+                buttonTexts[index].color = Color.white;
         });
         trigger.triggers.Add(enterEntry);
 
@@ -174,6 +162,9 @@ public class TitleScene : MonoBehaviour
 
                 SetAlpha(buttonSideImages[index][i], 0f);
             }
+
+            if (buttonTexts[index] != null)
+                buttonTexts[index].color = originalTextColors[index];
         });
         trigger.triggers.Add(exitEntry);
     }
@@ -181,7 +172,7 @@ public class TitleScene : MonoBehaviour
     private IEnumerator FadeInOnce(Image img, float duration = 0.3f)
     {
         float elapsed = 0f;
-        float targetAlpha = 1f; // ✅ 이제 1까지
+        float targetAlpha = 1f;
 
         while (elapsed < duration)
         {
@@ -191,7 +182,7 @@ public class TitleScene : MonoBehaviour
             yield return null;
         }
 
-        SetAlpha(img, targetAlpha); // 완전하게 1로 고정
+        SetAlpha(img, targetAlpha);
     }
 
     private IEnumerator FadeClickFeedback(TextMeshProUGUI text, float duration = 0.2f)
@@ -202,7 +193,6 @@ public class TitleScene : MonoBehaviour
         float originalAlpha = text.color.a;
         float midAlpha = originalAlpha * 0.5f;
 
-        // 0.5로 서서히 감소
         while (elapsed < duration / 2f)
         {
             float alpha = Mathf.Lerp(originalAlpha, midAlpha, elapsed / (duration / 2f));
@@ -211,7 +201,6 @@ public class TitleScene : MonoBehaviour
             yield return null;
         }
 
-        // 0.5 → 원래대로 복구
         elapsed = 0f;
         while (elapsed < duration / 2f)
         {
@@ -229,14 +218,10 @@ public class TitleScene : MonoBehaviour
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() =>
         {
-            // 1. 텍스트 피드백
             var text = button.GetComponentInChildren<TextMeshProUGUI>();
             if (text != null)
-            {
                 StartCoroutine(FadeClickFeedback(text));
-            }
 
-            // 2. 사이드 이미지 제거
             for (int i = 0; i < buttonSideImages[index].Length; i++)
             {
                 if (fadeCoroutines[index][i] != null)
@@ -248,33 +233,23 @@ public class TitleScene : MonoBehaviour
                 SetAlpha(buttonSideImages[index][i], 0f);
             }
 
-            // 3. 버튼 액션 실행
             ExecuteButtonAction(index);
         });
     }
 
-    // 버튼 인덱스에 따른 동작 실행
     private void ExecuteButtonAction(int buttonIndex)
     {
         if (saveSystem == null) return;
-        
-        // 버튼 인덱스에 따라 다른 동작 실행 (실제 버튼 순서에 맞게 수정 필요)
+
         switch (buttonIndex)
         {
-            case 0: // 새 게임 버튼
-                //Debug.Log("새 게임 시작");
-                // 저장 데이터 삭제
+            case 0:
                 if (SaveManager.Instance != null)
-                {
                     SaveManager.Instance.ResetSaveData();
-                    //Debug.Log("기존 저장 데이터가 삭제되었습니다.");
-                }
-
-                StartCoroutine(FadeThenStartNewGame());
-
+                saveSystem.StartNewGame();
                 break;
-                
-            case 1: // 계속하기 버튼
+
+            case 1:
                 if (SaveManager.Instance != null && SaveManager.Instance.HasSaveData())
                 {
                     Debug.Log("[TitleScene] 저장된 게임 불러오기 시작. isNewGame = false로 설정합니다.");
@@ -285,35 +260,23 @@ public class TitleScene : MonoBehaviour
                     Debug.LogWarning("[TitleScene] 저장된 게임이 없습니다.");
                 }
                 break;
-                
-            case 2: // 설정 버튼
+
+            case 2:
                 Option.SetActive(true);
-                // 설정 메뉴 관련 코드
                 break;
-                
-            case 3: // 종료 버튼
-                //Debug.Log("게임 종료");
-                #if UNITY_EDITOR
+
+            case 3:
+#if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
-                #else
+#else
                 Application.Quit();
-                #endif
-                break;
-                
-            default:
-                //Debug.Log($"버튼 {buttonIndex} 클릭됨");
+#endif
                 break;
         }
     }
+
     public void opDown()
     {
         Option.SetActive(false);
-    }
-
-    private IEnumerator FadeThenStartNewGame()
-    {
-        yield return StartCoroutine(fader.FadeOutOnly(1f));
-        yield return new WaitForSeconds(2f);
-        saveSystem.StartNewGame();
     }
 }
