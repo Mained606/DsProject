@@ -849,6 +849,8 @@ public class DragonController : MonoBehaviour
                 renderers[i].material = evolutionMaterial;
             }
         }
+
+        yield return new WaitForSeconds(0.5f);
         
         // 진화 이펙트 재생
         if (evolutionEffectPrefab != null)
@@ -857,7 +859,7 @@ public class DragonController : MonoBehaviour
             Destroy(effect, 3f);
         }
         
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(0.5f);
         
         UpdateDragonModel();
         
