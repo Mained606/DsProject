@@ -211,13 +211,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wingSound: {fileID: 8300000, guid: e3a800dd7d4428d4c95db6e6c6260156, type: 3}
-  wingVol: 1
+  wingVol: 0.2
   mileeSound: {fileID: 8300000, guid: 7ef0d3e7240a1ae44991aff2381c7c72, type: 3}
   mileeVol: 1
   fireballSound: {fileID: 8300000, guid: 8e221ad1869bcaf46bc528933a55726f, type: 3}
   fireballVol: 1
   octaWingSound: {fileID: 8300000, guid: e3a800dd7d4428d4c95db6e6c6260156, type: 3}
-  octaWingVol: 1
+  octaWingVol: 0.2
   octaMileeSound: {fileID: 8300000, guid: 7ef0d3e7240a1ae44991aff2381c7c72, type: 3}
   octaMileeVol: 1
   octaFireballSound: {fileID: 8300000, guid: 8e221ad1869bcaf46bc528933a55726f, type: 3}
