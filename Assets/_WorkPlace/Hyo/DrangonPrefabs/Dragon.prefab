@@ -196,7 +196,7 @@ MonoBehaviour:
   - {fileID: 3519793645587539127}
   - {fileID: 3519793645587539127}
   - {fileID: 3519793645587539127}
-  evolutionEffectPrefab: {fileID: 0}
+  evolutionEffectPrefab: {fileID: 545158281056120792, guid: 8adce386e4431594d89e298c130cb6ce, type: 3}
   evolutionMaterial: {fileID: 0}
 --- !u!114 &5168957503829441475
 MonoBehaviour:
