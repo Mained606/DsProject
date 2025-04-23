@@ -145,7 +145,10 @@ public class TitleScene : MonoBehaviour
             }
 
             if (buttonTexts[index] != null)
+            {
                 buttonTexts[index].color = Color.white;
+                buttonTexts[index].fontSize *= 1.2f; // 사이즈 20% 증가
+            }
         });
         trigger.triggers.Add(enterEntry);
 
@@ -164,7 +167,10 @@ public class TitleScene : MonoBehaviour
             }
 
             if (buttonTexts[index] != null)
+            {
                 buttonTexts[index].color = originalTextColors[index];
+                buttonTexts[index].fontSize /= 1.2f; // 원래 사이즈로 복원
+            }
         });
         trigger.triggers.Add(exitEntry);
     }
