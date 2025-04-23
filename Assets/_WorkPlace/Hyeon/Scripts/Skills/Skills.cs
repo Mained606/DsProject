@@ -141,7 +141,7 @@ public class Skills : ISheetData
     }
 
     // 스킬 가중치 적용 함수
-    private void SkillWeightApply(bool levelUp = true)  // 디폴트 값은 레벨 상승, false는 레벨 하락
+    public void SkillWeightApply(bool levelUp = true)  // 디폴트 값은 레벨 상승, false는 레벨 하락
     {
         // TODO : 가중치 보정 함수
         skillWeight = SkillManager.Instance.GetSkillWeights(EntityType.Player, skillName);
@@ -182,6 +182,39 @@ public class Skills : ISheetData
             currentEffectPrefab = skillWeight.fullLevelEffectPrefab;
         }
     }
+
+    public Skills Clone()
+    {
+        return new Skills
+        {
+            entityType = this.entityType,
+            skillType = this.skillType,
+            attribute = this.attribute,
+            skillName = this.skillName,
+            damage = this.damage,
+            cooldown = this.cooldown,
+            energyCost = this.energyCost,
+            effectPrefab = this.effectPrefab,
+            activeTriggerName = this.activeTriggerName,
+            particleDelay = this.particleDelay,
+            animationDuration = this.animationDuration,
+            buffDuration = this.buffDuration,
+            buffValue = this.buffValue,
+            debuffDuration = this.debuffDuration,
+            debuffValue = this.debuffValue,
+            effectDuration = this.effectDuration,
+
+            skillLevel = 1,
+            maxSkillLevel = this.maxSkillLevel,
+            currentExperience = 0,
+            experienceToLevelUp = Mathf.RoundToInt(1 * 100f), // 초기값 100
+            unLockSkill = false,
+            targeting = this.targeting,
+
+            cooldownTimer = new BasicTimer(this.cooldown)
+        };
+    }
+
 
     // 아이템이나 포인트로 올릴 수 있는 스킬 레벨 상한 제한 추가 필요
     public void ParseData(IList<object> row)

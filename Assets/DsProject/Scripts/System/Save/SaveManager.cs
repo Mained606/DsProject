@@ -454,111 +454,20 @@ public class SaveManager : MonoBehaviour
         {
             if (SkillManager.Instance != null)
             {
-                Debug.Log("[SaveManager] 스킬 데이터 적용 시작");
-                // 세이브 데이터가 있을 때는 초기화하지 않고 바로 적용
-                // 먼저 모든 플레이어 스킬을 잠금 상태로 초기화
-                // SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
-                
-                // 저장된 스킬 데이터 적용
-                foreach (var skillInfo in saveData.skillData.unlockedSkills)
-                {
-                    Debug.Log($"[SaveManager] 저장된 스킬 데이터 찾기: '{skillInfo.skillId}' (레벨 {skillInfo.level})");
-                    
-                    // SkillManager에서 스킬 찾기
-                    bool skillFound = false;
-                    foreach (var entry in SkillManager.SkillList)
-                    {
-                        // 스킬 ID 대신 스킬 이름으로 비교 (ID 매핑이 필요하면 추가 로직 구현 필요)
-                        if (entry.Key.Item2 == skillInfo.skillId)
-                        {
-                            skillFound = true;
-                            Debug.Log($"[SaveManager] 스킬 '{skillInfo.skillId}' 찾음. SkillManager에서 언락 상태 설정");
-                            
-                            // 새로운 메서드로 언락 상태 설정
-                            SkillManager.Instance.SetSkillUnlockState(entry.Key.Item1, entry.Key.Item2, true);
-                            
-                            Skills skill = entry.Value;
-                            
-                            // 스킬 레벨 복원 (최소 1, 최대 해당 스킬의 최대 레벨 범위 내에서)
-                            int levelToRestore = Mathf.Clamp(skillInfo.level, 1, skill.maxSkillLevel);
-                            
-                            // 현재 레벨과 다르면 레벨 업데이트
-                            if (skill.skillLevel != levelToRestore)
-                            {
-                                Debug.Log($"[SaveManager] 스킬 '{skill.skillName}'의 레벨을 1에서 {levelToRestore}로 업데이트");
-                                
-                                // 레벨 1부터 시작해서 목표 레벨까지 하나씩 올림 (가중치 적용을 위해)
-                                skill.skillLevel = 1;
-                                skill.Initialize(); // 먼저 초기화
-                                
-                                // 목표 레벨까지 하나씩 레벨업 (가중치 적용을 위해)
-                                for (int i = 1; i < levelToRestore; i++)
-                                {
-                                    skill.LevelUp(true); // 강제 레벨업
-                                }
-                            }
-                            
-                            Debug.Log($"[SaveManager] 스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원 완료");
-                            break; // 스킬을 찾았으므로 다음 스킬로 넘어감
-                        }
-                    }
-                    
-                    if (!skillFound)
-                    {
-                        Debug.LogWarning($"[SaveManager] 스킬 '{skillInfo.skillId}'를 SkillManager에서 찾을 수 없습니다.");
-                    }
-                }
+                // 스킬 언락 상태 복원
+                SkillManager.Instance.ApplyUnlockedSkills(saveData.skillData.unlockedSkills);
                 
                 // 퀵슬롯에 등록된 스킬 복원
                 if (UIManager.SkillsQuickSlot != null && saveData.skillData.quickSlotSkills.Count > 0)
                 {
-                    // 먼저 모든 슬롯 초기화
-                    UIManager.SkillsQuickSlot.ClearAllSlots();
-                    Debug.Log("[SaveManager] 스킬 퀵슬롯 초기화");
-                    
-                    // 저장된 스킬 슬롯 복원
-                    for (int i = 0; i < saveData.skillData.quickSlotSkills.Count; i++)
-                    {
-                        string skillId = saveData.skillData.quickSlotSkills[i];
-                        if (!string.IsNullOrEmpty(skillId))
-                        {
-                            Debug.Log($"[SaveManager] 퀵슬롯 {i}에 스킬 '{skillId}' 복원 시도");
-                            
-                            // SkillManager에서 스킬 찾기
-                            Skills skill = null;
-                            foreach (var entry in SkillManager.SkillList)
-                            {
-                                if (entry.Key.Item2 == skillId)
-                                {
-                                    skill = entry.Value;
-                                    break;
-                                }
-                            }
-                            
-                            if (skill != null)
-                            {
-                                // 스킬 아이콘 가져오기
-                                Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
-                                
-                                // 퀵슬롯에 스킬 할당
-                                UIManager.SkillsQuickSlot.AssignSkillToSlot(skill, icon, i);
-                                Debug.Log($"[SaveManager] 퀵슬롯 {i}에 스킬 '{skill.skillName}' 복원 완료");
-                            }
-                            else
-                            {
-                                Debug.LogWarning($"[SaveManager] 퀵슬롯용 스킬 '{skillId}'를 SkillManager에서 찾을 수 없습니다.");
-                            }
-                        }
-                    }
-                    
-                    Debug.Log("[SaveManager] 스킬 퀵슬롯 데이터 복원 완료");
+                    // 퀵슬롯UI의 새 초기화 메서드 사용
+                    UIManager.SkillsQuickSlot.InitializeFromSaveData(saveData.skillData.quickSlotSkills);
+                    Debug.Log("[SaveManager] 스킬 퀵슬롯 복원 완료");
                 }
-                
-                Debug.Log("[SaveManager] 스킬 데이터 적용 완료");
-            }
-            else
-            {
-                Debug.LogWarning("[SaveManager] SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
+                else
+                {
+                    Debug.LogWarning("[SaveManager] UIManager.SkillsQuickSlot이 null이거나 저장된 퀵슬롯 데이터가 없습니다.");
+                }
             }
         }
         catch (Exception e)
@@ -1152,6 +1061,10 @@ public class SaveManager : MonoBehaviour
                         // 직접 완료된 퀘스트 목록에 추가
                         quest.isCompleted = true;
                         QuestManager.Instance.AddCompletedQuest(quest);
+                        
+                        // 추가: 퀘스트 보상(스킬 언락 등) 재처리
+                        QuestManager.Instance.ProcessQuestRewards(questId);
+                        Debug.Log($"[SaveManager] 완료된 퀘스트 '{questId}'의 보상(스킬 언락 등)을 다시 처리했습니다.");
                     }
                 }
                 
