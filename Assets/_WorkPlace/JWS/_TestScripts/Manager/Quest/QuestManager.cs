@@ -713,7 +713,7 @@ public class QuestManager : BaseManager<QuestManager>
     }
 
     // 퀘스트 보상 처리 메서드 (스킬 언락 및 오브젝트 활성화)
-    private void ProcessQuestRewards(string questId)
+    public void ProcessQuestRewards(string questId)
     {
         //Debug.Log($"[QuestManager] 퀘스트 {questId} 보상 처리 중...");
         
@@ -854,17 +854,25 @@ public class QuestManager : BaseManager<QuestManager>
         // SkillList에서 스킬 찾기
         if (SkillManager.Instance != null && SkillManager.SkillDatabase != null)
         {
+            // 새로운 방식 - SkillManager의 SetSkillUnlockState 메서드 사용
+            SkillManager.Instance.SetSkillUnlockState(EntityType.Player, skillName, true);
+            Debug.Log($"[QuestManager] 스킬 {skillName}을(를) 언락했습니다. (SetSkillUnlockState 사용)");
+            
+            // 스킬 유효성 검증 (SkillList에 해당 스킬이 있는지 확인)
+            bool skillFound = false;
             foreach (var skill in SkillManager.SkillDatabase.playerSkills)
             {
                 if (skill.skillName == skillName)
                 {
-                    skill.unLockSkill = true;
-                    //Debug.Log($"[QuestManager] 스킬 {skillName}을(를) 언락했습니다.");
-                    return;
+                    skillFound = true;
+                    break;
                 }
             }
             
-            Debug.LogWarning($"[QuestManager] 스킬 {skillName}을(를) 플레이어 스킬 목록에서 찾을 수 없습니다.");
+            if (!skillFound)
+            {
+                Debug.LogWarning($"[QuestManager] 스킬 {skillName}을(를) 플레이어 스킬 목록에서 찾을 수 없습니다.");
+            }
         }
         else
         {

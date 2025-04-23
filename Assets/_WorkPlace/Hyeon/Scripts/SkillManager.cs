@@ -126,25 +126,19 @@ public class SkillManager : BaseManager<SkillManager>
 
     private void RegisterSkills(EntityType entityType, List<Skills> skills)
     {
-        // Debug.Log($"[SkillManager] {entityType} 스킬 등록 시작 (총 {skills.Count}개)");
-        int registerCount = 0;
-        
-        foreach (var skill in skills)
+        foreach (var originalSkill in skills)
         {
-            var key = (entityType, skill.skillName);
+            var key = (entityType, originalSkill.skillName);
             if (!skillList.ContainsKey(key))
             {
-                skillList[key] = skill;
-                // 초기 언락 상태를 별도의 딕셔너리에 저장
-                skillUnlockState[key] = skill.unLockSkill;
-                skill.Initialize();
-                registerCount++;
-                // Debug.Log($"[SkillManager] 스킬 등록: {entityType}-{skill.skillName}, 지속시간: {skill.buffDuration}초, 쿨타임: {skill.cooldown}초, 초기 언락 상태: {skill.unLockSkill}");
+                Skills runtimeSkill = originalSkill.Clone();
+                runtimeSkill.Initialize(); // 복사 후 초기화
+                skillList[key] = runtimeSkill;
+                skillUnlockState[key] = false;
             }
         }
-        
-        // Debug.Log($"[SkillManager] {entityType} 스킬 등록 완료 (총 {registerCount}개)");
     }
+
 
     private void RegisterSkillWeights(EntityType entityType, List<SkillWeights> skillWeights)
     {
@@ -1072,6 +1066,47 @@ public class SkillManager : BaseManager<SkillManager>
         }
         
         // Debug.Log($"[SkillManager] 총 {resetCount}개의 스킬이 초기화되었습니다.");
+    }
+
+    public void ApplyUnlockedSkills(List<DsProject.Scripts.System.Save.SaveData.SkillData.SkillInfo> skills)
+    {
+        int appliedCount = 0;
+        Debug.Log($"[SkillManager] 총 {skills.Count}개의 언락된 스킬 적용 중...");
+        
+        foreach (var info in skills)
+        {
+            var key = (EntityType.Player, info.skillId);
+            if (skillList.TryGetValue(key, out Skills skill))
+            {
+                // 언락 상태 설정 - skillUnlockState 딕셔너리 업데이트
+                skillUnlockState[key] = true;
+                
+                // Skills 객체 업데이트
+                skill.unLockSkill = true;
+                skill.skillLevel = 1;
+                skill.Initialize();
+                
+                for (int i = 1; i < info.level; i++)
+                {
+                    skill.LevelUp(forceLevelUp: true);
+                }
+
+                // 1레벨이라도 SkillWeightApply는 항상 적용되도록 보장
+                if (info.level == 1)
+                {
+                    skill.SkillWeightApply();
+                }
+                
+                appliedCount++;
+                Debug.Log($"[SkillManager] 스킬 '{info.skillId}' 언락 상태로 복원 (레벨 {info.level})");
+            }
+            else
+            {
+                Debug.LogWarning($"[SkillManager] 저장된 스킬 '{info.skillId}'을 찾을 수 없습니다.");
+            }
+        }
+        
+        Debug.Log($"[SkillManager] 총 {appliedCount}개의 스킬 언락 상태가 적용되었습니다.");
     }
 
     protected override void HandleGameStateChange(GameSystemState newState, object additionalData)

@@ -64,13 +64,18 @@ public class ItemManager : BaseManager<ItemManager>
         };
         Addressables.LoadAssetsAsync<Sprite>("Skills", sprite =>
         {
-            if (!itemSpriteDictionary.ContainsKey(sprite.name))
+            if (!skillSpriteDictionary.ContainsKey(sprite.name))
             {
                 skillSpriteDictionary[sprite.name] = sprite;
             }
         }).Completed += handle =>
         {
-            //Debug.LogWarning($"{skillSpriteDictionary.Count}개의 아이템 스프라이트를 로드했습니다.");
+            Debug.Log($"{skillSpriteDictionary.Count}개의 스킬 스프라이트를 로드했습니다.");
+            // 스킬 스프라이트 로드 완료 후 퀵슬롯 UI 업데이트
+            if (UIManager.SkillsQuickSlot != null)
+            {
+                UIManager.SkillsQuickSlot.RefreshAllSkillIcons();
+            }
         };
 
         if (itemList.itemList.Count <= 0)
