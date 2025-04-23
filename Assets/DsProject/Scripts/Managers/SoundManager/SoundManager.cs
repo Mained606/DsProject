@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.AddressableAssets;
+using UnityEngine.UI;
 
-    [System.Serializable]
+[System.Serializable]
     public class AudioClipInfo
     {
         public AudioSource audioSource;
@@ -49,6 +50,9 @@ public class SoundManager : MonoBehaviour
     private Dictionary<string, AudioClip> _loadedMainMusicClips = new Dictionary<string, AudioClip>();
     private float previousMusicVolume;
     private float previousSFXVolume;
+
+    [SerializeField] private Slider musicVol;
+    [SerializeField] private Slider sfxVol;
 
     #endregion
 
@@ -109,6 +113,29 @@ public class SoundManager : MonoBehaviour
             SetVolume("SFXVolume", sFXVolume);
             previousSFXVolume = sFXVolume;
         }
+    }
+
+    // 옵션 UI 함수
+    public void ChangeVolume()
+    {
+        SetVolume("MusicVolume", musicVol.value);
+        SetVolume("SFXVolume", sfxVol.value);
+        //if(musicVol.value == 0)
+        //{
+        //    SetMute("MusicVolume", true);
+        //}
+        //else
+        //{
+        //    SetMute("MusicVolume", false);
+        //}
+        //if (sfxVol.value == 0)
+        //{
+        //    SetMute("SFXVolume", true);
+        //}
+        //else
+        //{
+        //    SetMute("SFXVolume", false);
+        //}
     }
 
     private void InitailizeMusicSource()
