@@ -12,7 +12,6 @@ public class TitleScene : MonoBehaviour
     private Button[] buttons;
     private Image[][] buttonSideImages;
     private Coroutine[][] fadeCoroutines;
-
     private TextMeshProUGUI[] buttonTexts;
     private Color[] originalTextColors;
 
@@ -20,6 +19,8 @@ public class TitleScene : MonoBehaviour
     [SerializeField] private SceneFader fader;
 
     private SaveSystemInitializer saveSystem;
+
+    [SerializeField] GameObject panel;
 
     private void OnEnable()
     {
@@ -290,5 +291,13 @@ public class TitleScene : MonoBehaviour
         yield return fader.FadeOutOnly(1f);
         yield return new WaitForSeconds(1f);
         saveSystem.StartNewGame();
+    }
+    public void open()
+    {
+        panel.SetActive(true);
+    }
+    public void close()
+    {
+        panel.SetActive(false);
     }
 }
