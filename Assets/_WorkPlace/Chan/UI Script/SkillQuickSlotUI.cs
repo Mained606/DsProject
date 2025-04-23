@@ -112,4 +112,32 @@ public class SkillQuickSlotUI : MonoBehaviour
             }
         }
     }
+    
+    // 모든 스킬 아이콘을 새로 고치는 메서드
+    public void RefreshAllSkillIcons()
+    {
+        Debug.Log("[SkillQuickSlotUI] 모든 스킬 아이콘 새로고침 시작");
+        
+        for (int i = 0; i < quickSlots.Length; i++)
+        {
+            var skill = quickSlots[i].GetAssignedSkill();
+            if (skill != null)
+            {
+                // 스프라이트 새로 가져오기
+                Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
+                if (icon != null)
+                {
+                    // 아이콘 갱신
+                    quickSlots[i].UpdateIcon(icon);
+                    Debug.Log($"[SkillQuickSlotUI] 스킬 '{skill.skillName}'의 아이콘을 새로고침했습니다.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[SkillQuickSlotUI] 스킬 '{skill.skillName}'의 아이콘을 찾을 수 없습니다.");
+                }
+            }
+        }
+        
+        Debug.Log("[SkillQuickSlotUI] 모든 스킬 아이콘 새로고침 완료");
+    }
 }

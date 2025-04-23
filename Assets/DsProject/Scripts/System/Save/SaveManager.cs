@@ -462,6 +462,10 @@ public class SaveManager : MonoBehaviour
                 {
                     // 퀵슬롯UI의 새 초기화 메서드 사용
                     UIManager.SkillsQuickSlot.InitializeFromSaveData(saveData.skillData.quickSlotSkills);
+                    
+                    // 스킬 아이콘 갱신 (Addressables 로드 완료 후 다시 반영하기 위해)
+                    UIManager.SkillsQuickSlot.RefreshAllSkillIcons();
+                    
                     Debug.Log("[SaveManager] 스킬 퀵슬롯 복원 완료");
                 }
                 else
