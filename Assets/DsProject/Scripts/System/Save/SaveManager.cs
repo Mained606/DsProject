@@ -454,111 +454,24 @@ public class SaveManager : MonoBehaviour
         {
             if (SkillManager.Instance != null)
             {
-                Debug.Log("[SaveManager] 스킬 데이터 적용 시작");
-                // 세이브 데이터가 있을 때는 초기화하지 않고 바로 적용
-                // 먼저 모든 플레이어 스킬을 잠금 상태로 초기화
-                // SkillManager.Instance.ResetAllPlayerSkillUnlockStates();
-                
-                // 저장된 스킬 데이터 적용
-                foreach (var skillInfo in saveData.skillData.unlockedSkills)
-                {
-                    Debug.Log($"[SaveManager] 저장된 스킬 데이터 찾기: '{skillInfo.skillId}' (레벨 {skillInfo.level})");
-                    
-                    // SkillManager에서 스킬 찾기
-                    bool skillFound = false;
-                    foreach (var entry in SkillManager.SkillList)
-                    {
-                        // 스킬 ID 대신 스킬 이름으로 비교 (ID 매핑이 필요하면 추가 로직 구현 필요)
-                        if (entry.Key.Item2 == skillInfo.skillId)
-                        {
-                            skillFound = true;
-                            Debug.Log($"[SaveManager] 스킬 '{skillInfo.skillId}' 찾음. SkillManager에서 언락 상태 설정");
-                            
-                            // 새로운 메서드로 언락 상태 설정
-                            SkillManager.Instance.SetSkillUnlockState(entry.Key.Item1, entry.Key.Item2, true);
-                            
-                            Skills skill = entry.Value;
-                            
-                            // 스킬 레벨 복원 (최소 1, 최대 해당 스킬의 최대 레벨 범위 내에서)
-                            int levelToRestore = Mathf.Clamp(skillInfo.level, 1, skill.maxSkillLevel);
-                            
-                            // 현재 레벨과 다르면 레벨 업데이트
-                            if (skill.skillLevel != levelToRestore)
-                            {
-                                Debug.Log($"[SaveManager] 스킬 '{skill.skillName}'의 레벨을 1에서 {levelToRestore}로 업데이트");
-                                
-                                // 레벨 1부터 시작해서 목표 레벨까지 하나씩 올림 (가중치 적용을 위해)
-                                skill.skillLevel = 1;
-                                skill.Initialize(); // 먼저 초기화
-                                
-                                // 목표 레벨까지 하나씩 레벨업 (가중치 적용을 위해)
-                                for (int i = 1; i < levelToRestore; i++)
-                                {
-                                    skill.LevelUp(true); // 강제 레벨업
-                                }
-                            }
-                            
-                            Debug.Log($"[SaveManager] 스킬 '{skill.skillName}' 잠금 해제 및 레벨 {skill.skillLevel}으로 복원 완료");
-                            break; // 스킬을 찾았으므로 다음 스킬로 넘어감
-                        }
-                    }
-                    
-                    if (!skillFound)
-                    {
-                        Debug.LogWarning($"[SaveManager] 스킬 '{skillInfo.skillId}'를 SkillManager에서 찾을 수 없습니다.");
-                    }
-                }
+                // 스킬 언락 상태 복원
+                SkillManager.Instance.ApplyUnlockedSkills(saveData.skillData.unlockedSkills);
                 
                 // 퀵슬롯에 등록된 스킬 복원
                 if (UIManager.SkillsQuickSlot != null && saveData.skillData.quickSlotSkills.Count > 0)
                 {
-                    // 먼저 모든 슬롯 초기화
-                    UIManager.SkillsQuickSlot.ClearAllSlots();
-                    Debug.Log("[SaveManager] 스킬 퀵슬롯 초기화");
+                    // 퀵슬롯UI의 새 초기화 메서드 사용
+                    UIManager.SkillsQuickSlot.InitializeFromSaveData(saveData.skillData.quickSlotSkills);
                     
-                    // 저장된 스킬 슬롯 복원
-                    for (int i = 0; i < saveData.skillData.quickSlotSkills.Count; i++)
-                    {
-                        string skillId = saveData.skillData.quickSlotSkills[i];
-                        if (!string.IsNullOrEmpty(skillId))
-                        {
-                            Debug.Log($"[SaveManager] 퀵슬롯 {i}에 스킬 '{skillId}' 복원 시도");
-                            
-                            // SkillManager에서 스킬 찾기
-                            Skills skill = null;
-                            foreach (var entry in SkillManager.SkillList)
-                            {
-                                if (entry.Key.Item2 == skillId)
-                                {
-                                    skill = entry.Value;
-                                    break;
-                                }
-                            }
-                            
-                            if (skill != null)
-                            {
-                                // 스킬 아이콘 가져오기
-                                Sprite icon = ItemManager.Instance.GetSkillSprite(skill.skillName);
-                                
-                                // 퀵슬롯에 스킬 할당
-                                UIManager.SkillsQuickSlot.AssignSkillToSlot(skill, icon, i);
-                                Debug.Log($"[SaveManager] 퀵슬롯 {i}에 스킬 '{skill.skillName}' 복원 완료");
-                            }
-                            else
-                            {
-                                Debug.LogWarning($"[SaveManager] 퀵슬롯용 스킬 '{skillId}'를 SkillManager에서 찾을 수 없습니다.");
-                            }
-                        }
-                    }
+                    // 스킬 아이콘 갱신 (Addressables 로드 완료 후 다시 반영하기 위해)
+                    UIManager.SkillsQuickSlot.RefreshAllSkillIcons();
                     
-                    Debug.Log("[SaveManager] 스킬 퀵슬롯 데이터 복원 완료");
+                    Debug.Log("[SaveManager] 스킬 퀵슬롯 복원 완료");
                 }
-                
-                Debug.Log("[SaveManager] 스킬 데이터 적용 완료");
-            }
-            else
-            {
-                Debug.LogWarning("[SaveManager] SkillManager.Instance가 null입니다. 스킬을 로드할 수 없습니다.");
+                else
+                {
+                    Debug.LogWarning("[SaveManager] UIManager.SkillsQuickSlot이 null이거나 저장된 퀵슬롯 데이터가 없습니다.");
+                }
             }
         }
         catch (Exception e)
@@ -589,11 +502,38 @@ public class SaveManager : MonoBehaviour
                                 isTracking = false // 추적 기능이 있다면 해당 상태 저장
                             };
                             
-                            // 진행 상태 저장 (첫 번째 조건만 저장하거나 필요에 따라 확장)
-                            if (quest.progress != null && quest.progress.Count > 0)
+                            // 모든 조건의 진행 상태를 저장
+                            if (quest.progress != null && quest.requiredConditions != null)
                             {
-                                var firstProgress = quest.progress.FirstOrDefault();
-                                questInfo.progress = firstProgress.Value;
+                                // 기존 progress 필드는 첫 번째 조건의 진행 상태로 설정 (하위 호환성)
+                                if (quest.progress.Count > 0)
+                                {
+                                    var firstProgress = quest.progress.FirstOrDefault();
+                                    questInfo.progress = firstProgress.Value;
+                                }
+                                
+                                // 각 조건별 진행 상태 저장
+                                foreach (var condition in quest.requiredConditions)
+                                {
+                                    string conditionId = condition.Key;
+                                    QuestCondition questCondition = condition.Value;
+                                    
+                                    // 진행 상태 값 얻기
+                                    int progressValue = 0;
+                                    if (quest.progress.ContainsKey(conditionId))
+                                    {
+                                        progressValue = quest.progress[conditionId];
+                                    }
+                                    
+                                    // 조건별 진행 상태 저장
+                                    SaveData.QuestData.ConditionProgressInfo condInfo = 
+                                        new SaveData.QuestData.ConditionProgressInfo(
+                                            conditionId, 
+                                            progressValue, 
+                                            questCondition.isCompleted);
+                                    
+                                    questInfo.conditionProgress.Add(condInfo);
+                                }
                             }
                             
                             saveData.questData.activeQuests.Add(questInfo);
@@ -1119,10 +1059,32 @@ public class SaveManager : MonoBehaviour
                         
                         QuestManager.Instance.AddQuest(quest);
                         
-                        // 퀘스트 진행 상태 복원
-                        foreach (var condition in quest.requiredConditions)
+                        // 새로운 방식: 각 조건별 진행 상태 복원
+                        if (questInfo.conditionProgress != null && questInfo.conditionProgress.Count > 0)
                         {
-                            if (questInfo.progress > 0)
+                            foreach (var condInfo in questInfo.conditionProgress)
+                            {
+                                if (quest.requiredConditions.ContainsKey(condInfo.conditionId))
+                                {
+                                    // 진행 상태 설정
+                                    if (quest.progress.ContainsKey(condInfo.conditionId))
+                                    {
+                                        quest.progress[condInfo.conditionId] = condInfo.progress;
+                                    }
+                                    else
+                                    {
+                                        quest.progress.Add(condInfo.conditionId, condInfo.progress);
+                                    }
+                                    
+                                    // 조건 완료 상태 설정
+                                    quest.requiredConditions[condInfo.conditionId].isCompleted = condInfo.isCompleted;
+                                }
+                            }
+                        }
+                        // 하위 호환성: 기존 방식 (단일 progress 값)
+                        else if (questInfo.progress > 0)
+                        {
+                            foreach (var condition in quest.requiredConditions)
                             {
                                 // 진행 상태 초기화
                                 quest.progress[condition.Key] = questInfo.progress;
@@ -1152,6 +1114,10 @@ public class SaveManager : MonoBehaviour
                         // 직접 완료된 퀘스트 목록에 추가
                         quest.isCompleted = true;
                         QuestManager.Instance.AddCompletedQuest(quest);
+                        
+                        // 추가: 퀘스트 보상(스킬 언락 등) 재처리
+                        QuestManager.Instance.ProcessQuestRewards(questId);
+                        Debug.Log($"[SaveManager] 완료된 퀘스트 '{questId}'의 보상(스킬 언락 등)을 다시 처리했습니다.");
                     }
                 }
                 
