@@ -39,6 +39,18 @@ public class SkillSlot : MonoBehaviour, IDropHandler
         }
         bg.color = new Color(1f, 1f, 1f, 1f);
     }
+    
+    // 아이콘만 업데이트하는 메서드 추가
+    public void UpdateIcon(Sprite icon)
+    {
+        if (currentSkill == null) return;
+        
+        currentIcon = icon;
+        iconImage.sprite = currentIcon;
+        
+        // 아이콘이 있으면 이미지 활성화
+        iconImage.enabled = (icon != null);
+    }
 
     public void ClearSlot()
     {
