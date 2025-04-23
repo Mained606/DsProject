@@ -10,7 +10,7 @@ public class InventoryManager : BaseManager<InventoryManager>
     public static IReadOnlyList<Item> InventoryList => Instance.inventory;
 
     [SerializeField] private int maxCapacity = 99;  // 인벤토리 가방 최대수용량
-    public int CurrentCapacity { get; set; } = 30;   // 현재 수용량
+    public int CurrentCapacity { get; set; } = 99;   // 현재 수용량 
     public bool IsCanUseInventory => inventory.Count < CurrentCapacity;
 
     public static QuickSlotsUI QuickSlotsUI => Instance.quickSlotsUI;
