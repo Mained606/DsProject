@@ -502,11 +502,38 @@ public class SaveManager : MonoBehaviour
                                 isTracking = false // 추적 기능이 있다면 해당 상태 저장
                             };
                             
-                            // 진행 상태 저장 (첫 번째 조건만 저장하거나 필요에 따라 확장)
-                            if (quest.progress != null && quest.progress.Count > 0)
+                            // 모든 조건의 진행 상태를 저장
+                            if (quest.progress != null && quest.requiredConditions != null)
                             {
-                                var firstProgress = quest.progress.FirstOrDefault();
-                                questInfo.progress = firstProgress.Value;
+                                // 기존 progress 필드는 첫 번째 조건의 진행 상태로 설정 (하위 호환성)
+                                if (quest.progress.Count > 0)
+                                {
+                                    var firstProgress = quest.progress.FirstOrDefault();
+                                    questInfo.progress = firstProgress.Value;
+                                }
+                                
+                                // 각 조건별 진행 상태 저장
+                                foreach (var condition in quest.requiredConditions)
+                                {
+                                    string conditionId = condition.Key;
+                                    QuestCondition questCondition = condition.Value;
+                                    
+                                    // 진행 상태 값 얻기
+                                    int progressValue = 0;
+                                    if (quest.progress.ContainsKey(conditionId))
+                                    {
+                                        progressValue = quest.progress[conditionId];
+                                    }
+                                    
+                                    // 조건별 진행 상태 저장
+                                    SaveData.QuestData.ConditionProgressInfo condInfo = 
+                                        new SaveData.QuestData.ConditionProgressInfo(
+                                            conditionId, 
+                                            progressValue, 
+                                            questCondition.isCompleted);
+                                    
+                                    questInfo.conditionProgress.Add(condInfo);
+                                }
                             }
                             
                             saveData.questData.activeQuests.Add(questInfo);
@@ -1032,10 +1059,32 @@ public class SaveManager : MonoBehaviour
                         
                         QuestManager.Instance.AddQuest(quest);
                         
-                        // 퀘스트 진행 상태 복원
-                        foreach (var condition in quest.requiredConditions)
+                        // 새로운 방식: 각 조건별 진행 상태 복원
+                        if (questInfo.conditionProgress != null && questInfo.conditionProgress.Count > 0)
                         {
-                            if (questInfo.progress > 0)
+                            foreach (var condInfo in questInfo.conditionProgress)
+                            {
+                                if (quest.requiredConditions.ContainsKey(condInfo.conditionId))
+                                {
+                                    // 진행 상태 설정
+                                    if (quest.progress.ContainsKey(condInfo.conditionId))
+                                    {
+                                        quest.progress[condInfo.conditionId] = condInfo.progress;
+                                    }
+                                    else
+                                    {
+                                        quest.progress.Add(condInfo.conditionId, condInfo.progress);
+                                    }
+                                    
+                                    // 조건 완료 상태 설정
+                                    quest.requiredConditions[condInfo.conditionId].isCompleted = condInfo.isCompleted;
+                                }
+                            }
+                        }
+                        // 하위 호환성: 기존 방식 (단일 progress 값)
+                        else if (questInfo.progress > 0)
+                        {
+                            foreach (var condition in quest.requiredConditions)
                             {
                                 // 진행 상태 초기화
                                 quest.progress[condition.Key] = questInfo.progress;

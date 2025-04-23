@@ -378,6 +378,7 @@ public class QuestManager : BaseManager<QuestManager>
     }
     public bool IsQuestCompleted(Quest quest)
     {
+        // 모든 조건을 하나씩 확인하여 하나라도 완료되지 않았으면 false 반환
         foreach (var condition in quest.requiredConditions)
         {
             string conditionId = condition.Key;
@@ -409,6 +410,7 @@ public class QuestManager : BaseManager<QuestManager>
                 return false;
             }
         }
+        // 모든 조건이 충족되면 완료된 것으로 판단
         return true;
     }
 

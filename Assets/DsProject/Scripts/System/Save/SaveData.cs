@@ -138,8 +138,28 @@ namespace DsProject.Scripts.System.Save
             public class QuestInfo
             {
                 public string questId;
-                public int progress;
+                public int progress; // 하위 호환성을 위해 유지 (이전 저장 데이터용)
                 public bool isTracking;
+                
+                // 조건별 진행 상태를 저장하기 위한 컬렉션
+                public List<ConditionProgressInfo> conditionProgress = new List<ConditionProgressInfo>();
+            }
+            
+            [Serializable]
+            public class ConditionProgressInfo
+            {
+                public string conditionId;
+                public int progress;
+                public bool isCompleted;
+                
+                public ConditionProgressInfo(string id, int prog, bool completed)
+                {
+                    conditionId = id;
+                    progress = prog;
+                    isCompleted = completed;
+                }
+                
+                public ConditionProgressInfo() { }
             }
         }
         
