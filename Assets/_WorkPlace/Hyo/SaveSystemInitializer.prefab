@@ -45,4 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   titleSceneName: TitleScene
-  mainGameSceneName: MainScene
+  mainGameSceneName: Ds_ProjectTest

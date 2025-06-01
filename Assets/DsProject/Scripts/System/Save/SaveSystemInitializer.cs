@@ -15,7 +15,7 @@ public class SaveSystemInitializer : MonoBehaviour
     public string titleSceneName = "TitleScene";
     
     [Tooltip("메인 게임 씬 이름")]
-    public string mainGameSceneName = "MainScene";
+    public string mainGameSceneName = "Ds_ProjectTest";
     
     private void Awake()
     {
