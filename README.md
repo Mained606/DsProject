@@ -9,11 +9,11 @@
     - 2차 본 프로젝트 마무리: 2025.03.04 ~ 2025.04.23 (약 2개월)
 - **개발 인원**: 6명
 - **개발 환경**: 
-  - Unity 2022.3 (URP)
+  - Unity 6000.0.32f1 (URP)
   - Visual Studio 2022
   - Git/GitHub
 
-- **시연 영상**: https://youtu.be/oQkfw0fAKwE
+- **시연 영상**: [YouTube](https://youtu.be/oQkfw0fAKwE)
 
 ## 🛠 주요 기술 스택
 
