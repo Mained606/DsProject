@@ -13,6 +13,8 @@
   - Visual Studio 2022
   - Git/GitHub
 
+- **시연 영상**: https://youtu.be/oQkfw0fAKwE
+
 ## 🛠 주요 기술 스택
 
 - **Unity Core**
