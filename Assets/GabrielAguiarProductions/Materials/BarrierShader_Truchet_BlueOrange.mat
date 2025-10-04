@@ -8,8 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: BarrierShader_Truchet_BlueOrange
-  m_Shader: {fileID: -6465566751694194690, guid: 6456928723ed4f14c80227bedc99a3ab,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 6456928723ed4f14c80227bedc99a3ab, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -88,4 +87,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 9
+  version: 10

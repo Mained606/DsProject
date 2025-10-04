@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 9
+  version: 10
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -21,8 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Shield_Green
-  m_Shader: {fileID: -6465566751694194690, guid: 2042cc78722596b498292332b772eb66,
-    type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 2042cc78722596b498292332b772eb66, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -75,10 +74,8 @@ Material:
     - _QueueOffset: 0
     m_Colors:
     - BackColor_: {r: 0.058250275, g: 0.18095653, b: 0.7264151, a: 1}
-    - Color_3ebb7b9585f5437bb735fd8c57eb02b6: {r: 0.06145063, g: 0.23897468, b: 0.495019,
-        a: 1}
-    - Color_6e7a62ebab2e450081e0f60ce3e576e9: {r: 0.80698234, g: 3.1606808, b: 6.4222345,
-        a: 1}
+    - Color_3ebb7b9585f5437bb735fd8c57eb02b6: {r: 0.06145063, g: 0.23897468, b: 0.495019, a: 1}
+    - Color_6e7a62ebab2e450081e0f60ce3e576e9: {r: 0.80698234, g: 3.1606808, b: 6.4222345, a: 1}
     - Color_72ba699fb399443a93d030fece79cc27: {r: 16.062746, g: 0, b: 766.9961, a: 1}
     - FresnelColor_: {r: 29.814945, g: 47.388054, b: 271.17407, a: 1}
     - FrontColor_: {r: 1.1587243, g: 3.5534213, b: 14.290933, a: 1}
